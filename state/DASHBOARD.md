@@ -128,7 +128,7 @@ The repo has a sophisticated documentation governance system (ADR-0020 + ADR-004
 - CI hygiene: all 6 gates
 - Self-audit: `usa audit . --fail-on critical` + `usa docs audit . --fail-on medium`
 
-**Open gap:** G3 — AGENTS.md says "four doc gates" but there are now six. Blocked on owner consent (protected file).
+**G3 closed:** AGENTS.md now says "six doc gates" (fixed in 4ed51c9).
 
 ---
 
