@@ -117,6 +117,12 @@ git log --oneline -10                    # 614530a HEAD
 
 ---
 
+### 03:45 — Commit
+
+`4ed51c9` docs: fix G3 — four → six doc gates in AGENTS.md
+
+---
+
 ## Outcome
 
 COMPLETED — PR #183 opened, all CI green (12 checks pass, Session close

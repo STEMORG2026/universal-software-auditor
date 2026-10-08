@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-01T23:48:39.283+05:45
+**Last Reconciled:** 2026-10-08T03:45:29.943+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -54,16 +54,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `0da0a37 docs(state): fix session-file claim classification`
-2. `8cd8a34 chore(state): auto-update from post-commit hook`
-3. `4ec7a0a chore(state): close HX04 — PR #183 green, session COMPLETED`
-4. `3b12b6d chore(state): auto-update from post-commit hook`
-5. `fe2b726 fix(ci): split protocol workflow into start (PR) and close (master push)`
-6. `f7a78c7 chore(state): auto-update from post-commit hook`
-7. `36a65bc fix(hooks): run the close gate only on master pushes`
-8. `ec7a8e3 chore(state): auto-update from post-commit hook`
-9. `abc2254 feat(macp): add start-of-session gate (ADR-0044)`
-10. `614530a chore(state): auto-update from post-commit hook`
+1. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
+2. `dd8fb05 feat(macp): add start-of-session gate (ADR-0044) (#183)`
+3. `614530a chore(state): auto-update from post-commit hook`
+4. `93ed97c feat(macp): add PR verification and session-close-is-final rule`
+5. `334e580 chore(state): auto-update from post-commit hook`
+6. `4eb5853 fix(state): correct recursion guard syntax in auto-update hook`
+7. `a33690a chore(state): auto-update from post-commit hook`
+8. `112cdd8 fix(state): auto-commit state changes in post-commit hook with recursion guard`
+9. `14adb17 fix(hooks): reduce pre-push to fast gates, CI handles full suite`
+10. `ca77fe5 chore(state): restore HX03 session file, update DASHBOARD and INDEX`
 
 ---
 
