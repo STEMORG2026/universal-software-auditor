@@ -29,13 +29,12 @@ plus a GitHub composite action. The defining habit: **the tool audits itself**.
 
 ## Current Branch State
 
-| Branch                              | Status               | Ahead/Behind master |
-| ----------------------------------- | -------------------- | ------------------- |
-| `fix/protocol-start-gate` (CURRENT) | pushed, PR #183 open | +6 ahead of master  |
-| `master`                            | at origin            | 0                   |
+|| Branch | Status | Ahead/Behind master |
+|| ----------------------------------- | -------------------- | ------------------- |
+|| `master` | current, clean | 0 |
+|| `fix/protocol-start-gate` | merged (PR #183) | — |
 
-**PR #183 open** (`fix/protocol-start-gate`) — start-of-session gate
-(ADR-0044). CI fully green, mergeable. Awaiting owner merge.
+**PR #183 merged** (`fix/protocol-start-gate`) — start-of-session gate (ADR-0044). CI was green.
 
 ---
 
@@ -72,14 +71,12 @@ See `state/REGISTRY.md` for details.
 
 `.changeset/autonomous-docs-hardening.md` — unreleased changeset waiting for next release.
 
-## Next Steps (from last session)
+## Next Steps
 
-1. **Merge PR #183** (`fix/protocol-start-gate`) — CI green, mergeable.
-2. Fix AGENTS.md G3 (two-word edit, needs owner consent)
-3. Consider ADR-0044 option 4 (extract MACP to `docs/macp.md`) — the
-   structural fix for the truncation cause; owner-approved, protected file.
-4. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
-5. Review dependabot PRs (#176-#180)
+1. **Fix AGENTS.md G3** — "four doc gates" → "six" (two-word edit, owner consent needed, protected file)
+2. Consider ADR-0044 option 4 (extract MACP to `docs/macp.md`) — structural fix for truncation; owner-approved, protected file
+3. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
+4. Review dependabot PRs (#176-#180)
 
 ---
 

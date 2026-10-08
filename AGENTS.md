@@ -137,7 +137,7 @@ pnpm run format:check   # prettier --check . (write with :format)
 pnpm test               # vitest run, full suite
 pnpm run test:cov       # with coverage (thresholds enforced, see below)
 pnpm run build          # tsc emit to dist/
-pnpm run docs:all       # all four doc gates (see Docs hygiene)
+pnpm run docs:all       # all six doc gates (see Docs hygiene)
 pnpm run self-audit     # build + `usa audit . --out AUDIT.md`
 pnpm changeset          # write a release note (shipped changes)
 ```
