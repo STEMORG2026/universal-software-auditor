@@ -1,6 +1,6 @@
 # REGISTRY.md — Agent Registry
 
-**Last updated:** 2026-10-01T20:25:00+05:45
+**Last updated:** 2026-10-02T05:45:00+05:45
 
 ---
 
@@ -19,6 +19,19 @@ None — no active sessions.
 ---
 
 ## Inactive Agents
+
+### HERMES — Protocol Start Gate (HX04)
+
+| Field         | Value                                                                          |
+| ------------- | ------------------------------------------------------------------------------ |
+| Agent ID      | HX04                                                                           |
+| Model         | meituan/longcat-2.5-preview:free                                               |
+| Branch        | fix/protocol-start-gate                                                        |
+| Task          | Start-of-session gate + AGENTS.md truncation root cause                        |
+| Started       | 2026-10-02T05:14:00+05:45                                                      |
+| Completed     | 2026-10-02T05:45:00+05:45                                                      |
+| Status        | COMPLETED                                                                      |
+| Files claimed | `scripts/check-session-start.mjs`, `docs/adr/0044-*.md`, `state/`, `AGENTS.md` |
 
 ### HERMES — Continuation Session (HX02)
 

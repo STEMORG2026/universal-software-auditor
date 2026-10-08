@@ -131,15 +131,9 @@ standalone:
   - file: state/BLOCKERS.md
     reviewed: 2026-10-01
     reason: MACP state — blockers tracker
-  - file: state/DASHBOARD.md
-    reviewed: 2026-10-01
-    reason: MACP state — executive summary
   - file: state/DEBT.md
     reviewed: 2026-10-01
     reason: MACP state — technical debt tracker
-  - file: state/DECISIONS.md
-    reviewed: 2026-10-01
-    reason: MACP state — ADR index
   - file: state/INDEX.md
     reviewed: 2026-10-01
     reason: MACP state — session log
@@ -155,3 +149,9 @@ standalone:
   - file: state/sessions/20261001-2157-HX03-fresh-session.md
     reviewed: 2026-10-01
     reason: MACP state — HX03 session file
+  - file: state/sessions/20261002-0514-HX04-protocol-start-gate.md
+    reviewed: 2026-10-02
+    reason: MACP state — HX04 session file (protocol start gate)
+  - file: state/plans/agent-HX04-protocol-start-gate.md
+    reviewed: 2026-10-02
+    reason: MACP state — HX04 plan entry

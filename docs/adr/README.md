@@ -54,6 +54,8 @@ a changed decision gets a _new_ ADR that supersedes the old one).
 
 | 0043 | Continuous ingestion: auto-fetch repos, scheduled evolve, human-gated promotion | Accepted | — |
 
+| 0044 | Enforce the MACP startup with a start-of-session gate | Accepted | — |
+
 ## Coverage map (what has no ADR, and why)
 
 - **Scoring maths** — specified normatively in `docs/concepts.md`, not an

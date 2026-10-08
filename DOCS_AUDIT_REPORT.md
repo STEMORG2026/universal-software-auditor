@@ -70,7 +70,7 @@ generated; they are still link/index checked where applicable).
 ### 1.3 Orphaned docs
 
 None found by the living index: `docs/README.md` lists every `docs/**/*.md`
-(check-docs step 5). The `ADR README` index lists all 43 ADRs and the checker
+(check-docs step 5). The `ADR README` index lists all <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs and the checker
 verifies no orphaned/missing/duplicate numbers. Root-level docs are cross
 referenced from `AGENTS.md` "Required Reading" (PROFESSOR-J) and from
 `docs/README.md` index where they have a home. `AUDIT.md` is gitignored by

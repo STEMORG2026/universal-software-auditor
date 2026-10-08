@@ -80,6 +80,7 @@
     "docs:manifest": "node scripts/check-manifest.mjs",
     "docs:links": "node scripts/check-links.mjs",
     "protocol:check": "node scripts/check-protocol.mjs",
+    "protocol:start": "node scripts/check-session-start.mjs",
     "protocol:auto-update": "node scripts/auto-update-state.mjs",
     "docs:all": "npm run docs:adrs && npm run docs:check && npm run docs:cli && npm run docs:sample && npm run docs:asvs && npm run docs:manifest",
     "changeset": "changeset",

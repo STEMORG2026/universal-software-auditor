@@ -1,6 +1,8 @@
 name: Protocol enforcement
 
 on:
+  push:
+    branches: [master]
   pull_request:
     branches: [master]
 
@@ -12,7 +14,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  protocol-check:
+  # The START gate (ADR-0044). Runs on every PR and every master push: a
+  # session must be registered before its work is reviewed. It passes
+  # mid-session by design — an IN-PROGRESS session with a plan and a REGISTRY
+  # entry is exactly the healthy state while a PR is open.
+  session-start:
     name: Protocol compliance
     runs-on: ubuntu-latest
     steps:
@@ -31,5 +37,34 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Session start check
+        run: node scripts/check-session-start.mjs
+
+  # The CLOSE gate. A session closes when its work reaches master, so this runs
+  # only on a master push — never on a PR, where an active session is correct.
+  # (Running it on PRs failed every legitimate in-progress PR and was masked by
+  # dependabot PRs, which carry no session. Same defect the pre-push hook had.)
+  session-close:
+    name: Session close
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 10.34.5
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
       - name: Protocol compliance check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/check-protocol.mjs

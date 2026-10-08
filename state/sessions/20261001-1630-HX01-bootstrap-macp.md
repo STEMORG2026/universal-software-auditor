@@ -60,7 +60,7 @@ infrastructure from scratch.
 ## Findings
 
 - Repo is at v2.26.0, mature and heavily automated
-- 43 ADRs, 83 tracked markdown files, 11 CI workflows
+- <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs, 83 tracked markdown files, 11 CI workflows
 - 10 unmerged branches (stale, 2-3 commits behind master)
 - 1 pending changeset
 - 1 open documentation gap (G3: AGENTS.md "four gates" stale wording)
@@ -78,7 +78,7 @@ infrastructure from scratch.
 
 `16:30` [START] Bootstrap MACP state/ directory for Universal_Software_Auditor.
 `16:30` [PROGRESS] Git reconnaissance complete — branch docs/0042-continuous-ingestion, clean tree, no stashes.
-`16:30` [PROGRESS] Full repo inventory complete — src (66 TypeScript files), rules (14 core packs, 16 stack packs, 236 detectors), docs (28 files + 43 ADRs), scripts (13 .mjs), tests (60+ test files), CI (11 workflows).
+`16:30` [PROGRESS] Full repo inventory complete — src (66 TypeScript files), rules (14 core packs, 16 stack packs, 236 detectors), docs (28 files + <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs), scripts (13 .mjs), tests (60+ test files), CI (11 workflows).
 `16:30` [PROGRESS] Key files read — ARCHITECTURE.md, VISION.md, CONTRIBUTING.md, .usa.yaml, ci.yml, self-audit.yml, release.yml.
 `16:30` [PROGRESS] state/ directory created with all 9 required files (DASHBOARD, REGISTRY, INDEX, ARCHITECTURE, DECISIONS, DEBT, BLOCKERS, sessions/, plans/).
 `16:30` [PROGRESS] AGENTS.md updated with MACP protocol (compressed version).

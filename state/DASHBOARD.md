@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-01T22:51:38.259+05:45
+**Last Reconciled:** 2026-10-01T23:48:39.283+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -29,13 +29,13 @@ plus a GitHub composite action. The defining habit: **the tool audits itself**.
 
 ## Current Branch State
 
-| Branch                                     | Status                    | Ahead/Behind master |
-| ------------------------------------------ | ------------------------- | ------------------- |
-| `docs/0042-continuous-ingestion` (CURRENT) | 26 ahead of origin, clean | +24 ahead of master |
-| `master`                                   | at origin                 | 0                   |
+| Branch                              | Status               | Ahead/Behind master |
+| ----------------------------------- | -------------------- | ------------------- |
+| `fix/protocol-start-gate` (CURRENT) | pushed, PR #183 open | +6 ahead of master  |
+| `master`                            | at origin            | 0                   |
 
-**All branches merged.** 8 feature/fix branches merged and deleted on 2026-10-01.
-2 stale branches deleted earlier. No unmerged branches remain.
+**PR #183 open** (`fix/protocol-start-gate`) — start-of-session gate
+(ADR-0044). CI fully green, mergeable. Awaiting owner merge.
 
 ---
 
@@ -55,16 +55,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `93ed97c feat(macp): add PR verification and session-close-is-final rule`
-2. `334e580 chore(state): auto-update from post-commit hook`
-3. `4eb5853 fix(state): correct recursion guard syntax in auto-update hook`
-4. `a33690a chore(state): auto-update from post-commit hook`
-5. `112cdd8 fix(state): auto-commit state changes in post-commit hook with recursion guard`
-6. `14adb17 fix(hooks): reduce pre-push to fast gates, CI handles full suite`
-7. `ca77fe5 chore(state): restore HX03 session file, update DASHBOARD and INDEX`
-8. `4df21bf docs(manifest): classify HX03 session file`
-9. `817e22a feat(macp): protocol enforcement — pre-push verification, post-commit auto-update, CI backstop`
-10. `2fe3535 docs(adr)+feat(watch): continuous ingestion loop and watch driver (#169)`
+1. `0da0a37 docs(state): fix session-file claim classification`
+2. `8cd8a34 chore(state): auto-update from post-commit hook`
+3. `4ec7a0a chore(state): close HX04 — PR #183 green, session COMPLETED`
+4. `3b12b6d chore(state): auto-update from post-commit hook`
+5. `fe2b726 fix(ci): split protocol workflow into start (PR) and close (master push)`
+6. `f7a78c7 chore(state): auto-update from post-commit hook`
+7. `36a65bc fix(hooks): run the close gate only on master pushes`
+8. `ec7a8e3 chore(state): auto-update from post-commit hook`
+9. `abc2254 feat(macp): add start-of-session gate (ADR-0044)`
+10. `614530a chore(state): auto-update from post-commit hook`
 
 ---
 
@@ -74,10 +74,12 @@ See `state/REGISTRY.md` for details.
 
 ## Next Steps (from last session)
 
-1. ~~Push docs/0042-continuous-ingestion to origin~~ — DONE
+1. **Merge PR #183** (`fix/protocol-start-gate`) — CI green, mergeable.
 2. Fix AGENTS.md G3 (two-word edit, needs owner consent)
-3. Release pending changeset
-4. ~~Open PR to master when ready~~ — DONE (PR #169, CI green, mergeable)
+3. Consider ADR-0044 option 4 (extract MACP to `docs/macp.md`) — the
+   structural fix for the truncation cause; owner-approved, protected file.
+4. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
+5. Review dependabot PRs (#176-#180)
 
 ---
 
@@ -93,7 +95,7 @@ See `state/REGISTRY.md` for details.
 | Evolution    | `src/evolution/`                                                                                           |
 | Foundation   | `src/foundation/`                                                                                          |
 | Serve        | `src/serve/`                                                                                               |
-| Docs         | `docs/` (28 files), `docs/adr/` (43 ADRs + README)                                                         |
+| Docs         | `docs/` (28 files), `docs/adr/` (<!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs + README)                 |
 | Scripts      | `scripts/` (13 .mjs files)                                                                                 |
 | Tests        | `tests/` (unit/, integration/, e2e/, contracts/)                                                           |
 | CI           | `.github/workflows/` (11 workflows)                                                                        |
@@ -123,7 +125,7 @@ Full protocol in AGENTS.md. Quick reference in `state/STARTUP.md`.
 
 The repo has a sophisticated documentation governance system (ADR-0020 + ADR-0042):
 
-- 43 ADRs, 83 tracked markdown files
+- <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs, 83 tracked markdown files
 - 6 doc gates: adrs, check, cli, sample, asvs, manifest
 - Fact-marker engine, claim scanner, byte-compare gates
 - Pre-commit: autosync + lint-staged

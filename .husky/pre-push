@@ -1,19 +1,35 @@
-# Pre-push documentation gate (see DOCS_SYSTEM_DESIGN.md §3 Layer 2).
+# Pre-push gate (see DOCS_SYSTEM_DESIGN.md §3 Layer 2, ADR-0044).
 # This file is the husky BODY: git runs .husky/_/pre-push -> .husky/_/h ->
 # `sh -e .husky/pre-push "$@"` (husky v9, core.hooksPath=.husky/_). The `sh -e`
 # shim propagates the first failing command's exit code, so this hook aborts the
 # push on any red gate. Mirror the style of .husky/pre-commit (body only; do not
 # source any shim here or you hit `.husky/h: No such file or directory`).
 #
-# Build first so the generated-doc --check gates (cli/sample/ASVS) compare the
-# committed docs against a fresh dist/, THEN run docs:all: ADR hygiene, docs
-# governance (claim scanner), CLI/sample/ASVS sync, and the manifest gate.
+# Two gates, two scopes:
+#   - START gate (check-session-start.mjs) runs on every push: a push implies
+#     a registered session. It passes mid-session by design.
+#   - CLOSE gate (check-protocol.mjs) runs only when the push targets master,
+#     which is where a session closes. Running it on feature-branch pushes
+#     blocked every mid-session push — it demanded `COMPLETED` + no active
+#     agents while the session was, correctly, still in progress — which
+#     contradicts AGENTS.md ("push when a significant, related, reviewable
+#     whole is complete"). Fixed here.
 #
-# A red push beats a red main; CI (hygiene + self-audit) stays the independent
-# backstop. Bypassable with --no-verify only in an emergency — see AGENTS.md
-# "Never bypass its own protection" and DOCS_SYSTEM_DESIGN.md §3.
+# A red push beats a red main; CI (hygiene + self-audit + protocol) stays the
+# independent backstop. Bypassable with --no-verify only in an emergency — see
+# AGENTS.md "Never bypass its own protection" and DOCS_SYSTEM_DESIGN.md §3.
 echo "pre-push: verifying state against reality"
 pnpm run typecheck
 
-echo "pre-push: checking protocol compliance"
-node scripts/check-protocol.mjs
+echo "pre-push: checking session start"
+node scripts/check-session-start.mjs
+
+# git feeds "<local-ref> <local-sha> <remote-ref> <remote-sha>" lines on stdin.
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  case "$remote_ref" in
+    refs/heads/master)
+      echo "pre-push: master push — running session close gate"
+      node scripts/check-protocol.mjs
+      ;;
+  esac
+done

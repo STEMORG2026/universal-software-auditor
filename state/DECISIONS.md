@@ -1,7 +1,7 @@
 # DECISIONS.md — Architecture Decision Records
 
 **Last updated:** 2026-10-01T16:30:00+05:45
-**Source of truth:** `docs/adr/` (43 ADRs)
+**Source of truth:** `docs/adr/` (<!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs)
 
 ---
 
@@ -68,4 +68,4 @@ Proposals crossing that line re-open ADR-0011 first.
 
 ## Pending Decisions
 
-None — all 43 ADRs are merged and immutable.
+None — all <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs are merged and immutable.

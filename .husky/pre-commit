@@ -1,2 +1,3 @@
+node scripts/check-session-start.mjs
 node scripts/docs-autosync.mjs
 pnpm exec lint-staged

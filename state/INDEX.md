@@ -38,6 +38,16 @@
 | Task         | unknown                                        |
 | Status       | COMPLETED                                      |
 
+### 2026-10-01 — HX04 (HERMES)
+
+| Field        | Value                                                |
+| ------------ | ---------------------------------------------------- |
+| Session file | `sessions/20261002-0514-HX04-protocol-start-gate.md` |
+| Agent        | HX04 (HERMES)                                        |
+| Branch       | fix/protocol-start-gate                              |
+| Task         | unknown                                              |
+| Status       | IN-PROGRESS                                          |
+
 ---
 
 ## Search by Keyword
