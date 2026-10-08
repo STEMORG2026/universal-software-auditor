@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-08T03:45:29.943+05:45
+**Last Reconciled:** 2026-10-08T04:06:27.926+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -54,16 +54,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
-2. `dd8fb05 feat(macp): add start-of-session gate (ADR-0044) (#183)`
-3. `614530a chore(state): auto-update from post-commit hook`
-4. `93ed97c feat(macp): add PR verification and session-close-is-final rule`
-5. `334e580 chore(state): auto-update from post-commit hook`
-6. `4eb5853 fix(state): correct recursion guard syntax in auto-update hook`
-7. `a33690a chore(state): auto-update from post-commit hook`
-8. `112cdd8 fix(state): auto-commit state changes in post-commit hook with recursion guard`
-9. `14adb17 fix(hooks): reduce pre-push to fast gates, CI handles full suite`
-10. `ca77fe5 chore(state): restore HX03 session file, update DASHBOARD and INDEX`
+1. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
+2. `93183de chore(state): auto-update from post-commit hook`
+3. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
+4. `dd8fb05 feat(macp): add start-of-session gate (ADR-0044) (#183)`
+5. `614530a chore(state): auto-update from post-commit hook`
+6. `93ed97c feat(macp): add PR verification and session-close-is-final rule`
+7. `334e580 chore(state): auto-update from post-commit hook`
+8. `4eb5853 fix(state): correct recursion guard syntax in auto-update hook`
+9. `a33690a chore(state): auto-update from post-commit hook`
+10. `112cdd8 fix(state): auto-commit state changes in post-commit hook with recursion guard`
 
 ---
 
@@ -73,10 +73,8 @@ See `state/REGISTRY.md` for details.
 
 ## Next Steps
 
-1. **Fix AGENTS.md G3** — "four doc gates" → "six" (two-word edit, owner consent needed, protected file)
-2. Consider ADR-0044 option 4 (extract MACP to `docs/macp.md`) — structural fix for truncation; owner-approved, protected file
-3. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
-4. Review dependabot PRs (#176-#180)
+1. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
+2. Review dependabot PRs (#176-#180)
 
 ---
 

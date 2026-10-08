@@ -123,6 +123,12 @@ git log --oneline -10                    # 614530a HEAD
 
 ---
 
+### 04:06 — Commit
+
+`8624619` docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md
+
+---
+
 ## Outcome
 
 COMPLETED — PR #183 opened, all CI green (12 checks pass, Session close
