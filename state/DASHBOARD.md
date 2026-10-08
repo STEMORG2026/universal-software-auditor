@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-08T04:07:01.854+05:45
+**Last Reconciled:** 2026-10-08T04:07:17.840+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -54,16 +54,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `f00985c chore(state): adr-0044 option 4 done, update next steps`
-2. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
-3. `93183de chore(state): auto-update from post-commit hook`
-4. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
-5. `dd8fb05 feat(macp): add start-of-session gate (ADR-0044) (#183)`
-6. `614530a chore(state): auto-update from post-commit hook`
-7. `93ed97c feat(macp): add PR verification and session-close-is-final rule`
-8. `334e580 chore(state): auto-update from post-commit hook`
-9. `4eb5853 fix(state): correct recursion guard syntax in auto-update hook`
-10. `a33690a chore(state): auto-update from post-commit hook`
+1. `0a37bf4 chore(state): mark G3 closed in dashboard`
+2. `a19449a chore(state): auto-update from post-commit hook`
+3. `f00985c chore(state): adr-0044 option 4 done, update next steps`
+4. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
+5. `93183de chore(state): auto-update from post-commit hook`
+6. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
+7. `dd8fb05 feat(macp): add start-of-session gate (ADR-0044) (#183)`
+8. `614530a chore(state): auto-update from post-commit hook`
+9. `93ed97c feat(macp): add PR verification and session-close-is-final rule`
+10. `334e580 chore(state): auto-update from post-commit hook`
 
 ---
 
