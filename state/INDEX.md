@@ -48,6 +48,16 @@
 | Task         | unknown                                              |
 | Status       | IN-PROGRESS                                          |
 
+### 2026-10-09 — OC01 (opencode)
+
+| Field        | Value                                              |
+| ------------ | -------------------------------------------------- |
+| Session file | `sessions/20261009-0458-OC01-release-diagnosis.md` |
+| Agent        | OC01 (opencode)                                    |
+| Branch       | fix/release-oidc-and-git-cli                       |
+| Task         | unknown                                            |
+| Status       | IN-PROGRESS                                        |
+
 ---
 
 ## Search by Keyword

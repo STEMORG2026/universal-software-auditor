@@ -6,7 +6,17 @@
 
 ## Active Agents
 
-None — no active sessions.
+### OC01 — Release Pipeline Diagnosis
+
+| Field         | Value                                                     |
+| ------------- | --------------------------------------------------------- |
+| Agent ID      | OC01 (opencode)                                           |
+| Model         | opencode/longcat-2.5-preview-free                         |
+| Branch        | master (read-only diagnosis)                              |
+| Task          | Diagnose broken release pipeline + pending dependabot PRs |
+| Started       | 2026-10-09T04:58:12+05:45                                 |
+| Status        | IN PROGRESS                                               |
+| Files claimed | `state/` (session + plan only — no code yet)              |
 
 ---
 

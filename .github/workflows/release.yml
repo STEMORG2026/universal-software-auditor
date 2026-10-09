@@ -110,6 +110,14 @@ jobs:
           # and the tag is what wakes publish.yml for the GPR mirror, SBOM and
           # provenance legs. A silent no-tag is the failure mode here.
           push-git-tags: true
+          # The default (false) commits the version bump through the GitHub
+          # API (@changesets/ghcommit), which deleteRefs a temp branch in a
+          # `finally` block. The CHANGESET_TOKEN PAT cannot delete refs —
+          # measured: "Resource not accessible by personal access token -
+          # .../git/refs#delete-a-reference" on every run since Oct 1.
+          # `true` pushes with `git push --force` using the checkout PAT,
+          # which the PAT can do (it pushed the v2.26.0 version commit).
+          push-with-git-cli: true
           # The docs are explicit: passing GITHUB_TOKEN via `env:` does NOT
           # reach the action. It must come through this input.
           github-token: ${{ secrets.CHANGESET_TOKEN }}
@@ -117,5 +125,10 @@ jobs:
           # Provenance is public, verifiable build metadata on the registry —
           # what USA's own S3 rules demand of others (SUP-005..007, S3).
           NPM_CONFIG_PROVENANCE: 'true'
-          # OIDC, not a long-lived token.
-          NODE_AUTH_TOKEN: ''
+          # No NODE_AUTH_TOKEN here, deliberately. The job has `id-token:
+          # write`; with NODE_AUTH_TOKEN unset, npm CLI (>= 11.15, installed
+          # above) auto-fetches an OIDC token from GitHub — the official
+          # "no token needed" trusted-publishing flow. The previous
+          # `NODE_AUTH_TOKEN: ''` poisoned the .npmrc ${NODE_AUTH_TOKEN}
+          # substitution and blocked the fallback, so `changeset publish`
+          # died with ENEEDAUTH and v2.26.1 never reached npmjs.
