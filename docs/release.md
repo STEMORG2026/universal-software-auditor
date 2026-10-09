@@ -168,7 +168,7 @@ per-package intent, which is the whole reason this repo moved.
 | --- | ------------------------------------------------------------- | ----------------------------------------------------------- |
 | 1   | Package exists on npmjs as `@xenos1996/usa` (scoped: the      | Created by a one-time manual publish of 2.0.1 (see below).  |
 |     | bare name `usa` is blocked by the typosquat filter)           | Never republish a version.                                  |
-| 2   | OIDC trusted publisher (org `Er-Sajan-PLG`, repo              | Package page → Settings → Trusted Publisher.                |
+| 2   | OIDC trusted publisher (org `STEMORG2026`, repo               | Package page → Settings → Trusted Publisher.                |
 |     | `universal-software-auditor`, workflow `release.yml`, no env) | Exact basename — full paths do not match.                   |
 | 3   | Trusted publisher may **publish directly**                    | Same page (checkbox). Without it, PUTs 404.                 |
 | 4   | Publishing access: strictest (2FA required, no bypass tokens) | Same page. OIDC works with either option.                   |
