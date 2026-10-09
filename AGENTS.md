@@ -389,4 +389,4 @@ Mandatory startup (always, before any work):
 6. Verify: `gh pr list`, `gh pr checks`, `pnpm test`, `pnpm run typecheck`, spot-check DASHBOARD claims.
 7. Only then begin work.
 
-Full protocol: `docs/macp.md` — 7 sections covering startup, live logging, validation, shutdown, conflict handling, anti-patterns, bootstrap.
+Full protocol: `docs/macp.md` — 7 sections covering startup, live logging, validation, shutdown, conflict handling, anti-patterns, bootstrap. <!-- usa:allow-claim: macp.md's own section count, not the engine's -->

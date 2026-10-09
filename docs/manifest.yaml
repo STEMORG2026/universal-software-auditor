@@ -65,6 +65,9 @@ standalone:
   - file: docs/EXPERIMENT_PROTOCOL.md
     reviewed: 2026-09-26
     reason: baseline classification — experiment process
+  - file: docs/macp.md
+    reviewed: 2026-10-09
+    reason: baseline classification — multi-agent coordination protocol
   - file: docs/MIGRATION-pnpm-changesets.md
     reviewed: 2026-09-26
     reason: baseline classification — migration history note
