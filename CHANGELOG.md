@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.26.2
+
+### Patch Changes
+
+- [#185](https://github.com/STEMORG2026/universal-software-auditor/pull/185) [`a7fa20a`](https://github.com/STEMORG2026/universal-software-auditor/commit/a7fa20a4a7f2a6b78c80e292e324456328408e27) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Point `package.json` repository/bugs/homepage URLs at `STEMORG2026` after the org transfer, so npm Sigstore provenance verification matches the OIDC identity and the publish leg succeeds.
+
 ## 2.26.1
 
 ### Patch Changes
