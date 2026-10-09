@@ -8,15 +8,15 @@
 
 ### OC01 — Release Pipeline Diagnosis
 
-| Field         | Value                                                     |
-| ------------- | --------------------------------------------------------- |
-| Agent ID      | OC01 (opencode)                                           |
-| Model         | opencode/longcat-2.5-preview-free                         |
-| Branch        | master (read-only diagnosis)                              |
-| Task          | Diagnose broken release pipeline + pending dependabot PRs |
-| Started       | 2026-10-09T04:58:12+05:45                                 |
-| Status        | IN PROGRESS                                               |
-| Files claimed | `state/` (session + plan only — no code yet)              |
+| Field         | Value                                                                                |
+| ------------- | ------------------------------------------------------------------------------------ |
+| Agent ID      | OC01 (opencode)                                                                      |
+| Model         | opencode/longcat-2.5-preview-free                                                    |
+| Branch        | dependabot/npm_and_yarn/dev-dependencies-948557aac6 (rebase + changeset for PR #180) |
+| Task          | Unblock release pipeline (done, 2.26.2 shipped) + fix PR #180                        |
+| Started       | 2026-10-09T04:58:12+05:45                                                            |
+| Status        | IN PROGRESS                                                                          |
+| Files claimed | `state/` (session + plan only — no code yet)                                         |
 
 ---
 
