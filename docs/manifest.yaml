@@ -65,6 +65,9 @@ standalone:
   - file: docs/EXPERIMENT_PROTOCOL.md
     reviewed: 2026-09-26
     reason: baseline classification — experiment process
+  - file: docs/macp.md
+    reviewed: 2026-10-09
+    reason: baseline classification — multi-agent coordination protocol
   - file: docs/MIGRATION-pnpm-changesets.md
     reviewed: 2026-09-26
     reason: baseline classification — migration history note
@@ -125,3 +128,39 @@ standalone:
   - file: templates/AUDIT_REPORT.md
     reviewed: 2026-09-26
     reason: baseline classification — audit report template
+  - file: state.md
+    reviewed: 2026-10-01
+    reason: MACP state — primary entry point
+  - file: state/BLOCKERS.md
+    reviewed: 2026-10-01
+    reason: MACP state — blockers tracker
+  - file: state/DEBT.md
+    reviewed: 2026-10-01
+    reason: MACP state — technical debt tracker
+  - file: state/INDEX.md
+    reviewed: 2026-10-01
+    reason: MACP state — session log
+  - file: state/REGISTRY.md
+    reviewed: 2026-10-01
+    reason: MACP state — agent registry
+  - file: state/STARTUP.md
+    reviewed: 2026-10-01
+    reason: MACP state — startup sequence reference
+  - file: state/sessions/20261001-2003-HX02-continue-macp.md
+    reviewed: 2026-10-01
+    reason: MACP state — HX02 session file
+  - file: state/sessions/20261001-2157-HX03-fresh-session.md
+    reviewed: 2026-10-01
+    reason: MACP state — HX03 session file
+  - file: state/sessions/20261002-0514-HX04-protocol-start-gate.md
+    reviewed: 2026-10-02
+    reason: MACP state — HX04 session file (protocol start gate)
+  - file: state/plans/agent-HX04-protocol-start-gate.md
+    reviewed: 2026-10-02
+    reason: MACP state — HX04 plan entry
+  - file: state/sessions/20261009-0458-OC01-release-diagnosis.md
+    reviewed: 2026-10-09
+    reason: MACP state — OC01 session file (release pipeline diagnosis)
+  - file: state/plans/agent-OC01-release-pipeline-repair.md
+    reviewed: 2026-10-09
+    reason: MACP state — OC01 plan entry

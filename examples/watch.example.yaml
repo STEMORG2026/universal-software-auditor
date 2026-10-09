@@ -1,0 +1,5 @@
+# Example watch sources (local-only: no network needed).
+# Copy to `.usa/sources.yaml` and add `git:` entries for real continuous use.
+repos:
+  - path: ./examples/demo-app
+    depth: quick

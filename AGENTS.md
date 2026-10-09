@@ -137,7 +137,7 @@ pnpm run format:check   # prettier --check . (write with :format)
 pnpm test               # vitest run, full suite
 pnpm run test:cov       # with coverage (thresholds enforced, see below)
 pnpm run build          # tsc emit to dist/
-pnpm run docs:all       # all four doc gates (see Docs hygiene)
+pnpm run docs:all       # all six doc gates (see Docs hygiene)
 pnpm run self-audit     # build + `usa audit . --out AUDIT.md`
 pnpm changeset          # write a release note (shipped changes)
 ```
@@ -343,6 +343,27 @@ on criticals — a red USA audit blocks merge like any red test.
 - `docs/ARCHITECTURE.md` — the five stages, the fact system, severity
   dampening, and what USA deliberately does not do. Read it once.
 
+## Agent Communication Rules
+
+When asking the owner what to do next, the agent MUST present options.
+The session has full context of previous work (INDEX.md, DASHBOARD.md,
+session files) — use it to offer concrete choices, not open-ended questions.
+
+Example: "I can fix G3, release the changeset, or review the dependabot PRs. Which first?"
+
+Never ask "What would you like me to do?" without options.
+
+## Session Close is FINAL
+
+When the owner says "close the session", the session is CLOSED. Do NOT reopen it unless:
+
+- The owner explicitly says there is work to do, AND
+- The owner paraphrases or confirms they want the session reopened
+
+If the owner says "close the session" and then later says "continue" or "reopen", ASK for paraphrase before reopening. A closed session stays closed until the owner explicitly reopens it with clear intent.
+
+---
+
 ## Review culture
 
 A good review records a verdict **per change** with the reason and the
@@ -351,3 +372,21 @@ outside the repo; what lands in history is the merge and its rationale.
 When the automation produces a PR (bundle filings, resyncs), verify
 origin, content, and CI — routine does not mean rubber-stamp. When you
 find yourself explaining the same thing twice, it belongs in this file.
+
+---
+
+## MACP — Multi-Agent Coordination Protocol
+
+**Full protocol → [docs/macp.md](docs/macp.md)** — read it at session start.
+
+Mandatory startup (always, before any work):
+
+1. `state/` exists? If not → Bootstrap Protocol (Section 7 in macp.md).
+2. Read `state/DASHBOARD.md` — check "Last Reconciled" (<24h trust, >48h stale).
+3. Read `state/REGISTRY.md` — confirm no active-agent conflicts.
+4. Register yourself: create `state/sessions/YYYYMMDD-HHMM-<ID>-<slug>.md` with Agent/Model/Branch/Started/Status/Base commit, add entry to `REGISTRY.md`.
+5. Create `state/plans/agent-<ID>-<slug>.md` (objective, scope, approach, risks, rollback, success criteria).
+6. Verify: `gh pr list`, `gh pr checks`, `pnpm test`, `pnpm run typecheck`, spot-check DASHBOARD claims.
+7. Only then begin work.
+
+Full protocol: `docs/macp.md` — 7 sections covering startup, live logging, validation, shutdown, conflict handling, anti-patterns, bootstrap. <!-- usa:allow-claim: macp.md's own section count, not the engine's -->

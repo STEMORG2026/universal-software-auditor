@@ -534,7 +534,7 @@ rules:
       assert: { rule: SEC-014, status: [PASS] }
     why: 'Sound tokens with expiry but no rate limiting leave a credential-stuffing window: each token check passes, the login endpoint still takes unlimited guesses.'
     remediation: 'Rate-limit failed authentication (see SEC-014) on every endpoint that accepts these tokens.'
-    references: ['CWE-307', 'ASVS-6.3.3']
+    references: ['CWE-307']
 
   - id: INV-SEC-003
     title: Validated input is also encoded on output

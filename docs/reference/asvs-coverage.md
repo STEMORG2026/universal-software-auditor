@@ -4,7 +4,7 @@
 
 Join of the vendored OWASP ASVS 5.0.0 control inventory against every `ASVS-*` reference cited by the rule packs. A control listed with rules is _claimed_, not proven: the cited rule pattern-matches the shape, it does not verify the control. Controls nobody cites are **unassessed** — neither covered nor uncoverable; partial/uncoverable triage is future work.
 
-Covered: **30 of 345 controls** (9%).
+Covered: **29 of 345 controls** (8%).
 
 ## V1 — 3/30 covered
 
@@ -330,57 +330,57 @@ Covered: **30 of 345 controls** (9%).
 | 5.4.2 (L2) | Verify that file names served (e.g., in HTTP response header fields or email attachments) are encoded or sanit… | _unassessed_                                         |
 | 5.4.3 (L2) | Verify that files obtained from untrusted sources are scanned by antivirus scanners to prevent serving of know… | _unassessed_                                         |
 
-## V6 — 2/47 covered
+## V6 — 1/47 covered
 
-| Control     | Requirement                                                                                                     | Covering rules     |
-| ----------- | --------------------------------------------------------------------------------------------------------------- | ------------------ |
-| 6.1.1 (L1)  | Verify that application documentation defines how controls such as rate limiting, anti-automation, and adaptiv… | _unassessed_       |
-| 6.1.2 (L2)  | Verify that a list of context-specific words is documented in order to prevent their use in passwords. The lis… | _unassessed_       |
-| 6.1.3 (L2)  | Verify that, if the application includes multiple authentication pathways, these are all documented together w… | _unassessed_       |
-| 6.2.1 (L1)  | Verify that user set passwords are at least 8 characters in length although a minimum of 15 characters is stro… | _unassessed_       |
-| 6.2.2 (L1)  | Verify that users can change their password.                                                                    | _unassessed_       |
-| 6.2.3 (L1)  | Verify that password change functionality requires the user's current and new password.                         | _unassessed_       |
-| 6.2.4 (L1)  | Verify that passwords submitted during account registration or password change are checked against an availabl… | _unassessed_       |
-| 6.2.5 (L1)  | Verify that passwords of any composition can be used, without rules limiting the type of characters permitted.… | _unassessed_       |
-| 6.2.6 (L1)  | Verify that password input fields use type=password to mask the entry. Applications may allow the user to temp… | _unassessed_       |
-| 6.2.7 (L1)  | Verify that "paste" functionality, browser password helpers, and external password managers are permitted.      | _unassessed_       |
-| 6.2.8 (L1)  | Verify that the application verifies the user's password exactly as received from the user, without any modifi… | _unassessed_       |
-| 6.2.9 (L2)  | Verify that passwords of at least 64 characters are permitted.                                                  | _unassessed_       |
-| 6.2.10 (L2) | Verify that a user's password stays valid until it is discovered to be compromised or the user rotates it. The… | _unassessed_       |
-| 6.2.11 (L2) | Verify that the documented list of context specific words is used to prevent easy to guess passwords being cre… | _unassessed_       |
-| 6.2.12 (L2) | Verify that passwords submitted during account registration or password changes are checked against a set of b… | _unassessed_       |
-| 6.3.1 (L1)  | Verify that controls to prevent attacks such as credential stuffing and password brute force are implemented a… | SEC-021 (full)     |
-| 6.3.2 (L1)  | Verify that default user accounts (e.g., "root", "admin", or "sa") are not present in the application or are d… | _unassessed_       |
-| 6.3.3 (L2)  | Verify that either a multi-factor authentication mechanism or a combination of single-factor authentication me… | INV-SEC-002 (full) |
-| 6.3.4 (L2)  | Verify that, if the application includes multiple authentication pathways, there are no undocumented pathways … | _unassessed_       |
-| 6.3.5 (L3)  | Verify that users are notified of suspicious authentication attempts (successful or unsuccessful). This may in… | _unassessed_       |
-| 6.3.6 (L3)  | Verify that email is not used as either a single-factor or multi-factor authentication mechanism.               | _unassessed_       |
-| 6.3.7 (L3)  | Verify that users are notified after updates to authentication details, such as credential resets or modificat… | _unassessed_       |
-| 6.3.8 (L3)  | Verify that valid users cannot be deduced from failed authentication challenges, such as by basing on error me… | _unassessed_       |
-| 6.4.1 (L1)  | Verify that system generated initial passwords or activation codes are securely randomly generated, follow the… | _unassessed_       |
-| 6.4.2 (L1)  | Verify that password hints or knowledge-based authentication (so-called "secret questions") are not present.    | _unassessed_       |
-| 6.4.3 (L2)  | Verify that a secure process for resetting a forgotten password is implemented, that does not bypass any enabl… | _unassessed_       |
-| 6.4.4 (L2)  | Verify that if a multi-factor authentication factor is lost, evidence of identity proofing is performed at the… | _unassessed_       |
-| 6.4.5 (L3)  | Verify that renewal instructions for authentication mechanisms which expire are sent with enough time to be ca… | _unassessed_       |
-| 6.4.6 (L3)  | Verify that administrative users can initiate the password reset process for the user, but that this does not … | _unassessed_       |
-| 6.5.1 (L2)  | Verify that lookup secrets, out-of-band authentication requests or codes, and time-based one-time passwords (T… | _unassessed_       |
-| 6.5.2 (L2)  | Verify that, when being stored in the application's backend, lookup secrets with less than 112 bits of entropy… | _unassessed_       |
-| 6.5.3 (L2)  | Verify that lookup secrets, out-of-band authentication code, and time-based one-time password seeds, are gener… | _unassessed_       |
-| 6.5.4 (L2)  | Verify that lookup secrets and out-of-band authentication codes have a minimum of 20 bits of entropy (typicall… | _unassessed_       |
-| 6.5.5 (L2)  | Verify that out-of-band authentication requests, codes, or tokens, as well as time-based one-time passwords (T… | _unassessed_       |
-| 6.5.6 (L3)  | Verify that any authentication factor (including physical devices) can be revoked in case of theft or other lo… | _unassessed_       |
-| 6.5.7 (L3)  | Verify that biometric authentication mechanisms are only used as secondary factors together with either someth… | _unassessed_       |
-| 6.5.8 (L3)  | Verify that time-based one-time passwords (TOTPs) are checked based on a time source from a trusted service an… | _unassessed_       |
-| 6.6.1 (L2)  | Verify that authentication mechanisms using the Public Switched Telephone Network (PSTN) to deliver One-time P… | _unassessed_       |
-| 6.6.2 (L2)  | Verify that out-of-band authentication requests, codes, or tokens are bound to the original authentication req… | _unassessed_       |
-| 6.6.3 (L2)  | Verify that a code based out-of-band authentication mechanism is protected against brute force attacks by usin… | _unassessed_       |
-| 6.6.4 (L3)  | Verify that, where push notifications are used for multi-factor authentication, rate limiting is used to preve… | _unassessed_       |
-| 6.7.1 (L3)  | Verify that the certificates used to verify cryptographic authentication assertions are stored in a way protec… | _unassessed_       |
-| 6.7.2 (L3)  | Verify that the challenge nonce is at least 64 bits in length, and statistically unique or unique over the lif… | _unassessed_       |
-| 6.8.1 (L2)  | Verify that, if the application supports multiple identity providers (IdPs), the user's identity cannot be spo… | _unassessed_       |
-| 6.8.2 (L2)  | Verify that the presence and integrity of digital signatures on authentication assertions (for example on JWTs… | _unassessed_       |
-| 6.8.3 (L2)  | Verify that SAML assertions are uniquely processed and used only once within the validity period to prevent re… | _unassessed_       |
-| 6.8.4 (L2)  | Verify that, if an application uses a separate Identity Provider (IdP) and expects specific authentication str… | _unassessed_       |
+| Control     | Requirement                                                                                                     | Covering rules |
+| ----------- | --------------------------------------------------------------------------------------------------------------- | -------------- |
+| 6.1.1 (L1)  | Verify that application documentation defines how controls such as rate limiting, anti-automation, and adaptiv… | _unassessed_   |
+| 6.1.2 (L2)  | Verify that a list of context-specific words is documented in order to prevent their use in passwords. The lis… | _unassessed_   |
+| 6.1.3 (L2)  | Verify that, if the application includes multiple authentication pathways, these are all documented together w… | _unassessed_   |
+| 6.2.1 (L1)  | Verify that user set passwords are at least 8 characters in length although a minimum of 15 characters is stro… | _unassessed_   |
+| 6.2.2 (L1)  | Verify that users can change their password.                                                                    | _unassessed_   |
+| 6.2.3 (L1)  | Verify that password change functionality requires the user's current and new password.                         | _unassessed_   |
+| 6.2.4 (L1)  | Verify that passwords submitted during account registration or password change are checked against an availabl… | _unassessed_   |
+| 6.2.5 (L1)  | Verify that passwords of any composition can be used, without rules limiting the type of characters permitted.… | _unassessed_   |
+| 6.2.6 (L1)  | Verify that password input fields use type=password to mask the entry. Applications may allow the user to temp… | _unassessed_   |
+| 6.2.7 (L1)  | Verify that "paste" functionality, browser password helpers, and external password managers are permitted.      | _unassessed_   |
+| 6.2.8 (L1)  | Verify that the application verifies the user's password exactly as received from the user, without any modifi… | _unassessed_   |
+| 6.2.9 (L2)  | Verify that passwords of at least 64 characters are permitted.                                                  | _unassessed_   |
+| 6.2.10 (L2) | Verify that a user's password stays valid until it is discovered to be compromised or the user rotates it. The… | _unassessed_   |
+| 6.2.11 (L2) | Verify that the documented list of context specific words is used to prevent easy to guess passwords being cre… | _unassessed_   |
+| 6.2.12 (L2) | Verify that passwords submitted during account registration or password changes are checked against a set of b… | _unassessed_   |
+| 6.3.1 (L1)  | Verify that controls to prevent attacks such as credential stuffing and password brute force are implemented a… | SEC-021 (full) |
+| 6.3.2 (L1)  | Verify that default user accounts (e.g., "root", "admin", or "sa") are not present in the application or are d… | _unassessed_   |
+| 6.3.3 (L2)  | Verify that either a multi-factor authentication mechanism or a combination of single-factor authentication me… | _unassessed_   |
+| 6.3.4 (L2)  | Verify that, if the application includes multiple authentication pathways, there are no undocumented pathways … | _unassessed_   |
+| 6.3.5 (L3)  | Verify that users are notified of suspicious authentication attempts (successful or unsuccessful). This may in… | _unassessed_   |
+| 6.3.6 (L3)  | Verify that email is not used as either a single-factor or multi-factor authentication mechanism.               | _unassessed_   |
+| 6.3.7 (L3)  | Verify that users are notified after updates to authentication details, such as credential resets or modificat… | _unassessed_   |
+| 6.3.8 (L3)  | Verify that valid users cannot be deduced from failed authentication challenges, such as by basing on error me… | _unassessed_   |
+| 6.4.1 (L1)  | Verify that system generated initial passwords or activation codes are securely randomly generated, follow the… | _unassessed_   |
+| 6.4.2 (L1)  | Verify that password hints or knowledge-based authentication (so-called "secret questions") are not present.    | _unassessed_   |
+| 6.4.3 (L2)  | Verify that a secure process for resetting a forgotten password is implemented, that does not bypass any enabl… | _unassessed_   |
+| 6.4.4 (L2)  | Verify that if a multi-factor authentication factor is lost, evidence of identity proofing is performed at the… | _unassessed_   |
+| 6.4.5 (L3)  | Verify that renewal instructions for authentication mechanisms which expire are sent with enough time to be ca… | _unassessed_   |
+| 6.4.6 (L3)  | Verify that administrative users can initiate the password reset process for the user, but that this does not … | _unassessed_   |
+| 6.5.1 (L2)  | Verify that lookup secrets, out-of-band authentication requests or codes, and time-based one-time passwords (T… | _unassessed_   |
+| 6.5.2 (L2)  | Verify that, when being stored in the application's backend, lookup secrets with less than 112 bits of entropy… | _unassessed_   |
+| 6.5.3 (L2)  | Verify that lookup secrets, out-of-band authentication code, and time-based one-time password seeds, are gener… | _unassessed_   |
+| 6.5.4 (L2)  | Verify that lookup secrets and out-of-band authentication codes have a minimum of 20 bits of entropy (typicall… | _unassessed_   |
+| 6.5.5 (L2)  | Verify that out-of-band authentication requests, codes, or tokens, as well as time-based one-time passwords (T… | _unassessed_   |
+| 6.5.6 (L3)  | Verify that any authentication factor (including physical devices) can be revoked in case of theft or other lo… | _unassessed_   |
+| 6.5.7 (L3)  | Verify that biometric authentication mechanisms are only used as secondary factors together with either someth… | _unassessed_   |
+| 6.5.8 (L3)  | Verify that time-based one-time passwords (TOTPs) are checked based on a time source from a trusted service an… | _unassessed_   |
+| 6.6.1 (L2)  | Verify that authentication mechanisms using the Public Switched Telephone Network (PSTN) to deliver One-time P… | _unassessed_   |
+| 6.6.2 (L2)  | Verify that out-of-band authentication requests, codes, or tokens are bound to the original authentication req… | _unassessed_   |
+| 6.6.3 (L2)  | Verify that a code based out-of-band authentication mechanism is protected against brute force attacks by usin… | _unassessed_   |
+| 6.6.4 (L3)  | Verify that, where push notifications are used for multi-factor authentication, rate limiting is used to preve… | _unassessed_   |
+| 6.7.1 (L3)  | Verify that the certificates used to verify cryptographic authentication assertions are stored in a way protec… | _unassessed_   |
+| 6.7.2 (L3)  | Verify that the challenge nonce is at least 64 bits in length, and statistically unique or unique over the lif… | _unassessed_   |
+| 6.8.1 (L2)  | Verify that, if the application supports multiple identity providers (IdPs), the user's identity cannot be spo… | _unassessed_   |
+| 6.8.2 (L2)  | Verify that the presence and integrity of digital signatures on authentication assertions (for example on JWTs… | _unassessed_   |
+| 6.8.3 (L2)  | Verify that SAML assertions are uniquely processed and used only once within the validity period to prevent re… | _unassessed_   |
+| 6.8.4 (L2)  | Verify that, if an application uses a separate Identity Provider (IdP) and expects specific authentication str… | _unassessed_   |
 
 ## V7 — 2/19 covered
 

@@ -13,3 +13,13 @@
 # shapes (`v*` and `@xenos1996/usa@**`); do not narrow it back to `v*`.
 packages:
   - '.'
+
+# Dependency overrides (pnpm 10 reads these here, not from package.json).
+# Force patched versions of two transitive dev-deps that fail
+# `pnpm audit --audit-level=high`:
+#   shell-quote   <1.11.0  via @changesets/cli > launch-editor  (GHSA-pqg4-j6r4-53mv, critical)
+#   source-map-js <1.2.2   via @vitest/coverage-v8 > magicast  (GHSA-68fv-2mgg-jv7q, high)
+# Both patched versions satisfy their parents' ranges (^1.10.0 / ^1.2.1).
+overrides:
+  shell-quote: ^1.12.0
+  source-map-js: ^1.2.2

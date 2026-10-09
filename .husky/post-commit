@@ -1,0 +1,1 @@
+node scripts/auto-update-state.mjs
