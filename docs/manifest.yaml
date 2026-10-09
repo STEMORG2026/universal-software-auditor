@@ -65,6 +65,9 @@ standalone:
   - file: docs/EXPERIMENT_PROTOCOL.md
     reviewed: 2026-09-26
     reason: baseline classification — experiment process
+  - file: docs/macp.md
+    reviewed: 2026-10-09
+    reason: baseline classification — multi-agent coordination protocol
   - file: docs/MIGRATION-pnpm-changesets.md
     reviewed: 2026-09-26
     reason: baseline classification — migration history note
@@ -155,3 +158,9 @@ standalone:
   - file: state/plans/agent-HX04-protocol-start-gate.md
     reviewed: 2026-10-02
     reason: MACP state — HX04 plan entry
+  - file: state/sessions/20261009-0458-OC01-release-diagnosis.md
+    reviewed: 2026-10-09
+    reason: MACP state — OC01 session file (release pipeline diagnosis)
+  - file: state/plans/agent-OC01-release-pipeline-repair.md
+    reviewed: 2026-10-09
+    reason: MACP state — OC01 plan entry

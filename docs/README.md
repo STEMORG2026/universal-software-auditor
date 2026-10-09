@@ -32,6 +32,7 @@
 - **Wiring up CI?** → [CI integration](ci-integration.md)
 - **Auditing documentation health?** → [Documentation audit](documentation-audit.md)
 - **Using an agent?** → [Agent integration](agent-integration.md)
+- **Coordinating agents?** → [MACP](macp.md)
 - **Contributing a rule pack?** → [Rule packs](rule-packs.md) → [Detectors](detectors.md)
 - **Comparing to a standard?** → [Standards mapping](standards-mapping.md)
 - **Embedding USA in a tool?** → [API reference](reference/api.md)
