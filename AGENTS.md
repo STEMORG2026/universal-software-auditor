@@ -121,9 +121,10 @@ GitHub's approval quarantine, not a failure. As the maintainer, re-run the
 four stuck workflows by ID (`gh run rerun <id>`), wait, and the checks go
 green. Do not "fix" anything first — there is nothing broken.
 
-Related: dependabot **major** bumps never automerge (correctly). Review
-them like any dependency change: minors/patches of dev tools are usually
-safe; majors (TypeScript 7, action v3→v4) need a verdict with reasons.
+Related: nothing automerges — every dependabot PR is merged by hand after
+review. Review them like any dependency change: minors/patches of dev tools
+are usually safe; majors (TypeScript 7, action v3→v4) need a verdict with
+reasons.
 `dependabot.yml` already ignores TypeScript majors — that ignore exists
 because v7 is a rewrite that violates the linter's peer range, and the
 comment there says so.
