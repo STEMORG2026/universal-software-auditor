@@ -84,3 +84,7 @@ review dependabot #176–#179.
 ### 03:17 — Commit
 
 `cd18647` fix(release): point package.json repo URLs at STEMORG2026
+
+### 06:18 — Commit
+
+`07dbcd0` chore(deps-dev): rebase onto master, reconcile lockfile, add changeset
