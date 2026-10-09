@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-09T02:17:09.872+05:45
+**Last Reconciled:** 2026-10-09T02:37:28.474+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -54,16 +54,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `e42286a docs: unblock CI — classify macp.md, sync sample report, allow-claim sections count`
-2. `7f25fbf chore(state): auto-update from post-commit hook`
-3. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
-4. `0a37bf4 chore(state): mark G3 closed in dashboard`
-5. `a19449a chore(state): auto-update from post-commit hook`
-6. `f00985c chore(state): adr-0044 option 4 done, update next steps`
-7. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
-8. `93183de chore(state): auto-update from post-commit hook`
-9. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
-10. `dd8fb05 feat(macp): add start-of-session gate (ADR-0044) (#183)`
+1. `4dbf9e2 fix(security): override shell-quote and source-map-js to patched versions`
+2. `6d14b28 chore(state): auto-update from post-commit hook`
+3. `e42286a docs: unblock CI — classify macp.md, sync sample report, allow-claim sections count`
+4. `7f25fbf chore(state): auto-update from post-commit hook`
+5. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
+6. `0a37bf4 chore(state): mark G3 closed in dashboard`
+7. `a19449a chore(state): auto-update from post-commit hook`
+8. `f00985c chore(state): adr-0044 option 4 done, update next steps`
+9. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
+10. `93183de chore(state): auto-update from post-commit hook`
 
 ---
 

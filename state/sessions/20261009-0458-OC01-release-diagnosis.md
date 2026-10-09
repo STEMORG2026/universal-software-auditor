@@ -76,3 +76,7 @@ review dependabot #176–#179.
 ### 02:17 — Commit
 
 `e42286a` docs: unblock CI — classify macp.md, sync sample report, allow-claim sections count
+
+### 02:37 — Commit
+
+`4dbf9e2` fix(security): override shell-quote and source-map-js to patched versions
