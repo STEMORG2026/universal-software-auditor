@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-09T02:37:28.474+05:45
+**Last Reconciled:** 2026-10-09T03:17:28.776+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -54,16 +54,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `4dbf9e2 fix(security): override shell-quote and source-map-js to patched versions`
-2. `6d14b28 chore(state): auto-update from post-commit hook`
-3. `e42286a docs: unblock CI — classify macp.md, sync sample report, allow-claim sections count`
-4. `7f25fbf chore(state): auto-update from post-commit hook`
-5. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
-6. `0a37bf4 chore(state): mark G3 closed in dashboard`
-7. `a19449a chore(state): auto-update from post-commit hook`
-8. `f00985c chore(state): adr-0044 option 4 done, update next steps`
-9. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
-10. `93183de chore(state): auto-update from post-commit hook`
+1. `cd18647 fix(release): point package.json repo URLs at STEMORG2026`
+2. `0fb8e36 fix(release): mint OIDC token via auto-fetch and use git CLI for version push (#184)`
+3. `7f25fbf chore(state): auto-update from post-commit hook`
+4. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
+5. `0a37bf4 chore(state): mark G3 closed in dashboard`
+6. `a19449a chore(state): auto-update from post-commit hook`
+7. `f00985c chore(state): adr-0044 option 4 done, update next steps`
+8. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
+9. `93183de chore(state): auto-update from post-commit hook`
+10. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
 
 ---
 

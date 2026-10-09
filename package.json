@@ -47,12 +47,12 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Er-Sajan-PLG/universal-software-auditor.git"
+    "url": "git+https://github.com/STEMORG2026/universal-software-auditor.git"
   },
   "bugs": {
-    "url": "https://github.com/Er-Sajan-PLG/universal-software-auditor/issues"
+    "url": "https://github.com/STEMORG2026/universal-software-auditor/issues"
   },
-  "homepage": "https://github.com/Er-Sajan-PLG/universal-software-auditor#readme",
+  "homepage": "https://github.com/STEMORG2026/universal-software-auditor#readme",
   "engines": {
     "node": ">=20.0.0"
   },
