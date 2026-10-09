@@ -80,3 +80,7 @@ review dependabot #176–#179.
 ### 02:37 — Commit
 
 `4dbf9e2` fix(security): override shell-quote and source-map-js to patched versions
+
+### 03:17 — Commit
+
+`cd18647` fix(release): point package.json repo URLs at STEMORG2026
