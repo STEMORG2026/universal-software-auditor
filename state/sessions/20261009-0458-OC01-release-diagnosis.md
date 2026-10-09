@@ -58,7 +58,7 @@ Branch `fix/release-oidc-and-git-cli`:
 - release.yml: removed `NODE_AUTH_TOKEN: ''`; added `push-with-git-cli: true`.
 - Unblocked CI (red on master since Oct 1): classified docs/macp.md in
   manifest.yaml + docs/README.md index, added `usa:allow-claim` to the
-  "7 sections" claim in AGENTS.md, regenerated examples/sample-report.md.
+  macp.md section-count claim in AGENTS.md, regenerated examples/sample-report.md.
 
 ## Open questions
 
