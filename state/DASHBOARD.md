@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-09T03:17:28.776+05:45
+**Last Reconciled:** 2026-10-09T06:31:43.389+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -54,16 +54,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `cd18647 fix(release): point package.json repo URLs at STEMORG2026`
-2. `0fb8e36 fix(release): mint OIDC token via auto-fetch and use git CLI for version push (#184)`
-3. `7f25fbf chore(state): auto-update from post-commit hook`
-4. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
-5. `0a37bf4 chore(state): mark G3 closed in dashboard`
-6. `a19449a chore(state): auto-update from post-commit hook`
-7. `f00985c chore(state): adr-0044 option 4 done, update next steps`
-8. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
-9. `93183de chore(state): auto-update from post-commit hook`
-10. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
+1. `3319108 chore(ci): remove automerge workflow — merges are manual-only after owner review`
+2. `72d9ec4 docs: attach SLSA provenance bundle for v2.26.2 (#187)`
+3. `e006e06 chore(deps): bump pnpm/action-setup from 6.0.10 to 6.1.0 (#179)`
+4. `95e8651 chore(deps): bump github/codeql-action/init from 4.38.0 to 4.38.2 (#177)`
+5. `30906bb chore(master): release (#186)`
+6. `c2fa278 chore(deps): bump github/codeql-action/upload-sarif (#176)`
+7. `a7fa20a fix(release): point package.json repo URLs at STEMORG2026 (#185)`
+8. `0fb8e36 fix(release): mint OIDC token via auto-fetch and use git CLI for version push (#184)`
+9. `7f25fbf chore(state): auto-update from post-commit hook`
+10. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
 
 ---
 
