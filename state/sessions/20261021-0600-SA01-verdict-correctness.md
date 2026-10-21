@@ -133,3 +133,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 13:29 — Commit
 
 `f90fd8e` feat(intent): declared threat model joined to observed evidence
+
+### 13:45 — Commit
+
+`53afcb2` docs(state): hand off the scanner/evidence work
