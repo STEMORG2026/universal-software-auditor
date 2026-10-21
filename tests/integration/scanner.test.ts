@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -22,6 +22,11 @@ function ctx(adapterVersion = '0.75.0'): ParseContext {
     target: { path: '/x', workdir: '/x/w', revision: 'abc123', executionId: 'e1' },
     config: {},
   };
+}
+
+/** Options for the shared SARIF normaliser. */
+function opts(): { tool: string; kind: string; adapterVersion: string } {
+  return { tool: 'codeql', kind: 'dataflow-finding', adapterVersion: '2.27.3' };
 }
 
 describe('evidence identity', () => {
@@ -160,11 +165,44 @@ describe('semgrep adapter', () => {
 });
 
 describe('codeql adapter', () => {
+  it('records the version without the sentence full stop', () => {
+    // Measured: `codeql --version` prints "… release 2.27.3." and a `[\d.]+`
+    // class records "2.27.3." in the manifest.
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-codeql-'));
+    fs.writeFileSync(
+      path.join(dir, 'codeql'),
+      '#!/bin/sh\necho "CodeQL command-line toolchain release 2.27.3."\n',
+      { mode: 0o755 },
+    );
+    const stub = vi.spyOn(process, 'env', 'get').mockReturnValue({ PATH: dir } as never);
+    try {
+      expect(codeqlAdapter.probe().version).toBe('2.27.3');
+    } finally {
+      stub.mockRestore();
+    }
+  });
+
   it('the analyze leg is a documented, buildable command', () => {
     const argv = codeqlAnalyzeCommand('/tmp/db', 'codeql/javascript-queries', '/out.sarif');
     expect(argv.slice(0, 3)).toEqual(['codeql', 'database', 'analyze']);
     expect(argv[argv.length - 1]).toBe('--output=/out.sarif');
     expect(argv).toContain('--format=sarif-latest');
+  });
+
+  it('runs create then analyze, and reads the SARIF file analyze writes', () => {
+    const cmd = codeqlAdapter.buildCommand(
+      { path: '/r', workdir: '/r/w', revision: '', executionId: '' },
+      codeqlAdapter.defaultConfig(),
+    );
+    // The adapter used to emit `database create` and parse stdout — a command
+    // that writes a database, feeding a parser that expects SARIF. Nothing in
+    // the pipeline could ever produce evidence.
+    expect(cmd.prepare).toHaveLength(1);
+    expect(cmd.prepare![0]!.argv.slice(0, 3)).toEqual(['codeql', 'database', 'create']);
+    expect(cmd.argv.slice(0, 3)).toEqual(['codeql', 'database', 'analyze']);
+    expect(cmd.artifacts).toEqual(['codeql-results.sarif']);
+    // The SARIF must land inside the scan workdir or the runner cannot read it.
+    expect(cmd.argv[cmd.argv.length - 1]).toBe('--output=/r/w/codeql-results.sarif');
   });
 
   it('refuses to emit a build command on its own authority', () => {
@@ -178,14 +216,49 @@ describe('codeql adapter', () => {
     ).toThrow(/allowBuildCommands/);
   });
 
-  it('parses its SARIF output into located evidence', () => {
-    const rows = codeqlAdapter.parse(read('codeql.sarif.json'), ctx('2.23.0'));
-    expect(rows).toHaveLength(1);
-    const row = rows[0]!;
-    expect(row.source.identifier).toBe('js/insecure-eval');
-    expect(row.location).toEqual({ file: 'app.js', line: 2, column: 1 });
-    expect(row.severity).toBe('HIGH');
-    expect(row.status).toBe('FAIL');
+  it('an empty packs setting omits the positional instead of passing one', () => {
+    // Measured on 2.27.3: `database analyze <db> ''` is one empty *specifier*
+    // and fails the whole run with `Invalid package specification:` and no
+    // SARIF. With no specifier at all, CodeQL runs the default suite.
+    const argv = codeqlAnalyzeCommand('/tmp/db', '', '/out.sarif');
+    expect(argv).not.toContain('');
+    expect(argv.slice(0, 4)).toEqual(['codeql', 'database', 'analyze', '/tmp/db']);
+    expect(argv[4]).toBe('--format=sarif-latest');
+    // A configured pack is passed as one specifier.
+    expect(codeqlAnalyzeCommand('/tmp/db', 'codeql/javascript-queries', '/o')[4]).toBe(
+      'codeql/javascript-queries',
+    );
+  });
+
+  it('parses the real capture: two findings, severities from the rule defaults', () => {
+    const rows = codeqlAdapter.parse(read('codeql.sarif.json'), ctx('2.27.3'));
+    expect(rows).toHaveLength(2);
+    const byId = new Map(rows.map((r) => [r.source.identifier, r]));
+    // CodeQL omits `result.level` for every result; the level lives in the
+    // rule's defaultConfiguration. Reading only the result turned an
+    // error-severity finding into INFO.
+    expect(byId.get('js/disabling-certificate-validation')!.severity).toBe('HIGH');
+    expect(byId.get('js/insufficient-key-size')!.severity).toBe('MEDIUM');
+    // The claim leads with the rule's human title, not with the id the source
+    // field already carries.
+    expect(byId.get('js/insufficient-key-size')!.claim).toMatch(
+      /^Use of a weak cryptographic key: /,
+    );
+    // CodeQL reports a start line without a start column here; an absent
+    // column stays absent rather than becoming 1.
+    expect(byId.get('js/disabling-certificate-validation')!.location).toEqual({
+      file: 'app.js',
+      line: 1,
+    });
+    expect(byId.get('js/insufficient-key-size')!.location).toEqual({
+      file: 'app.js',
+      line: 3,
+      column: 23,
+    });
+    // The CWE tags travel with the evidence: they are the join key to a
+    // declared threat model.
+    expect(byId.get('js/insufficient-key-size')!.cwes).toEqual(['CWE-326']);
+    expect(byId.get('js/disabling-certificate-validation')!.cwes).toEqual(['CWE-295', 'CWE-297']);
   });
 });
 
@@ -195,6 +268,42 @@ describe('SARIF normaliser', () => {
     expect(sarifLevelToSeverity('warning')).toBe('MEDIUM');
     expect(sarifLevelToSeverity('note')).toBe('LOW');
     expect(sarifLevelToSeverity('garbage')).toBe('INFO');
+  });
+
+  it('a result with no level inherits the rule default (SARIF 3.27.10)', () => {
+    // CodeQL omits `level` on every result. Without the fallback every finding
+    // is INFO, which reads as "noticed, not important".
+    const sarif = {
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: 't',
+              rules: [{ id: 'r/error', defaultConfiguration: { level: 'error' } }],
+            },
+          },
+          results: [{ ruleId: 'r/error', message: { text: 'm' } }],
+        },
+      ],
+    };
+    expect(evidenceFromSarif(JSON.stringify(sarif), opts())[0]!.severity).toBe('HIGH');
+  });
+
+  it('a result level wins over the rule default', () => {
+    const sarif = {
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: 't',
+              rules: [{ id: 'r/error', defaultConfiguration: { level: 'error' } }],
+            },
+          },
+          results: [{ ruleId: 'r/error', level: 'note', message: { text: 'm' } }],
+        },
+      ],
+    };
+    expect(evidenceFromSarif(JSON.stringify(sarif), opts())[0]!.severity).toBe('LOW');
   });
 
   it('a missing region is no location, not a zero location', () => {

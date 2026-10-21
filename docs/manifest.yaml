@@ -167,6 +167,12 @@ standalone:
   - file: state/sessions/20261021-0600-SA01-verdict-correctness.md
     reviewed: 2026-10-21
     reason: MACP state — SA01 session file (verdict correctness, audit.ts split)
+  - file: state/sessions/20261021-2037-SA02-scanner-artifacts.md
+    reviewed: 2026-10-21
+    reason: MACP state — SA02 session file (scanner artifact contract, ORT verified)
+  - file: state/sessions/20261021-2104-SA03-codeql-verified.md
+    reviewed: 2026-10-21
+    reason: MACP state — SA03 session file (CodeQL verified, SARIF level fallback)
   - file: state/CONTINUATION.md
     reviewed: 2026-10-21
     reason: 'MACP state — handoff doc for the scanner/evidence work'

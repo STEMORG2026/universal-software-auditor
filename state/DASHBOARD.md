@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T17:52:57.352+05:45
+**Last Reconciled:** 2026-10-21T18:16:37.549+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `9223f70 Merge remote-tracking branch 'origin/master' into fix/semgrep-scanned-guard`
-2. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
-3. `f37fea4 chore(state): auto-update from post-commit hook`
-4. `d9512f7 fix(scanner): report a semgrep scan that read no files as UNKNOWN`
-5. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
-6. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-7. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
-8. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
-9. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
-10. `1515fae chore(master): release (#191)`
+1. `cc9cc12 Merge remote-tracking branch 'origin/master' into fix/depcruise-rules-config`
+2. `a3424dc test(e2e): drop the duplicated blocks from the scan suite (#202)`
+3. `36dd384 feat(scanner): verify the CodeQL adapter against the real toolchain (#200)`
+4. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
+5. `7f1f174 chore(state): auto-update from post-commit hook`
+6. `b8b6917 Merge remote-tracking branch 'origin/master' into fix/depcruise-rules-config`
+7. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
+8. `1833f28 chore(state): auto-update from post-commit hook`
+9. `13331bc fix(scanner): pass dependency-cruiser's rules file to the command`
+10. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
 
 ---
 

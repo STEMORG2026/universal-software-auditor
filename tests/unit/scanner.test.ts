@@ -40,7 +40,9 @@ describe('scanner command surface', () => {
     writeEvidenceReport(out, result());
     const text = fs.readFileSync(out, 'utf8');
     expect(text).toContain('## Coverage');
-    expect(text).toContain('| trivy | 0.75.0 | ok | 1 |');
+    expect(text).toContain('| trivy | 0.75.0 | ok | 1 | 10ms | stdout |');
+    // A file-backed adapter says which file, and a non-zero exit is recorded.
+    expect(text).toContain('| ort | 97.0.0 | ok | 3 | 20ms | `evaluation-result.json` (exit 2) |');
     expect(text).toContain('(not installed)');
     expect(text).toContain('## Evidence');
     expect(text).toContain('CVE-2019-10744');
@@ -209,6 +211,31 @@ describe('parse failures are UNKNOWN, never exceptions', () => {
     expect(argv.slice(0, 2)).toEqual(['semgrep', 'scan']);
     expect(argv).toContain('my-rules/');
   });
+
+  /**
+   * A configured rules file that never reaches argv is worse than no rules at
+   * all: the parser sees `rules` set, so it stops treating an empty violation
+   * list as UNKNOWN, and a cruise that ran no rules reports `ok` with no rows.
+   * That is a silent pass on the one thing this adapter exists to detect.
+   */
+  it('dependency-cruiser: a configured rules file reaches the command', () => {
+    const argv = dependencyCruiserAdapter.buildCommand(
+      { path: '/', workdir: '/w', revision: '', executionId: '' },
+      { rules: '.dependency-cruiser.json' },
+    ).argv;
+    expect(argv).toContain('--config');
+    expect(argv).toContain('.dependency-cruiser.json');
+    expect(argv).not.toContain('--no-config');
+  });
+
+  it('dependency-cruiser: without rules the cruise is explicitly configless', () => {
+    const argv = dependencyCruiserAdapter.buildCommand(
+      { path: '/', workdir: '/w', revision: '', executionId: '' },
+      {},
+    ).argv;
+    expect(argv).toContain('--no-config');
+    expect(argv).not.toContain('--config');
+  });
 });
 
 describe('SARIF edge cases', () => {
@@ -240,13 +267,30 @@ describe('SARIF edge cases', () => {
   });
 
   it('the driver version is preferred over the adapter-reported one', () => {
+    const rows = evidenceFromSarif(
+      JSON.stringify({
+        runs: [
+          {
+            tool: { driver: { name: 'X', version: '9.9.9' } },
+            results: [{ ruleId: 'r', message: { text: 'm' } }],
+          },
+        ],
+      }),
+      sarifOpts(),
+    );
+    expect(rows[0]!.source.version).toBe('9.9.9');
+  });
+
+  it('the adapter version fills in when the tool omits its own', () => {
+    // CodeQL 2.27.3 writes no `tool.driver.version`, so the real capture has to
+    // fall back to the version the adapter probed.
     const rows = evidenceFromSarif(read('codeql.sarif.json'), sarifOpts());
     expect(rows[0]!.source.version).toBe('2.23.0');
   });
 
   it('a start column is carried when the region has one', () => {
     const rows = evidenceFromSarif(read('codeql.sarif.json'), sarifOpts());
-    expect(rows[0]!.location).toEqual({ file: 'app.js', line: 2, column: 1 });
+    expect(rows[0]!.location).toEqual({ file: 'app.js', line: 3, column: 23 });
   });
 });
 
@@ -344,6 +388,20 @@ function result(): ScanResult {
           evidenceCount: 0,
           elapsedMs: 0,
           needsNetwork: false,
+        },
+        {
+          id: 'ort',
+          available: true,
+          version: '97.0.0',
+          command: [],
+          status: 'ok',
+          artifact: 'evaluation-result.json',
+          // ORT exits 2 when it finds violations: a run that succeeded and
+          // objected. The report says so without turning it into a failure.
+          exitCode: 2,
+          evidenceCount: 3,
+          elapsedMs: 20,
+          needsNetwork: true,
         },
       ],
       environment: { sandbox: 'subprocess-scratch-copy', network: 'denied', outputCapBytes: 20 },

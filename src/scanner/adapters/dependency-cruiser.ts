@@ -48,8 +48,19 @@ export const dependencyCruiserAdapter: ScannerAdapter = {
 
   buildCommand(target, config: ScannerConfig) {
     const args = (config.args as string[] | undefined) ?? ['src'];
+    // The rules file has to reach argv, not only the parser. A parser told that
+    // rules exist stops guarding an empty violation list (see `parse`), so a
+    // cruise that never loaded the rules would report `ok` with no rows — a
+    // silent pass on the one thing this adapter exists to detect.
+    const rules = String(config.rules ?? '');
     return {
-      argv: ['depcruise', '--output-type', 'json', '--no-config', ...args],
+      argv: [
+        'depcruise',
+        '--output-type',
+        'json',
+        ...(rules ? ['--config', rules] : ['--no-config']),
+        ...args,
+      ],
       timeoutMs: 120_000,
     };
   },

@@ -1,0 +1,63 @@
+{
+  "repository": {
+    "vcs": {
+      "type": "",
+      "url": "",
+      "revision": "",
+      "path": ""
+    },
+    "vcs_processed": {
+      "type": "",
+      "url": "",
+      "revision": "",
+      "path": ""
+    },
+    "config": {}
+  },
+  "evaluator": {
+    "start_time": "2026-10-21T14:54:49.800966275Z",
+    "end_time": "2026-10-21T14:54:55.687271961Z",
+    "environment": {
+      "ort_version": "97.0.0",
+      "build_jdk": "25.0.4.1+1-LTS",
+      "java_version": "25.0.4.1",
+      "os": "Linux",
+      "processors": 20,
+      "max_memory": 8342470656,
+      "variables": {
+        "ANDROID_HOME": "/opt/android-sdk",
+        "HOME": "/home/ort",
+        "JAVA_HOME": "/opt/java/openjdk"
+      }
+    },
+    "violations": [
+      {
+        "rule": "LAB_HINT",
+        "pkg": null,
+        "license": null,
+        "license_sources": [],
+        "severity": "HINT",
+        "message": "Lab policy: no automated licence review has been performed.",
+        "how_to_fix": "Review licences manually."
+      },
+      {
+        "rule": "DENY_LODASH",
+        "pkg": "NPM::lodash:4.17.21",
+        "license": null,
+        "license_sources": [],
+        "severity": "ERROR",
+        "message": "lodash is denied by lab policy in dependency of NPM::ort-lab:1.0.0.",
+        "how_to_fix": "Replace lodash with a maintained alternative."
+      },
+      {
+        "rule": "DENY_EXPRESS",
+        "pkg": "NPM::express:4.18.2",
+        "license": null,
+        "license_sources": [],
+        "severity": "WARNING",
+        "message": "express is deprecated by lab policy.",
+        "how_to_fix": "Migrate off express."
+      }
+    ]
+  }
+}

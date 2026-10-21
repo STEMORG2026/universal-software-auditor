@@ -148,4 +148,4 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 
 ### 17:52 — Commit
 
-`9223f70` Merge remote-tracking branch 'origin/master' into fix/semgrep-scanned-guard
+`0cef562` Merge remote-tracking branch 'origin/master' into test/e2e-dedup
