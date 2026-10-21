@@ -83,3 +83,7 @@ failure and was restored.
 ### 17:58 — Commit
 
 `18540fb` chore(state): reconcile dashboard after the master merge
+
+### 18:06 — Commit
+
+`02fc46e` ci(codeql): exclude fixtures from code scanning
