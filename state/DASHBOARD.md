@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T17:58:35.183+05:45
+**Last Reconciled:** 2026-10-21T17:58:54.465+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `5fb84d4 Merge remote-tracking branch 'origin/master' into feat/codeql-verified`
-2. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
-3. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
-4. `4b094a4 chore(state): auto-update from post-commit hook`
-5. `9349f02 feat(scanner): verify the CodeQL adapter against the real toolchain`
-6. `eab1186 chore(state): auto-update from post-commit hook`
-7. `d68d1e6 fix(scanner): read scanner artifacts from files, and run staged tools as stages`
-8. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
-9. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-10. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
+1. `18540fb chore(state): reconcile dashboard after the master merge`
+2. `5fb84d4 Merge remote-tracking branch 'origin/master' into feat/codeql-verified`
+3. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
+4. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
+5. `4b094a4 chore(state): auto-update from post-commit hook`
+6. `9349f02 feat(scanner): verify the CodeQL adapter against the real toolchain`
+7. `eab1186 chore(state): auto-update from post-commit hook`
+8. `d68d1e6 fix(scanner): read scanner artifacts from files, and run staged tools as stages`
+9. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+10. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
 
 ---
 
