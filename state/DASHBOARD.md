@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T16:07:03.871+05:45
+**Last Reconciled:** 2026-10-21T15:56:29.707+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `5e28253 test(e2e): drop the duplicated blocks from the scan suite`
-2. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
-3. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-4. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
-5. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
-6. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
-7. `1515fae chore(master): release (#191)`
-8. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
-9. `22db05d chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.2 (#178)`
-10. `0666be1 fix: correct four false verdicts, split the audit coordinator, reach 100/100 (#190)`
+1. `105c668 fix(engine): resolve a SARIF result level from the rule default before filtering`
+2. `62f2aff fix(engine): resolve a SARIF result level from the rule default before filtering`
+3. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+4. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
+5. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
+6. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
+7. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
+8. `1515fae chore(master): release (#191)`
+9. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
+10. `22db05d chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.2 (#178)`
 
 ---
 
