@@ -167,3 +167,57 @@ standalone:
   - file: state/sessions/20261021-0600-SA01-verdict-correctness.md
     reviewed: 2026-10-21
     reason: MACP state — SA01 session file (verdict correctness, audit.ts split)
+  - file: docs/research/README.md
+    reviewed: 2026-10-21
+    reason: Scanner research — capability matrix and evidence-class legend
+  - file: docs/research/trivy.md
+    reviewed: 2026-10-21
+    reason: Scanner research — trivy, verified by a real run
+  - file: docs/research/semgrep.md
+    reviewed: 2026-10-21
+    reason: Scanner research — semgrep, CLI verified at source
+  - file: docs/research/opengrep.md
+    reviewed: 2026-10-21
+    reason: Scanner research — opengrep, deliberately not claimed as verified
+  - file: docs/research/codeql.md
+    reviewed: 2026-10-21
+    reason: Scanner research — codeql, create verified at source
+  - file: docs/research/dependency-cruiser.md
+    reviewed: 2026-10-21
+    reason: Scanner research — dependency-cruiser, exit-code trap documented
+  - file: docs/research/scorecard.md
+    reviewed: 2026-10-21
+    reason: Scanner research — OpenSSF Scorecard
+  - file: docs/research/sonarqube.md
+    reviewed: 2026-10-21
+    reason: Scanner research — SonarQube, unverified on purpose
+  - file: docs/research/ort.md
+    reviewed: 2026-10-21
+    reason: Scanner research — ORT, whose pipeline shape we copy
+  - file: docs/research/threat-dragon.md
+    reviewed: 2026-10-21
+    reason: Scanner research — Threat Dragon concepts
+  - file: docs/research/openrewrite.md
+    reviewed: 2026-10-21
+    reason: Scanner research — OpenRewrite, fix pipeline only
+  - file: docs/architecture/integration-plan.md
+    reviewed: 2026-10-21
+    reason: Architecture — the sequenced plan for scanner integration
+  - file: docs/architecture/integration-architecture.md
+    reviewed: 2026-10-21
+    reason: Architecture — one-way module boundaries
+  - file: docs/architecture/evidence-model.md
+    reviewed: 2026-10-21
+    reason: Architecture — evidence, provenance, six-valued status
+  - file: docs/architecture/finding-model.md
+    reviewed: 2026-10-21
+    reason: Architecture — finding → risk → recommendation
+  - file: docs/architecture/adapter-model.md
+    reviewed: 2026-10-21
+    reason: Architecture — adapter contract and execution policy
+  - file: fixtures/insecure-app/README.md
+    reviewed: 2026-10-21
+    reason: Planted defect fixture — deliberately weak on purpose
+  - file: fixtures/secure-app/README.md
+    reviewed: 2026-10-21
+    reason: Planted fixture — the negative case, not a claim about quality

@@ -65,7 +65,7 @@ export function cmdScan(args: Args): number {
 }
 
 /** `--scanner a,b` and repeated occurrences both work. */
-function parseScanners(args: Args): string[] | undefined {
+export function parseScanners(args: Args): string[] | undefined {
   const raw = [...list(args, 'scanner'), ...list(args, 'scanners')];
   const ids = raw
     .flatMap((entry) => entry.split(','))
@@ -74,7 +74,7 @@ function parseScanners(args: Args): string[] | undefined {
   return ids.length > 0 ? ids : undefined;
 }
 
-function reportToStdout(result: ScanResult, out: string): void {
+export function reportToStdout(result: ScanResult, out: string): void {
   const { manifest } = result;
   console.log(`scan ${manifest.target} @ ${manifest.repositoryRevision}`);
   for (const a of manifest.adapters) {

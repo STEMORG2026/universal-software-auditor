@@ -55,7 +55,7 @@ embedding the server or the scanner's log format.
 
 - Requires a server, a database, credentials, and (for most languages) a build.
 - Community edition has no SARIF and no full security engine; its security value
-  overlaps our own S2 rules.
+  overlaps our own security rule pack (section S2).
 - Two sources of truth (server state + our evidence model) can drift; an audit
   must record the server version and the analysed snapshot id.
 

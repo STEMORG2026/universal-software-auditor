@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
+import { cmdScan } from '../../src/cli-scan.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -65,5 +66,63 @@ describe('usa scan end-to-end', () => {
     expect(() => new ScannerRunner(enabledAdapters({})).run({ target: missing })).toThrow(
       /scan target not found/,
     );
+  });
+});
+
+describe('usa scan command', () => {
+  it('writes an evidence report for a target, whatever the adapters found', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-scan-cmd-'));
+    fs.writeFileSync(path.join(root, 'package.json'), '{"name":"t","version":"1.0.0"}');
+    const out = path.join(root, 'evidence.md');
+    const logs: string[] = [];
+    const spy = vi.spyOn(console, 'log').mockImplementation((m) => logs.push(String(m)));
+    try {
+      const code = cmdScan({ _: ['scan', root], out });
+      expect(code).toBe(0);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(fs.existsSync(out)).toBe(true);
+    const text = fs.readFileSync(out, 'utf8');
+    expect(text).toContain('## Coverage');
+    expect(text).toContain('trivy');
+    // A missing path is a usage error (exit 1), not a scan of nothing.
+    const errors: string[] = [];
+    const errSpy = vi.spyOn(console, 'error').mockImplementation((m) => errors.push(String(m)));
+    try {
+      expect(cmdScan({ _: ['scan', path.join(root, 'nope')] })).toBe(1);
+    } finally {
+      errSpy.mockRestore();
+    }
+    expect(errors.join('')).toMatch(/path not found/);
+  });
+});
+
+describe('usa scan command', () => {
+  it('writes an evidence report for a target, whatever the adapters found', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-scan-cmd-'));
+    fs.writeFileSync(path.join(root, 'package.json'), '{"name":"t","version":"1.0.0"}');
+    const out = path.join(root, 'evidence.md');
+    const logs: string[] = [];
+    const spy = vi.spyOn(console, 'log').mockImplementation((m) => logs.push(String(m)));
+    try {
+      const code = cmdScan({ _: ['scan', root], out });
+      expect(code).toBe(0);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(fs.existsSync(out)).toBe(true);
+    const text = fs.readFileSync(out, 'utf8');
+    expect(text).toContain('## Coverage');
+    expect(text).toContain('trivy');
+    // A missing path is a usage error (exit 1), not a scan of nothing.
+    const errors: string[] = [];
+    const errSpy = vi.spyOn(console, 'error').mockImplementation((m) => errors.push(String(m)));
+    try {
+      expect(cmdScan({ _: ['scan', path.join(root, 'nope')] })).toBe(1);
+    } finally {
+      errSpy.mockRestore();
+    }
+    expect(errors.join('')).toMatch(/path not found/);
   });
 });
