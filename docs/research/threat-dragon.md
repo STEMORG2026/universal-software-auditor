@@ -16,8 +16,18 @@ files, not server state.
 
 ## Relevant APIs/CLI
 
-**[UNVERIFIED]** — not installed. Consumption is reading the model JSON; the app
-is only the authoring surface. We are not integrating the tool, only the model.
+**[VERIFIED-SOURCE]** — read from the project's own example model in its
+repository (`ThreatDragonModels/test/example-open-threat-model.json`), not from
+memory. The app is the authoring surface; we consume the file.
+
+Two formats exist and only one is worth consuming:
+
+- the **internal diagram JSON** — `{summary, detail:{diagrams:[{diagramJson:{cells}}]}}`
+  with cell types `tm.Actor`, `tm.Process`, `tm.Store`, `tm.Boundary`, `tm.Flow`.
+  It is a drawing: positions and names, with no joinable semantics.
+- **OTM 0.2.0** — the export format, with `assets[]`, `components[]`,
+  `dataflows[]`, `trustZones[]`, `threats[]` (carrying `cwes[]` and STRIDE
+  `categories[]`), `mitigations[]`. This is what we parse.
 
 ## Output formats
 
@@ -58,7 +68,12 @@ data. No code execution.
 
 ## Recommended use in our auditor
 
-Tier 3 concepts, adopted into the evidence model now (so adapters can name the
-concepts they map to) and integrated as a data source later. Adopt:
-`Asset`, `Flow`, `TrustBoundary`, `Threat` (with `Mitigation`), from the model
-JSON.
+Tier 3, implemented: `src/intent/**` parses OTM and joins threats to evidence on
+the CWE id, and `usa intent` reports observed / not-observed / unknown per threat
+plus the CWEs observed but never declared. See
+`docs/architecture/intent-model.md`.
+
+The concepts adopted are exactly the OTM ones — `Asset`, `Component`, `DataFlow`,
+`TrustZone`, `Threat`, `Mitigation` — and nothing was invented on top, because a
+home-grown threat schema would have to be maintained against an upstream one that
+already exists.

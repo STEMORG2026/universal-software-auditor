@@ -43,6 +43,7 @@ export function buildEvidence(args: {
   status: Evidence['status'];
   location: EvidenceLocation | null;
   rawReference?: RawReference;
+  cwes?: string[];
 }): Evidence {
   const source: EvidenceSource = {
     tool: args.source.tool,
@@ -61,5 +62,6 @@ export function buildEvidence(args: {
     status: args.status,
     location: args.location,
     rawReference: args.rawReference ?? {},
+    ...(args.cwes && args.cwes.length > 0 ? { cwes: args.cwes } : {}),
   };
 }

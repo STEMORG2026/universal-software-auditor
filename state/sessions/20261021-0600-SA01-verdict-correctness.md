@@ -129,3 +129,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 12:58 — Commit
 
 `77c5962` test(scanner): verify semgrep, dependency-cruiser and ORT against real runs
+
+### 13:29 — Commit
+
+`f90fd8e` feat(intent): declared threat model joined to observed evidence

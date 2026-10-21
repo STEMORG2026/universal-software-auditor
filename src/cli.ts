@@ -13,6 +13,7 @@ import { cmdBootstrap, cmdInit, cmdLearn } from './cli-scaffold.js';
 import { cmdEvolve } from './cli-evolve.js';
 import { cmdServe } from './cli-serve.js';
 import { cmdScan } from './cli-scan.js';
+import { cmdIntent } from './cli-intent.js';
 
 /** Dispatch only: every command lives in its own cli-*.ts module. */
 /* -------------------------------------------------------------------- main -- */
@@ -36,6 +37,7 @@ const COMMANDS: Record<string, (args: Args) => number | Promise<number>> = {
   models: cmdModels,
   serve: cmdServe,
   scan: cmdScan,
+  intent: cmdIntent,
 };
 
 /** Global --help/--version, resolved before dispatch. Returns null to continue. */

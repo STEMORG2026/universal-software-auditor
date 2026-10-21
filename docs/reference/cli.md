@@ -29,6 +29,7 @@ usa — Universal Software Auditor
   usa live [path]               Conversational audit session (deterministic without a provider)
   usa serve [opts]              Localhost audit server (loopback only, bearer token)
   usa scan [path]              Run scanner adapters, write a run manifest + evidence
+  usa intent <model.json>      Compare a declared threat model with observed evidence
   usa models --provider ID      List models the provider advertises
 
 evolve options

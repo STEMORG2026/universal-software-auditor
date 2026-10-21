@@ -56,14 +56,20 @@ function runEvidence(run: unknown, runIndex: number, options: SarifEvidenceOptio
   );
 }
 
-type RuleIndex = Map<string, { text?: string }>;
+type RuleIndex = Map<string, { text?: string; cwes?: string[] }>;
 
 function ruleIndex(rules: unknown): RuleIndex {
   const index: RuleIndex = new Map();
   if (!Array.isArray(rules)) return index;
   for (const rule of rules) {
     const id = String(dig(rule, ['id']) ?? '');
-    if (id) index.set(id, { text: dig(rule, ['name']) as string | undefined });
+    if (id) {
+      const tags = dig(rule, ['properties', 'tags']);
+      index.set(id, {
+        text: dig(rule, ['name']) as string | undefined,
+        cwes: cwesOfTags(tags),
+      });
+    }
   }
   return index;
 }
@@ -98,7 +104,19 @@ function resultToEvidence(
       jsonPath: `runs[${runIndex}].results[${index}]`,
       excerpt: message.slice(0, 160),
     },
+    cwes: rules.get(ruleId)?.cwes,
   });
+}
+
+/** SARIF rule tags look like `external/cwe/cwe-094`. */
+function cwesOfTags(tags: unknown): string[] | undefined {
+  if (!Array.isArray(tags)) return undefined;
+  const out = new Set<string>();
+  for (const tag of tags) {
+    const match = /cwe[-_]?(\d{1,5})/i.exec(String(tag));
+    if (match) out.add(`CWE-${Number(match[1])}`);
+  }
+  return out.size > 0 ? [...out] : undefined;
 }
 
 function firstMessage(result: unknown): string {

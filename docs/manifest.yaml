@@ -215,6 +215,9 @@ standalone:
   - file: docs/architecture/adapter-model.md
     reviewed: 2026-10-21
     reason: Architecture — adapter contract and execution policy
+  - file: docs/architecture/intent-model.md
+    reviewed: 2026-10-21
+    reason: Architecture — declared threat model vs observed evidence (OTM)
   - file: fixtures/insecure-app/README.md
     reviewed: 2026-10-21
     reason: Planted defect fixture — deliberately weak on purpose
