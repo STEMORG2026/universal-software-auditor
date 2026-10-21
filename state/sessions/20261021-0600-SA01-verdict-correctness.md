@@ -141,3 +141,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 15:56 — Commit
 
 `62f2aff` fix(engine): resolve a SARIF result level from the rule default before filtering
+
+### 15:56 — Commit
+
+`105c668` fix(engine): resolve a SARIF result level from the rule default before filtering
