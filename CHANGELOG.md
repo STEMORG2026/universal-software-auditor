@@ -1,5 +1,52 @@
 # Changelog
 
+## 2.27.0
+
+### Minor Changes
+
+- [#190](https://github.com/STEMORG2026/universal-software-auditor/pull/190) [`0666be1`](https://github.com/STEMORG2026/universal-software-auditor/commit/0666be1177553cd38363cc60c7164b3254faf679) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Four verdict-correctness fixes, found by auditing the auditor.
+  
+  - **Invariants no longer fire on a rule that does not apply.** `INV-SEC-003`
+    reported a HIGH finding on any project with input validation but no HTML
+    output surface (this CLI included), because a `NOT_APPLICABLE` assertion was
+    treated as a failure. An invariant is a claim about a _combination_; when one
+    half of the combination does not exist there is nothing to assert.
+  - **`SUP-024` matches `*.sigstore.json`.** cosign's default bundle name is
+    `<artifact>.sigstore.json`; the glob `*.sigstore` never matched it, so every
+    cosign-signed project was told it had no signature bundle.
+  - **`CQ-004` stops reading prose.** `:\s*any\b` matched doc-comment sentences
+    ("Degraded-never-empty: any fetch failure") and reported a type escape that
+    did not exist. The type-escape branch now requires a type position; the
+    `@ts-ignore` branch still reads comments, because that is where directives
+    live.
+  - **`TAS-009` accepts an explicit zero retry budget**, and `TAS-007` recognises
+    Stryker's post-v6 `stryker.config.*` plus a committed mutation harness. Both
+    rules previously scored the stricter, more honest answer as absent.
+  
+  Also: `src/engine/audit.ts` (840 lines) is split into a coordinator plus five
+  modules (`audit-config`, `pack-selection`, `evaluate-packs`, `audit-warnings`,
+  `report-build`), the layer boundaries between them are enforced by
+  `no-restricted-imports`, and the test suite declares `retry: 0` with a 15s
+  ceiling for the e2e cases that spawn the CLI.
+  
+  Self-audit after the batch: 100/100, no open findings.
+
+### Patch Changes
+
+- [#192](https://github.com/STEMORG2026/universal-software-auditor/pull/192) [`216c054`](https://github.com/STEMORG2026/universal-software-auditor/commit/216c0547539eff937fae4b2a7c0024ec22bdae43) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Bump the dev-dependencies group. No shipped code changes.
+  
+  - `@commitlint/cli` and `@commitlint/config-conventional` → 21.2.4
+  - `@types/node` → 26.6.5
+  - `eslint` → 10.13.0
+  - `lint-staged` → 17.6.0
+  - `prettier` → 3.9.10
+  - `typescript-eslint` → 8.72.0
+  
+  Replaces [#180](https://github.com/Er-Sajan-PLG/universal-software-auditor/issues/180), which dependabot can no longer rebase (a human commit landed on
+  its branch, so the bot refuses to touch it). Versions are the latest their
+  ranges resolve to against current `master`, which already carries the `vite`
+  security pin from [#190](https://github.com/Er-Sajan-PLG/universal-software-auditor/issues/190).
+
 ## 2.26.2
 
 ### Patch Changes
