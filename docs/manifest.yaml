@@ -164,3 +164,6 @@ standalone:
   - file: state/plans/agent-OC01-release-pipeline-repair.md
     reviewed: 2026-10-09
     reason: MACP state — OC01 plan entry
+  - file: state/sessions/20261021-0600-SA01-verdict-correctness.md
+    reviewed: 2026-10-21
+    reason: MACP state — SA01 session file (verdict correctness, audit.ts split)
