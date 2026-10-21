@@ -203,6 +203,51 @@ describe('check kinds', () => {
       expect(onlySql.status).toBe('PASS');
     });
 
+    it('a result with no level inherits the rule default before filtering', () => {
+      // CodeQL omits `level` on every result and records it only in the rule's
+      // defaultConfiguration (SARIF 3.27.10). Defaulting a missing level to
+      // "warning" made an error-level finding invisible to `levels: [error]`,
+      // so a rule that gates on errors passed over a SARIF full of them.
+      const root = build({
+        'codeql.sarif': JSON.stringify({
+          version: '2.1.0',
+          runs: [
+            {
+              tool: {
+                driver: {
+                  name: 'CodeQL',
+                  rules: [
+                    {
+                      id: 'js/disabling-certificate-validation',
+                      defaultConfiguration: { level: 'error' },
+                    },
+                    { id: 'js/insufficient-key-size', defaultConfiguration: { level: 'warning' } },
+                  ],
+                },
+              },
+              results: [
+                {
+                  ruleId: 'js/disabling-certificate-validation',
+                  message: { text: 'cert validation off' },
+                },
+                { ruleId: 'js/insufficient-key-size', message: { text: 'weak key' } },
+              ],
+            },
+          ],
+        }),
+      });
+      const errors = evaluateAt(root, {
+        kind: 'oracle',
+        source: 'sarif',
+        file: 'codeql.sarif',
+        levels: ['error'],
+        op: 'at_most',
+        value: 0,
+      });
+      expect(errors.status).toBe('FAIL');
+      expect(errors.message).toContain('1 <= 0');
+    });
+
     it('reads a JSON number at a dotted path with at_least', () => {
       const root = build({
         'reports/cov.json': JSON.stringify({ total: { lines: { pct: 87.5 } } }),
