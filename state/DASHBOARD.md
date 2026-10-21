@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T17:52:44.311+05:45
+**Last Reconciled:** 2026-10-21T18:11:19.232+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `b8b6917 Merge remote-tracking branch 'origin/master' into fix/depcruise-rules-config`
-2. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
-3. `1833f28 chore(state): auto-update from post-commit hook`
-4. `13331bc fix(scanner): pass dependency-cruiser's rules file to the command`
-5. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
-6. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-7. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
-8. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
-9. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
-10. `1515fae chore(master): release (#191)`
+1. `6e5d440 Merge remote-tracking branch 'origin/master' into test/e2e-dedup`
+2. `36dd384 feat(scanner): verify the CodeQL adapter against the real toolchain (#200)`
+3. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
+4. `53ca38b chore(state): auto-update from post-commit hook`
+5. `0cef562 Merge remote-tracking branch 'origin/master' into test/e2e-dedup`
+6. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
+7. `3f399fd chore(state): auto-update from post-commit hook`
+8. `5e28253 test(e2e): drop the duplicated blocks from the scan suite`
+9. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+10. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
 
 ---
 

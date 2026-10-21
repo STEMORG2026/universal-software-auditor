@@ -148,4 +148,4 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 
 ### 17:52 — Commit
 
-`b8b6917` Merge remote-tracking branch 'origin/master' into fix/depcruise-rules-config
+`0cef562` Merge remote-tracking branch 'origin/master' into test/e2e-dedup

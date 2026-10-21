@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { ScannerRunner } from '../../src/scanner/run.js';
-import { enabledAdapters } from '../../src/scanner/registry.js';
+import { byId, enabledAdapters } from '../../src/scanner/registry.js';
 import { loadScannerConfig } from '../../src/scanner/config.js';
 
 /**
@@ -65,28 +65,36 @@ describe('usa scan end-to-end', () => {
   );
 
   it(
-    'every adapter that is installed produces evidence on the weak fixture',
-    { timeout: 180_000 },
+    'codeql reads its SARIF from the file it writes, not from stdout',
+    { timeout: 300_000 },
     () => {
-      // A scanner that is present but silent is worse than one that is absent: the
-      // absent one says UNAVAILABLE, the silent one looks like a clean result.
-      for (const adapter of enabledAdapters({
-        codeql: { enabled: false },
-        ort: { enabled: false },
-      })) {
-        if (!adapter.probe().available) continue;
-        const result = new ScannerRunner([adapter]).run({
-          target: INSECURE,
-          config: loadScannerConfig(INSECURE),
-        });
-        const run = result.manifest.adapters[0]!;
-        expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
-        expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
-        for (const item of result.evidence) {
-          expect(item.provenance.executionId).toBeTruthy();
-          expect(item.provenance.repositoryRevision).toBeTruthy();
-        }
+      const adapter = byId('codeql');
+      if (!adapter?.probe().available) {
+        console.warn('SKIPPED: codeql not installed — no CodeQL evidence to assert');
+        return;
       }
+      // Two stages: `database create`, then `database analyze`. The evidence
+      // command writes SARIF to a file and logs progress to stdout, so this
+      // assertion is about the runner's wiring, not only the parser.
+      const result = new ScannerRunner([adapter]).run({
+        target: INSECURE,
+        config: loadScannerConfig(INSECURE),
+        network: true,
+      });
+      const run = result.manifest.adapters[0]!;
+      expect(run.status, run.reason ?? 'ok').toBe('ok');
+      expect(run.artifact).toBe('codeql-results.sarif');
+      expect(run.prepare?.[0]?.slice(0, 3)).toEqual(['codeql', 'database', 'create']);
+      // Named ids, because "2 findings" is satisfied by any two findings.
+      expect(result.evidence.map((e) => e.source.identifier).sort()).toEqual([
+        'js/disabling-certificate-validation',
+        'js/insufficient-key-size',
+      ]);
+      // The severity comes from the rule's defaultConfiguration — CodeQL omits
+      // `level` on every result.
+      const byRule = new Map(result.evidence.map((e) => [e.source.identifier, e.severity]));
+      expect(byRule.get('js/disabling-certificate-validation')).toBe('HIGH');
+      expect(byRule.get('js/insufficient-key-size')).toBe('MEDIUM');
     },
   );
 
@@ -128,35 +136,6 @@ describe('usa scan end-to-end', () => {
     expect(() => new ScannerRunner(enabledAdapters({})).run({ target: missing })).toThrow(
       /scan target not found/,
     );
-  });
-});
-
-describe('usa scan command', () => {
-  it('writes an evidence report for a target, whatever the adapters found', () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-scan-cmd-'));
-    fs.writeFileSync(path.join(root, 'package.json'), '{"name":"t","version":"1.0.0"}');
-    const out = path.join(root, 'evidence.md');
-    const logs: string[] = [];
-    const spy = vi.spyOn(console, 'log').mockImplementation((m) => logs.push(String(m)));
-    try {
-      const code = cmdScan({ _: ['scan', root], out });
-      expect(code).toBe(0);
-    } finally {
-      spy.mockRestore();
-    }
-    expect(fs.existsSync(out)).toBe(true);
-    const text = fs.readFileSync(out, 'utf8');
-    expect(text).toContain('## Coverage');
-    expect(text).toContain('trivy');
-    // A missing path is a usage error (exit 1), not a scan of nothing.
-    const errors: string[] = [];
-    const errSpy = vi.spyOn(console, 'error').mockImplementation((m) => errors.push(String(m)));
-    try {
-      expect(cmdScan({ _: ['scan', path.join(root, 'nope')] })).toBe(1);
-    } finally {
-      errSpy.mockRestore();
-    }
-    expect(errors.join('')).toMatch(/path not found/);
   });
 });
 

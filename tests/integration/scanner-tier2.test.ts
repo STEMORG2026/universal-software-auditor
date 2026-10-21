@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {
   scorecardAdapter,
@@ -105,31 +106,83 @@ describe('scorecard adapter', () => {
 });
 
 describe('ort adapter', () => {
-  it('builds the evaluate leg with the option names ORT 97 actually accepts', () => {
-    // Measured: ORT 97 rejects --input-dir outright ("no such option"); the
-    // input is -i/--ort-file and it takes the result FILE, not a directory.
-    const cmd = ortAdapter.buildCommand(
-      { path: '/r', workdir: '/r/w', revision: '', executionId: '' },
-      ortAdapter.defaultConfig(),
-    );
+  const target = { path: '/r', workdir: '/r/w', revision: '', executionId: '' };
+
+  it('builds a two-stage run: analyze writes the result, evaluate reads it', () => {
+    const cmd = ortAdapter.buildCommand(target, ortAdapter.defaultConfig());
+    // Measured: ORT 97 rejects --input-dir on evaluate ("no such option"); the
+    // input is -i/--ort-file and it takes the result FILE.
     expect(cmd.argv.slice(0, 3)).toEqual(['ort', 'evaluate', '-i']);
     expect(cmd.argv).not.toContain('--input-dir');
+    expect(cmd.argv[cmd.argv.indexOf('-i') + 1]).toBe('.ort-results/analyzer-result.yml');
     expect(cmd.argv[cmd.argv.indexOf('-o') + 1]).toBe('.ort-results');
     expect(cmd.argv[cmd.argv.indexOf('-f') + 1]).toBe('JSON');
-    expect(cmd.argv[cmd.argv.indexOf('-i') + 1]).toContain('analyzer-result.yml');
+    // analyze is the stage that produces the file evaluate reads.
+    expect(cmd.prepare).toHaveLength(1);
+    expect(cmd.prepare![0]!.argv.slice(0, 2)).toEqual(['ort', 'analyze']);
+    expect(cmd.prepare![0]!.argv).toContain('/r/w');
+    // The violations land in a file, never on stdout.
+    expect(cmd.artifacts).toEqual(['.ort-results/evaluation-result.json']);
+    // analyze resolves the graph from the registry.
+    expect(cmd.network).toBe(true);
   });
 
-  it('parses the [UNVERIFIED] fixture into policy violations', () => {
-    const rows = ortAdapter.parse(read('ort-evaluate.yml'), ctx('unknown'));
-    expect(rows).toHaveLength(2);
-    expect(rows[0]!.source.kind).toBe('policy-violation');
-    expect(rows[0]!.source.identifier).toBe('DEPRECATED_LICENSE');
-    expect(rows[0]!.claim).toContain('lodash@4.17.4');
-    expect(rows[0]!.severity).toBe('HIGH');
-    expect(rows[1]!.severity).toBe('MEDIUM');
+  it('the bundled ruleset needs a leading slash — measured, not documented', () => {
+    const cmd = ortAdapter.buildCommand(target, ortAdapter.defaultConfig());
+    // Without the slash ORT resolves the resource against the command's own jar
+    // and dies with a NullPointerException instead of reporting a bad path.
+    expect(cmd.argv).toContain('--rules-resource=/rules/osadl.rules.kts');
   });
 
-  it('accepts the same document as JSON', () => {
+  it('a project rules script replaces the bundled ruleset', () => {
+    const cmd = ortAdapter.buildCommand(target, { rulesFile: '/rules/ours.kts' });
+    expect(cmd.argv[cmd.argv.indexOf('-r') + 1]).toBe('/rules/ours.kts');
+    expect(cmd.argv.some((a) => a.startsWith('--rules-resource'))).toBe(false);
+  });
+
+  it('a pre-computed result file makes the run single-stage and offline', () => {
+    const cmd = ortAdapter.buildCommand(target, { ortFile: '/audit/analyzer-result.yml' });
+    expect(cmd.prepare).toEqual([]);
+    expect(cmd.network).toBe(false);
+    expect(cmd.argv[cmd.argv.indexOf('-i') + 1]).toBe('/audit/analyzer-result.yml');
+  });
+
+  it('parses the real capture: one row per violation, null pkg kept null', () => {
+    const rows = ortAdapter.parse(read('ort-evaluation.json'), ctx('97.0.0'));
+    expect(rows).toHaveLength(3);
+    // A violation the ruleset attached to the result has pkg: null. It is not
+    // "unknown package" — inventing a package would be a fabricated location.
+    expect(rows[0]!.source.identifier).toBe('LAB_HINT');
+    expect(rows[0]!.claim).toContain('the repository violates policy rule LAB_HINT');
+    expect(rows[0]!.claim).not.toContain('unknown package');
+    expect(rows[0]!.severity).toBe('INFO');
+    expect(rows[0]!.status).toBe('FAIL');
+    // A package violation keeps ORT's own coordinate form.
+    expect(rows[1]!.claim).toContain('NPM::lodash:4.17.21');
+    expect(rows[1]!.claim).toContain('lodash is denied by lab policy');
+    expect(rows[1]!.severity).toBe('HIGH');
+    expect(rows[1]!.rawReference.jsonPath).toBe('evaluator.violations[1]');
+    expect(rows[1]!.rawReference.excerpt).toContain('Replace lodash');
+    expect(rows[2]!.severity).toBe('MEDIUM');
+    // Every row carries the tool's own version, not the adapter's guess.
+    expect(rows[1]!.source.version).toBe('97.0.0');
+  });
+
+  it('a clean evaluation is a PASS row, because silence is not a pass', () => {
+    const rows = ortAdapter.parse(
+      JSON.stringify({
+        analyzer: { result: { packages: [{}, {}] } },
+        evaluator: { violations: [] },
+      }),
+      ctx('97.0.0'),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.status).toBe('PASS');
+    expect(rows[0]!.claim).toContain('2 package(s)');
+    expect(rows[0]!.claim).toContain('/rules/osadl.rules.kts');
+  });
+
+  it('accepts a top-level violations array from an older layout', () => {
     const rows = ortAdapter.parse(
       JSON.stringify({ violations: [{ pkg: 'a@1.0.0', rule: 'R', severity: 'ERROR' }] }),
       ctx('unknown'),
@@ -149,6 +202,26 @@ describe('ort adapter', () => {
 
   it('probe reports UNAVAILABLE when the JVM package is absent', () => {
     expect(ortAdapter.probe().available).toBe(false);
-    expect(ortAdapter.probe().reason).toMatch(/JVM package/);
+    // The verified runner is the container image; saying so is more useful than
+    // "install a JVM".
+    expect(ortAdapter.probe().reason).toMatch(/oss-review-toolkit/);
+  });
+
+  it('reads the version from the version line, not from a jar name in a warning', () => {
+    // Measured: `ort --version` emits JVM warnings first, one of which names
+    // `jna-5.19.1.jar`. A loose regex reports 5.19.1 as the ORT version.
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-ort-'));
+    const bin = path.join(dir, 'ort');
+    fs.writeFileSync(
+      bin,
+      '#!/bin/sh\necho "WARNING: java.lang.System::load called by com.sun.jna.Native (file:/opt/ort/lib/jna-5.19.1.jar)"\necho 97.0.0\n',
+      { mode: 0o755 },
+    );
+    const stub = vi.spyOn(process, 'env', 'get').mockReturnValue({ PATH: dir } as never);
+    try {
+      expect(ortAdapter.probe().version).toBe('97.0.0');
+    } finally {
+      stub.mockRestore();
+    }
   });
 });

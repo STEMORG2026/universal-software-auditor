@@ -68,6 +68,26 @@
 | Task         | unknown                                              |
 | Status       | COMPLETED                                            |
 
+### 2026-10-21 — SA02 (Sathi / WorkBuddy)
+
+| Field        | Value                                              |
+| ------------ | -------------------------------------------------- |
+| Session file | `sessions/20261021-2037-SA02-scanner-artifacts.md` |
+| Agent        | SA02 (Sathi / WorkBuddy)                           |
+| Branch       | fix/scanner-artifact-contract                      |
+| Task         | unknown                                            |
+| Status       | COMPLETED                                          |
+
+### 2026-10-21 — SA03 (Sathi / WorkBuddy)
+
+| Field        | Value                                            |
+| ------------ | ------------------------------------------------ |
+| Session file | `sessions/20261021-2104-SA03-codeql-verified.md` |
+| Agent        | SA03 (Sathi / WorkBuddy)                         |
+| Branch       | feat/codeql-verified                             |
+| Task         | unknown                                          |
+| Status       | COMPLETED                                        |
+
 ---
 
 ## Search by Keyword
