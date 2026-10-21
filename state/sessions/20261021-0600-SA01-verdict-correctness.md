@@ -145,3 +145,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 15:56 — Commit
 
 `105c668` fix(engine): resolve a SARIF result level from the rule default before filtering
+
+### 17:52 — Commit
+
+`9223f70` Merge remote-tracking branch 'origin/master' into fix/semgrep-scanned-guard
