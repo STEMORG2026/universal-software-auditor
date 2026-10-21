@@ -47,6 +47,7 @@ usa — Universal Software Auditor
   usa foundation show [path]    Print the effective intent and asserted facts
   usa live [path]               Conversational audit session (deterministic without a provider)
   usa serve [opts]              Localhost audit server (loopback only, bearer token)
+  usa scan [path]              Run scanner adapters, write a run manifest + evidence
   usa models --provider ID      List models the provider advertises
 
 evolve options

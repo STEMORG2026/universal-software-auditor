@@ -5,7 +5,15 @@ export default tseslint.config(
   {
     // `examples/demo-app` is a deliberately bad CommonJS fixture for the sample
     // report, not source. Linting it would mean "fixing" the findings we planted.
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'examples/demo-app/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      'examples/demo-app/**',
+      // Deliberately defective fixture projects: linting them would mean
+      // "fixing" the defects they exist to hold.
+      'fixtures/**',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

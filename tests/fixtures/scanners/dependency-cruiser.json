@@ -1,0 +1,27 @@
+{
+  "$comment": "UNVERIFIED SHAPE — the dependency-cruiser CLI page leaves the JSON schema to doc/output-format.md, which was not read during research. Only the rules this adapter depends on are assumed: summary.violations[] with from.path / to.path / rule.{name,severity}. Replace with a real `depcruise -T json` capture on a repo with a rules config before marking this adapter complete.",
+  "modules": [
+    {
+      "source": "src/engine/audit.ts",
+      "valid": true,
+      "dependencies": [{ "resolved": "src/engine/evaluate.ts", "module": "src/engine/evaluate.ts" }]
+    },
+    {
+      "source": "src/util/glob.ts",
+      "valid": true,
+      "dependencies": [{ "resolved": "src/engine/audit.ts", "module": "src/engine/audit.ts" }]
+    }
+  ],
+  "summary": {
+    "violations": [
+      {
+        "from": { "path": "src/util/glob.ts", "stable": false },
+        "to": { "path": "src/engine/audit.ts", "stable": false },
+        "rule": { "name": "no-bottom-to-top", "severity": "error" }
+      }
+    ]
+  },
+  "rules": {
+    "forbidden": [{ "name": "no-bottom-to-top", "severity": "error" }]
+  }
+}
