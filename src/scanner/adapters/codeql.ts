@@ -10,10 +10,15 @@
  * SARIF never reached `parse`. That is a structural bug the fixture-based tests
  * could not see, because they called `parse` directly.
  *
- * [UNVERIFIED] No `codeql` binary was available on the machine where this was
- * written, so neither stage has been executed end-to-end. The shape follows the
- * documented CLI and the same contract ORT was verified against; treat a first
- * real run as the verification, not a formality.
+ * Verified end-to-end against CodeQL 2.27.3 on `fixtures/insecure-app`: two
+ * stages, one artifact, two findings. Three bugs only a run could find —
+ *
+ * 1. the query specifier is positional, so the default empty `packs` was passed
+ *    as one empty specifier and the run died with `Invalid package
+ *    specification:` and no SARIF;
+ * 2. `codeql --version` prints a sentence, so `[\d.]+` recorded `2.27.3.`;
+ * 3. (in the shared SARIF normaliser) CodeQL omits `result.level`, which made
+ *    every finding INFO until the rule's `defaultConfiguration.level` was used.
  *
  * Security boundary, enforced and not aspirational: **the engine never runs a
  * build command**. CodeQL's `--command` is arbitrary project code; the adapter
@@ -97,9 +102,25 @@ export const codeqlAdapter: ScannerAdapter = {
   },
 };
 
-/** The analyze leg, exposed so tests and callers can build it without running create. */
+/**
+ * The analyze leg, exposed so tests and callers can build it without running create.
+ *
+ * `packs` is a *positional* argument, so an empty string is not "no packs" — it
+ * is one empty specifier, and CodeQL rejects the whole run with
+ * `Invalid package specification:` and writes no SARIF. Measured on 2.27.3: with
+ * no specifier at all, CodeQL runs the language's default (code-scanning) suite.
+ */
 export function codeqlAnalyzeCommand(db: string, packs: string, out: string): string[] {
-  return ['codeql', 'database', 'analyze', db, packs, '--format=sarif-latest', `--output=${out}`];
+  const specifier = packs.trim();
+  return [
+    'codeql',
+    'database',
+    'analyze',
+    db,
+    ...(specifier ? [specifier] : []),
+    '--format=sarif-latest',
+    `--output=${out}`,
+  ];
 }
 
 function which(binary: string): string | null {
@@ -117,6 +138,9 @@ function which(binary: string): string | null {
 
 function versionOf(executable: string): string {
   const proc = spawnSync(executable, ['--version'], { encoding: 'utf8', timeout: 30_000 });
-  const match = /([\d.]+)/.exec(String(proc.stdout ?? ''));
+  // `codeql --version` prints "CodeQL command-line toolchain release 2.27.3."
+  // A `[\d.]+` class captures the sentence's full stop, and the version is
+  // recorded as "2.27.3." in every manifest.
+  const match = /(\d+\.\d+\.\d+)/.exec(String(proc.stdout ?? ''));
   return match?.[1] ?? 'unknown';
 }

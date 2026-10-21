@@ -4,6 +4,18 @@
 # and eval() findings are the product, not defects. Reporting them on every run
 # buries the two or three real findings CodeQL might surface in src/.
 #
+# `fixtures/` is the same case, and it is the one the scanner tests depend on.
+# `fixtures/insecure-app` carries planted defects on purpose — a disabled TLS
+# check and an RSA-1024 key — because the CodeQL adapter's end-to-end test needs
+# a run that actually produces SARIF results. Without this exclusion, adding a
+# defect to make a test meaningful fails the code-scanning gate as two new high
+# alerts, so the test and the gate pull in opposite directions.
+#
+# This is the same rule the repository already applies to `fixtures/**` in
+# eslint.config.mjs and .usa.yaml: planted defects must be invisible to every
+# tool that would otherwise report them against USA itself.
+#
 # The rest of the repository — including tests/ — is analysed.
 paths-ignore:
   - examples/demo-app
+  - fixtures/**

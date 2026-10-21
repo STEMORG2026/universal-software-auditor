@@ -21,9 +21,9 @@ next session does not reconstruct state from `git log`.
 
 Then the artifact-contract pass on `fix/scanner-artifact-contract`: `prepare` and
 `artifacts` on `ScannerCommand`, the ORT payload verified end-to-end, CodeQL's
-wiring repaired. 1433 tests.
+wiring repaired. 1439 tests.
 
-Gates at close: **1433 tests**, lint 0 warnings, `docs:all` clean, self-audit
+Gates at close: **1439 tests**, lint 0 warnings, `docs:all` clean, self-audit
 **100/100 with no open findings**.
 
 ## The one thing left open
@@ -90,16 +90,17 @@ first; the recipe is the easy half.
 
 ## Known gaps, in priority order
 
-1. **CodeQL is wired but unrun.** Two stages, one artifact, zero executions. The
-   first real run is the verification; expect it to find something, because every
-   adapter in this repo that was never run had a bug (ORT's `--input-dir`,
-   dependency-cruiser's `? → ?`, semgrep's absolute paths).
-2. **ORT is only reachable through a host `ort`.** `probe()` looks on PATH, and
-   the verified invocation is the container image. A machine without a JVM needs
-   a shim; a shim that mounts `$PWD` at the same path works because the runner's
-   argv and workdir are both relative. Deciding whether to support docker
-   natively is a security question (the auditor would spawn docker), not a
-   plumbing one — do not slip it in.
+1. **ORT and CodeQL are only reachable through host binaries.** `probe()` looks
+   on PATH; the verified invocations are a container image and a 700 MB bundle.
+   A machine without either needs a shim (a shim that mounts `$PWD` at the same
+   path works, because the runner's argv and workdir are both relative).
+   Deciding whether to support docker natively is a security question — the
+   auditor would spawn docker — not a plumbing one. Do not slip it in.
+2. **CodeQL's `security-severity` is ignored.** The normaliser maps
+   `defaultConfiguration.level` (error/warning/note) and stops there. CodeQL
+   also publishes a numeric `properties.security-severity` (7.5 for both fixture
+   findings), which is the only thing that distinguishes a 9.8 from a 5.3. A
+   rule can read it only if the normaliser carries it; today it does not.
 3. **Semgrep and dependency-cruiser are only end-to-end tested where installed.**
    Their e2e tests skip loudly when absent, which is honest but means CI proves
    less than a local run. If they should run in CI, install them in the workflow.
@@ -108,6 +109,9 @@ first; the recipe is the easy half.
 5. **No requirement/control consumption yet.** `docs/architecture/finding-model.md`
    defines `Requirement` and `Control` as declared inputs; nothing reads them.
    The intent model (`src/intent/`) is the pattern to copy.
+6. **`tests/e2e/scan.test.ts` has two duplicated blocks** — the "every adapter
+   that is installed" test and the "usa scan command" test each appear twice,
+   so they run twice. Harmless, but it doubles the slowest e2e file's runtime.
 
 ## Traps discovered — do not re-learn these
 
@@ -124,17 +128,21 @@ first; the recipe is the easy half.
 | `ort --rules-resource`                | Needs a **leading slash** (`/rules/osadl.rules.kts`). The bare form resolves against the command's jar and dies with a `NullPointerException` + stack trace.                                  |
 | `ort evaluate` exit status            | Non-zero when it finds violations — a run that succeeded and objected. Never read it as failure.                                                                                              |
 | `ort --version`                       | Prints JVM warnings first, one naming `jna-5.19.1.jar`. A loose regex reports **5.19.1** as the ORT version. Only a line that _is_ a version counts.                                          |
+| `codeql database analyze`             | The query specifier is **positional**: an empty string is one empty specifier, and the run dies with `Invalid package specification:` and writes no SARIF. Omit the argument instead.         |
+| `codeql` SARIF                        | Omits `result.level` on every result; the level is in `defaultConfiguration.level` (SARIF 3.27.10). Reading only `result.level` makes every finding INFO.                                     |
+| `codeql --version`                    | Prints `… release 2.27.3.` — `[\d.]+` records the full stop.                                                                                                                                  |
 | A file-writing scanner's fixture test | Proves the parser and nothing about the wiring. If the tool writes a file, the test must go through the runner.                                                                               |
 
 ## Local tooling used for verification (not committed)
 
-| Tool               | Version | Where                                                            |
-| ------------------ | ------- | ---------------------------------------------------------------- |
-| trivy              | 0.75.0  | system                                                           |
-| semgrep            | 1.182.0 | `~/.local/bin` (pip `--user`)                                    |
-| dependency-cruiser | 18.7.0  | `~/.local/bin` (npm `-g`)                                        |
-| scorecard          | 5.6.0   | `/tmp` — **ephemeral**, re-download from ossf/scorecard releases |
-| ort                | 97.0.0  | docker image `ghcr.io/oss-review-toolkit/ort`                    |
+| Tool               | Version | Where                                                                    |
+| ------------------ | ------- | ------------------------------------------------------------------------ |
+| trivy              | 0.75.0  | system                                                                   |
+| semgrep            | 1.182.0 | `~/.local/bin` (pip `--user`)                                            |
+| dependency-cruiser | 18.7.0  | `~/.local/bin` (npm `-g`)                                                |
+| scorecard          | 5.6.0   | `/tmp` — **ephemeral**, re-download from ossf/scorecard releases         |
+| ort                | 97.0.0  | docker image `ghcr.io/oss-review-toolkit/ort`                            |
+| codeql             | 2.27.3  | `/tmp` — **ephemeral**, 700 MB bundle from github/codeql-action releases |
 
 The ORT run used a `ort` shim on PATH:
 
@@ -149,7 +157,7 @@ exec docker run --rm --network host -u "$(id -u):$(id -g)" \
 ```bash
 npm run typecheck && npm run lint && npm run format:check
 npm run docs:all            # 6 gates; regenerates cli.md + sample-report.md
-npm test                    # 1433 tests
+npm test                    # 1439 tests
 npm run build && node dist/cli.js audit . --out AUDIT.md   # must be 100/100
 ```
 
