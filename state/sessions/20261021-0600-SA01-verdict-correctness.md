@@ -117,3 +117,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 09:57 — Commit
 
 `b5d32a9` feat(scanner): evidence-first adapter layer with Tier-1 scanners
+
+### 10:44 — Commit
+
+`903541f` feat(scanner): evidence-first adapter layer with Tier-1 scanners
