@@ -1,35 +1,125 @@
 {
-  "$comment": "SARIF 2.1.0 fixture in the shape codeql database analyze --format=sarif-latest emits (runs[].tool.driver.{name,version,rules[]}, results[].{ruleId,level,message.text,locations[]}). Minimal: one result with a physical location.",
-  "version": "2.1.0",
   "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
   "runs": [
     {
       "tool": {
         "driver": {
           "name": "CodeQL",
-          "version": "2.23.0",
+          "version": null,
           "rules": [
             {
-              "id": "js/insecure-eval",
-              "name": "js/insecure-eval",
-              "properties": { "tags": ["security", "external/cwe/cwe-094"] }
+              "id": "js/insufficient-key-size",
+              "name": "js/insufficient-key-size",
+              "shortDescription": {
+                "text": "Use of a weak cryptographic key"
+              },
+              "fullDescription": {
+                "text": "Using a weak cryptographic key can allow an attacker to compromise security."
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning"
+              },
+              "properties": {
+                "tags": ["security", "external/cwe/cwe-326"],
+                "description": "Using a weak cryptographic key can allow an attacker to compromise security.",
+                "id": "js/insufficient-key-size",
+                "kind": "problem",
+                "name": "Use of a weak cryptographic key",
+                "precision": "high",
+                "problem.severity": "warning",
+                "security-severity": "7.5"
+              }
+            },
+            {
+              "id": "js/disabling-certificate-validation",
+              "name": "js/disabling-certificate-validation",
+              "shortDescription": {
+                "text": "Disabling certificate validation"
+              },
+              "fullDescription": {
+                "text": "Disabling cryptographic certificate validation can cause security vulnerabilities."
+              },
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error"
+              },
+              "properties": {
+                "tags": ["security", "external/cwe/cwe-295", "external/cwe/cwe-297"],
+                "description": "Disabling cryptographic certificate validation can cause security vulnerabilities.",
+                "id": "js/disabling-certificate-validation",
+                "kind": "problem",
+                "name": "Disabling certificate validation",
+                "precision": "very-high",
+                "problem.severity": "error",
+                "security-severity": "7.5"
+              }
             }
           ]
         }
       },
       "results": [
         {
-          "ruleId": "js/insecure-eval",
-          "level": "error",
-          "message": { "text": "This use of eval with a non-literal argument is unsafe." },
+          "ruleId": "js/insufficient-key-size",
+          "ruleIndex": 33,
+          "rule": {
+            "id": "js/insufficient-key-size",
+            "index": 33
+          },
+          "message": {
+            "text": "Creation of an asymmetric RSA key uses 1024 bits, which is below 2048 and considered breakable."
+          },
           "locations": [
             {
               "physicalLocation": {
-                "artifactLocation": { "uri": "app.js" },
-                "region": { "startLine": 2, "startColumn": 1 }
+                "artifactLocation": {
+                  "uri": "app.js",
+                  "uriBaseId": "%SRCROOT%",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 23,
+                  "endColumn": 81
+                }
               }
             }
-          ]
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "2e77c68f06f01d2:1",
+            "primaryLocationStartColumnFingerprint": "22"
+          }
+        },
+        {
+          "ruleId": "js/disabling-certificate-validation",
+          "ruleIndex": 38,
+          "rule": {
+            "id": "js/disabling-certificate-validation",
+            "index": 38
+          },
+          "message": {
+            "text": "Disabling certificate validation is strongly discouraged."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app.js",
+                  "uriBaseId": "%SRCROOT%",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 1,
+                  "endColumn": 41
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "primaryLocationLineHash": "376be15e65e8896d:1",
+            "primaryLocationStartColumnFingerprint": "0"
+          }
         }
       ]
     }

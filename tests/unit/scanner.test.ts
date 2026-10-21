@@ -219,13 +219,30 @@ describe('SARIF edge cases', () => {
   });
 
   it('the driver version is preferred over the adapter-reported one', () => {
+    const rows = evidenceFromSarif(
+      JSON.stringify({
+        runs: [
+          {
+            tool: { driver: { name: 'X', version: '9.9.9' } },
+            results: [{ ruleId: 'r', message: { text: 'm' } }],
+          },
+        ],
+      }),
+      sarifOpts(),
+    );
+    expect(rows[0]!.source.version).toBe('9.9.9');
+  });
+
+  it('the adapter version fills in when the tool omits its own', () => {
+    // CodeQL 2.27.3 writes no `tool.driver.version`, so the real capture has to
+    // fall back to the version the adapter probed.
     const rows = evidenceFromSarif(read('codeql.sarif.json'), sarifOpts());
     expect(rows[0]!.source.version).toBe('2.23.0');
   });
 
   it('a start column is carried when the region has one', () => {
     const rows = evidenceFromSarif(read('codeql.sarif.json'), sarifOpts());
-    expect(rows[0]!.location).toEqual({ file: 'app.js', line: 2, column: 1 });
+    expect(rows[0]!.location).toEqual({ file: 'app.js', line: 3, column: 23 });
   });
 });
 

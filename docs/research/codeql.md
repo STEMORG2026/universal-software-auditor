@@ -22,12 +22,13 @@ of the run manifest.
 
 ## Relevant APIs/CLI
 
-**[VERIFIED-SOURCE]** for `database create`; **[UNVERIFIED]** for `analyze`
-flags, which the page consulted did not cover.
+**[VERIFIED-RUN]** against CodeQL 2.27.3 (the `codeql-bundle-linux64` release
+from `github/codeql-action`), on `fixtures/insecure-app`. Both stages were
+executed and the SARIF was parsed.
 
 ```bash
-codeql database create <db> --language=javascript-typescript --source-root <dir>
-codeql database analyze <db> <query-pack> --format=sarif-latest --output=results.sarif
+codeql database create <db> --language=javascript-typescript --source-root <dir> --no-run-unnecessary-builds
+codeql database analyze <db> [<query-pack>...] --format=sarif-latest --output=results.sarif
 ```
 
 - `--language` values: `c-cpp`, `csharp`, `actions`, `go`, `java-kotlin`,
@@ -39,6 +40,33 @@ codeql database analyze <db> <query-pack> --format=sarif-latest --output=results
 - `--db-cluster` + comma-separated languages for multi-language repos.
 - The database directory must not already exist; the docs say the command fails
   rather than overwriting.
+- A JS/TS database for a two-file fixture takes about ten seconds, and the
+  default suite is 87 queries.
+
+### Four things a run reveals
+
+1. **The query specifier is positional, so an empty string is fatal.**
+   `database analyze <db> ''` is one empty _specifier_, and the run dies with
+   `Invalid package specification:` and writes **no SARIF** — a non-zero exit
+   with an empty artifact. With no specifier at all, CodeQL runs the language's
+   default (code-scanning) suite and exits 0. An adapter whose default config is
+   "no packs" must omit the argument, not pass an empty one.
+2. **`result.level` is omitted.** CodeQL writes the level only in
+   `tool.driver.rules[].defaultConfiguration.level`. SARIF 3.27.10 says an
+   absent result level inherits the rule default, so a normaliser that reads
+   only `result.level` reports **every** finding as INFO — an `error`-severity
+   certificate check and a `warning`-severity key-size check become
+   indistinguishable.
+3. **`rule.name` is the rule id.** A claim built from it reads
+   `js/insufficient-key-size: …`, repeating the identifier and losing the human
+   title, which is `shortDescription.text`.
+4. **`--version` prints a sentence.** `… release 2.27.3.` — a `[\d.]+` class
+   captures the full stop and the manifest records `2.27.3.`.
+
+The real payload for the fixture (trimmed to the fields the normaliser reads) is
+`tests/fixtures/scanners/codeql.sarif.json`: two results, no `level` on either,
+`defaultConfiguration` levels `warning` and `error`, and CWE tags
+`external/cwe/cwe-326` and `external/cwe/cwe-295`/`cwe-297`.
 
 ## Output formats
 
