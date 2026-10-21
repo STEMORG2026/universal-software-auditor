@@ -31,9 +31,10 @@ plus a GitHub composite action. The defining habit: **the tool audits itself**.
 
 || Branch | Status | Ahead/Behind master |
 || ----------------------------------- | -------------------- | ------------------- |
-|| `master` | base, clean | 0 |
-|| `fix/verdict-correctness` | **current, PR open** | +1 |
-|| `chore/remove-automerge` | PR #188 open (owner merges) | +2 |
+|| `master` | #188 merged (`8d63e2f`), clean | 0 |
+|| `fix/verdict-correctness` | **current, PR #190, rebased on #188** | +4 |
+|| `dependabot/…dev-dependencies…` | PR #180 open — needs rebase + re-approval | — |
+|| `dependabot/…codeql-action/analyze…` | PR #178 open — UNSTABLE (2 non-required reds) | — |
 
 **`fix/verdict-correctness`** — four verdict-correctness fixes found by auditing
 the auditor, the `audit.ts` split, layer-boundary lint, and a declared
@@ -80,8 +81,8 @@ were consumed by the 2.26.2 release.
 ## Next Steps
 
 1. Owner review + merge of `fix/verdict-correctness` (agent never merges)
-2. Release the pending changeset (Version Packages PR → publish)
-3. Review dependabot PRs (#176-#180) and `chore/remove-automerge` (#188)
+2. Then #178 (update branch → security scan goes green), then #180 (`@dependabot rebase`)
+3. Release the pending changeset (Version Packages PR → publish)
 4. D1 (AGENTS.md "four gates" → six) is still blocked on owner consent
 
 ---
