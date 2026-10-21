@@ -23,7 +23,7 @@ function trivyPresent(): boolean {
 }
 
 describe('usa scan end-to-end', () => {
-  it('the CLI runs over the fixtures and records coverage honestly', () => {
+  it('the CLI runs over the fixtures and records coverage honestly', { timeout: 60_000 }, () => {
     if (!fs.existsSync(CLI)) return; // build not run yet; covered by unit tests
     // One fast adapter: the CLI path is what is under test here, and running
     // every adapter through a subprocess blows the 15s ceiling under load.
@@ -45,66 +45,78 @@ describe('usa scan end-to-end', () => {
     }
   });
 
-  it('a weak fixture yields vulnerability evidence when trivy is installed', () => {
-    if (!trivyPresent()) {
-      console.warn('SKIPPED: trivy not installed — no scanner evidence to assert');
-      return;
-    }
-    const result = new ScannerRunner(enabledAdapters({})).run({
-      target: INSECURE,
-      config: loadScannerConfig(INSECURE),
-    });
-    const vulns = result.evidence.filter((e) => e.source.kind === 'vulnerability');
-    expect(vulns.length).toBeGreaterThan(0);
-    // Every row names its native identifier (a CVE id) and its location.
-    for (const v of vulns) expect(v.source.identifier).toMatch(/^CVE-/);
-  });
-
-  it('every adapter that is installed produces evidence on the weak fixture', () => {
-    // A scanner that is present but silent is worse than one that is absent: the
-    // absent one says UNAVAILABLE, the silent one looks like a clean result.
-    for (const adapter of enabledAdapters({
-      codeql: { enabled: false },
-      ort: { enabled: false },
-    })) {
-      if (!adapter.probe().available) continue;
-      const result = new ScannerRunner([adapter]).run({
+  it(
+    'a weak fixture yields vulnerability evidence when trivy is installed',
+    { timeout: 90_000 },
+    () => {
+      if (!trivyPresent()) {
+        console.warn('SKIPPED: trivy not installed — no scanner evidence to assert');
+        return;
+      }
+      const result = new ScannerRunner(enabledAdapters({})).run({
         target: INSECURE,
         config: loadScannerConfig(INSECURE),
       });
-      const run = result.manifest.adapters[0]!;
-      expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
-      expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
-      for (const item of result.evidence) {
-        expect(item.provenance.executionId).toBeTruthy();
-        expect(item.provenance.repositoryRevision).toBeTruthy();
-      }
-    }
-  });
+      const vulns = result.evidence.filter((e) => e.source.kind === 'vulnerability');
+      expect(vulns.length).toBeGreaterThan(0);
+      // Every row names its native identifier (a CVE id) and its location.
+      for (const v of vulns) expect(v.source.identifier).toMatch(/^CVE-/);
+    },
+  );
 
-  it('every adapter that is installed produces evidence on the weak fixture', () => {
-    // A scanner that is present but silent is worse than one that is absent: the
-    // absent one says UNAVAILABLE, the silent one looks like a clean result.
-    for (const adapter of enabledAdapters({
-      codeql: { enabled: false },
-      ort: { enabled: false },
-    })) {
-      if (!adapter.probe().available) continue;
-      const result = new ScannerRunner([adapter]).run({
-        target: INSECURE,
-        config: loadScannerConfig(INSECURE),
-      });
-      const run = result.manifest.adapters[0]!;
-      expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
-      expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
-      for (const item of result.evidence) {
-        expect(item.provenance.executionId).toBeTruthy();
-        expect(item.provenance.repositoryRevision).toBeTruthy();
+  it(
+    'every adapter that is installed produces evidence on the weak fixture',
+    { timeout: 180_000 },
+    () => {
+      // A scanner that is present but silent is worse than one that is absent: the
+      // absent one says UNAVAILABLE, the silent one looks like a clean result.
+      for (const adapter of enabledAdapters({
+        codeql: { enabled: false },
+        ort: { enabled: false },
+      })) {
+        if (!adapter.probe().available) continue;
+        const result = new ScannerRunner([adapter]).run({
+          target: INSECURE,
+          config: loadScannerConfig(INSECURE),
+        });
+        const run = result.manifest.adapters[0]!;
+        expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
+        expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
+        for (const item of result.evidence) {
+          expect(item.provenance.executionId).toBeTruthy();
+          expect(item.provenance.repositoryRevision).toBeTruthy();
+        }
       }
-    }
-  });
+    },
+  );
 
-  it('the runner never touches the checkout it was pointed at', () => {
+  it(
+    'every adapter that is installed produces evidence on the weak fixture',
+    { timeout: 180_000 },
+    () => {
+      // A scanner that is present but silent is worse than one that is absent: the
+      // absent one says UNAVAILABLE, the silent one looks like a clean result.
+      for (const adapter of enabledAdapters({
+        codeql: { enabled: false },
+        ort: { enabled: false },
+      })) {
+        if (!adapter.probe().available) continue;
+        const result = new ScannerRunner([adapter]).run({
+          target: INSECURE,
+          config: loadScannerConfig(INSECURE),
+        });
+        const run = result.manifest.adapters[0]!;
+        expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
+        expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
+        for (const item of result.evidence) {
+          expect(item.provenance.executionId).toBeTruthy();
+          expect(item.provenance.repositoryRevision).toBeTruthy();
+        }
+      }
+    },
+  );
+
+  it('the runner never touches the checkout it was pointed at', { timeout: 90_000 }, () => {
     const before = new Set(fs.readdirSync(INSECURE));
     new ScannerRunner(enabledAdapters({})).run({ target: INSECURE });
     expect(new Set(fs.readdirSync(INSECURE))).toEqual(before);

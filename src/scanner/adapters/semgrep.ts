@@ -93,12 +93,24 @@ export const semgrepAdapter: ScannerAdapter = {
             line: lineNumber(dig(result, ['start', 'line'])),
           },
           rawReference: { jsonPath: `results[${index}]` },
+          cwes: cwesOf(dig(result, ['extra', 'metadata', 'cwe'])),
         }),
       );
     }
     return out;
   },
 };
+
+/** `["CWE-94: Improper Control…"]` → `["CWE-94"]`. */
+function cwesOf(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const out = new Set<string>();
+  for (const entry of value) {
+    const match = /CWE[-_ ]?(\d{1,5})/i.exec(String(entry));
+    if (match) out.add(`CWE-${Number(match[1])}`);
+  }
+  return [...out];
+}
 
 function unknown(context: { adapterId: string; adapterVersion: string }, reason: string): Evidence {
   return {

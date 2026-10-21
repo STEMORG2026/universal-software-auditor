@@ -46,6 +46,14 @@ export interface Evidence {
   location: EvidenceLocation | null;
   /** Pointer back into the raw tool output, for re-reading. */
   rawReference: RawReference;
+  /**
+   * CWE ids the tool itself attached to this finding (`CWE-79`).
+   *
+   * Structured rather than inferred from the claim text, because this is the
+   * join key between scanner evidence and a declared threat model — and a join
+   * built on substring matching would invent relationships.
+   */
+  cwes?: string[];
 }
 
 export interface EvidenceSource {
