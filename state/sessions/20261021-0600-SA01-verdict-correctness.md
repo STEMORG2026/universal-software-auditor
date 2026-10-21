@@ -137,3 +137,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 13:45 — Commit
 
 `53afcb2` docs(state): hand off the scanner/evidence work
+
+### 16:07 — Commit
+
+`5e28253` test(e2e): drop the duplicated blocks from the scan suite

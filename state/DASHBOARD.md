@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T13:45:17.674+05:45
+**Last Reconciled:** 2026-10-21T16:07:03.871+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `53afcb2 docs(state): hand off the scanner/evidence work`
-2. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-3. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
-4. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
-5. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
-6. `1515fae chore(master): release (#191)`
-7. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
-8. `22db05d chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.2 (#178)`
-9. `0666be1 fix: correct four false verdicts, split the audit coordinator, reach 100/100 (#190)`
-10. `8d63e2f chore(ci): remove automerge workflow — merges are manual-only after owner review (#188)`
+1. `5e28253 test(e2e): drop the duplicated blocks from the scan suite`
+2. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+3. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
+4. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
+5. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
+6. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
+7. `1515fae chore(master): release (#191)`
+8. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
+9. `22db05d chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.2 (#178)`
+10. `0666be1 fix: correct four false verdicts, split the audit coordinator, reach 100/100 (#190)`
 
 ---
 
