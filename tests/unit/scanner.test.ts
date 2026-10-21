@@ -175,6 +175,29 @@ describe('parse failures are UNKNOWN, never exceptions', () => {
     expect(rows[0]!.severity).toBe('INFO');
   });
 
+  /**
+   * `results: []` has two causes and only one of them is good news. Semgrep
+   * reports how many files it read in `paths.scanned`; an empty list there
+   * means it analysed nothing — the same silent pass trivy's `Results` guard
+   * and dependency-cruiser's rules guard exist to prevent.
+   */
+  it('semgrep: a scan that read no files is UNKNOWN, not a clean result', () => {
+    const rows = semgrepAdapter.parse(
+      JSON.stringify({ results: [], paths: { scanned: [] }, errors: [] }),
+      ctx('1'),
+    );
+    expect(rows[0]!.status).toBe('UNKNOWN');
+    expect(rows[0]!.claim).toMatch(/no files/);
+  });
+
+  it('semgrep: a scan that read files and found nothing stays empty', () => {
+    const rows = semgrepAdapter.parse(
+      JSON.stringify({ results: [], paths: { scanned: ['a.js', 'b.js'] }, errors: [] }),
+      ctx('1'),
+    );
+    expect(rows).toEqual([]);
+  });
+
   it('codeql: SARIF with no runs is UNKNOWN, not empty', () => {
     const rows = codeqlAdapter.parse(JSON.stringify({ version: '2.1.0' }), ctx('2'));
     expect(rows[0]!.status).toBe('UNKNOWN');

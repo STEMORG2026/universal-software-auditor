@@ -69,6 +69,18 @@ export const semgrepAdapter: ScannerAdapter = {
     if (!Array.isArray(results)) {
       return [unknown(context, 'semgrep JSON had no results array (no rules ran?)')];
     }
+    // `results: []` means "found nothing" only if semgrep actually read
+    // something. `paths.scanned` is the tool's own count, and an empty list
+    // there is a blind spot — the same distinction trivy's `Results` guard and
+    // dependency-cruiser's rules guard exist to keep. An absent key is not
+    // evidence of an empty scan (older builds omit it), so only a present,
+    // empty array fires.
+    const scanned = dig(parsed.value, ['paths', 'scanned']);
+    if (Array.isArray(scanned) && scanned.length === 0) {
+      return [
+        unknown(context, 'semgrep scanned no files — nothing was analysed, not a clean result'),
+      ];
+    }
     const out: Evidence[] = [];
     for (const [index, result] of results.entries()) {
       out.push(
