@@ -49,6 +49,14 @@ export interface InvariantOutcome {
  * project access. Missing rule ids read as NOT_APPLICABLE (a rule that
  * did not run cannot satisfy a precondition — fail closed toward silent,
  * never toward firing on absent evidence).
+ *
+ * The same rule governs the assertion. An asserted rule that is
+ * NOT_APPLICABLE has no surface to judge: demanding PASS from it turns
+ * every project without that surface into a false positive (INV-SEC-003
+ * fired HIGH on this CLI because SEC-009 — output encoding for a web
+ * frontend — does not apply to a program that renders no HTML). An
+ * invariant is a claim about a *combination*; when one half of the
+ * combination does not exist, there is no claim to make.
  */
 export function evaluateInvariant(
   when: InvariantCondition,
@@ -59,6 +67,9 @@ export function evaluateInvariant(
     return { applicable: false, passed: true, detail: 'precondition not met' };
   }
   const actual = byId.get(assert.rule) ?? 'NOT_APPLICABLE';
+  if (actual === 'NOT_APPLICABLE') {
+    return { applicable: false, passed: true, detail: `${assert.rule} is not applicable` };
+  }
   if (assertHolds(assert, byId)) {
     return { applicable: true, passed: true, detail: `${assert.rule} is ${actual}` };
   }

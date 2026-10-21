@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-09T03:17:28.776+05:45
+**Last Reconciled:** 2026-10-21T01:36:51.007+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -31,10 +31,15 @@ plus a GitHub composite action. The defining habit: **the tool audits itself**.
 
 || Branch | Status | Ahead/Behind master |
 || ----------------------------------- | -------------------- | ------------------- |
-|| `master` | current, clean | 0 |
-|| `fix/protocol-start-gate` | merged (PR #183) | — |
+|| `master` | #188 merged (`8d63e2f`), clean | 0 |
+|| `fix/verdict-correctness` | **current, PR #190, rebased on #188** | +4 |
+|| `dependabot/…dev-dependencies…` | PR #180 open — needs rebase + re-approval | — |
+|| `dependabot/…codeql-action/analyze…` | PR #178 open — UNSTABLE (2 non-required reds) | — |
 
-**PR #183 merged** (`fix/protocol-start-gate`) — start-of-session gate (ADR-0044). CI was green.
+**`fix/verdict-correctness`** — four verdict-correctness fixes found by auditing
+the auditor, the `audit.ts` split, layer-boundary lint, and a declared
+zero-retry test budget. Self-audit: **100/100, no open findings** (was 94.2 with
+1 HIGH · 1 MEDIUM · 1 LOW · 5 FUTURE).
 
 ---
 
@@ -54,27 +59,31 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `cd18647 fix(release): point package.json repo URLs at STEMORG2026`
-2. `0fb8e36 fix(release): mint OIDC token via auto-fetch and use git CLI for version push (#184)`
-3. `7f25fbf chore(state): auto-update from post-commit hook`
-4. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
-5. `0a37bf4 chore(state): mark G3 closed in dashboard`
-6. `a19449a chore(state): auto-update from post-commit hook`
-7. `f00985c chore(state): adr-0044 option 4 done, update next steps`
-8. `8624619 docs(macp): extract MACP body to docs/macp.md, compact AGENTS.md`
-9. `93183de chore(state): auto-update from post-commit hook`
-10. `4ed51c9 docs: fix G3 — four → six doc gates in AGENTS.md`
+1. `6db35e9 chore(state): reconcile after #188 merged, record the merge order`
+2. `24cae8a chore: stop the post-commit hook's scratch files reaching the tree`
+3. `39336dc chore(deps): refresh vite and launch-editor for two new advisories`
+4. `d7e06c2 docs(manifest): classify the SA01 session record`
+5. `5d7cf72 fix: correct four false verdicts and split the audit coordinator`
+6. `8d63e2f chore(ci): remove automerge workflow — merges are manual-only after owner review (#188)`
+7. `72d9ec4 docs: attach SLSA provenance bundle for v2.26.2 (#187)`
+8. `e006e06 chore(deps): bump pnpm/action-setup from 6.0.10 to 6.1.0 (#179)`
+9. `95e8651 chore(deps): bump github/codeql-action/init from 4.38.0 to 4.38.2 (#177)`
+10. `30906bb chore(master): release (#186)`
 
 ---
 
 ## Pending Changeset
 
-`.changeset/autonomous-docs-hardening.md` — unreleased changeset waiting for next release.
+`.changeset/verdict-correctness.md` — `minor`, on `fix/verdict-correctness`.
+The two earlier changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
+were consumed by the 2.26.2 release.
 
 ## Next Steps
 
-1. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
-2. Review dependabot PRs (#176-#180)
+1. Owner review + merge of `fix/verdict-correctness` (agent never merges)
+2. Then #178 (update branch → security scan goes green), then #180 (`@dependabot rebase`)
+3. Release the pending changeset (Version Packages PR → publish)
+4. D1 (AGENTS.md "four gates" → six) is still blocked on owner consent
 
 ---
 

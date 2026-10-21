@@ -48,6 +48,26 @@
 | G2  | No pre-push doc gate; Layer 1 skips doc governance | E2: `.husky/pre-push` → `build && docs:all`             |
 | G4  | No per-repo-file classification registry           | E4: `docs/manifest.yaml` + `scripts/check-manifest.mjs` |
 
+### Closed 2026-10-21 (SA01 — verdict correctness)
+
+| Item                                        | Was                                    | Closed by                                                             |
+| ------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------- |
+| `INV-SEC-003` HIGH on every non-web project | N/A assertion read as failure          | `evaluateInvariant` treats a non-applicable assertion as inapplicable |
+| `SUP-024` missed cosign bundles             | glob `*.sigstore` vs `*.sigstore.json` | rule matches the name cosign writes                                   |
+| `CQ-004` matched doc-comment prose          | `:\s*any\b` unanchored                 | type-position lookahead; `@ts-ignore` still caught                    |
+| `CQ-010` fired on rule fixtures             | fixtures are deliberate bad code       | `**/fixtures/**` excluded in the rule                                 |
+| `TAS-009` rejected `retry: 0`               | required a non-zero budget             | any declared budget counts                                            |
+| `TAS-007` ignored the in-repo harness       | tool-name-only globs                   | recognises `stryker.config.*` and a committed harness                 |
+| `ARCH-003` god file (840 lines)             | `src/engine/audit.ts`                  | split into coordinator + 5 modules                                    |
+| `ARCH-006` no boundary enforcement          | described in docs only                 | `no-restricted-imports` per layer, verified by breaking it            |
+
+### Open
+
+| ID  | Item                                                                            | Status                                                                                                                                        |
+| --- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| D4  | `retry: 0` makes any CPU-contention timeout a hard red; the e2e ceiling is 15 s | **Accepted** — contention was measured (1.5–2.4 s alone, >5 s under load); raising the ceiling is the fix, a rerun is not                     |
+| D5  | Stryker 10 + vitest 5 reports "0.00 tests per mutant" (all mutants survive)     | **External, watching** — no working third-party mutation gate exists for vitest 5 as of 2026-10-21; the in-repo probe harness is the evidence |
+
 ---
 
 ## Accepted Risk (in .usa.yaml)

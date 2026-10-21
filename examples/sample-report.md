@@ -340,7 +340,7 @@ Expected band for **Prototype / Spike**: 30–65 — **within the expected band*
   - 🪶 Downgraded LOW → FUTURE by the Prototype / Spike profile
   - 🛠️ Set jest.coverageThreshold in package.json, or keep the threshold wherever the runner reads it and accept this marker as not-applicable.
   - 📚 NIST-SSDF-RV.1.1
-- 🚫 **Mutation-testing evidence is present** `TAS-007` — Not detected — no files matching reports/**/*mut*, reports/mutation/**, stryker.conf.*, .stryker.conf.*, .mutmut*, mutants/**.
+- 🚫 **Mutation-testing evidence is present** `TAS-007` — Not detected — no files matching reports/**/*mut*, reports/mutation/**, stryker.config.*, stryker.conf.*, .stryker.conf.*, .mutmut*, mutants/**, tests/**/*mutation*, tests/**/mutation/**.
   - 🛠️ Run mutation testing on the highest-risk module first and keep the config or report in the repo.
   - 📚 Mutation-Testing
 - 🚫 **A determinism guard is set in test config or CI** `TAS-008` — Not detected — pattern not found in playwright.config.*, cypress.config.*, vitest.config.*, vitest.workspace.*, jest.config.*, package.json, .github/workflows/*.yml, .github/workflows/*.yaml, .gitlab-ci.yml.
@@ -349,7 +349,7 @@ Expected band for **Prototype / Spike**: 30–65 — **within the expected band*
   - 📚 Google-Testing-Blog:Flaky
 - 🚫 **A test retry budget is declared** `TAS-009` — Not detected — pattern not found in playwright.config.*, cypress.config.*, vitest.config.*, jest.config.*, package.json, .github/workflows/*.yml, .github/workflows/*.yaml, .gitlab-ci.yml.
   - 🪶 Downgraded LOW → FUTURE by the Prototype / Spike profile
-  - 🛠️ Declare an explicit retry budget (e.g. retries: 2 on CI) and track which tests consume it; quarantine chronic consumers.
+  - 🛠️ Declare the budget explicitly. Prefer retries: 0 and fix flakes; if reruns are unavoidable, set retries: 2 on CI only, track which tests consume it, and quarantine chronic consumers.
   - 📚 Google-Testing-Blog:Flaky
 - 🚫 **Test-data and environment isolation markers exist** `TAS-011` — Not detected — no files matching tests/fixtures/**, test/fixtures/**, **/__fixtures__/**, **/factories/**, **/__factories__/**, .env.test, .env.testing, tests/.env.test.
   - 🪶 Downgraded LOW → FUTURE by the Prototype / Spike profile
@@ -641,7 +641,7 @@ Rule packs skipped as not applicable (15): core/provenance-attestation, stacks/p
 schema: usa-report-v1
 generated_at: 2026-01-01T00:00:00.000Z
 usa_version: 2.26.2
-ruleset: 76ab46df77404fa1898cc00a9fda78e8589d0afbf94350719c01e6e69808bf9d
+ruleset: 024ee53f51129623fe22c66eb4e753ff9779bb7bfa6d3ba00d56243e1e74cebc
 overall: 37.3
 sections:
   S1: {score: 7.2, open: 4, review: 2}

@@ -137,11 +137,22 @@ rules:
       patterns:
         - 'reports/**/*mut*'
         - 'reports/mutation/**'
+        # Stryker's default config file has been `stryker.config.*` since v6;
+        # `stryker.conf.*` is the pre-6 name and is kept for older projects.
+        - 'stryker.config.*'
         - 'stryker.conf.*'
         - '.stryker.conf.*'
         - '.mutmut*'
         - 'mutants/**'
-    why: 'Coverage tells you which lines ran, not whether the test would have failed if the line were wrong; a mutation config or report proves the question was asked.'
+        # A committed harness that mutates and asserts is evidence too — and
+        # stronger evidence than a config file, which proves only that someone
+        # installed a tool. USA mutates every rule check and asserts its own
+        # fixture flips (tests/integration/auditor-mutation.test.ts, ~100
+        # probes in every CI run); no third-party tool name appears anywhere in
+        # the repo, so the tool-only globs scored that work as absent.
+        - 'tests/**/*mutation*'
+        - 'tests/**/mutation/**'
+    why: 'Coverage tells you which lines ran, not whether the test would have failed if the line were wrong; a mutation config, report, or committed mutation harness proves the question was asked.'
     remediation: 'Run mutation testing on the highest-risk module first and keep the config or report in the repo.'
     references: ['Mutation-Testing']
 
@@ -178,7 +189,11 @@ rules:
     class: operations
     check:
       kind: grep_present
-      pattern: '(retries\s*:\s*[1-9]|"retries"\s*:\s*[1-9]|retries=[1-9]|--retries[ =][1-9]|rerun-failed|flaky-test-retry|retry-on-failure)'
+      # A declared budget of zero is a budget, and a stricter one than 2:
+      # the project has decided a flaky test is a failure, not a rerun. The
+      # earlier `[1-9]` required paying for retries, so the most honest
+      # answer a deterministic suite can give was scored as absent.
+      pattern: '(retr(?:y|ies)\s*:\s*\d|retries=\d|--retries[ =]\d|rerun-failed|flaky-test-retry|retry-on-failure)'
       include:
         [
           'playwright.config.*',
@@ -190,8 +205,8 @@ rules:
           '.github/workflows/*.yaml',
           '.gitlab-ci.yml',
         ]
-    why: 'A retries setting proves the project pays for reruns; it proves nothing about whether the tests are flaky or stable — only that the budget exists.'
-    remediation: 'Declare an explicit retry budget (e.g. retries: 2 on CI) and track which tests consume it; quarantine chronic consumers.'
+    why: 'A declared retry budget says what the project does when a test fails twice: rerun it, or treat it as a defect. Either answer is a policy; silence means nobody decided.'
+    remediation: 'Declare the budget explicitly. Prefer retries: 0 and fix flakes; if reruns are unavoidable, set retries: 2 on CI only, track which tests consume it, and quarantine chronic consumers.'
     references: ['Google-Testing-Blog:Flaky']
 
   - id: TAS-010

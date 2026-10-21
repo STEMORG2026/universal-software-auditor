@@ -279,14 +279,25 @@ const ANSWER_HANDLERS: Record<QuestionKind, AnswerHandler> = {
  */
 const KNOWN_IDS = new Set(INTERVIEW_QUESTIONS.map((q) => q.id));
 
+/**
+ * One view of a config node as a writable map. The cast follows a runtime
+ * object check, so it is a narrowing, not an escape: a non-object segment is
+ * a loud error naming the question instead of a TypeError on `undefined`.
+ */
+function objectView(node: unknown, id: string): Record<string, unknown> {
+  if (typeof node !== 'object' || node === null) {
+    throw new Error(`interview question path is not an object: ${JSON.stringify(id)}`);
+  }
+  return node as Record<string, unknown>;
+}
+
 function setPath(config: FoundationConfig, id: string, value: unknown): void {
   if (!KNOWN_IDS.has(id)) throw new Error(`unknown interview question: ${JSON.stringify(id)}`);
   const keys = id.split('.');
-  let node = config as unknown as Record<string, unknown>;
-  for (const key of keys.slice(0, -1)) {
-    node = node[key] as Record<string, unknown>;
-  }
-  node[keys[keys.length - 1]!] = value;
+  const last = keys.pop()!;
+  let node = objectView(config, id);
+  for (const key of keys) node = objectView(node[key], id);
+  node[last] = value;
 }
 
 /**

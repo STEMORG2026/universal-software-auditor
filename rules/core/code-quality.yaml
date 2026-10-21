@@ -100,7 +100,12 @@ rules:
     applies_when: { fact: 'lang:typescript' }
     check:
       kind: grep_absent
-      pattern: '(@ts-ignore|@ts-expect-error|:\s*any\b|\bas any\b|as unknown as)'
+      # `:\s*any\b` alone matched prose — "Degraded-never-empty: any fetch
+      # failure" in a doc comment — so the type-escape branch now requires a
+      # type position after the keyword (`: any,` `: any)` `: any[]` `: any =`).
+      # Masking comments instead is not an option here: `@ts-ignore` lives in a
+      # comment, and the rule exists to catch it.
+      pattern: '(@ts-ignore|@ts-expect-error|:\s*any\b(?=\s*[,;)\]}>=]|$)|\bas any\b|as unknown as)'
       include: ['**/*.{ts,tsx}']
       exclude: ['**/*.test.*', '**/*.spec.*', '**/*.d.ts']
     why: 'Every `any` is a place the type system was told to stop helping. A few are fine; a pattern is a problem.'
@@ -204,7 +209,12 @@ rules:
       kind: grep_wrong
       pattern: '(TODO|FIXME|XXX|HACK|WORKAROUND)\b'
       include: ['**/*.{ts,tsx,js,jsx,py,go,rs,java,kt,rb,php,cs,yml,yaml}']
-      exclude: ['**/*.md', '**/docs/**', '**/node_modules/**']
+      # A fixture is a *sample of bad code*, not debt: CQ-010.yaml contains a
+      # TODO precisely so this rule has something to flag. Excluding them here
+      # (rather than from the audit index) keeps the fixtures visible to the
+      # rules that need to see them, e.g. TAS-011.
+      exclude:
+        ['**/*.md', '**/docs/**', '**/node_modules/**', '**/fixtures/**', '**/__fixtures__/**']
     why: 'A TODO with no owner and no ticket is a lie the codebase tells itself.'
     remediation: 'Convert each one to a tracked issue with a link in the comment, or delete it if it no longer applies.'
 

@@ -83,6 +83,35 @@ describe('evaluateInvariant', () => {
     expect(out.applicable).toBe(false);
   });
 
+  it('stays silent when the asserted rule does not apply to this project', () => {
+    // Regression: INV-SEC-003 fired HIGH on USA itself because SEC-009
+    // (HTML output encoding) is NOT_APPLICABLE for a CLI. A rule with no
+    // surface cannot be demanded to pass.
+    const out = evaluateInvariant(
+      when,
+      assert,
+      byId([
+        ['SEC-003', 'PASS'],
+        ['SEC-004', 'PASS'],
+        ['SEC-018', 'NOT_APPLICABLE'],
+      ]),
+    );
+    expect(out).toMatchObject({ applicable: false, passed: true });
+    expect(out.detail).toContain('not applicable');
+  });
+
+  it('stays silent when the asserted rule never ran', () => {
+    const out = evaluateInvariant(
+      when,
+      assert,
+      byId([
+        ['SEC-003', 'PASS'],
+        ['SEC-004', 'PASS'],
+      ]),
+    );
+    expect(out.applicable).toBe(false);
+  });
+
   it('supports any/not clauses', () => {
     const cond = {
       any: [{ rule: 'A', status: ['FAIL' as Status] }],

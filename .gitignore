@@ -41,6 +41,13 @@ yarn.lock
 test-results/
 coverage/
 
+# Hook scratch files. lint-staged backs the staged files up here before running
+# and deletes them afterwards; a commit that lands while the hook is still
+# cleaning up leaves one behind, and the post-commit hook's `git add -A` then
+# commits it. Seven empty files reached PR #190 this way — they are never
+# content, so they are ignored rather than deleted after the fact.
+_tmp_*
+
 # Local config
 config.local.json
 .local/

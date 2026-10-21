@@ -1,12 +1,16 @@
 rule: TAS-009
+# The rule changed on 2026-10-21: an explicit budget of zero used to be scored
+# as MISSING, which punished the stricter policy. Zero is now a declaration —
+# so the negative case is the zero budget and the positive case is a config
+# that never mentions retries at all.
 negative:
   files:
-    playwright.config.ts: |
-      import { defineConfig } from '@playwright/test';
-      export default defineConfig({ retries: 2 });
+    vitest.config.ts: |
+      import { defineConfig } from 'vitest/config';
+      export default defineConfig({ test: { retry: 0 } });
 positive:
   files:
-    playwright.config.ts: |
-      import { defineConfig } from '@playwright/test';
-      export default defineConfig({ retries: 0 });
+    vitest.config.ts: |
+      import { defineConfig } from 'vitest/config';
+      export default defineConfig({ test: { environment: 'node' } });
   expect: MISSING
