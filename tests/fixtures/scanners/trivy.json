@@ -1,0 +1,42 @@
+{
+  "$comment": "Extracted, not invented: the first two vulnerability records of a real `trivy fs --format json` run (Trivy 0.75.0) against a fixture package-lock.json pinning lodash@4.17.4. Field names and record shape are as the tool emitted them.",
+  "SchemaVersion": 2,
+  "Trivy": { "Version": "0.75.0" },
+  "ReportID": "fixture",
+  "CreatedAt": "2026-01-01T00:00:00.000+00:00",
+  "ArtifactName": ".",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "package-lock.json",
+      "Class": "lang-pkgs",
+      "Type": "npm",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2019-10744",
+          "PkgName": "lodash",
+          "InstalledVersion": "4.17.4",
+          "FixedVersion": "4.17.12",
+          "Severity": "CRITICAL",
+          "Title": "nodejs-lodash: prototype pollution in defaultsDeep function leading to modifying properties",
+          "Status": "fixed",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2019-10744",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/lodash@4.17.4",
+            "UID": "a1295252ddfcebe"
+          }
+        },
+        {
+          "VulnerabilityID": "CVE-2018-16487",
+          "PkgName": "lodash",
+          "InstalledVersion": "4.17.4",
+          "FixedVersion": "4.17.11",
+          "Severity": "HIGH",
+          "Title": "nodejs-lodash: prototype pollution in defaultsDeep",
+          "Status": "fixed",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2018-16487"
+        }
+      ]
+    }
+  ]
+}

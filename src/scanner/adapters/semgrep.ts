@@ -1,0 +1,142 @@
+/**
+ * Semgrep — Tier 1.
+ *
+ * Status of this adapter: command construction and parsing are implemented
+ * against the documented CLI and the widely documented JSON shape; the JSON
+ * shape is marked **[UNVERIFIED]** in docs/research/semgrep.md because no
+ * real semgrep run was captured during that research. The fixture is therefore
+ * annotated as such, and the adapter must not be called complete until a
+ * capture replaces it.
+ *
+ * Exit-code behaviour is verified from the CLI reference: default `scan`
+ * **exits 0 even with findings**; only `--error` exits 1. The runner never
+ * infers a verdict from the status code, so this does not affect semantics —
+ * but it is why the adapter does not pass `--error`.
+ */
+import { spawnSync } from 'node:child_process';
+import { statSync } from 'node:fs';
+import path from 'node:path';
+import type { AdapterProbe, Evidence, ScannerAdapter, ScannerConfig } from '../types.js';
+import { buildEvidence } from '../identity.js';
+import { DETERMINISTIC_CONFIDENCE, dig, lineNumber, severity, tryParseJson } from '../normalize.js';
+
+export const semgrepAdapter: ScannerAdapter = {
+  id: 'semgrep',
+  name: 'Semgrep SAST scanner',
+
+  defaultConfig() {
+    return { rules: '', severity: [] };
+  },
+
+  probe(): AdapterProbe {
+    const executable = which('semgrep');
+    if (!executable) {
+      return { available: false, version: '', reason: 'semgrep executable not found on PATH' };
+    }
+    return { available: true, version: versionOf(executable), executable };
+  },
+
+  buildCommand(_target, config: ScannerConfig) {
+    const rules = String(config.rules ?? '');
+    const argv = [
+      'semgrep',
+      'scan',
+      '--json',
+      // No --error: exit status is not a verdict, and 1-on-findings would look
+      // like a crash to any later naive consumer.
+      ...(rules ? ['--config', rules] : ['--config', 'auto']),
+      // Network is only needed for --config auto; a vendored rules dir is offline.
+      ...(rules ? [] : []),
+    ];
+    return { argv, timeoutMs: 300_000, network: !rules };
+  },
+
+  parse(raw: string, context): Evidence[] {
+    const parsed = tryParseJson(raw);
+    if (!parsed.ok) {
+      return [unknown(context, `semgrep output was not valid JSON: ${parsed.error}`)];
+    }
+    const results = dig(parsed.value, ['results']);
+    if (!Array.isArray(results)) {
+      return [unknown(context, 'semgrep JSON had no results array (no rules ran?)')];
+    }
+    const out: Evidence[] = [];
+    for (const [index, result] of results.entries()) {
+      out.push(
+        buildEvidence({
+          source: {
+            tool: 'semgrep',
+            kind: 'sast-finding',
+            version: context.adapterVersion,
+            identifier: String(dig(result, ['check_id']) ?? 'unknown-rule'),
+          },
+          provenance: placeholder(),
+          claim: String(dig(result, ['extra', 'message']) ?? 'semgrep match').slice(0, 160),
+          severity: severity(dig(result, ['extra', 'severity'])),
+          // Heuristic rule engine, registry-dependent; the number is a policy
+          // statement from the adapter, not a measurement.
+          confidence: 0.9,
+          status: 'FAIL',
+          location: {
+            file: String(dig(result, ['path']) ?? 'unknown'),
+            line: lineNumber(dig(result, ['start', 'line'])),
+          },
+          rawReference: { jsonPath: `results[${index}]` },
+        }),
+      );
+    }
+    return out;
+  },
+};
+
+function unknown(context: { adapterId: string; adapterVersion: string }, reason: string): Evidence {
+  return {
+    id: `UNKNOWN-semgrep-${reason}`.replace(/[^A-Za-z0-9-]/g, '-').slice(0, 48),
+    source: {
+      tool: 'semgrep',
+      version: context.adapterVersion,
+      kind: 'check',
+      identifier: 'UNKNOWN',
+    },
+    provenance: placeholder(),
+    claim: reason,
+    severity: 'INFO',
+    severitySource: 'adapter-default',
+    confidence: DETERMINISTIC_CONFIDENCE,
+    status: 'UNKNOWN',
+    location: null,
+    rawReference: {},
+  };
+}
+
+function placeholder(): Evidence['provenance'] {
+  return {
+    executionId: '',
+    command: [],
+    config: {},
+    repositoryRevision: '',
+    timestamp: '',
+    executable: '',
+    timeoutMs: 0,
+    elapsedMs: 0,
+  };
+}
+
+function which(binary: string): string | null {
+  for (const dir of (process.env.PATH ?? '').split(path.delimiter)) {
+    if (!dir) continue;
+    const candidate = path.join(dir, binary);
+    try {
+      if (statSync(candidate).isFile()) return candidate;
+    } catch {
+      /* keep looking */
+    }
+  }
+  return null;
+}
+
+function versionOf(executable: string): string {
+  const proc = spawnSync(executable, ['--version'], { encoding: 'utf8', timeout: 30_000 });
+  const match = /([\d.]+)/.exec(String(proc.stdout ?? ''));
+  return match?.[1] ?? 'unknown';
+}

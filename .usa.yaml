@@ -14,6 +14,11 @@ ignore:
   # part of this repo would report every one of those planted findings against
   # USA itself. Run `usa audit examples/demo-app` to see the real thing.
   - 'examples/demo-app/**'
+  # `fixtures/insecure-app` and `fixtures/secure-app` are planted on purpose: a
+  # lockfile full of known CVEs and a dynamic eval sink. Auditing them inside
+  # this repo would report every planted defect against USA itself — the same
+  # reason demo-app is excluded. `usa scan fixtures/insecure-app` runs them.
+  - 'fixtures/**'
 
 # Suppressions — accepted risk, always with a reason. They stay visible in the
 # report (under "Accepted risk") but are excluded from the score.

@@ -1,0 +1,21 @@
+{
+  "$comment": "UNVERIFIED SHAPE — no semgrep run was captured during research. Field names follow semgrep's documented JSON output (check_id, path, start.line, extra.severity/message); replace this fixture with a real capture before marking the semgrep adapter complete. See docs/research/semgrep.md.",
+  "results": [
+    {
+      "check_id": "javascript.lang.security.detect-eval-with-expression.detect-eval-with-expression",
+      "path": "app.js",
+      "start": { "line": 2, "col": 1 },
+      "end": { "line": 2, "col": 30 },
+      "extra": {
+        "severity": "ERROR",
+        "message": "Dynamic `eval()` is used to evaluate code. This can lead to code injection.",
+        "metadata": {
+          "cwe": ["CWE-94: Improper Control of Generation of Code"],
+          "owasp": ["A03:2021 - Injection"]
+        },
+        "fingerprint": "abc123"
+      }
+    }
+  ],
+  "errors": []
+}
