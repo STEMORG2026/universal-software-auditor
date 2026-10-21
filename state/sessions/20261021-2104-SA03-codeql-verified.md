@@ -71,3 +71,7 @@ Five new tests were proven able to fail before being trusted: restoring the
 empty specifier, dropping the rule-level fallback, restoring `[\d.]+`, restoring
 `name` as the title, and (from SA02) the artifact path. Each produced a named
 failure and was restored.
+
+### 15:41 — Commit
+
+`9349f02` feat(scanner): verify the CodeQL adapter against the real toolchain
