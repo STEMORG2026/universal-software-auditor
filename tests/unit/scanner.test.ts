@@ -188,6 +188,31 @@ describe('parse failures are UNKNOWN, never exceptions', () => {
     expect(argv.slice(0, 2)).toEqual(['semgrep', 'scan']);
     expect(argv).toContain('my-rules/');
   });
+
+  /**
+   * A configured rules file that never reaches argv is worse than no rules at
+   * all: the parser sees `rules` set, so it stops treating an empty violation
+   * list as UNKNOWN, and a cruise that ran no rules reports `ok` with no rows.
+   * That is a silent pass on the one thing this adapter exists to detect.
+   */
+  it('dependency-cruiser: a configured rules file reaches the command', () => {
+    const argv = dependencyCruiserAdapter.buildCommand(
+      { path: '/', workdir: '/w', revision: '', executionId: '' },
+      { rules: '.dependency-cruiser.json' },
+    ).argv;
+    expect(argv).toContain('--config');
+    expect(argv).toContain('.dependency-cruiser.json');
+    expect(argv).not.toContain('--no-config');
+  });
+
+  it('dependency-cruiser: without rules the cruise is explicitly configless', () => {
+    const argv = dependencyCruiserAdapter.buildCommand(
+      { path: '/', workdir: '/w', revision: '', executionId: '' },
+      {},
+    ).argv;
+    expect(argv).toContain('--no-config');
+    expect(argv).not.toContain('--config');
+  });
 });
 
 describe('SARIF edge cases', () => {
