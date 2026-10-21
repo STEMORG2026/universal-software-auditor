@@ -105,3 +105,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 - 34 judgement-queue items stay `UNKNOWN` by design (ADR-0023): a review is
   provenance, not a verdict. Two of them (`REPO-003`, `DEP-002`) resolve with
   `--allow-commands`.
+
+### 01:36 — Commit
+
+`6db35e9` chore(state): reconcile after #188 merged, record the merge order

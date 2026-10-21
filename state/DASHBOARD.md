@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T00:38:34.764+05:45
+**Last Reconciled:** 2026-10-21T01:36:51.007+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `3319108 chore(ci): remove automerge workflow — merges are manual-only after owner review`
-2. `72d9ec4 docs: attach SLSA provenance bundle for v2.26.2 (#187)`
-3. `e006e06 chore(deps): bump pnpm/action-setup from 6.0.10 to 6.1.0 (#179)`
-4. `95e8651 chore(deps): bump github/codeql-action/init from 4.38.0 to 4.38.2 (#177)`
-5. `30906bb chore(master): release (#186)`
-6. `c2fa278 chore(deps): bump github/codeql-action/upload-sarif (#176)`
-7. `a7fa20a fix(release): point package.json repo URLs at STEMORG2026 (#185)`
-8. `0fb8e36 fix(release): mint OIDC token via auto-fetch and use git CLI for version push (#184)`
-9. `7f25fbf chore(state): auto-update from post-commit hook`
-10. `a4e5e7c chore: version @xenos1996/usa@2.26.1`
+1. `6db35e9 chore(state): reconcile after #188 merged, record the merge order`
+2. `24cae8a chore: stop the post-commit hook's scratch files reaching the tree`
+3. `39336dc chore(deps): refresh vite and launch-editor for two new advisories`
+4. `d7e06c2 docs(manifest): classify the SA01 session record`
+5. `5d7cf72 fix: correct four false verdicts and split the audit coordinator`
+6. `8d63e2f chore(ci): remove automerge workflow — merges are manual-only after owner review (#188)`
+7. `72d9ec4 docs: attach SLSA provenance bundle for v2.26.2 (#187)`
+8. `e006e06 chore(deps): bump pnpm/action-setup from 6.0.10 to 6.1.0 (#179)`
+9. `95e8651 chore(deps): bump github/codeql-action/init from 4.38.0 to 4.38.2 (#177)`
+10. `30906bb chore(master): release (#186)`
 
 ---
 
