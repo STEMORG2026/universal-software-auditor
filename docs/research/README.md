@@ -21,7 +21,9 @@ Claims are marked with their evidence class, because the difference between
   the GitHub API's SPDX detection, not from memory.
 - **[UNVERIFIED]** — widely documented behaviour that this research did not
   confirm at the source. Every [UNVERIFIED] item must be re-checked before the
-  adapter that depends on it is declared complete.
+  adapter that depends on it is declared complete. As of 2026-10-21 the only
+  remaining item in this class is ORT's _violations payload_: its CLI was run and
+  is verified, but no violation could be produced without an ORT rules script.
 
 No license below is guessed: all ten were read from
 `GET /repos/{owner}/{repo}` → `license.spdx_id`.

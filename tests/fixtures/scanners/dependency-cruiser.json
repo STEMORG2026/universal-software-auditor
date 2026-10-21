@@ -1,27 +1,252 @@
 {
-  "$comment": "UNVERIFIED SHAPE — the dependency-cruiser CLI page leaves the JSON schema to doc/output-format.md, which was not read during research. Only the rules this adapter depends on are assumed: summary.violations[] with from.path / to.path / rule.{name,severity}. Replace with a real `depcruise -T json` capture on a repo with a rules config before marking this adapter complete.",
   "modules": [
     {
-      "source": "src/engine/audit.ts",
-      "valid": true,
-      "dependencies": [{ "resolved": "src/engine/evaluate.ts", "module": "src/engine/evaluate.ts" }]
+      "source": "a.js",
+      "dependencies": [
+        {
+          "module": "./b.js",
+          "moduleSystem": "cjs",
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "dependencyTypes": ["local", "require"],
+          "resolved": "b.js",
+          "coreModule": false,
+          "followable": true,
+          "couldNotResolve": false,
+          "matchesDoNotFollow": false,
+          "circular": false,
+          "valid": false,
+          "rules": [
+            {
+              "severity": "error",
+              "name": "no-a-to-b"
+            }
+          ]
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "valid": true
     },
     {
-      "source": "src/util/glob.ts",
-      "valid": true,
-      "dependencies": [{ "resolved": "src/engine/audit.ts", "module": "src/engine/audit.ts" }]
+      "source": "b.js",
+      "dependencies": [],
+      "dependents": ["a.js"],
+      "orphan": false,
+      "valid": true
     }
   ],
   "summary": {
     "violations": [
       {
-        "from": { "path": "src/util/glob.ts", "stable": false },
-        "to": { "path": "src/engine/audit.ts", "stable": false },
-        "rule": { "name": "no-bottom-to-top", "severity": "error" }
+        "type": "dependency",
+        "from": "a.js",
+        "to": "b.js",
+        "unresolvedTo": "./b.js",
+        "dependencyTypes": ["local", "require"],
+        "rule": {
+          "severity": "error",
+          "name": "no-a-to-b"
+        }
       }
-    ]
+    ],
+    "error": 1,
+    "warn": 0,
+    "info": 0,
+    "ignore": 0,
+    "advisedExitCode": 1,
+    "totalCruised": 2,
+    "totalDependenciesCruised": 1,
+    "optionsUsed": {
+      "baseDir": "/tmp/dc-fixture",
+      "combinedDependencies": false,
+      "detectImportsInAmbientModules": false,
+      "detectJSDocImports": false,
+      "detectProcessBuiltinModuleCalls": false,
+      "exoticRequireStrings": [],
+      "externalModuleResolutionStrategy": "node_modules",
+      "metrics": false,
+      "moduleSystems": ["es6", "cjs", "tsd", "amd"],
+      "outputTo": "-",
+      "outputType": "json",
+      "preserveSymlinks": false,
+      "rulesFile": "rules.json",
+      "skipAnalysisNotInRules": false,
+      "tsPreCompilationDeps": false,
+      "args": "a.js b.js"
+    },
+    "ruleSetUsed": {
+      "forbidden": [
+        {
+          "name": "no-a-to-b",
+          "severity": "error",
+          "from": {
+            "path": "^a\\.js$"
+          },
+          "to": {
+            "path": "^b\\.js$"
+          },
+          "scope": "module"
+        },
+        {
+          "name": "no-b-to-a-warn",
+          "severity": "warn",
+          "from": {
+            "path": "^b\\.js$"
+          },
+          "to": {
+            "path": "^a\\.js$"
+          },
+          "scope": "module"
+        }
+      ]
+    },
+    "environment": {
+      "version": "18.7.0",
+      "nodeVersionSupported": "^22||^24||>=26",
+      "nodeVersionFound": "v24.22.0",
+      "osVersionFound": "x64 linux@6.18.55-1-lts",
+      "transpilersFound": [
+        {
+          "name": "javascript",
+          "version": "*",
+          "available": true,
+          "currentVersion": "acorn@8.19.0"
+        },
+        {
+          "name": "babel",
+          "version": ">=7.0.0 <8.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "coffee-script",
+          "version": ">=1.0.0 <2.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "coffeescript",
+          "version": ">=1.0.0 <3.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "livescript",
+          "version": ">=1.0.0 <2.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "svelte",
+          "version": ">=3.0.0 <6.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "swc",
+          "version": ">=1.0.0 <2.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "typescript",
+          "version": ">=2.0.0 <7.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "vue-template-compiler",
+          "version": ">=2.0.0 <3.0.0",
+          "available": false,
+          "currentVersion": "-"
+        },
+        {
+          "name": "@vue/compiler-sfc",
+          "version": ">=3.0.0 <4.0.0",
+          "available": false,
+          "currentVersion": "-"
+        }
+      ],
+      "extensionsFound": [
+        {
+          "extension": ".js",
+          "available": true
+        },
+        {
+          "extension": ".cjs",
+          "available": true
+        },
+        {
+          "extension": ".mjs",
+          "available": true
+        },
+        {
+          "extension": ".jsx",
+          "available": true
+        },
+        {
+          "extension": ".ts",
+          "available": false
+        },
+        {
+          "extension": ".tsx",
+          "available": false
+        },
+        {
+          "extension": ".d.ts",
+          "available": false
+        },
+        {
+          "extension": ".cts",
+          "available": false
+        },
+        {
+          "extension": ".d.cts",
+          "available": false
+        },
+        {
+          "extension": ".mts",
+          "available": false
+        },
+        {
+          "extension": ".d.mts",
+          "available": false
+        },
+        {
+          "extension": ".vue",
+          "available": false
+        },
+        {
+          "extension": ".svelte",
+          "available": false
+        },
+        {
+          "extension": ".ls",
+          "available": false
+        },
+        {
+          "extension": ".coffee",
+          "available": false
+        },
+        {
+          "extension": ".litcoffee",
+          "available": false
+        },
+        {
+          "extension": ".coffee.md",
+          "available": false
+        },
+        {
+          "extension": ".csx",
+          "available": false
+        },
+        {
+          "extension": ".cjsx",
+          "available": false
+        }
+      ]
+    }
   },
-  "rules": {
-    "forbidden": [{ "name": "no-bottom-to-top", "severity": "error" }]
-  }
+  "$comment": "Real capture: `depcruise --config rules.json --output-type json a.js b.js` (18.7.0) on a two-file fixture where a rule forbids a.js -> b.js. Verified shape: summary.violations[].from and .to are STRINGS, not objects, and the report carries no top-level rules key."
 }

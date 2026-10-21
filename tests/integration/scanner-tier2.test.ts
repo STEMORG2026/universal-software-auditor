@@ -105,13 +105,18 @@ describe('scorecard adapter', () => {
 });
 
 describe('ort adapter', () => {
-  it('builds the evaluate leg, not the whole pipeline', () => {
+  it('builds the evaluate leg with the option names ORT 97 actually accepts', () => {
+    // Measured: ORT 97 rejects --input-dir outright ("no such option"); the
+    // input is -i/--ort-file and it takes the result FILE, not a directory.
     const cmd = ortAdapter.buildCommand(
       { path: '/r', workdir: '/r/w', revision: '', executionId: '' },
       ortAdapter.defaultConfig(),
     );
-    expect(cmd.argv.slice(0, 3)).toEqual(['ort', 'evaluate', '--input-dir']);
-    expect(cmd.argv[cmd.argv.indexOf('--output-dir') + 1]).toBe('.ort-results');
+    expect(cmd.argv.slice(0, 3)).toEqual(['ort', 'evaluate', '-i']);
+    expect(cmd.argv).not.toContain('--input-dir');
+    expect(cmd.argv[cmd.argv.indexOf('-o') + 1]).toBe('.ort-results');
+    expect(cmd.argv[cmd.argv.indexOf('-f') + 1]).toBe('JSON');
+    expect(cmd.argv[cmd.argv.indexOf('-i') + 1]).toContain('analyzer-result.yml');
   });
 
   it('parses the [UNVERIFIED] fixture into policy violations', () => {

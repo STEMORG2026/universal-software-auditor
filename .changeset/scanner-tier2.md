@@ -19,10 +19,11 @@ rather than collapsed to PASS or FAIL — Scorecard's scale means different thin
 per probe (License 9 is "detected, not identified"; Binary-Artifacts 6 is
 "binaries present"), and the threshold is a rule's decision, not a parser's.
 
-**ORT** is implemented but explicitly **[UNVERIFIED]**: no real run was captured
-because it is a JVM package. Its fixture says so, and the adapter resolves every
-surprise to `UNKNOWN` rather than to a silent pass. It must not be called
-complete until a real `ort evaluate` result replaces that fixture.
+**ORT** was run for real (v97.0.0, from the project's container image), which
+caught a command that would have failed on every invocation: `evaluate` rejects
+`--input-dir` and takes `-i/--ort-file`. Its violations _payload_ remains
+unverified — ORT 97 refuses to evaluate without a rules script — so that mapping
+resolves anything unexpected to `UNKNOWN` rather than to a silent pass.
 
 Two fixes found while wiring Tier 2, both in Tier 1 code:
 

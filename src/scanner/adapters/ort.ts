@@ -6,13 +6,19 @@
  * resolved dependency graph, producing rule violations with a package, a
  * version and a rule name.
  *
- * Status of this adapter: the CLI shape and the staged design are documented
- * (docs/research/ort.md), but **no real ORT run was captured during this work**
- * — it is a JVM package and is not installed here. The parse target is
- * therefore marked [UNVERIFIED], the fixture says so, and the adapter is written
- * so that every surprise resolves to UNKNOWN rather than to a silent pass. It
- * must not be called complete until a real `evaluate` result replaces the
- * fixture.
+ * CLI verified against ORT 97.0.0 (run from the project's container image):
+ *
+ *     ort evaluate -i <analyzer-result.yml> -o <dir> -f JSON
+ *
+ * The first version of this adapter passed `--input-dir`, which ORT 97 rejects
+ * outright ("no such option --input-dir") — the option is `-i/--ort-file`, and
+ * it takes the *result file*, not a directory.
+ *
+ * Still unverified: the shape of `evaluator.violations`. ORT 97 refuses to
+ * evaluate without a rules *script* ("No rules specified."), and writing one is
+ * a Kotlin-scripting exercise rather than a parser question, so no violation has
+ * been captured here. The parser accepts both `violations` at the top level and
+ * under `evaluator`, and resolves anything else to UNKNOWN.
  */
 import { spawnSync } from 'node:child_process';
 import { statSync } from 'node:fs';
@@ -46,16 +52,21 @@ export const ortAdapter: ScannerAdapter = {
   },
 
   buildCommand(target, config) {
-    // The evaluate leg is the one that produces verdicts. Analyze/scan/advise
-    // feed it; running them here would multiply runtime without adding evidence.
+    // Evaluate is the leg that produces verdicts; analyze/scan/advise feed it.
+    // `-i` takes the ORT result file, not a directory (measured on ORT 97).
+    const input = String(
+      config.ortFile ?? `${String(config.outputDir ?? '.ort-results')}/analyzer-result.yml`,
+    );
     return {
       argv: [
         'ort',
         'evaluate',
-        '--input-dir',
-        target.workdir,
-        '--output-dir',
+        '-i',
+        input,
+        '-o',
         String(config.outputDir ?? '.ort-results'),
+        '-f',
+        'JSON',
       ],
       timeoutMs: 600_000,
     };
@@ -75,7 +86,10 @@ export const ortAdapter: ScannerAdapter = {
         return [unknown(context, `ORT output was not valid YAML: ${(err as Error).message}`)];
       }
     }
-    const violations = dig(doc, ['violations']);
+    // ORT 97 nests the result under `evaluator`; older layouts put it at the top.
+    // Accept both, and say so when neither is present rather than reporting a
+    // clean scan.
+    const violations = dig(doc, ['evaluator', 'violations']) ?? dig(doc, ['violations']);
     if (!Array.isArray(violations)) {
       return [unknown(context, 'ORT evaluation carried no violations array (nothing evaluated?)')];
     }

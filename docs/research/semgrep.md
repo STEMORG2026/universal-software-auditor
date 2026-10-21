@@ -41,11 +41,20 @@ YAML, `7` invalid rule, `8` invalid language, `13` invalid API key.
 
 Text, JSON, SARIF, JUnit XML, GitLab SAST, GitLab Secrets.
 
-**[UNVERIFIED]** JSON shape — the CLI reference does not document field names.
-The adapter is written against the widely documented shape
-(`results[].check_id`, `path`, `start.line`, `end.line`, `extra.severity`,
-`extra.message`, `extra.metadata`, `extra.fingerprint`) and must be validated
-against a real capture before the adapter is called complete.
+**[VERIFIED-RUN]** semgrep 1.182.0 was installed and run against
+`fixtures/insecure-app` with a vendored rule. The JSON shape is
+`results[].{check_id, path, start:{line,col,offset}, end, extra:{message,
+metadata, severity, fingerprint, …}}` — the adapter's assumptions were right, and
+the committed fixture is a real capture.
+
+Two measured details that matter:
+
+- **`path` is absolute when the target is absolute.** The runner scans a scratch
+  copy, so every path must be relativised to the scan root or the evidence names
+  a temp directory that will not exist when it is read.
+- **`extra.fingerprint` is the string `requires login` on the OSS engine without
+  an account.** A fingerprint is therefore not stable across engines, so it is
+  not used as an evidence id — the id is content-derived instead.
 
 ## License
 
@@ -53,9 +62,11 @@ LGPL-2.1. **[VERIFIED-SOURCE]** — GitHub API `license.spdx_id`.
 
 ## Integration method
 
-**CLI_ADAPTER.** Run `semgrep scan --json`, parse, normalize. Rules are supplied
-by the audit (vendored rule directory) rather than fetched at scan time, so an
-audit stays reproducible offline.
+**CLI_ADAPTER.** Run `semgrep scan --json`, parse, normalize. Rules come from a
+vendored directory configured at `scanners.semgrep.rules`; with no rules
+configured the adapter needs the registry, needs network, and the runner refuses
+it by default — naming the config key in the refusal, because "needs network" is
+only actionable if the reader knows what to change.
 
 ## Useful capabilities
 

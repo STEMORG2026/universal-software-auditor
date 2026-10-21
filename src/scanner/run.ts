@@ -230,7 +230,9 @@ function runGates(
       version: probe.version,
       command: command.argv,
       status: 'unavailable',
-      reason: 'adapter needs network but this run denied it',
+      reason: adapter.networkConfigKey
+        ? `needs network unless configured offline — set ${adapter.networkConfigKey}`
+        : 'adapter needs network but this run denied it',
       evidenceCount: 0,
       elapsedMs: 0,
       needsNetwork: true,

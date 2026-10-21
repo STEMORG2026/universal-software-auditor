@@ -1,0 +1,10 @@
+rules:
+  - id: js-eval-argv
+    pattern: eval($X)
+    message: dynamic eval of an argument
+    languages:
+      - javascript
+    severity: ERROR
+    metadata:
+      cwe:
+        - 'CWE-94: Improper Control of Generation of Code'

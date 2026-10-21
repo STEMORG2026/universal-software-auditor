@@ -1,0 +1,6 @@
+# Vendored rules keep the scan offline and reproducible: a registry rule pack
+# changes under you and `--config auto` phones home, so neither is acceptable
+# for an audit run.
+scanners:
+  semgrep:
+    rules: semgrep-rules

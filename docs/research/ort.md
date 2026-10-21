@@ -24,10 +24,25 @@ adapter layer should compose the same way, so a rerun reuses earlier stages.
 
 ## Relevant APIs/CLI
 
-**[UNVERIFIED]** — ORT was not installed or run here. It is a Kotlin/JVM
-package with commands per stage (`ort analyze`, `ort advise`, `ort evaluate`,
-`ort report`) reading an `.ort.yml` config and writing a directory tree of
-YAML/JSON artifacts.
+**[VERIFIED-RUN]** against ORT 97.0.0, run from the project's container image
+(`ghcr.io/oss-review-toolkit/ort`). Three things the documentation does not make
+obvious:
+
+```bash
+ort analyze --input-dir <dir> --output-dir <dir>     # → analyzer-result.yml
+ort evaluate -i <analyzer-result.yml> -o <dir> -f JSON   # → evaluation-result.json
+```
+
+1. **`evaluate` does not take `--input-dir`.** ORT 97 rejects it with "no such
+   option --input-dir". The input is `-i/--ort-file` and it takes the _result
+   file_, not a directory. The first version of our adapter used `--input-dir`
+   and would have failed on every run.
+2. **`evaluate` refuses to run without a rules script** — it prints
+   "No rules specified." and writes no output. The rules are a _script_
+   (`--rules-resource`), not the YAML policy file the older docs describe.
+3. **The NPM analyzer needs the registry**: with `--network none` it resolved
+   "1 project(s) and 0 package(s)" and reported an unresolved issue. An offline
+   ORT run needs a pre-populated dependency graph, not just a lockfile.
 
 ## Output formats
 

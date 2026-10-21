@@ -22,6 +22,16 @@ export const dependencyCruiserAdapter: ScannerAdapter = {
     return { args: ['src'], rules: '' };
   },
 
+  /**
+   * `--config` is passed only when the project supplies a rules file. The
+   * alternative — always `--no-config` — would make this adapter a graph
+   * printer: a cruise with no rules produces zero violations, and "0
+   * violations" is exactly the unfalsifiable result this subsystem refuses to
+   * emit. Verified against depcruise 18.7.0: the JSON has no `rules` key, so
+   * whether rules ran is a *configuration* fact, not something to detect from
+   * the output.
+   */
+
   probe(): AdapterProbe {
     for (const binary of ['depcruise', 'dependency-cruiser']) {
       const executable = which(binary);
@@ -57,23 +67,33 @@ export const dependencyCruiserAdapter: ScannerAdapter = {
     }
     const violations = dig(parsed.value, ['summary', 'violations']);
     const list = Array.isArray(violations) ? violations : [];
-    const rows = list.map((violation, index) =>
-      violationToEvidence(violation, index, context.adapterVersion),
-    );
-    // A rule-less cruise is not a pass: say so, or "0 violations" is unfalsifiable.
-    if (list.length === 0 && !Array.isArray(dig(parsed.value, ['rules']))) {
+    // No rules configured means the cruise produced a graph, not a verdict —
+    // and "0 violations" would be indistinguishable from "no problems".
+    if (list.length === 0 && !String(context.config.rules ?? '')) {
       return [
         unknown(context, 'dependency-cruiser ran without a rules config — a graph, not a verdict'),
       ];
     }
-    return rows;
+    return list.map((violation, index) =>
+      violationToEvidence(violation, index, context.adapterVersion),
+    );
   },
 };
 
 /** One edge violation → one evidence row naming both endpoints. */
+/**
+ * depcruise 18.7.0 emits `from`/`to` as plain strings ("a.js"); some versions
+ * and the `--output-type err` family use objects. Accept both rather than
+ * guessing, which is how the first version of this adapter produced `? → ?`.
+ */
+function endpoint(value: unknown): string {
+  if (typeof value === 'string') return value;
+  return String(dig(value, ['path']) ?? 'unknown');
+}
+
 function violationToEvidence(violation: unknown, index: number, adapterVersion: string): Evidence {
-  const from = dig(violation, ['from']) as { path?: string } | undefined;
-  const to = dig(violation, ['to']) as { path?: string } | undefined;
+  const from = endpoint(dig(violation, ['from']));
+  const to = endpoint(dig(violation, ['to']));
   const ruleName = String(
     dig(violation, ['rule', 'name']) ?? dig(violation, ['rule', 'id']) ?? 'unnamed-rule',
   );
@@ -86,11 +106,11 @@ function violationToEvidence(violation: unknown, index: number, adapterVersion: 
       identifier: ruleName,
     },
     provenance: placeholder(),
-    claim: `${from?.path ?? '?'} → ${to?.path ?? '?'} breaks rule ${ruleName} (${severityWord})`,
+    claim: `${from} → ${to} breaks rule ${ruleName} (${severityWord})`,
     severity: mapSeverity(severityWord),
     confidence: DETERMINISTIC_CONFIDENCE,
     status: 'FAIL',
-    location: { file: from?.path ?? 'unknown' },
+    location: { file: from },
     rawReference: { jsonPath: `summary.violations[${index}]` },
   });
 }
