@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T18:06:29.805+05:45
+**Last Reconciled:** 2026-10-21T18:11:19.232+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `8874a05 chore(state): reconcile after moving the codeql config commit`
-2. `02fc46e ci(codeql): exclude fixtures from code scanning`
-3. `146ab2e chore(state): auto-update from post-commit hook`
-4. `18540fb chore(state): reconcile dashboard after the master merge`
-5. `5fb84d4 Merge remote-tracking branch 'origin/master' into feat/codeql-verified`
-6. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
-7. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
-8. `4b094a4 chore(state): auto-update from post-commit hook`
-9. `9349f02 feat(scanner): verify the CodeQL adapter against the real toolchain`
-10. `eab1186 chore(state): auto-update from post-commit hook`
+1. `6e5d440 Merge remote-tracking branch 'origin/master' into test/e2e-dedup`
+2. `36dd384 feat(scanner): verify the CodeQL adapter against the real toolchain (#200)`
+3. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
+4. `53ca38b chore(state): auto-update from post-commit hook`
+5. `0cef562 Merge remote-tracking branch 'origin/master' into test/e2e-dedup`
+6. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
+7. `3f399fd chore(state): auto-update from post-commit hook`
+8. `5e28253 test(e2e): drop the duplicated blocks from the scan suite`
+9. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+10. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
 
 ---
 

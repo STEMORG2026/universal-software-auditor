@@ -124,32 +124,6 @@ describe('usa scan end-to-end', () => {
     },
   );
 
-  it(
-    'every adapter that is installed produces evidence on the weak fixture',
-    { timeout: 180_000 },
-    () => {
-      // A scanner that is present but silent is worse than one that is absent: the
-      // absent one says UNAVAILABLE, the silent one looks like a clean result.
-      for (const adapter of enabledAdapters({
-        codeql: { enabled: false },
-        ort: { enabled: false },
-      })) {
-        if (!adapter.probe().available) continue;
-        const result = new ScannerRunner([adapter]).run({
-          target: INSECURE,
-          config: loadScannerConfig(INSECURE),
-        });
-        const run = result.manifest.adapters[0]!;
-        expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
-        expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
-        for (const item of result.evidence) {
-          expect(item.provenance.executionId).toBeTruthy();
-          expect(item.provenance.repositoryRevision).toBeTruthy();
-        }
-      }
-    },
-  );
-
   it('the runner never touches the checkout it was pointed at', { timeout: 90_000 }, () => {
     const before = new Set(fs.readdirSync(INSECURE));
     new ScannerRunner(enabledAdapters({})).run({ target: INSECURE });
@@ -162,35 +136,6 @@ describe('usa scan end-to-end', () => {
     expect(() => new ScannerRunner(enabledAdapters({})).run({ target: missing })).toThrow(
       /scan target not found/,
     );
-  });
-});
-
-describe('usa scan command', () => {
-  it('writes an evidence report for a target, whatever the adapters found', () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-scan-cmd-'));
-    fs.writeFileSync(path.join(root, 'package.json'), '{"name":"t","version":"1.0.0"}');
-    const out = path.join(root, 'evidence.md');
-    const logs: string[] = [];
-    const spy = vi.spyOn(console, 'log').mockImplementation((m) => logs.push(String(m)));
-    try {
-      const code = cmdScan({ _: ['scan', root], out });
-      expect(code).toBe(0);
-    } finally {
-      spy.mockRestore();
-    }
-    expect(fs.existsSync(out)).toBe(true);
-    const text = fs.readFileSync(out, 'utf8');
-    expect(text).toContain('## Coverage');
-    expect(text).toContain('trivy');
-    // A missing path is a usage error (exit 1), not a scan of nothing.
-    const errors: string[] = [];
-    const errSpy = vi.spyOn(console, 'error').mockImplementation((m) => errors.push(String(m)));
-    try {
-      expect(cmdScan({ _: ['scan', path.join(root, 'nope')] })).toBe(1);
-    } finally {
-      errSpy.mockRestore();
-    }
-    expect(errors.join('')).toMatch(/path not found/);
   });
 });
 
