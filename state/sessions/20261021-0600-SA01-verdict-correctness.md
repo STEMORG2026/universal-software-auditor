@@ -109,3 +109,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 01:36 — Commit
 
 `6db35e9` chore(state): reconcile after #188 merged, record the merge order
+
+### 01:57 — Commit
+
+`c5492ea` chore(deps-dev): bump the dev-dependencies group
