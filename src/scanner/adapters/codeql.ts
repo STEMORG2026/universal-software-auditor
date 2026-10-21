@@ -4,6 +4,17 @@
  * Two-step by nature: `database create` then `database analyze`. Both are
  * constructed here and parsed through the shared SARIF normaliser.
  *
+ * `analyze` writes SARIF to a **file** (`--output=`) and logs to stdout, so the
+ * adapter declares the file as its artifact. Before the runner could read
+ * artifacts, this adapter parsed stdout and therefore parsed log lines: the
+ * SARIF never reached `parse`. That is a structural bug the fixture-based tests
+ * could not see, because they called `parse` directly.
+ *
+ * [UNVERIFIED] No `codeql` binary was available on the machine where this was
+ * written, so neither stage has been executed end-to-end. The shape follows the
+ * documented CLI and the same contract ORT was verified against; treat a first
+ * real run as the verification, not a formality.
+ *
  * Security boundary, enforced and not aspirational: **the engine never runs a
  * build command**. CodeQL's `--command` is arbitrary project code; the adapter
  * will only emit it when the project config sets
@@ -15,6 +26,9 @@ import { statSync } from 'node:fs';
 import path from 'node:path';
 import type { AdapterProbe, Evidence, ScannerAdapter, ScannerConfig } from '../types.js';
 import { evidenceFromSarif } from '../sarif.js';
+
+/** Where `database analyze` writes its SARIF, relative to the scan workdir. */
+export const CODEQL_SARIF = 'codeql-results.sarif';
 
 export const codeqlAdapter: ScannerAdapter = {
   id: 'codeql',
@@ -44,18 +58,30 @@ export const codeqlAdapter: ScannerAdapter = {
         'allowBuildCommands must be granted by the audit, not by an adapter: the runner refuses build steps by default',
       );
     }
+    const db = path.join(target.workdir, 'codeql-db');
     return {
-      argv: [
-        'codeql',
-        'database',
-        'create',
-        path.join(target.workdir, 'codeql-db'),
-        '--language',
-        language,
-        '--source-root',
-        target.path,
-        '--no-run-unnecessary-builds',
+      prepare: [
+        {
+          argv: [
+            'codeql',
+            'database',
+            'create',
+            db,
+            '--language',
+            language,
+            '--source-root',
+            target.path,
+            '--no-run-unnecessary-builds',
+          ],
+          timeoutMs: 900_000,
+        },
       ],
+      argv: codeqlAnalyzeCommand(
+        db,
+        String(config.packs ?? ''),
+        path.join(target.workdir, CODEQL_SARIF),
+      ),
+      artifacts: [CODEQL_SARIF],
       timeoutMs: 900_000,
       network: true,
     };

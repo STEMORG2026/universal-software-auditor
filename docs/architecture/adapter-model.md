@@ -35,6 +35,34 @@ single most important property: command construction and parsing are testable
 with fixtures, so a scanner that cannot be installed in CI still has a full test
 suite.
 
+### Where the string comes from
+
+A command is not always one process, and its output is not always stdout:
+
+```ts
+export interface ScannerCommand {
+  /** The command that produces the evidence. */
+  argv: string[];
+  /** Stages that must succeed first (ORT `analyze`, CodeQL `database create`). */
+  prepare?: ScannerStage[];
+  /** Files the tool writes its payload to, relative to the scan workdir. */
+  artifacts?: string[];
+  network?: boolean;
+  timeoutMs?: number;
+}
+```
+
+Both fields exist because adapters were written against the assumption that a
+tool prints its JSON. Two of the six do not: ORT writes
+`evaluation-result.json` and logs progress to stdout, and CodeQL writes SARIF
+with `--output=`. Parsing stdout for those adapters parses log lines, and no
+fixture test can see it, because the fixture is passed to `parse` directly.
+
+The runner therefore reads the first declared artifact that exists and hands
+_that_ to `parse`; a declared artifact that was not produced is an `error` with
+a reason, never an empty result. `preparedBy` in the evidence provenance records
+the stages, so a re-run reproduces the whole pipeline rather than its last step.
+
 ## Why not check_available / health_check as separate methods
 
 The task's sketch listed both. They collapse: `probe()` returning a version and a
@@ -47,19 +75,23 @@ discovering it mid-scan).
 One runner owns every process an adapter starts. Rules, all enforced there and
 nowhere else:
 
-| Concern           | Policy                                                                                                                                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Timeout           | 300s default; a per-adapter override. `SIGTERM` on expiry → `UNAVAILABLE` with reason `timeout`                                                                                                        |
-| Output bound      | 20 MB cap; truncation is recorded, never silent                                                                                                                                                        |
-| Working directory | a **scratch copy** of the target, not the checkout                                                                                                                                                     |
-| Environment       | inherit a _deny-listed_ subset: no `GITHUB_TOKEN`, no home credentials, no `NPM_CONFIG_*`                                                                                                              |
-| Network           | denied by default; an adapter that needs network declares `needsNetwork: true` and the run manifest records it                                                                                         |
-| Build commands    | **never executed by the engine**. An adapter may _propose_ one (CodeQL `--command`), and the engine refuses it unless the target config explicitly enables `allowBuildCommands` with a recorded reason |
-| Exit codes        | parsed per adapter (Semgrep exits 1 on findings; dependency-cruiser's JSON reporter always exits 0)                                                                                                    |
-| Success verdict   | **never inferred from exit code alone**, always from parsed output                                                                                                                                     |
+| Concern           | Policy                                                                                                                                                                                                                            |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Timeout           | 300s default; a per-adapter override. `SIGTERM` on expiry → `UNAVAILABLE` with reason `timeout`                                                                                                                                   |
+| Output bound      | 20 MB cap; truncation is recorded, never silent                                                                                                                                                                                   |
+| Working directory | a **scratch copy** of the target, not the checkout                                                                                                                                                                                |
+| Environment       | inherit a _deny-listed_ subset: no `GITHUB_TOKEN`, no home credentials, no `NPM_CONFIG_*`                                                                                                                                         |
+| Network           | denied by default; an adapter that needs network declares `needsNetwork: true` and the run manifest records it                                                                                                                    |
+| Build commands    | **never executed by the engine**. An adapter may _propose_ one (CodeQL `--command`), and the engine refuses it unless the target config explicitly enables `allowBuildCommands` with a recorded reason                            |
+| Output location   | the declared artifact file if the tool writes one, otherwise stdout; a declared artifact that is missing is an `error`, not an empty result                                                                                       |
+| Exit codes        | recorded in the manifest and **never interpreted**. Semgrep exits non-zero on findings, dependency-cruiser's JSON reporter always exits zero, and ORT exits non-zero when it finds violations — a run that succeeded and objected |
+| Success verdict   | **never inferred from exit code alone**, always from parsed output                                                                                                                                                                |
 
-The last two rows are consequences of real, measured behaviour in the research
-documents. An adapter that forgot either would be a silent-failure machine.
+The last three rows are consequences of real, measured behaviour in the research
+documents. An adapter that forgot any of them would be a silent-failure machine.
+A prepare stage is the one exception: it produces no payload to judge, so a
+non-zero status there stops the pipeline and is reported as a blind spot — never
+as a finding.
 
 ## Run manifest
 
@@ -79,8 +111,21 @@ audits comparable across machines:
       "version": "0.75.0",
       "command": ["trivy", "fs", "--format", "json", "."],
       "status": "ok",
+      "exit_code": 0,
       "evidence_count": 12,
       "elapsed_ms": 8200
+    },
+    {
+      "id": "ort",
+      "available": true,
+      "version": "97.0.0",
+      "command": ["ort", "evaluate", "-i", "…", "-o", ".ort-results", "-f", "JSON"],
+      "prepare": [["ort", "analyze", "--input-dir", "…", "--output-dir", ".ort-results"]],
+      "artifact": ".ort-results/evaluation-result.json",
+      "status": "ok",
+      "exit_code": 2,
+      "evidence_count": 3,
+      "elapsed_ms": 17400
     },
     {
       "id": "codeql",
@@ -143,6 +188,10 @@ Each adapter must prove, at minimum:
    executable that sleeps).
 6. Where the tool is installed in CI, at least one end-to-end run against
    `fixtures/insecure-app` with an assertion on a _named_ evidence id.
+7. **If the tool writes its payload to a file, the test goes through the
+   runner.** Calling `parse` with the file's contents proves the parser and
+   proves nothing about the wiring: two adapters passed that test while being
+   incapable of ever receiving the file.
 
 Rule 6 has a graded fallback: if the tool is not installed, the integration test
 skips **loudly** (`test.skip(...)` with the reason printed), because a silently

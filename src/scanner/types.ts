@@ -71,6 +71,11 @@ export interface EvidenceProvenance {
   executionId: string;
   /** argv actually executed, for a re-run. */
   command: string[];
+  /**
+   * Upstream stages that ran before `command`, in order. Present so that a
+   * provenance record reproduces the run rather than only its last step.
+   */
+  preparedBy?: string[][];
   /** Adapter config in effect, including rule-pack versions. */
   config: Record<string, unknown>;
   /** The commit the target pointed at, or `unversioned`. */
@@ -116,9 +121,22 @@ export interface AdapterRun {
   available: boolean;
   version: string;
   command: string[];
+  /** Upstream stages that ran before `command`, in order. */
+  prepare?: string[][];
+  /** Artifact the evidence was parsed from, relative to the workdir. */
+  artifact?: string;
   status: ScannerStatus;
   /** Why an adapter did not produce evidence. Mandatory unless ok. */
   reason?: string;
+  /**
+   * The process exit status, recorded and never interpreted.
+   *
+   * Tools disagree about what a non-zero status means: ORT exits 2 when it
+   * found violations (the run succeeded), while a usage error is also non-zero.
+   * The verdict comes from the parsed payload; the status is here so a reader
+   * can tell "it ran and objected" from "it never started".
+   */
+  exitCode?: number;
   evidenceCount: number;
   elapsedMs: number;
   needsNetwork: boolean;
@@ -147,8 +165,35 @@ export interface ScanTarget {
   executionId: string;
 }
 
-export interface ScannerCommand {
+/** One process in a staged tool's pipeline (ORT `analyze`, CodeQL `create`). */
+export interface ScannerStage {
   argv: string[];
+  /** Overrides the command timeout for this stage alone. */
+  timeoutMs?: number;
+}
+
+export interface ScannerCommand {
+  /** The command that produces the evidence. */
+  argv: string[];
+  /**
+   * Stages that must succeed before `argv` runs.
+   *
+   * Some tools are pipelines, not single processes: ORT's `evaluate` reads a
+   * result file that `analyze` writes, and CodeQL's `analyze` reads a database
+   * that `create` writes. Without this the adapter can only describe a command
+   * that will always fail on a fresh checkout.
+   */
+  prepare?: ScannerStage[];
+  /**
+   * Files the tool writes its parseable output to, relative to the scan
+   * workdir. The first that exists is read and handed to `parse` instead of
+   * stdout.
+   *
+   * Measured, not assumed: ORT's `evaluate` and CodeQL's `analyze` write JSON
+   * to a file and log to stdout, so an adapter that parses stdout gets progress
+   * lines where it expected violations.
+   */
+  artifacts?: string[];
   network?: boolean;
   /** Extra wall-time for slow tools (database builds). */
   timeoutMs?: number;
