@@ -137,3 +137,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 13:45 — Commit
 
 `53afcb2` docs(state): hand off the scanner/evidence work
+
+### 16:31 — Commit
+
+`d9512f7` fix(scanner): report a semgrep scan that read no files as UNKNOWN
