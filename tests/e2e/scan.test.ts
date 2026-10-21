@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { ScannerRunner } from '../../src/scanner/run.js';
-import { enabledAdapters } from '../../src/scanner/registry.js';
+import { byId, enabledAdapters } from '../../src/scanner/registry.js';
 import { loadScannerConfig } from '../../src/scanner/config.js';
 
 /**
@@ -61,6 +61,40 @@ describe('usa scan end-to-end', () => {
       expect(vulns.length).toBeGreaterThan(0);
       // Every row names its native identifier (a CVE id) and its location.
       for (const v of vulns) expect(v.source.identifier).toMatch(/^CVE-/);
+    },
+  );
+
+  it(
+    'codeql reads its SARIF from the file it writes, not from stdout',
+    { timeout: 300_000 },
+    () => {
+      const adapter = byId('codeql');
+      if (!adapter?.probe().available) {
+        console.warn('SKIPPED: codeql not installed — no CodeQL evidence to assert');
+        return;
+      }
+      // Two stages: `database create`, then `database analyze`. The evidence
+      // command writes SARIF to a file and logs progress to stdout, so this
+      // assertion is about the runner's wiring, not only the parser.
+      const result = new ScannerRunner([adapter]).run({
+        target: INSECURE,
+        config: loadScannerConfig(INSECURE),
+        network: true,
+      });
+      const run = result.manifest.adapters[0]!;
+      expect(run.status, run.reason ?? 'ok').toBe('ok');
+      expect(run.artifact).toBe('codeql-results.sarif');
+      expect(run.prepare?.[0]?.slice(0, 3)).toEqual(['codeql', 'database', 'create']);
+      // Named ids, because "2 findings" is satisfied by any two findings.
+      expect(result.evidence.map((e) => e.source.identifier).sort()).toEqual([
+        'js/disabling-certificate-validation',
+        'js/insufficient-key-size',
+      ]);
+      // The severity comes from the rule's defaultConfiguration — CodeQL omits
+      // `level` on every result.
+      const byRule = new Map(result.evidence.map((e) => [e.source.identifier, e.severity]));
+      expect(byRule.get('js/disabling-certificate-validation')).toBe('HIGH');
+      expect(byRule.get('js/insufficient-key-size')).toBe('MEDIUM');
     },
   );
 

@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T17:52:28.409+05:45
+**Last Reconciled:** 2026-10-21T18:06:29.805+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `0cef562 Merge remote-tracking branch 'origin/master' into test/e2e-dedup`
-2. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
-3. `3f399fd chore(state): auto-update from post-commit hook`
-4. `5e28253 test(e2e): drop the duplicated blocks from the scan suite`
-5. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
-6. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-7. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
-8. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
-9. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
-10. `1515fae chore(master): release (#191)`
+1. `8874a05 chore(state): reconcile after moving the codeql config commit`
+2. `02fc46e ci(codeql): exclude fixtures from code scanning`
+3. `146ab2e chore(state): auto-update from post-commit hook`
+4. `18540fb chore(state): reconcile dashboard after the master merge`
+5. `5fb84d4 Merge remote-tracking branch 'origin/master' into feat/codeql-verified`
+6. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
+7. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
+8. `4b094a4 chore(state): auto-update from post-commit hook`
+9. `9349f02 feat(scanner): verify the CodeQL adapter against the real toolchain`
+10. `eab1186 chore(state): auto-update from post-commit hook`
 
 ---
 

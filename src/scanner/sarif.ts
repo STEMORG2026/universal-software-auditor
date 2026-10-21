@@ -56,7 +56,7 @@ function runEvidence(run: unknown, runIndex: number, options: SarifEvidenceOptio
   );
 }
 
-type RuleIndex = Map<string, { text?: string; cwes?: string[] }>;
+type RuleIndex = Map<string, { text?: string; cwes?: string[]; level?: string }>;
 
 function ruleIndex(rules: unknown): RuleIndex {
   const index: RuleIndex = new Map();
@@ -65,13 +65,25 @@ function ruleIndex(rules: unknown): RuleIndex {
     const id = String(dig(rule, ['id']) ?? '');
     if (id) {
       const tags = dig(rule, ['properties', 'tags']);
+      const level = dig(rule, ['defaultConfiguration', 'level']);
       index.set(id, {
-        text: dig(rule, ['name']) as string | undefined,
+        // `name` is the id in every SARIF producer we consume, so a claim built
+        // from it reads "js/insufficient-key-size: <message>" — the identifier
+        // twice and a human title nowhere. shortDescription is the title.
+        text: titleOf(rule),
         cwes: cwesOfTags(tags),
+        ...(typeof level === 'string' ? { level } : {}),
       });
     }
   }
   return index;
+}
+
+function titleOf(rule: unknown): string | undefined {
+  const short = dig(rule, ['shortDescription', 'text']);
+  if (typeof short === 'string' && short.length > 0) return short;
+  const name = dig(rule, ['name']);
+  return typeof name === 'string' && name.length > 0 ? name : undefined;
 }
 
 function resultToEvidence(
@@ -87,6 +99,11 @@ function resultToEvidence(
   const { index, runIndex, toolVersion, rules, options } = run;
   const ruleId = String(dig(result, ['ruleId']) ?? 'unknown-rule');
   const message = firstMessage(result);
+  // SARIF 3.27.10: a result may omit `level` when it equals the rule's
+  // default. CodeQL omits it for every result, so reading only `result.level`
+  // turned every CodeQL finding into INFO — an error-severity certificate
+  // check and a warning-severity key-size check became indistinguishable.
+  const level = dig(result, ['level']) ?? rules.get(ruleId)?.level;
   return buildEvidence({
     source: {
       tool: options.tool,
@@ -96,7 +113,7 @@ function resultToEvidence(
     },
     provenance: placeholder(),
     claim: `${rules.get(ruleId)?.text ?? ruleId}: ${message}`,
-    severity: sarifLevelToSeverity(dig(result, ['level'])),
+    severity: sarifLevelToSeverity(level),
     confidence: options.confidence ?? 1.0,
     status: 'FAIL',
     location: locationOf(dig(result, ['locations', 0])),
