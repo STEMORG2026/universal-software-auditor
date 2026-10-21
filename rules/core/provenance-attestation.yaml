@@ -58,6 +58,11 @@ rules:
       # An empty signature file signs nothing — presence alone is not evidence.
       non_empty: true
       files:
+        # cosign's own default bundle name is `<artifact>.sigstore.json`
+        # (`cosign sign-blob --bundle x.sigstore.json`), which `*.sigstore`
+        # does not match — that gap made every cosign-signed repo fail this
+        # rule. `*.sigstore` stays for legacy bundles written with that suffix.
+        - '**/*.sigstore.json'
         - '**/*.sigstore'
         - '**/*.bundle'
         - '**/*.sig'

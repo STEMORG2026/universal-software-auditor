@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-09T06:31:43.389+05:45
+**Last Reconciled:** 2026-10-21T00:38:34.764+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -31,10 +31,14 @@ plus a GitHub composite action. The defining habit: **the tool audits itself**.
 
 || Branch | Status | Ahead/Behind master |
 || ----------------------------------- | -------------------- | ------------------- |
-|| `master` | current, clean | 0 |
-|| `fix/protocol-start-gate` | merged (PR #183) | — |
+|| `master` | base, clean | 0 |
+|| `fix/verdict-correctness` | **current, PR open** | +1 |
+|| `chore/remove-automerge` | PR #188 open (owner merges) | +2 |
 
-**PR #183 merged** (`fix/protocol-start-gate`) — start-of-session gate (ADR-0044). CI was green.
+**`fix/verdict-correctness`** — four verdict-correctness fixes found by auditing
+the auditor, the `audit.ts` split, layer-boundary lint, and a declared
+zero-retry test budget. Self-audit: **100/100, no open findings** (was 94.2 with
+1 HIGH · 1 MEDIUM · 1 LOW · 5 FUTURE).
 
 ---
 
@@ -69,12 +73,16 @@ See `state/REGISTRY.md` for details.
 
 ## Pending Changeset
 
-`.changeset/autonomous-docs-hardening.md` — unreleased changeset waiting for next release.
+`.changeset/verdict-correctness.md` — `minor`, on `fix/verdict-correctness`.
+The two earlier changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
+were consumed by the 2.26.2 release.
 
 ## Next Steps
 
-1. Release pending changesets (`autonomous-docs-hardening`, `protocol-start-gate`)
-2. Review dependabot PRs (#176-#180)
+1. Owner review + merge of `fix/verdict-correctness` (agent never merges)
+2. Release the pending changeset (Version Packages PR → publish)
+3. Review dependabot PRs (#176-#180) and `chore/remove-automerge` (#188)
+4. D1 (AGENTS.md "four gates" → six) is still blocked on owner consent
 
 ---
 

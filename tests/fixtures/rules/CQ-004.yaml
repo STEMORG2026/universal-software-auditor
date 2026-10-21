@@ -1,11 +1,21 @@
 rule: CQ-004
+# Regression (2026-10-21): the type-escape branch used to match prose in a doc
+# comment — "Degraded-never-empty: any fetch failure" — and reported a type
+# escape that did not exist. The negative case pins that sentence. The positive
+# case keeps both remaining branches honest: the directive lives in a comment
+# (so masking comments cannot be the fix), and `: any` still has to match in a
+# real type position.
 negative:
   files:
     src/index.ts: |
+      /**
+       * Degraded-never-empty: any fetch/HTTP/parse failure falls back to the
+       * preset default; the sentence is prose, not a type annotation.
+       */
       const value: string = "hello";
 positive:
   files:
     src/index.ts: |
       // @ts-ignore
-      const value = externalThing;
+      const value: any = externalThing;
   expect: FAIL

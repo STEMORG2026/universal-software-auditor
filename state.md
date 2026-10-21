@@ -36,7 +36,10 @@ state/
 
 ## Current Status (one-liner)
 
-USA v2.26.0 — mature, self-auditing TypeScript CLI. Branch `docs/0042-continuous-ingestion` is 5 commits ahead of origin (3 ahead of master). Working tree clean. No blockers. One pending changeset. 10 unmerged feature/fix branches.
+USA v2.26.2 — self-auditing TypeScript CLI. Self-audit **100/100, no open
+findings** (2026-10-21). Branch `fix/verdict-correctness` is open as a PR and
+awaiting owner review; `master` is clean. One pending changeset
+(`verdict-correctness`). No blockers.
 
 ## MACP Protocol
 
