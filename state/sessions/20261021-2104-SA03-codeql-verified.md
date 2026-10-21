@@ -75,3 +75,7 @@ failure and was restored.
 ### 15:41 — Commit
 
 `9349f02` feat(scanner): verify the CodeQL adapter against the real toolchain
+
+### 17:58 — Commit
+
+`5fb84d4` Merge remote-tracking branch 'origin/master' into feat/codeql-verified
