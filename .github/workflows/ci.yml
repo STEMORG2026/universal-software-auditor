@@ -3,8 +3,11 @@ name: CI
 on:
   push:
     branches: [master]
+  # No base-branch filter on purpose. A stacked pull request — one targeting a
+  # feature branch rather than master — silently got **zero** CI, because the
+  # filter excluded its base and `pull_request` workflows are read from the base
+  # branch. A check that never runs is worse than one that fails: it looks green.
   pull_request:
-    branches: [master]
 
 # Least privilege: the default GITHUB_TOKEN gets read-only unless a job asks for
 # more. (Yes, USA checks this on the projects it audits — it applies to itself.)
