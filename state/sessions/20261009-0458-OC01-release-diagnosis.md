@@ -88,3 +88,7 @@ review dependabot #176–#179.
 ### 06:31 — Commit
 
 `3319108` chore(ci): remove automerge workflow — merges are manual-only after owner review
+
+### 00:38 — Commit
+
+`9793d6c` fix(invariants): an asserted rule that does not apply cannot fail

@@ -23,6 +23,48 @@ export default tseslint.config(
     files: ['**/*.test.ts'],
     rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
+  // ARCH-006: the layers point inward, and the rule is enforced here rather
+  // than described in a diagram. `util` is the bottom (it may not know what an
+  // audit is); `engine` and `report` may not reach up into the CLI; only the
+  // CLI may import `serve`. A cross-layer import fails lint, not review.
+  {
+    files: ['src/util/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/engine/**', '**/report/**', '**/cli*', '**/serve/**'],
+              message: 'util is the bottom layer — it cannot import engine, report, cli, or serve.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/engine/**/*.ts', 'src/report/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/cli*', '**/serve/**'],
+              message: 'engine and report are below the CLI — they cannot import it.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The mutation harness and CLI entry are the only places allowed to know
+    // both halves of the program; they are excluded by not being matched above.
+    files: ['src/cli*.ts', 'src/index.ts', 'src/serve/**/*.ts'],
+    rules: { 'no-restricted-imports': 'off' },
+  },
   {
     // Node scripts (scripts/*.mjs) run under plain node, which js.configs
     // .recommended does not know about — without this, `process` and `console`
