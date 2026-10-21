@@ -15,6 +15,8 @@ import type {
   ScanOptions,
   ScanResult,
   ScannerAdapter,
+  ParseContext,
+  ScannerCommand,
   ScannerConfig,
   ScannerFinding,
   Evidence,
@@ -133,49 +135,69 @@ export class ScannerRunner {
     options: ScanOptions,
   ): { manifest: AdapterRun; evidence: Evidence[]; findings: ScannerFinding[] } {
     const probe = adapter.probe();
-    const config = { ...adapter.defaultConfig(), ...(options.config?.[adapter.id] ?? {}) };
+    const config = mergeConfig(adapter, options);
     const gates = runGates(adapter, probe, target, config, options);
     if (gates) return { manifest: gates, evidence: [], findings: [] };
 
     const command = adapter.buildCommand(target, config);
-    const timeoutMs = command.timeoutMs ?? options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    const timeoutMs = commandTimeout(command, options);
+
+    // Upstream stages first: a pipeline tool's evidence command reads what the
+    // earlier stages wrote. A failed stage is a blind spot, not a verdict.
+    const prep = runPrepare(adapter, target, command, probe.version, timeoutMs);
+    if ('manifest' in prep) return { manifest: prep.manifest, evidence: [], findings: [] };
+    const prepared = prep.prepared;
+
     const spawn = spawnScanner(adapter, target, command.argv, timeoutMs);
     if ('failure' in spawn) {
-      return { manifest: { ...spawn.failure, evidenceCount: 0 }, evidence: [], findings: [] };
-    }
-
-    const context = {
-      adapterId: adapter.id,
-      adapterVersion: probe.version,
-      target,
-      config,
-    };
-    let evidence: Evidence[];
-    try {
-      evidence = adapter.parse(spawn.stdout, context);
-    } catch (err) {
-      // A parse failure is never a verdict: everything it would have found is
-      // UNKNOWN, and the manifest says why.
       return {
-        manifest: {
-          id: adapter.id,
-          available: true,
-          version: probe.version,
-          command: command.argv,
-          status: 'error',
-          reason: `parse failed: ${(err as Error).message}`,
-          evidenceCount: 0,
-          elapsedMs: spawn.elapsedMs,
-          needsNetwork: Boolean(command.network),
-        },
+        manifest: { ...spawn.failure, prepare: prepared, evidenceCount: 0 },
         evidence: [],
         findings: [],
       };
     }
 
+    const base: AdapterRun = {
+      id: adapter.id,
+      available: true,
+      version: probe.version,
+      command: command.argv,
+      ...(prepared.length > 0 ? { prepare: prepared } : {}),
+      status: 'ok',
+      exitCode: spawn.exitCode,
+      evidenceCount: 0,
+      elapsedMs: spawn.elapsedMs,
+      needsNetwork: Boolean(command.network),
+    };
+
+    const output = resolveOutput(spawn, command, target.workdir);
+    if (!output.ok) {
+      return {
+        manifest: { ...base, status: 'error', reason: output.reason },
+        evidence: [],
+        findings: [],
+      };
+    }
+
+    const parsed = parseSafely(adapter, output.raw, {
+      adapterId: adapter.id,
+      adapterVersion: probe.version,
+      target,
+      config,
+    });
+    if (!parsed.ok) {
+      return {
+        manifest: { ...base, status: 'error', reason: `parse failed: ${parsed.reason}` },
+        evidence: [],
+        findings: [],
+      };
+    }
+    const evidence = parsed.evidence;
+
     stampProvenance(evidence, {
       executionId: target.executionId,
       command: command.argv,
+      ...(prepared.length > 0 ? { preparedBy: prepared } : {}),
       config,
       repositoryRevision: target.revision,
       timestamp: new Date(spawn.startedAt).toISOString(),
@@ -186,19 +208,134 @@ export class ScannerRunner {
 
     return {
       manifest: {
-        id: adapter.id,
-        available: true,
-        version: probe.version,
-        command: command.argv,
-        status: 'ok',
+        ...base,
+        ...(output.artifact ? { artifact: output.artifact } : {}),
         evidenceCount: evidence.length,
-        elapsedMs: spawn.elapsedMs,
-        needsNetwork: Boolean(command.network),
       },
       evidence,
-      findings: adapter.findings ? adapter.findings(evidence) : [],
+      findings: findingsOf(adapter, evidence),
     };
   }
+}
+
+/** Adapters opt into path (2); the default is no findings. */
+function findingsOf(adapter: ScannerAdapter, evidence: Evidence[]): ScannerFinding[] {
+  return adapter.findings ? adapter.findings(evidence) : [];
+}
+
+/** Default config under the project's, so a config file overrides one key. */
+function mergeConfig(adapter: ScannerAdapter, options: ScanOptions): ScannerConfig {
+  return { ...adapter.defaultConfig(), ...(options.config?.[adapter.id] ?? {}) };
+}
+
+/** Adapter, then run, then global default. */
+function commandTimeout(command: ScannerCommand, options: ScanOptions): number {
+  return command.timeoutMs ?? options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+}
+
+/** A parse failure is never a verdict: everything it would have found is UNKNOWN. */
+function parseSafely(
+  adapter: ScannerAdapter,
+  raw: string,
+  context: ParseContext,
+): { ok: true; evidence: Evidence[] } | { ok: false; reason: string } {
+  try {
+    return { ok: true, evidence: adapter.parse(raw, context) };
+  } catch (err) {
+    return { ok: false, reason: (err as Error).message };
+  }
+}
+
+type ArtifactRead = { ok: true; path: string; content: string } | { ok: false; reason: string };
+
+/**
+ * Run the stages a pipeline tool needs before its evidence command.
+ *
+ * A prepare stage produces no payload to judge, so its exit status is the only
+ * signal it has. Using it to *stop* is not a verdict about the project — the
+ * adapter is reported as a blind spot, never as a finding.
+ */
+export function runPrepare(
+  adapter: ScannerAdapter,
+  target: ScanTarget,
+  command: ScannerCommand,
+  version: string,
+  timeoutMs: number,
+): { prepared: string[][] } | { manifest: AdapterRun } {
+  const prepared: string[][] = [];
+  for (const stage of command.prepare ?? []) {
+    const step = spawnScanner(adapter, target, stage.argv, stage.timeoutMs ?? timeoutMs);
+    const failure =
+      'failure' in step
+        ? step.failure
+        : step.exitCode === 0
+          ? null
+          : {
+              id: adapter.id,
+              available: true,
+              version,
+              command: stage.argv,
+              status: 'error' as const,
+              reason: `prepare stage exited with status ${step.exitCode}`,
+              exitCode: step.exitCode,
+              evidenceCount: 0,
+              elapsedMs: step.elapsedMs,
+              needsNetwork: Boolean(command.network),
+            };
+    if (failure) {
+      return {
+        manifest: { ...failure, prepare: prepared, reason: `prepare stage: ${failure.reason}` },
+      };
+    }
+    prepared.push(stage.argv);
+  }
+  return { prepared };
+}
+
+/** The bytes to parse: the declared artifact if the tool writes one, else stdout. */
+export function resolveOutput(
+  spawn: SpawnSuccess,
+  command: ScannerCommand,
+  workdir: string,
+): { ok: true; raw: string; artifact?: string } | { ok: false; reason: string } {
+  if (!command.artifacts || command.artifacts.length === 0) {
+    return { ok: true, raw: spawn.stdout };
+  }
+  const read = readArtifact(workdir, command.artifacts);
+  if (!read.ok) return { ok: false, reason: read.reason };
+  return { ok: true, raw: read.content, artifact: read.path };
+}
+
+/**
+ * Read the first declared artifact that exists.
+ *
+ * A declared artifact that is missing is an `error` with a reason, never an
+ * empty result: "the tool produced no file" and "the policy passed" are
+ * different sentences and only one of them is usually true.
+ */
+export function readArtifact(workdir: string, declared: string[]): ArtifactRead {
+  const root = path.resolve(workdir);
+  for (const rel of declared) {
+    const abs = path.resolve(root, rel);
+    if (abs !== root && !abs.startsWith(root + path.sep)) {
+      return { ok: false, reason: `artifact ${rel} resolves outside the scan workdir` };
+    }
+    let stat: fs.Stats;
+    try {
+      stat = fs.statSync(abs);
+    } catch {
+      continue;
+    }
+    if (!stat.isFile()) continue;
+    if (stat.size > OUTPUT_CAP_BYTES) {
+      return {
+        ok: false,
+        reason: `artifact ${rel} is ${stat.size} bytes, over the output cap of ${OUTPUT_CAP_BYTES}`,
+      };
+    }
+    return { ok: true, path: path.relative(root, abs), content: fs.readFileSync(abs, 'utf8') };
+  }
+  return { ok: false, reason: `declared artifact not produced: ${declared.join(', ')}` };
 }
 
 /** The two checks that can refuse a run before a process exists. */
@@ -241,8 +378,8 @@ function runGates(
   return null;
 }
 
-type SpawnResult =
-  { stdout: string; elapsedMs: number; startedAt: number } | { failure: AdapterRun };
+type SpawnSuccess = { stdout: string; exitCode: number; elapsedMs: number; startedAt: number };
+type SpawnResult = SpawnSuccess | { failure: AdapterRun };
 
 function spawnScanner(
   adapter: ScannerAdapter,
@@ -263,7 +400,12 @@ function spawnScanner(
   if (proc.error || proc.signal === 'SIGTERM' || proc.status === null) {
     return { failure: spawnFailure(adapter, argv, proc, timeoutMs, elapsedMs) };
   }
-  return { stdout: proc.stdout ? proc.stdout.toString('utf8') : '', elapsedMs, startedAt };
+  return {
+    stdout: proc.stdout ? proc.stdout.toString('utf8') : '',
+    exitCode: proc.status,
+    elapsedMs,
+    startedAt,
+  };
 }
 
 /** A process that died (including by timeout) is a blind spot, not a verdict. */

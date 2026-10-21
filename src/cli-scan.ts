@@ -11,7 +11,7 @@ import { str, bool, list, dryRunWrites, type Args } from './cli-args.js';
 import { ScannerRunner } from './scanner/run.js';
 import { enabledAdapters, scanners } from './scanner/registry.js';
 import { loadScannerConfig } from './scanner/config.js';
-import type { ScanResult } from './scanner/types.js';
+import type { AdapterRun, ScanResult } from './scanner/types.js';
 
 export const SCAN_HELP = `
 usa scan [path]            Run scanner adapters, write a run manifest + evidence
@@ -109,11 +109,11 @@ export function writeEvidenceReport(out: string, result: ScanResult): void {
     '',
     '## Coverage',
     '',
-    '| Adapter | Version | Status | Evidence | Time |',
-    '| --- | --- | --- | --- | --- |',
+    '| Adapter | Version | Status | Evidence | Time | Source |',
+    '| --- | --- | --- | --- | --- | --- |',
     ...manifest.adapters.map(
       (a) =>
-        `| ${a.id} | ${a.version || '—'} | ${a.status}${a.reason ? ` (${a.reason})` : ''} | ${a.evidenceCount} | ${a.elapsedMs}ms |`,
+        `| ${a.id} | ${a.version || '—'} | ${a.status}${a.reason ? ` (${a.reason})` : ''} | ${a.evidenceCount} | ${a.elapsedMs}ms | ${evidenceSource(a)} |`,
     ),
     '',
     '## Evidence',
@@ -142,4 +142,16 @@ export function writeEvidenceReport(out: string, result: ScanResult): void {
 /** Exported for tests: which adapters a config enables by default. */
 export function defaultEnabled(): string[] {
   return enabledAdapters({}).map((a) => a.id);
+}
+
+/**
+ * Where an adapter's evidence came from, and whether the process objected.
+ *
+ * A tool that writes its payload to a file and one that prints it are different
+ * enough to be worth saying out loud: the file-based case is the one that used
+ * to be parsed from the wrong stream.
+ */
+function evidenceSource(a: AdapterRun): string {
+  const where = a.artifact ? `\`${a.artifact}\`` : 'stdout';
+  return a.exitCode ? `${where} (exit ${a.exitCode})` : where;
 }

@@ -167,6 +167,22 @@ describe('codeql adapter', () => {
     expect(argv).toContain('--format=sarif-latest');
   });
 
+  it('runs create then analyze, and reads the SARIF file analyze writes', () => {
+    const cmd = codeqlAdapter.buildCommand(
+      { path: '/r', workdir: '/r/w', revision: '', executionId: '' },
+      codeqlAdapter.defaultConfig(),
+    );
+    // The adapter used to emit `database create` and parse stdout — a command
+    // that writes a database, feeding a parser that expects SARIF. Nothing in
+    // the pipeline could ever produce evidence.
+    expect(cmd.prepare).toHaveLength(1);
+    expect(cmd.prepare![0]!.argv.slice(0, 3)).toEqual(['codeql', 'database', 'create']);
+    expect(cmd.argv.slice(0, 3)).toEqual(['codeql', 'database', 'analyze']);
+    expect(cmd.artifacts).toEqual(['codeql-results.sarif']);
+    // The SARIF must land inside the scan workdir or the runner cannot read it.
+    expect(cmd.argv[cmd.argv.length - 1]).toBe('--output=/r/w/codeql-results.sarif');
+  });
+
   it('refuses to emit a build command on its own authority', () => {
     expect(() =>
       codeqlAdapter.buildCommand(

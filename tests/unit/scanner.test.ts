@@ -40,7 +40,9 @@ describe('scanner command surface', () => {
     writeEvidenceReport(out, result());
     const text = fs.readFileSync(out, 'utf8');
     expect(text).toContain('## Coverage');
-    expect(text).toContain('| trivy | 0.75.0 | ok | 1 |');
+    expect(text).toContain('| trivy | 0.75.0 | ok | 1 | 10ms | stdout |');
+    // A file-backed adapter says which file, and a non-zero exit is recorded.
+    expect(text).toContain('| ort | 97.0.0 | ok | 3 | 20ms | `evaluation-result.json` (exit 2) |');
     expect(text).toContain('(not installed)');
     expect(text).toContain('## Evidence');
     expect(text).toContain('CVE-2019-10744');
@@ -321,6 +323,20 @@ function result(): ScanResult {
           evidenceCount: 0,
           elapsedMs: 0,
           needsNetwork: false,
+        },
+        {
+          id: 'ort',
+          available: true,
+          version: '97.0.0',
+          command: [],
+          status: 'ok',
+          artifact: 'evaluation-result.json',
+          // ORT exits 2 when it finds violations: a run that succeeded and
+          // objected. The report says so without turning it into a failure.
+          exitCode: 2,
+          evidenceCount: 3,
+          elapsedMs: 20,
+          needsNetwork: true,
         },
       ],
       environment: { sandbox: 'subprocess-scratch-copy', network: 'denied', outputCapBytes: 20 },
