@@ -88,3 +88,7 @@ to `raw = spawn.stdout`, removing the prepare-exit check, removing the workdir
 escape guard, removing the output cap, and restoring the loose version regex each
 produced a named failure (4, 1, 1, 1 and 1 respectively), and each was restored
 and re-run green.
+
+### 15:12 — Commit
+
+`d68d1e6` fix(scanner): read scanner artifacts from files, and run staged tools as stages
