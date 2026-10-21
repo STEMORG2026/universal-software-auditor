@@ -113,3 +113,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 01:57 — Commit
 
 `c5492ea` chore(deps-dev): bump the dev-dependencies group
+
+### 09:57 — Commit
+
+`b5d32a9` feat(scanner): evidence-first adapter layer with Tier-1 scanners
