@@ -503,11 +503,13 @@ function checkOracle(check: Extract<Check, { kind: 'oracle' }>, h: CheckHelpers)
 function countSarifResults(raw: unknown, check: Extract<Check, { kind: 'oracle' }>): number | null {
   const runs = (raw as { runs?: unknown[] }).runs;
   if (!Array.isArray(runs)) return null;
-  const keep = sarifFilter(check);
   let count = 0;
   for (const run of runs) {
     const results = (run as { results?: unknown[] }).results;
     if (!Array.isArray(results)) continue;
+    // Levels are per run: the rule defaults that supply them live in the run's
+    // driver, not in the result.
+    const keep = sarifFilter(check, ruleLevels(run));
     for (const r of results) {
       if (keep(r)) count++;
     }
@@ -515,18 +517,41 @@ function countSarifResults(raw: unknown, check: Extract<Check, { kind: 'oracle' 
   return count;
 }
 
+/**
+ * ruleId → defaultConfiguration.level for one run.
+ *
+ * SARIF 3.27.10: a result may omit `level` when it equals the rule's default.
+ * CodeQL omits it for every result, so without this map an error-level finding
+ * read as "warning" and a `levels: [error]` filter skipped it entirely — a rule
+ * that gates on errors passed over a report full of them.
+ */
+function ruleLevels(run: unknown): Map<string, string> {
+  const levels = new Map<string, string>();
+  const rules = (run as { tool?: { driver?: { rules?: unknown } } }).tool?.driver?.rules;
+  if (!Array.isArray(rules)) return levels;
+  for (const rule of rules) {
+    const id = (rule as { id?: unknown }).id;
+    const level = (rule as { defaultConfiguration?: { level?: unknown } }).defaultConfiguration
+      ?.level;
+    if (typeof id === 'string' && typeof level === 'string') levels.set(id, level);
+  }
+  return levels;
+}
+
 /** Builds the predicate a SARIF result must satisfy to be counted. */
-function sarifFilter(check: Extract<Check, { kind: 'oracle' }>): (result: unknown) => boolean {
+function sarifFilter(
+  check: Extract<Check, { kind: 'oracle' }>,
+  levelsByRule: Map<string, string>,
+): (result: unknown) => boolean {
   const levels = check.levels && check.levels.length > 0 ? new Set(check.levels) : null;
   const rules = check.rules && check.rules.length > 0 ? check.rules : null;
   if (!levels && !rules) return () => true;
   return (result) => {
-    const level = (result as { level?: string }).level ?? 'warning';
+    const ruleId = String((result as { ruleId?: unknown }).ruleId ?? '');
+    if (rules && !rules.some((needle) => ruleId.includes(needle))) return false;
+    // Result level, then the rule's default, then the SARIF fallback.
+    const level = (result as { level?: string }).level ?? levelsByRule.get(ruleId) ?? 'warning';
     if (levels && !levels.has(level as never)) return false;
-    if (rules) {
-      const ruleId = String((result as { ruleId?: unknown }).ruleId ?? '');
-      if (!rules.some((needle) => ruleId.includes(needle))) return false;
-    }
     return true;
   };
 }

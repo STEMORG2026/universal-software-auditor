@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T15:41:59.053+05:45
+**Last Reconciled:** 2026-10-21T17:52:07.523+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `9349f02 feat(scanner): verify the CodeQL adapter against the real toolchain`
-2. `eab1186 chore(state): auto-update from post-commit hook`
-3. `d68d1e6 fix(scanner): read scanner artifacts from files, and run staged tools as stages`
-4. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
-5. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
-6. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
-7. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
-8. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
-9. `1515fae chore(master): release (#191)`
-10. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
+1. `8c02adc Merge remote-tracking branch 'origin/master' into fix/scanner-artifact-contract`
+2. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
+3. `eab1186 chore(state): auto-update from post-commit hook`
+4. `d68d1e6 fix(scanner): read scanner artifacts from files, and run staged tools as stages`
+5. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+6. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
+7. `29a2815 feat(scanner): tier 2 adapters for Scorecard and ORT (#196)`
+8. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
+9. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
+10. `1515fae chore(master): release (#191)`
 
 ---
 
