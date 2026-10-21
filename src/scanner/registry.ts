@@ -8,18 +8,31 @@ import { trivyAdapter } from './adapters/trivy.js';
 import { dependencyCruiserAdapter } from './adapters/dependency-cruiser.js';
 import { semgrepAdapter } from './adapters/semgrep.js';
 import { codeqlAdapter } from './adapters/codeql.js';
+import { scorecardAdapter } from './adapters/scorecard.js';
+import { ortAdapter } from './adapters/ort.js';
 import type { ScannerAdapter } from './types.js';
 
-/** Tier 1, in execution order. Heavy/opt-in adapters still register here. */
+/**
+ * Every registered adapter. Tier 1 first (cheap, local), then Tier 2.
+ * Adding an adapter means appending here — nothing else in the system changes.
+ */
 export const scanners: ScannerAdapter[] = [
   trivyAdapter,
   dependencyCruiserAdapter,
   semgrepAdapter,
   codeqlAdapter,
+  scorecardAdapter,
+  ortAdapter,
 ];
 
-/** Default-disabled adapters: too heavy for a plain `usa scan`. */
-export const DEFAULT_DISABLED: ReadonlySet<string> = new Set(['codeql']);
+/**
+ * Default-disabled adapters, and why:
+ *  - codeql  needs a database build and hundreds of MB of disk.
+ *  - ort     needs a JVM and a full dependency resolution per package manager.
+ *  - scorecard is enabled in its default `local` mode (offline, file-based);
+ *    `mode: repo` opts into network and a token.
+ */
+export const DEFAULT_DISABLED: ReadonlySet<string> = new Set(['codeql', 'ort']);
 
 export function enabledAdapters(
   config: Record<string, { enabled?: boolean }> | undefined,

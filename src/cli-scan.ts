@@ -39,13 +39,20 @@ export function cmdScan(args: Args): number {
   const runner = new ScannerRunner(scanners);
   const only = parseScanners(args);
 
-  const result: ScanResult = runner.run({
-    target: root,
-    adapters: only,
-    config: loadScannerConfig(root),
-    network: bool(args, 'network'),
-    allowBuildCommands: bool(args, 'allow-build-commands'),
-  });
+  let result: ScanResult;
+  try {
+    result = runner.run({
+      target: root,
+      adapters: only,
+      config: loadScannerConfig(root),
+      network: bool(args, 'network'),
+      allowBuildCommands: bool(args, 'allow-build-commands'),
+    });
+  } catch (err) {
+    // A bad --scanner id is a usage error: the message names the known ids.
+    console.error(`${(err as Error).message}`);
+    return 1;
+  }
 
   if (bool(args, 'json')) {
     console.log(JSON.stringify(result, null, 2));

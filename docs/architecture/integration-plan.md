@@ -64,6 +64,16 @@ MIGRATION RISKS
 - A deliberately vulnerable fixture yields at least one evidence item with a
   stable id, a location, and a `raw_reference`.
 
+## Tier 2 outcome
+
+- **Scorecard** is [VERIFIED-RUN]: the release binary was run against this repo,
+  and the fixture committed is a real capture. It shipped as a two-mode adapter
+  (offline `local` by default, `repo` opt-in for platform facts).
+- **ORT** is implemented but **[UNVERIFIED]**: no real run was captured, because
+  it is a JVM package. Its parse target is the documented evaluator output and
+  its fixture says so. It must not be called complete until a real
+  `ort evaluate` result replaces that fixture.
+
 ## What is explicitly not in this change
 
 Requirement/control/threat consumption, the trend engine, SARIF _output_ of

@@ -60,8 +60,14 @@ export function childEnv(allow: string[]): NodeJS.ProcessEnv {
 export class ScannerRunner {
   constructor(private readonly adapters: ScannerAdapter[]) {}
 
-  /** Run the enabled adapters and return the manifest plus what they found. */
+  /**
+   * Run the selected adapters and return the manifest plus what they found.
+   * `options.adapters` filters the registry; an unknown id is a loud error
+   * rather than an empty run, because "0 evidence" must never be mistaken for
+   * "nothing wrong".
+   */
   run(options: ScanOptions): ScanResult {
+    const selected = this.select(options.adapters);
     const started = new Date();
     const executionId = randomUUID();
     const resolved = path.resolve(options.target);
@@ -81,7 +87,7 @@ export class ScannerRunner {
 
     try {
       copyTreeForScan(target.path, workdir);
-      for (const adapter of this.adapters) {
+      for (const adapter of selected) {
         const outcome = this.runAdapter(adapter, target, options);
         manifests.push(outcome.manifest);
         evidence.push(...outcome.evidence);
@@ -109,6 +115,16 @@ export class ScannerRunner {
       evidence,
       findings,
     };
+  }
+
+  private select(only: string[] | undefined): ScannerAdapter[] {
+    if (!only || only.length === 0) return this.adapters;
+    const known = new Set(this.adapters.map((a) => a.id));
+    for (const id of only) {
+      if (!known.has(id))
+        throw new Error(`unknown scanner: ${id} (known: ${[...known].join(', ')})`);
+    }
+    return this.adapters.filter((a) => only.includes(a.id));
   }
 
   private runAdapter(

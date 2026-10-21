@@ -215,6 +215,15 @@ describe('registry', () => {
   it('every registered adapter can probe without throwing', () => {
     for (const adapter of scanners) expect(() => adapter.probe()).not.toThrow();
   });
+
+  it('--scanner selects, and an unknown id is a loud error rather than an empty run', () => {
+    const target = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-select-'));
+    fs.writeFileSync(path.join(target, 'package.json'), '{"name":"t","version":"1.0.0"}');
+    const runner = new ScannerRunner(scanners);
+    const one = runner.run({ target, adapters: ['scorecard'] });
+    expect(one.manifest.adapters.map((a) => a.id)).toEqual(['scorecard']);
+    expect(() => runner.run({ target, adapters: ['nope'] })).toThrow(/unknown scanner: nope/);
+  });
 });
 
 describe('runner policy', () => {
