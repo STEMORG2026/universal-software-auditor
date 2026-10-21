@@ -92,3 +92,7 @@ and re-run green.
 ### 15:12 — Commit
 
 `d68d1e6` fix(scanner): read scanner artifacts from files, and run staged tools as stages
+
+### 17:52 — Commit
+
+`8c02adc` Merge remote-tracking branch 'origin/master' into fix/scanner-artifact-contract
