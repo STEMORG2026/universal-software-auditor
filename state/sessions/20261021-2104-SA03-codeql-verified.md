@@ -87,3 +87,7 @@ failure and was restored.
 ### 18:06 — Commit
 
 `02fc46e` ci(codeql): exclude fixtures from code scanning
+
+### 18:06 — Commit
+
+`8874a05` chore(state): reconcile after moving the codeql config commit
