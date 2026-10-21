@@ -137,3 +137,7 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 13:45 — Commit
 
 `53afcb2` docs(state): hand off the scanner/evidence work
+
+### 16:22 — Commit
+
+`13331bc` fix(scanner): pass dependency-cruiser's rules file to the command
