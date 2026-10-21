@@ -169,6 +169,12 @@ export interface ScannerAdapter {
   readonly name: string;
   /** True when a run may need network access (declared in the manifest). */
   readonly needsNetwork?: boolean;
+  /**
+   * The `.usa/scanners.yaml` key that removes this adapter's network need, e.g.
+   * `scanners.semgrep.rules`. Named in the refusal message, because "needs
+   * network" is only actionable if the reader knows what to change.
+   */
+  readonly networkConfigKey?: string;
   defaultConfig(): ScannerConfig;
   probe(): AdapterProbe;
   buildCommand(target: ScanTarget, config: ScannerConfig): ScannerCommand;

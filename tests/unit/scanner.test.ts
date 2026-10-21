@@ -13,8 +13,9 @@ import { dependencyCruiserAdapter } from '../../src/scanner/adapters/dependency-
 import { semgrepAdapter } from '../../src/scanner/adapters/semgrep.js';
 import { codeqlAdapter } from '../../src/scanner/adapters/codeql.js';
 import { evidenceFromSarif } from '../../src/scanner/sarif.js';
-import { childEnv, copyTreeForScan, detectRevision } from '../../src/scanner/run.js';
 import { byId, enabledAdapters } from '../../src/scanner/registry.js';
+import { childEnv, copyTreeForScan, detectRevision } from '../../src/scanner/run.js';
+
 import { loadScannerConfig } from '../../src/scanner/config.js';
 import type { ScanResult, ScannerSeverity } from '../../src/scanner/types.js';
 
@@ -60,8 +61,10 @@ describe('scanner command surface', () => {
     expect(lines.some((l) => l.includes('/out/evidence.md'))).toBe(true);
   });
 
-  it('the defaults exclude the heavy opt-in adapter', () => {
-    expect(defaultEnabled()).toEqual(['trivy', 'dependency-cruiser', 'semgrep']);
+  it('the defaults run everything cheap and skip the heavy opt-ins', () => {
+    // scorecard is enabled in its default local mode (offline, file-based);
+    // codeql and ort are opt-in because they cost a database build and a JVM.
+    expect(defaultEnabled()).toEqual(['trivy', 'dependency-cruiser', 'semgrep', 'scorecard']);
   });
 
   it('a project config is read from .usa/scanners.yaml, and its absence is not an error', () => {

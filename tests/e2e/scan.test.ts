@@ -25,14 +25,20 @@ function trivyPresent(): boolean {
 describe('usa scan end-to-end', () => {
   it('the CLI runs over the fixtures and records coverage honestly', () => {
     if (!fs.existsSync(CLI)) return; // build not run yet; covered by unit tests
-    const out = execFileSync(process.execPath, [CLI, 'scan', INSECURE, '--json'], {
-      encoding: 'utf8',
-    });
+    // One fast adapter: the CLI path is what is under test here, and running
+    // every adapter through a subprocess blows the 15s ceiling under load.
+    const out = execFileSync(
+      process.execPath,
+      [CLI, 'scan', INSECURE, '--scanner', 'scorecard', '--json'],
+      {
+        encoding: 'utf8',
+      },
+    );
     const result = JSON.parse(out) as {
       manifest: { adapters: { id: string; status: string; reason?: string }[] };
       evidence: unknown[];
     };
-    expect(result.manifest.adapters.map((a) => a.id)).toContain('trivy');
+    expect(result.manifest.adapters.map((a) => a.id)).toEqual(['scorecard']);
     // Every non-ok adapter must say why — coverage is never silent.
     for (const a of result.manifest.adapters) {
       if (a.status !== 'ok') expect(a.reason).toBeTruthy();
@@ -52,6 +58,50 @@ describe('usa scan end-to-end', () => {
     expect(vulns.length).toBeGreaterThan(0);
     // Every row names its native identifier (a CVE id) and its location.
     for (const v of vulns) expect(v.source.identifier).toMatch(/^CVE-/);
+  });
+
+  it('every adapter that is installed produces evidence on the weak fixture', () => {
+    // A scanner that is present but silent is worse than one that is absent: the
+    // absent one says UNAVAILABLE, the silent one looks like a clean result.
+    for (const adapter of enabledAdapters({
+      codeql: { enabled: false },
+      ort: { enabled: false },
+    })) {
+      if (!adapter.probe().available) continue;
+      const result = new ScannerRunner([adapter]).run({
+        target: INSECURE,
+        config: loadScannerConfig(INSECURE),
+      });
+      const run = result.manifest.adapters[0]!;
+      expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
+      expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
+      for (const item of result.evidence) {
+        expect(item.provenance.executionId).toBeTruthy();
+        expect(item.provenance.repositoryRevision).toBeTruthy();
+      }
+    }
+  });
+
+  it('every adapter that is installed produces evidence on the weak fixture', () => {
+    // A scanner that is present but silent is worse than one that is absent: the
+    // absent one says UNAVAILABLE, the silent one looks like a clean result.
+    for (const adapter of enabledAdapters({
+      codeql: { enabled: false },
+      ort: { enabled: false },
+    })) {
+      if (!adapter.probe().available) continue;
+      const result = new ScannerRunner([adapter]).run({
+        target: INSECURE,
+        config: loadScannerConfig(INSECURE),
+      });
+      const run = result.manifest.adapters[0]!;
+      expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
+      expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
+      for (const item of result.evidence) {
+        expect(item.provenance.executionId).toBeTruthy();
+        expect(item.provenance.repositoryRevision).toBeTruthy();
+      }
+    }
   });
 
   it('the runner never touches the checkout it was pointed at', () => {

@@ -121,3 +121,11 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 10:44 — Commit
 
 `903541f` feat(scanner): evidence-first adapter layer with Tier-1 scanners
+
+### 12:02 — Commit
+
+`287af5d` feat(scanner): tier 2 adapters for Scorecard and ORT
+
+### 12:58 — Commit
+
+`77c5962` test(scanner): verify semgrep, dependency-cruiser and ORT against real runs

@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T10:44:33.054+05:45
+**Last Reconciled:** 2026-10-21T12:58:08.423+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `903541f feat(scanner): evidence-first adapter layer with Tier-1 scanners`
-2. `8546d79 chore(state): auto-update from post-commit hook`
-3. `b5d32a9 feat(scanner): evidence-first adapter layer with Tier-1 scanners`
-4. `1515fae chore(master): release (#191)`
-5. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
-6. `22db05d chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.2 (#178)`
-7. `0666be1 fix: correct four false verdicts, split the audit coordinator, reach 100/100 (#190)`
-8. `8d63e2f chore(ci): remove automerge workflow — merges are manual-only after owner review (#188)`
-9. `72d9ec4 docs: attach SLSA provenance bundle for v2.26.2 (#187)`
-10. `e006e06 chore(deps): bump pnpm/action-setup from 6.0.10 to 6.1.0 (#179)`
+1. `77c5962 test(scanner): verify semgrep, dependency-cruiser and ORT against real runs`
+2. `6c6ef01 chore(state): auto-update from post-commit hook`
+3. `287af5d feat(scanner): tier 2 adapters for Scorecard and ORT`
+4. `510e594 feat(scanner): evidence-first adapter layer with Tier-1 scanners (#194)`
+5. `b641ef0 docs: attach SLSA provenance bundle for v2.27.0 (#193)`
+6. `1515fae chore(master): release (#191)`
+7. `216c054 chore(deps-dev): bump the dev-dependencies group (supersedes #180) (#192)`
+8. `22db05d chore(deps): bump github/codeql-action/analyze from 4.38.0 to 4.38.2 (#178)`
+9. `0666be1 fix: correct four false verdicts, split the audit coordinator, reach 100/100 (#190)`
+10. `8d63e2f chore(ci): remove automerge workflow — merges are manual-only after owner review (#188)`
 
 ---
 

@@ -105,9 +105,9 @@ describe('dependency-cruiser adapter', () => {
     expect(rows).toHaveLength(1);
     const row = rows[0]!;
     expect(row.source.kind).toBe('dependency-edge');
-    expect(row.source.identifier).toBe('no-bottom-to-top');
+    expect(row.source.identifier).toBe('no-a-to-b');
     expect(row.status).toBe('FAIL');
-    expect(row.claim).toContain('src/util/glob.ts → src/engine/audit.ts');
+    expect(row.claim).toContain('a.js → b.js');
   });
 
   it('a rule-less cruise is UNKNOWN — "0 violations" would be unfalsifiable', () => {
@@ -132,12 +132,23 @@ describe('semgrep adapter', () => {
     expect(online.network).toBe(true);
   });
 
-  it('parses [UNVERIFIED] fixture rows', () => {
-    const rows = semgrepAdapter.parse(read('semgrep.json'), ctx('1.90.0'));
+  it('parses the real capture (1.182.0, OSS engine)', () => {
+    // The capture holds an absolute path, because semgrep was handed an
+    // absolute target. The runner always scans a scratch copy, so the context
+    // here stands in for that copy: the root the absolute path belongs to.
+    const capture = JSON.parse(read('semgrep.json')) as {
+      results: { path: string }[];
+    };
+    const root = path.dirname(capture.results[0]!.path);
+    const context = ctx('1.182.0');
+    context.target.workdir = root;
+    const rows = semgrepAdapter.parse(read('semgrep.json'), context);
     expect(rows).toHaveLength(1);
     const row = rows[0]!;
     expect(row.source.kind).toBe('sast-finding');
-    expect(row.source.identifier).toContain('detect-eval');
+    expect(row.source.identifier).toBe('sg-rules.js-eval-argv');
+    // The evidence row names the file inside the project, not the scratch copy
+    // it was found in.
     expect(row.location).toEqual({ file: 'app.js', line: 2 });
     expect(row.status).toBe('FAIL');
   });
@@ -214,6 +225,15 @@ describe('registry', () => {
 
   it('every registered adapter can probe without throwing', () => {
     for (const adapter of scanners) expect(() => adapter.probe()).not.toThrow();
+  });
+
+  it('--scanner selects, and an unknown id is a loud error rather than an empty run', () => {
+    const target = fs.mkdtempSync(path.join(os.tmpdir(), 'usa-select-'));
+    fs.writeFileSync(path.join(target, 'package.json'), '{"name":"t","version":"1.0.0"}');
+    const runner = new ScannerRunner(scanners);
+    const one = runner.run({ target, adapters: ['scorecard'] });
+    expect(one.manifest.adapters.map((a) => a.id)).toEqual(['scorecard']);
+    expect(() => runner.run({ target, adapters: ['nope'] })).toThrow(/unknown scanner: nope/);
   });
 });
 

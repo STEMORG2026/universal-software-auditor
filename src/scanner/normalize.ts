@@ -6,6 +6,7 @@
  * invented), and an unparseable payload yields `UNKNOWN` evidence rather than a
  * thrown error — a scanner that breaks must blind the audit, not fail it.
  */
+import path from 'node:path';
 import type { Evidence, ScannerSeverity } from './types.js';
 
 const KNOWN: readonly string[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO', 'UNKNOWN'];
@@ -76,6 +77,20 @@ export function dig(obj: unknown, path: (string | number)[]): unknown {
     node = (node as Record<string, unknown>)[k];
   }
   return node;
+}
+
+/**
+ * Make a tool-reported path relative to the scanned root.
+ *
+ * Tools report absolute paths when handed an absolute target, and the scanner
+ * runner always runs in a scratch copy — so an unnormalised location points at
+ * a temp directory that will not exist when the evidence is read. A path that
+ * is already relative, or outside the root, is left alone.
+ */
+export function relativePath(root: string, file: string): string {
+  if (!path.isAbsolute(file)) return file;
+  const rel = path.relative(root, file);
+  return rel.startsWith('..') || path.isAbsolute(rel) ? file : rel;
 }
 
 /** A line number, only when the source actually gave one. */

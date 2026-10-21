@@ -1,12 +1,13 @@
 /**
  * Semgrep — Tier 1.
  *
- * Status of this adapter: command construction and parsing are implemented
- * against the documented CLI and the widely documented JSON shape; the JSON
- * shape is marked **[UNVERIFIED]** in docs/research/semgrep.md because no
- * real semgrep run was captured during that research. The fixture is therefore
- * annotated as such, and the adapter must not be called complete until a
- * capture replaces it.
+ * Verified by installing semgrep 1.182.0 and running it against
+ * `fixtures/insecure-app` with a vendored rule; the committed fixture is a real
+ * capture. Two measured details shape this adapter: `path` is absolute when the
+ * target is absolute (so it is relativised to the scan root), and
+ * `extra.fingerprint` is the literal string "requires login" on the OSS engine
+ * without an account (so the evidence id is content-derived, never the
+ * fingerprint).
  *
  * Exit-code behaviour is verified from the CLI reference: default `scan`
  * **exits 0 even with findings**; only `--error` exits 1. The runner never
@@ -18,11 +19,19 @@ import { statSync } from 'node:fs';
 import path from 'node:path';
 import type { AdapterProbe, Evidence, ScannerAdapter, ScannerConfig } from '../types.js';
 import { buildEvidence } from '../identity.js';
-import { DETERMINISTIC_CONFIDENCE, dig, lineNumber, severity, tryParseJson } from '../normalize.js';
+import {
+  DETERMINISTIC_CONFIDENCE,
+  dig,
+  lineNumber,
+  relativePath,
+  severity,
+  tryParseJson,
+} from '../normalize.js';
 
 export const semgrepAdapter: ScannerAdapter = {
   id: 'semgrep',
   name: 'Semgrep SAST scanner',
+  networkConfigKey: 'scanners.semgrep.rules',
 
   defaultConfig() {
     return { rules: '', severity: [] };
@@ -78,7 +87,9 @@ export const semgrepAdapter: ScannerAdapter = {
           confidence: 0.9,
           status: 'FAIL',
           location: {
-            file: String(dig(result, ['path']) ?? 'unknown'),
+            // The runner scans a scratch copy, so semgrep reports absolute
+            // paths there; evidence must name the file in the project.
+            file: relativePath(context.target.workdir, String(dig(result, ['path']) ?? 'unknown')),
             line: lineNumber(dig(result, ['start', 'line'])),
           },
           rawReference: { jsonPath: `results[${index}]` },

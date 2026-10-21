@@ -1,21 +1,108 @@
 {
-  "$comment": "UNVERIFIED SHAPE — no semgrep run was captured during research. Field names follow semgrep's documented JSON output (check_id, path, start.line, extra.severity/message); replace this fixture with a real capture before marking the semgrep adapter complete. See docs/research/semgrep.md.",
+  "version": "1.182.0",
   "results": [
     {
-      "check_id": "javascript.lang.security.detect-eval-with-expression.detect-eval-with-expression",
-      "path": "app.js",
-      "start": { "line": 2, "col": 1 },
-      "end": { "line": 2, "col": 30 },
+      "check_id": "sg-rules.js-eval-argv",
+      "path": "/home/sajan/Projects/Universal_Software_Auditor/fixtures/insecure-app/app.js",
+      "start": {
+        "line": 2,
+        "col": 1,
+        "offset": 36
+      },
+      "end": {
+        "line": 2,
+        "col": 22,
+        "offset": 57
+      },
       "extra": {
-        "severity": "ERROR",
-        "message": "Dynamic `eval()` is used to evaluate code. This can lead to code injection.",
+        "message": "dynamic eval of an argument",
         "metadata": {
-          "cwe": ["CWE-94: Improper Control of Generation of Code"],
-          "owasp": ["A03:2021 - Injection"]
+          "cwe": ["CWE-94: Improper Control of Generation of Code"]
         },
-        "fingerprint": "abc123"
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
       }
     }
   ],
-  "errors": []
+  "errors": [],
+  "paths": {
+    "scanned": ["/home/sajan/Projects/Universal_Software_Auditor/fixtures/insecure-app/app.js"]
+  },
+  "time": {
+    "rules": [],
+    "rules_parse_time": 0.00028514862060546875,
+    "profiling_times": {
+      "config_time": 0.08888602256774902,
+      "core_time": 0.40058469772338867,
+      "ignores_time": 7.557868957519531e-5,
+      "total_time": 0.49396181106567383
+    },
+    "parsing_time": {
+      "total_time": 0.0051479339599609375,
+      "per_file_time": {
+        "mean": 0.0051479339599609375,
+        "std_dev": 0.0
+      },
+      "very_slow_stats": {
+        "time_ratio": 0.0,
+        "count_ratio": 0.0
+      },
+      "very_slow_files": []
+    },
+    "scanning_time": {
+      "total_time": 0.008446931838989258,
+      "per_file_time": {
+        "mean": 0.008446931838989258,
+        "std_dev": 0.0
+      },
+      "very_slow_stats": {
+        "time_ratio": 0.0,
+        "count_ratio": 0.0
+      },
+      "very_slow_files": []
+    },
+    "matching_time": {
+      "total_time": 0.003165006637573242,
+      "per_file_and_rule_time": {
+        "mean": 0.003165006637573242,
+        "std_dev": 0.0
+      },
+      "very_slow_stats": {
+        "time_ratio": 0.0,
+        "count_ratio": 0.0
+      },
+      "very_slow_rules_on_files": []
+    },
+    "tainting_time": {
+      "total_time": 0.0,
+      "per_def_and_rule_time": {
+        "mean": 0.0,
+        "std_dev": 0.0
+      },
+      "very_slow_stats": {
+        "time_ratio": 0.0,
+        "count_ratio": 0.0
+      },
+      "very_slow_rules_on_defs": []
+    },
+    "fixpoint_timeouts": [],
+    "prefiltering": {
+      "project_level_time": 0.0,
+      "file_level_time": 0.0,
+      "rules_with_project_prefilters_ratio": 0.0,
+      "rules_with_file_prefilters_ratio": 1.0,
+      "rules_selected_ratio": 1.0,
+      "rules_matched_ratio": 1.0
+    },
+    "targets": [],
+    "total_bytes": 0,
+    "max_memory_bytes": 86415360
+  },
+  "engine_requested": "OSS",
+  "skipped_rules": [],
+  "profiling_results": [],
+  "$comment": "Real capture: `semgrep scan --config rule.yaml --json fixtures/insecure-app` (1.182.0, OSS engine). Note extra.fingerprint is 'requires login' without a Semgrep account, and path is absolute when the target is."
 }

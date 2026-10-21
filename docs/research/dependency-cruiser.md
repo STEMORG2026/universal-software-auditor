@@ -43,10 +43,25 @@ For a gating exit code from a saved cruise, the docs point at
 
 JSON (the internal cruise representation), DOT, HTML, text, TeamCity.
 
-**[UNVERIFIED]** the exact JSON schema — the CLI page defers to
-`doc/output-format.md`, which was not read here. The adapter must be written
-against a captured `-T json` file, not against assumptions. Expected top-level
-keys are `modules[]`, `summary`, and (when validating) `summary.violations[]`.
+[VERIFIED-RUN] dependency-cruiser 18.7.0 was installed and run on a two-file
+fixture with a rules config. Top-level keys are `modules` and `summary` — and
+**there is no top-level `rules` key**, so whether rules ran is a _configuration_
+fact that cannot be detected from the output. A violation is:
+
+```json
+{
+  "type": "dependency",
+  "from": "a.js",
+  "to": "b.js",
+  "unresolvedTo": "./b.js",
+  "dependencyTypes": ["local", "require"],
+  "rule": { "severity": "error", "name": "no-a-to-b" }
+}
+```
+
+`from` and `to` are **plain strings**, not objects with a `path` field — the
+first version of the adapter assumed objects and produced `? → ?` for every
+violation. The adapter now accepts both shapes.
 
 ## License
 
@@ -75,8 +90,12 @@ a dependency to our own tree.
   resolution failures produce phantom edges. The adapter must report resolution
   errors rather than treat them as clean.
 - Without a rules config it produces a graph but **no violations** — a clean
-  result then means "no rules", not "no problems". The adapter must distinguish
-  `NO_RULES` from `PASS`.
+  result then means "no rules", not "no problems". The adapter therefore passes
+  `--config` only when the project supplies one, and reports `UNAVAILABLE`-style
+  `UNKNOWN` ("a graph, not a verdict") when it does not. Verified: a globally
+  installed depcruise cruised **0 modules** against this repo's TypeScript
+  because it cannot resolve the project's local `typescript`; install it as a
+  local devDependency for real JS/TS graphs.
 
 ## Security considerations
 

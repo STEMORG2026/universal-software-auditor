@@ -65,3 +65,8 @@ credentials/
 # `usa docs audit` (doc-universe gate) writes this to the repo root by default;
 # CI overrides it via --out, but local runs leave a stray untracked copy.
 /DOC-AUDIT.md
+
+# `usa scan` writes one evidence artifact per run. They are run outputs, not
+# sources: a project that wants a rule to cite one copies it somewhere stable
+# (reports/, provenance/) or commits it deliberately with `git add -f`.
+.usa/evidence/
