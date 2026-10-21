@@ -84,3 +84,7 @@ review dependabot #176–#179.
 ### 03:17 — Commit
 
 `cd18647` fix(release): point package.json repo URLs at STEMORG2026
+
+### 06:31 — Commit
+
+`3319108` chore(ci): remove automerge workflow — merges are manual-only after owner review
