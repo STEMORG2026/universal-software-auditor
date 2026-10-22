@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T08:19:03.236+05:45
+**Last Reconciled:** 2026-10-22T09:05:19.565+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `32b0a37 docs(state): hand off after the trivy-in-CI pass`
-2. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
-3. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
-4. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
-5. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
-6. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
-7. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
-8. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
-9. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
-10. `c936f68 docs(state): hand off the post-release state (#206)`
+1. `c367dd9 docs(state): bring the canonical handoff up to the completion protocol`
+2. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
+3. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
+4. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
+5. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
+6. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
+7. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
+8. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
+9. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
+10. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
 
 ---
 
