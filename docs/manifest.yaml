@@ -182,6 +182,9 @@ standalone:
   - file: state/sessions/20261022-1205-SA06-vacuous-e2e.md
     reviewed: 2026-10-22
     reason: MACP state — SA06 session file (e2e suite failed open when no scanner installed)
+  - file: state/sessions/20261022-1235-SA07-local-scanner-bin.md
+    reviewed: 2026-10-22
+    reason: MACP state — SA07 session file (scanner devDependency found and preferred)
   - file: state/CONTINUATION.md
     reviewed: 2026-10-21
     reason: 'MACP state — handoff doc for the scanner/evidence work'
