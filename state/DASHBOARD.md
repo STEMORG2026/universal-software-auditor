@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T07:11:08.551+05:45
+**Last Reconciled:** 2026-10-22T08:05:38.652+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `3471f61 docs(state): hand off after the local-scanner-bin pass`
-2. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
-3. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
-4. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
-5. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
-6. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
-7. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
-8. `c936f68 docs(state): hand off the post-release state (#206)`
-9. `da507d9 chore(master): release (#195)`
-10. `e8dd6fb fix(scanner): report a semgrep scan that read no files as UNKNOWN (#204)`
+1. `d469795 ci: run the trivy adapter end to end in CI instead of skipping it`
+2. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
+3. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
+4. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
+5. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
+6. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
+7. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
+8. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
+9. `c936f68 docs(state): hand off the post-release state (#206)`
+10. `da507d9 chore(master): release (#195)`
 
 ---
 
