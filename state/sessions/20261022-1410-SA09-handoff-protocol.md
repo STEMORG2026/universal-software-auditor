@@ -156,3 +156,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 16:55 — Commit
 
 `e265672` fix(release): fetch the provenance by digest, not by a file that does not exist
+
+### 16:58 — Commit
+
+`a5418a9` fix(release): do not let an API error body masquerade as the attestation response
