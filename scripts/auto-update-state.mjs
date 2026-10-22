@@ -201,8 +201,30 @@ function updateSessionFile() {
 }
 
 // Guard against recursion: if we're already in the auto-update hook, skip everything
+/**
+ * Branches that exist to carry one artefact, not to own repository state:
+ * the changesets release PR, the provenance bundles filed by `publish.yml`, and
+ * dependency bumps. Writing state here guarantees an add/add conflict with
+ * master on the session file — that is exactly how #205 became unmergeable, and
+ * the conflict is resolved by throwing this branch's copy away. So do not write
+ * it in the first place.
+ */
+const BOT_BRANCH = /^(provenance\/|changeset-release\/|dependabot\/)/;
+
+function currentBranch() {
+  try {
+    return execSync('git rev-parse --abbrev-ref HEAD', { cwd: root, encoding: 'utf-8' }).trim();
+  } catch {
+    return '';
+  }
+}
+
+const branch = currentBranch();
+
 if (process.env.USA_AUTO_UPDATE) {
   console.log('Auto-update already in progress, skipping.');
+} else if (BOT_BRANCH.test(branch)) {
+  console.log(`Auto-update skipped: ${branch} is a bot branch; state belongs on master.`);
 } else {
   // Run updates
   console.log('Auto-updating state files...');
