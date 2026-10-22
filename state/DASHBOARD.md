@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T13:27:28.160+05:45
+**Last Reconciled:** 2026-10-22T14:26:51.485+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `d336dd6 chore(codeowners): make the provenance bundle owned by its signer`
-2. `d19d305 docs(state): record the three PRs waiting for signature (#237)`
-3. `77786ea fix(state): do not write state files on bot branches (#235)`
-4. `64e9fa4 fix(docs): refuse to generate the CLI reference from a partial rule load (#234)`
-5. `7fa5017 chore(master): release (#208)`
-6. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
-7. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
-8. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
-9. `ae0c72e docs(state): hand off after the prose pass (#229)`
-10. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
+1. `446fdf3 docs(state): hand off with the provenance finding, and the fix on #240`
+2. `b1744a2 chore(state): auto-update from post-commit hook`
+3. `4fa33d1 Merge remote-tracking branch 'origin/fix/provenance-verified-not-just-filed' into fix/provenance-verified-not-just-filed`
+4. `1401bdd Merge branch 'master' into fix/provenance-verified-not-just-filed`
+5. `279619d chore(state): auto-update from post-commit hook`
+6. `11c2cf7 Merge remote-tracking branch 'origin/master' into fix/provenance-verified-not-just-filed`
+7. `506d5c0 chore(state): auto-update from post-commit hook`
+8. `31df962 fix(release): verify the provenance chain instead of only filing it`
+9. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
+10. `f269766 chore(master): release (#236)`
 
 ---
 

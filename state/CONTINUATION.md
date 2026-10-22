@@ -13,13 +13,45 @@
 
 ## READ THIS FIRST
 
-Master is at **`57fd95e`**, version **2.28.0**, already published to npmjs.
-Everything I was asked to do is merged and verified; the working tree is clean.
+**2.28.2 is published** (`npm latest`, tag `@xenos1996/usa@2.28.2`), its bundle
+is filed (#239, merged), and the code-owner gate that had held #205 and #238
+is fixed by `/provenance/ @github-actions[bot]` in `CODEOWNERS`.
 
-**Two PRs are open and both are waiting on you, not on me** — they are gated by
-the code-owner review rule, because both are authored by `app/github-actions`
-and `CODEOWNERS` is `* @Er-Sajan-PLG`. All 13 checks pass on each. Nothing else
-is in progress.
+**One PR is open and it is yours to merge: [#240](https://github.com/STEMORG2026/universal-software-auditor/pull/240)** —
+`fix/provenance-verified-not-just-filed`. It is not a feature. I ran the
+provenance verification this repo documents, and it does not do what the docs
+said (§ below). Four defects, all confirmed by measurement.
+
+Nothing else is in progress. `master` = `af3247f`.
+
+## The provenance chain does not verify (found 2026-10-22, fixed in #240)
+
+The rule this repo keeps re-learning, in a new place: **a claim nobody reads
+back is not verified, it is merely written down.** Nothing had ever read a
+filed bundle.
+
+| #   | defect                                                       | measured evidence                                                                                                                                                                                            |
+| --- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Every VSA names `release.yml` as verifier **and** policy     | `verifier.id` + `policy.uri` in all four filed pairs; the workflow that verifies is `publish.yml`                                                                                                            |
+| 2   | `inputAttestations[].digest` = sha256 of the bundle **file** | one 2.28.1 attestation: 12284 B via `gh attestation download`, 11751 B via REST — no canonical serialisation exists                                                                                          |
+| 3   | The VSA's tarball digest is **not** the published tarball    | 2.28.2: attested `ffc84fd7…`, published `10274573…`. npm adds `attestations` to `package.json`, the archive's first entry, so the gzip diverges at byte 0. 445 entries compared; only `package.json` differs |
+| 4   | `gh attestation verify <tarball>` can never pass             | subject name is read from a ZIP manifest = 44 bytes of garbage at offset 30                                                                                                                                  |
+
+`[DECISION]` **Do not claim the published tarball is attested.** It is not, and
+never was. For the bytes a user installs the evidence is the registry's own
+signature (`npm audit signatures`); the SLSA statement covers the publish run's
+own `npm pack` output. `docs/release.md` § "What the attestation covers" now
+states both digests side by side.
+
+`[FACT]` #240 adds `scripts/check-provenance.mjs <version>`, which reads a
+filed pair back, and `tests/unit/provenance-chain.test.ts`, which pins each
+defect as a test. Each guard was mutated and observed failing, then restored
+byte-identical.
+
+`[TODO]` **Watch the first release after #240 merges.** `subject-name` and the
+download-by-digest path run for the first time; if `provenance/v2.28.3` is not
+filed, that step is where to look. The workflow now verifies via `cosign` over
+the DSSE payload, not `gh attestation verify <file>`.
 
 ## CHECKPOINT
 
@@ -27,29 +59,21 @@ is in progress.
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: aad6478 # verified implementation state; docs commits follow
-  handoff_commit_sha: 59e8942e6dcb0e3e07d5a94b8b0e17d5b2ba9a56
-  branch: master
+  code_commit_sha: af3247f # master; the provenance work is on #240's branch
+  handoff_commit_sha: b1744a2 # this handoff; branch fix/provenance-verified-not-just-filed
+  branch: fix/provenance-verified-not-just-filed
   working_tree_clean: true
-  version: 2.28.0
-  published: npmjs @xenos1996/usa@2.28.0
-  tests: { total: 1448, passed: 1447, skipped: 1 }
+  version: 2.28.2
+  published: npmjs @xenos1996/usa@2.28.2
+  tests: { total: 1460, passed: 1459, skipped: 1 }
+  gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 205
-      title: 'docs: attach SLSA provenance bundle for v2.28.0'
-      state: MERGEABLE
-      checks: all 13 pass
-      blocked_by: code-owner review (bot-authored)
-    - number: 208
-      title: 'chore(master): release'
-      state: MERGEABLE
-      checks: all 13 pass
-      blocked_by: code-owner review (bot-authored)
-      publishes: 2.28.1
-  changesets_pending:
-    - .changeset/scanner-stderr-reason.md
-    - .changeset/local-scanner-bin.md
-  last_verified: 2026-10-22T14:00+05:45
+    - number: 240
+      title: 'fix(release): verify the provenance chain instead of only filing it'
+      state: BLOCKED # code-owner review, as designed
+      checks: 14 green locally; CI as reported on the PR
+  open_findings: 0
+  last_verified: 2026-10-22T19:56+05:45
   last_verified_by: Sathi (WorkBuddy)
 ```
 
@@ -334,42 +358,29 @@ Merge order: #205, #233, then #236 (which publishes).
 
 ## 13. Next steps
 
-Ordered. **Step 1 is a health check, not a feature.**
+Ordered. Step 1 already ran green on this tree.
 
-1. `[TODO]` Run `pnpm test && pnpm run docs:all && pnpm run self-audit`. If
-   anything is red, stop and fix it before reading further.
-2. `[BLOCKED]` Approve and merge **#205** (`provenance/v2.28.0`, SLSA bundle +
-   VSA). Two JSON files, all checks green. This is yours to sign — the gate
-   exists so bot-authored changes carry a human signature.
-3. `[BLOCKED]` Approve the workflow runs for **#208**'s _current head only_, then
-   merge it. This publishes **2.28.1** to npmjs and is irreversible. Merging
-   also fires `publish.yml`, which files `provenance/v2.28.1` — approve that
-   when it appears, same rule.
-
-   `[FACT]` **The release branch was verified before you are asked to sign it**,
-   in a scratch worktree, so the merge is not a leap of faith:
-
-   | check                                      | result                                                            |
-   | ------------------------------------------ | ----------------------------------------------------------------- |
-   | builds on the release branch               | 0 type errors                                                     |
-   | `usa --version` from the built CLI         | `2.28.1`                                                          |
-   | self-audit on the release tree             | **100/100**, no open findings                                     |
-   | `npm pack`                                 | `xenos1996-usa-2.28.1.tgz`                                        |
-   | clean install of that tarball              | `usa 2.28.1` runs                                                 |
-   | both pending fixes present in the artifact | semgrep "scanned no files" guard, depcruise `node_modules` search |
-   | `CHANGELOG.md`                             | 2.28.1 section carries #213 and #207                              |
-
-   None of this substitutes for your review — it only means the build, the
-   version bump and the two changesets are known-good.
-
-4. `[TODO]` **Confirm the npm Trusted Publisher org.** `docs/release.md` says
-   `Er-Sajan-PLG`, but the canonical repo is `STEMORG2026` after the migration.
-   Publishing works, so npm is resolving the rename — but the doc may be
-   describing a setting that no longer matches. Only the owner can check
-   npmjs.com → Package → Settings → Trusted Publisher.
-
-5. `[TODO]` Only then pick from §10. Nothing there is urgent; #208 is the only
-   item with an external consequence.
+1. `[FACT]` `pnpm test` 1459 passed / 1 skipped, `docs:all` OK, `self-audit`
+   **100/100** no open findings, lint/typecheck/format clean — run at
+   `b1744a2`, the branch tip.
+2. `[BLOCKED]` **Review and merge #240.** The code-owner gate applies to it as
+   designed; it is authored by you, so approving it is the normal path. All
+   the work in this handoff is on that branch.
+3. `[TODO]` After merge, the next changeset release files `provenance/v2.28.3`.
+   **Watch that step.** `subject-name: usa-release-X.Y.Z.tgz` and the
+   download-by-digest / `cosign` verification path run for the first time, and
+   the workflow now fails closed if the statement's subject digest is not this
+   run's tarball. If the PR is not filed, read that step's log first.
+4. `[TODO]` `node scripts/check-provenance.mjs 2.28.3` once the bundle lands.
+   For 2.25.x–2.28.2 it reports 3 findings per version — those records are
+   historical and are deliberately left as filed.
+5. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
+   `schedule` only. Not done in #240 on purpose: it needs npm and the
+   attestation API, and a network check on every PR is a check people learn to
+   ignore.
+6. `[TODO]` Otherwise pick from §10. The one with an external consequence is
+   the npm Trusted Publisher org confirmation (`docs/release.md` says
+   `STEMORG2026`; only you can check the package page).
 
 ## 14. Completion criteria
 

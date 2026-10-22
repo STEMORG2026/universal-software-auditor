@@ -132,3 +132,19 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:27 — Commit
 
 `d336dd6` chore(codeowners): make the provenance bundle owned by its signer
+
+### 14:10 — Commit
+
+`31df962` fix(release): verify the provenance chain instead of only filing it
+
+### 14:12 — Commit
+
+`11c2cf7` Merge remote-tracking branch 'origin/master' into fix/provenance-verified-not-just-filed
+
+### 14:14 — Commit
+
+`4fa33d1` Merge remote-tracking branch 'origin/fix/provenance-verified-not-just-filed' into fix/provenance-verified-not-just-filed
+
+### 14:26 — Commit
+
+`446fdf3` docs(state): hand off with the provenance finding, and the fix on #240
