@@ -495,4 +495,92 @@ examples
    SOLID-007  MEDIUM   maintainability  Events are emitted for state changes
    SOLID-008  MEDIUM   operations       An emergency pause mechanism exists
    SOLID-009  HIGH     correctness      A test suite with fuzzing/invariants exists
+   SOLID-010  HIGH     security         Third-party security audit has been performed
+
+## stacks/ml-ai — ML / AI Systems (9 rules)
+   Activated when PyTorch/TensorFlow/JAX, notebooks, or model artefacts are detected.
+   ML-001     MEDIUM   maintainability  Training data is versioned
+   ML-002     MEDIUM   operations       Model artefacts are versioned and registered
+   ML-003     MEDIUM   correctness      Training is reproducible (seeded and pinned)
+   ML-004     MEDIUM   operations       Model/data drift is monitored in production
+   ML-005     MEDIUM   compliance       Predictions are logged for audit
+   ML-006     MEDIUM   compliance       Bias/fairness has been evaluated
+   ML-007     MEDIUM   maintainability  Notebooks are not the deployment path
+   ML-008     LOW      performance      Inference cost and latency are tracked
+   ML-009     MEDIUM   maintainability  Model files are not committed to git
+
+## stacks/cli — CLI Tools (7 rules)
+   Activated when the project exposes a binary or console script entry point.
+   CLI-001    MEDIUM   documentation    --help is implemented and useful
+   CLI-002    MEDIUM   correctness      Exit codes are meaningful
+   CLI-003    HIGH     correctness      Destructive operations support --dry-run
+   CLI-004    MEDIUM   security         Input from arguments and stdin is validated
+   CLI-005    MEDIUM   correctness      Operations are idempotent where expected
+   CLI-006    LOW      correctness      Errors go to stderr, output to stdout
+   CLI-007    LOW      maintainability  Machine-readable output mode exists
+
+## stacks/data — Data & Database (10 rules)
+   Activated when a database, ORM, or migrations directory is detected.
+   DATA-001   HIGH     correctness      A migration system is in place
+   DATA-002   MEDIUM   correctness      Foreign keys / relations are defined
+   DATA-003   MEDIUM   performance      Indexes exist on queried columns
+   DATA-004   HIGH     performance      No N+1 query patterns
+   DATA-005   HIGH     performance      List queries are paginated
+   DATA-006   MEDIUM   performance      Connection pooling is configured
+   DATA-007   HIGH     correctness      Multi-step writes are transactional
+   DATA-008   LOW      performance      No SELECT * in hot paths
+   DATA-009   LOW      compliance       Delete strategy is defined
+   DATA-010   HIGH     security         Row-level access is enforced in the data layer
+
+## stacks/api-backend — Backend / API (8 rules)
+   Activated for server-side applications and API services.
+   API-001    MEDIUM   maintainability  The API is versioned
+   API-002    HIGH     performance      Request timeouts are configured
+   API-003    MEDIUM   performance      Retries are bounded with jitter
+   API-004    MEDIUM   correctness      Write operations are idempotent
+   API-005    LOW      maintainability  Response format is consistent
+   API-006    MEDIUM   documentation    An OpenAPI/contract spec exists and is current
+   API-007    HIGH     security         GraphQL depth/complexity limits are enforced
+   API-008    LOW      operations       Health and readiness endpoints are unauthenticated but minimal
+
+## stacks/compliance — Accessibility, i18n & Compliance (10 rules)
+   Accessibility, internationalisation, and regulatory obligations. Most of these are judgement calls — USA records what it can and asks for evidence on the rest.
+
+   COMP-001   MEDIUM   compliance       Interactive elements are keyboard accessible
+   COMP-002   MEDIUM   compliance       Form inputs have associated labels
+   COMP-003   MEDIUM   compliance       Colour contrast meets WCAG AA
+   COMP-004   MEDIUM   compliance       Content is not hardcoded to one locale
+   COMP-005   LOW      compliance       Dates, numbers, and currencies are locale-aware
+   COMP-006   MEDIUM   compliance       A privacy policy and terms exist and match reality
+   COMP-007   HIGH     compliance       Data subject rights are implemented
+   COMP-008   HIGH     compliance       Card data is kept out of scope
+   COMP-009   MEDIUM   compliance       Cookie / consent notice is compliant
+   COMP-010   LOW      compliance       Source files carry an SPDX license identifier
+
+## stacks/ai-era — AI / LLM-Era Risks (12 rules)
+   New in USA. Your application may be deterministic while depending on a component that is not. Mapped to the OWASP Top 10 for LLM Applications (2026) and the OWASP Top 10 for Agentic AI (ASI, 2026).
+
+   AI-001     CRITICAL security         Untrusted content cannot override instructions
+   AI-002     CRITICAL security         Model output is validated before it is executed
+   AI-003     HIGH     security         Agents and tools run with least privilege
+   AI-004     HIGH     security         Secrets and PII do not reach model providers unchecked
+   AI-005     MEDIUM   performance      Inference spend and token usage are bounded
+   AI-006     MEDIUM   security         System prompts and tool schemas are not exposed
+   AI-007     HIGH     security         RAG retrieval is access-controlled per tenant
+   AI-008     MEDIUM   supply-chain     Model and prompt supply chain is pinned
+   AI-009     MEDIUM   correctness      An eval suite exists for model behaviour
+   AI-010     HIGH     security         Consequential actions require human confirmation
+   AI-011     MEDIUM   security         Agent instruction files are scoped and safe
+   AI-012     LOW      compliance       Model inputs and outputs are logged for audit
+
+## stacks/swift — Swift (6 rules)
+   Activated when Swift is detected. Graduated from a bootstrap proposal proven against vapor/vapor — see ADR-0012.
+   SW-001     MEDIUM   correctness      No force-unwrap or force-try in application code
+   SW-002     HIGH     security         App Transport Security is not disabled
+   SW-003     MEDIUM   supply-chain     Application dependencies are pinned
+   SW-004     HIGH     security         Secrets live in the Keychain with data protection
+   SW-005     HIGH     security         Request validation uses Validatable or a validation library
+   SW-006     MEDIUM   security         Security headers middleware is configured
+
+315 rule(s) across 32 pack(s).
 ```
