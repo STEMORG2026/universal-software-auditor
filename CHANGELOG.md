@@ -1,5 +1,228 @@
 # Changelog
 
+## 2.28.0
+
+### Minor Changes
+
+- [#197](https://github.com/STEMORG2026/universal-software-auditor/pull/197) [`926839e`](https://github.com/STEMORG2026/universal-software-auditor/commit/926839e3f5f624fec8585aa99a881e6ae0e50fc3) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Add the intent model: declared threats joined to observed evidence.
+  
+  `usa intent <model.json> [--evidence <scan.json>]` reads an Open Threat Model
+  (OTM 0.2.0, the format Threat Dragon exports) and compares it with scanner
+  evidence from `usa scan --json`.
+  
+  The join key is the CWE id, and nothing else: a threat declares `cwes`, evidence
+  carries `cwes`, and a match is a match. Evidence now carries **structured** CWEs
+  from the tool's own metadata (semgrep `extra.metadata.cwe`, SARIF rule tags)
+  rather than having them inferred from prose, because a join built on substring
+  matching would invent relationships.
+  
+  Three verdicts per threat, and the one that matters is the middle one:
+  
+  - `OBSERVED` — evidence cites one of its CWEs.
+  - `NOT_OBSERVED` — no evidence does. This does **not** prove the threat is
+    mitigated, and the report says so in the same sentence.
+  - `UNKNOWN` — the threat declares no CWE, so nothing can be joined to it.
+  
+  The more useful direction is the reverse: **CWEs the scanners observed that the
+  model never declared** — the gap between the design on paper and the weaknesses
+  found. Plus declared trust zones with no component inside them.
+  
+  Deliberately not done: no diagram rendering, no Threat Dragon process, no
+  threat generation (a generated threat is a hypothesis, and hypotheses belong in
+  the judgement queue), and no severity arithmetic across two unrelated scales.
+  
+  The parser is verified against Threat Dragon's own example model rather than from
+  memory, and it refuses the app's internal diagram format by name instead of
+  "parse failed".
+
+- [#194](https://github.com/STEMORG2026/universal-software-auditor/pull/194) [`510e594`](https://github.com/STEMORG2026/universal-software-auditor/commit/510e5945b4c80f08c8d3f64e79de4dcdda294cf0) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Add the scanner adapter layer: a new `usa scan` command and `src/scanner/**`, an
+  evidence-first subsystem that runs established open-source scanners behind one
+  adapter contract and records provenance for every observation.
+  
+  **Tier 1 adapters:** Trivy (verified end-to-end against v0.75.0),
+  dependency-cruiser, Semgrep, and CodeQL (opt-in, heavy). Adding an adapter means
+  appending to `src/scanner/registry.ts` — the runner, the CLI and the rule packs
+  do not change.
+  
+  **The contract that matters:** command construction and parsing are pure
+  functions, so every adapter is tested against captured fixtures without the
+  scanner installed. Every unavailable tool is recorded as `UNAVAILABLE` with a
+  reason in the run manifest, never skipped silently.
+  
+  **Security boundaries, enforced in the runner:** a scratch copy of the target,
+  a per-adapter timeout, a 20 MB output cap, an allow/deny-listed environment with
+  no credentials, network denied by default, and no build command ever run without
+  an explicit, recorded opt-in.
+  
+  No change to `usa audit` semantics or to any rule verdict: `usa scan` writes
+  evidence artifacts under `.usa/evidence/`, which rules consume later through the
+  existing `oracle` check.
+  
+  Also ships `docs/research/**` (ten tool documents plus a capability matrix) and
+  `docs/architecture/**` (evidence model, finding model, adapter model,
+  integration architecture and plan).
+
+- [#196](https://github.com/STEMORG2026/universal-software-auditor/pull/196) [`29a2815`](https://github.com/STEMORG2026/universal-software-auditor/commit/29a281523a0590c72ede07b65c5208356d7073fa) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Add Tier 2 scanner adapters: OpenSSF Scorecard and OSS Review Toolkit.
+  
+  **Scorecard** shipped as a two-mode adapter, because the tool has two natures
+  and they are not interchangeable:
+  
+  - `mode: local` (default) runs the file-based probes offline against a checkout
+    with no token — verified by running the real v5.6.0 binary against this repo.
+  - `mode: repo` reaches the platform API for the platform probes (branch
+    protection, token permissions, signed releases), needs network and a token,
+    and is opt-in.
+  
+  The aggregate score is deliberately **not** emitted as evidence. Each probe
+  becomes one row carrying `name (score/10): reason`, and a 9 or a 6 is `PARTIAL`
+  rather than collapsed to PASS or FAIL — Scorecard's scale means different things
+  per probe (License 9 is "detected, not identified"; Binary-Artifacts 6 is
+  "binaries present"), and the threshold is a rule's decision, not a parser's.
+  
+  **ORT** was run for real (v97.0.0, from the project's container image), which
+  caught a command that would have failed on every invocation: `evaluate` rejects
+  `--input-dir` and takes `-i/--ort-file`. Its violations _payload_ remains
+  unverified — ORT 97 refuses to evaluate without a rules script — so that mapping
+  resolves anything unexpected to `UNKNOWN` rather than to a silent pass.
+  
+  Two fixes found while wiring Tier 2, both in Tier 1 code:
+  
+  - `--scanner` was accepted and ignored — every adapter ran regardless. It now
+    filters, and an unknown id is a loud error naming the known adapters rather
+    than an empty run.
+  - `usa scan` leaked a stack trace on a bad `--scanner`; it is now a usage error
+    with exit 1.
+  
+  `tests/fixtures/scanners/scorecard.json` is a real capture, not a synthetic
+  fixture, and the research document records the four things a run revealed that
+  the documentation does not say — including that platform checks _crash_ the run
+  in local mode rather than degrading to `?`.
+
+### Patch Changes
+
+- [#200](https://github.com/STEMORG2026/universal-software-auditor/pull/200) [`36dd384`](https://github.com/STEMORG2026/universal-software-auditor/commit/36dd384f3d35045f321c9bd4968b1c7703c3a682) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Verify the CodeQL adapter against the real toolchain, and fix three bugs a run found.
+  
+  CodeQL 2.27.3 (the `codeql-bundle-linux64` release) now runs end-to-end on
+  `fixtures/insecure-app`: `database create` → `database analyze` → SARIF read
+  from the file the tool writes. The adapter was previously `[UNVERIFIED]`, and
+  running it was the only way to find out that it could not have worked:
+  
+  - **The default `packs: ''` was fatal.** The query specifier is positional, so
+    an empty string is one empty _specifier_: CodeQL dies with `Invalid package
+  specification:` and writes no SARIF. The argument is now omitted when unset,
+    which runs the language's default code-scanning suite.
+  - **`codeql --version` prints a sentence** (`… release 2.27.3.`), so a `[\d.]+`
+    class recorded `2.27.3.` in every manifest.
+  
+  And one bug in the shared SARIF normaliser, which affected every SARIF producer
+  that omits `result.level`:
+  
+  - **An absent result level now inherits the rule's `defaultConfiguration.level`**
+    (SARIF 3.27.10). CodeQL omits `level` on every result, so reading only
+    `result.level` reported **every** finding as INFO — an error-severity
+    certificate check and a warning-severity key-size check were indistinguishable.
+  - Claims now lead with the rule's `shortDescription.text` rather than `name`,
+    which is the rule id and was repeating the identifier the source field already
+    carries.
+  
+  `tests/fixtures/scanners/codeql.sarif.json` is now a real capture (trimmed to
+  the fields the normaliser reads) instead of a synthetic `js/insecure-eval` log
+  that no current CodeQL version emits. `fixtures/insecure-app` gained two planted
+  defects that the pattern scanners cannot see, so the e2e test has named ids to
+  assert; it skips loudly where `codeql` is not installed.
+
+- [#203](https://github.com/STEMORG2026/universal-software-auditor/pull/203) [`32ca612`](https://github.com/STEMORG2026/universal-software-auditor/commit/32ca612fb623559d7e80d494d6eb0857d43fd485) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Pass dependency-cruiser's configured rules file to the command, closing a silent pass.
+  
+  `scanners.dependency-cruiser.rules` was read by the parser but never reached
+  `argv`: the adapter always ran `depcruise --no-config`. The parser treats a
+  non-empty `rules` as "rules ran", so it stopped guarding the empty-violation
+  case, and a cruise that loaded no rules reported `ok` with **zero evidence
+  rows** — indistinguishable from a clean project.
+  
+  Measured on a project with a real circular dependency and a `.dependency-cruiser.json`
+  that flags it: before, `status: ok`, 0 rows. After, one `dependency-edge` row
+  naming both endpoints (`src/a.js → src/b.js breaks rule no-circular`).
+  
+  Without a rules file the command is unchanged (`--no-config`, and the parser
+  still says UNKNOWN — "a graph, not a verdict").
+
+- [#201](https://github.com/STEMORG2026/universal-software-auditor/pull/201) [`f2de7fc`](https://github.com/STEMORG2026/universal-software-auditor/commit/f2de7fc1cc763643ceaedcf8cd22a44f7b5859c2) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Stop a SARIF oracle check from passing over findings it could not see.
+  
+  SARIF 3.27.10 says a result may omit `level` when it equals the rule's
+  `defaultConfiguration.level`, and CodeQL omits it on **every** result. The
+  oracle filter defaulted a missing level to `warning`, so an `error`-level
+  finding matched neither `levels: [error]` nor anything else the author asked
+  for — a rule written to gate on errors counted **zero** of them and returned
+  PASS.
+  
+  The filter now resolves a result's level in three steps: the result's own
+  `level`, then the rule's default from the same run's driver, then the SARIF
+  fallback of `warning`. The rule defaults are read per run, because that is
+  where they live.
+  
+  Latent rather than live: no shipped rule uses `source: sarif` yet, so no score
+  changed with this fix. It is the path a rule takes the first time it ingests a
+  CodeQL or Semgrep report, and the failure mode is a silent pass — the one
+  outcome an auditor must never produce.
+  
+  The same defect was fixed in the scanner's SARIF normaliser, which builds
+  evidence rows rather than verdicts.
+
+- [#199](https://github.com/STEMORG2026/universal-software-auditor/pull/199) [`3ba3876`](https://github.com/STEMORG2026/universal-software-auditor/commit/3ba3876216a56214168daf6736609242a859d35c) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Read scanner artifacts from files, and run staged tools as stages.
+  
+  The adapter contract assumed two things that two of the six adapters do not do:
+  that a tool writes its payload to **stdout**, and that it runs as **one
+  process**. ORT writes `evaluation-result.json` and logs progress to stdout;
+  CodeQL writes SARIF with `--output=`. Both adapters parsed log lines, and CodeQL
+  additionally parsed the output of `database create` — a command that writes a
+  database, not a finding. Neither could ever produce evidence, and the
+  fixture-based tests could not see it because they called `parse` with the file's
+  contents directly.
+  
+  `ScannerCommand` gains `prepare` (stages that must succeed first) and
+  `artifacts` (files to read back, relative to the scan workdir). The runner reads
+  the first declared artifact that exists and hands that to `parse`; a declared
+  artifact that was not produced is an `error` with a reason, never an empty
+  result. The manifest records `prepare`, `artifact` and `exitCode`, and the
+  evidence report gains a Source column so a reader can tell a file-backed adapter
+  from a stdout one.
+  
+  ORT is now verified end-to-end against the real binary (v97.0.0, container
+  image): `analyze` → `evaluate` → parse, on a real npm project, producing one
+  evidence row per violation. Four measured facts are recorded in
+  `docs/research/ort.md`, including that `--rules-resource` needs a **leading
+  slash** (the bare form crashes with a NullPointerException) and that `evaluate`
+  exits non-zero when it finds violations — a run that succeeded and objected.
+  
+  The violations payload is no longer `[UNVERIFIED]`. `pkg` is a coordinate string
+  or `null`, and null is kept null rather than rendered as "unknown package"; a
+  violation's `message` and `how_to_fix` now travel with the evidence instead of
+  being dropped. A clean evaluation emits one `PASS` row, because "the policy ran
+  and nothing violated it" and "the policy never ran" must not look the same.
+  
+  CodeQL's wiring is fixed but remains **[UNVERIFIED]** — no `codeql` binary was
+  available, so its two stages have not been executed.
+
+- [#204](https://github.com/STEMORG2026/universal-software-auditor/pull/204) [`e8dd6fb`](https://github.com/STEMORG2026/universal-software-auditor/commit/e8dd6fb8aea6957b2dc48ad0e098ad2ce18a38c0) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Report a semgrep scan that read no files as UNKNOWN instead of clean.
+  
+  `results: []` has two causes and only one of them is good news: semgrep looked
+  at the code and found nothing, or semgrep looked at nothing. The adapter mapped
+  both to "no evidence", so a target the scanner could not analyse — wrong
+  language, vendored rules for another language, a path with no matching sources
+  — reported `status: ok` with zero rows, indistinguishable from a clean project.
+  
+  `paths.scanned` is semgrep's own count. An empty list there now yields one
+  UNKNOWN row ("semgrep scanned no files — nothing was analysed, not a clean
+  result"). An absent key does not fire: older builds omit it, and a missing
+  field is not evidence of an empty scan.
+  
+  Measured: a directory containing only a README went from `ok`, 0 rows to
+  UNKNOWN with that reason. `fixtures/insecure-app` still reports its real
+  finding, so a genuine clean scan is unaffected.
+  
+  This is the same distinction trivy's `Results` guard and dependency-cruiser's
+  rules guard already keep; semgrep was the one Tier-1 adapter without it.
+
 ## 2.27.0
 
 ### Minor Changes
