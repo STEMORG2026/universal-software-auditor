@@ -152,3 +152,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 15:38 — Commit
 
 `80aa97a` fix(release): unbreak the provenance step on its first real run
+
+### 16:55 — Commit
+
+`e265672` fix(release): fetch the provenance by digest, not by a file that does not exist
