@@ -116,3 +116,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:26 — Commit
 
 `e8db299` fix(state): do not write state files on bot branches
+
+### 12:50 — Commit
+
+`7ad260a` fix(cli): stop truncating piped stdout on exit
