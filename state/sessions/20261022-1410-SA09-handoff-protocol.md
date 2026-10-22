@@ -132,3 +132,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:27 — Commit
 
 `d336dd6` chore(codeowners): make the provenance bundle owned by its signer
+
+### 14:10 — Commit
+
+`31df962` fix(release): verify the provenance chain instead of only filing it
