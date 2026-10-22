@@ -76,3 +76,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 10:51 — Commit
 
 `b0522d3` ci: bump the gitleaks pin to 8.30.1
+
+### 11:03 — Commit
+
+`310caff` ci: make the cli-reference gate explain itself when it fails
