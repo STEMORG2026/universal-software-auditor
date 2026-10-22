@@ -13,7 +13,7 @@
 
 ## READ THIS FIRST
 
-Master is at **`5c51aad`**, version **2.28.0**, already published to npmjs.
+Master is at **`cab3c97`**, version **2.28.0**, already published to npmjs.
 Everything I was asked to do is merged and verified; the working tree is clean.
 
 **Two PRs are open and both are waiting on you, not on me** — they are gated by
@@ -92,6 +92,14 @@ findings**.
 Twenty-two reviews are dated 2026-10-22 in `.usa.yaml`, each carrying the
 measurement that settled it. Verdicts are unchanged — a review never moves a
 score (ADR-0023).
+
+`[FACT]` The prose-truth docs pass is **done** (#228) and the three issues that
+had tracked it across missed cycles (#189, #181, #151) are closed. It found three
+real defects: a **broken** composite-action reference (`@v2` never existed —
+tags are `@xenos1996/usa@X.Y.Z`), two CI examples on end-of-life `node:20`, and
+six links pointing at the pre-migration org. `docs:check` guards facts, links and
+version pins; what it cannot see is prose that stopped being true, which is what
+the pass covered.
 
 `[FACT]` CI and `.nvmrc` run **Node 24**, not 20. Node 20 left LTS maintenance in
 April 2026 and was still pinned in 17 places; the giveaway was that
@@ -327,14 +335,20 @@ Ordered. **Step 1 is a health check, not a feature.**
    None of this substitutes for your review — it only means the build, the
    version bump and the two changesets are known-good.
 
-4. `[TODO]` **Three docs-review issues are open** — #189, #181, #151 — the same
-   15-day prose-truth pass missed across three cycles. The checklist in each
-   covers 40 living docs. This is a real task, not a formality: `docs:check`
-   guards mechanical facts and links, so what is left is prose that was true when
-   written and quietly stopped being so. It was deliberately not half-done here.
-   Close all three when one pass is complete.
+4. `[TODO]` **`usa scan` has no prose documentation.** The scanner/evidence
+   subsystem appears only in the generated `cli.md` — no living doc explains the
+   adapter model, the UNKNOWN-on-analysed-nothing rule, or how `usa intent` joins
+   evidence to a threat model. Found during the prose pass (#228) and recorded as
+   a gap rather than a false claim. This is the largest remaining documentation
+   hole.
 
-5. `[TODO]` Only then pick from §10. Nothing there is urgent; #208 is the only
+5. `[TODO]` **Confirm the npm Trusted Publisher org.** `docs/release.md` says
+   `Er-Sajan-PLG`, but the canonical repo is `STEMORG2026` after the migration.
+   Publishing works, so npm is resolving the rename — but the doc may be
+   describing a setting that no longer matches. Only the owner can check
+   npmjs.com → Package → Settings → Trusted Publisher.
+
+6. `[TODO]` Only then pick from §10. Nothing there is urgent; #208 is the only
    item with an external consequence.
 
 ## 14. Completion criteria
