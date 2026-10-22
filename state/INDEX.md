@@ -98,6 +98,16 @@
 | Task         | unknown                                                    |
 | Status       | COMPLETED                                                  |
 
+### 2026-10-22 — SA05 (Sathi / WorkBuddy)
+
+| Field        | Value                                          |
+| ------------ | ---------------------------------------------- |
+| Session file | `sessions/20261022-1008-SA05-stderr-reason.md` |
+| Agent        | SA05 (Sathi / WorkBuddy)                       |
+| Branch       | fix/scanner-stderr-reason                      |
+| Task         | unknown                                        |
+| Status       | COMPLETED (merged as #207)                     |
+
 ---
 
 ## Search by Keyword
