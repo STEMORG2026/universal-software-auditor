@@ -108,3 +108,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:56 — Commit
 
 `6e428da` docs(state): hand off after documenting the scanner subsystem
+
+### 12:21 — Commit
+
+`3b325d5` docs: restore the full CLI reference on the provenance branch

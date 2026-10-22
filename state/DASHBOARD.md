@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T11:56:32.984+05:45
+**Last Reconciled:** 2026-10-22T12:21:10.231+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `6e428da docs(state): hand off after documenting the scanner subsystem`
-2. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
-3. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
-4. `ae0c72e docs(state): hand off after the prose pass (#229)`
-5. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
-6. `777c175 docs(state): hand off after the gitleaks bump and the gate diagnostics (#227)`
-7. `5c51aad ci: make the cli-reference gate explain itself when it fails (#226)`
-8. `d79dc5e ci: bump the gitleaks pin to 8.30.1 (#225)`
-9. `81aa364 docs(state): hand off with the queue cleared and CI on Node 24 (#224)`
-10. `aad6478 ci: move the test path off end-of-life Node 20 to Node 24 (#223)`
+1. `3b325d5 docs: restore the full CLI reference on the provenance branch`
+2. `11ee79f docs: resync generated docs`
+3. `52fd545 Merge branch 'master' into provenance/v2.28.0`
+4. `7fa5017 chore(master): release (#208)`
+5. `cb70e33 Merge branch 'master' into provenance/v2.28.0`
+6. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
+7. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
+8. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
+9. `ae0c72e docs(state): hand off after the prose pass (#229)`
+10. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
 
 ---
 
