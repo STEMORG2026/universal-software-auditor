@@ -160,3 +160,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 16:58 — Commit
 
 `a5418a9` fix(release): do not let an API error body masquerade as the attestation response
+
+### 17:01 — Commit
+
+`b89d942` docs(release): correct how the attestation is fetched
