@@ -104,11 +104,14 @@ describe('usa scan end-to-end', () => {
     () => {
       // A scanner that is present but silent is worse than one that is absent: the
       // absent one says UNAVAILABLE, the silent one looks like a clean result.
+      let ran = 0;
+      let verdicts = 0;
       for (const adapter of enabledAdapters({
         codeql: { enabled: false },
         ort: { enabled: false },
       })) {
         if (!adapter.probe().available) continue;
+        ran += 1;
         const result = new ScannerRunner([adapter]).run({
           target: INSECURE,
           config: loadScannerConfig(INSECURE),
@@ -116,11 +119,28 @@ describe('usa scan end-to-end', () => {
         const run = result.manifest.adapters[0]!;
         expect(run.status, `${adapter.id}: ${run.reason ?? 'ok'}`).toBe('ok');
         expect(result.evidence.length, `${adapter.id} produced no evidence`).toBeGreaterThan(0);
+        verdicts += result.evidence.filter(
+          (item) => item.status === 'FAIL' || item.status === 'PASS',
+        ).length;
         for (const item of result.evidence) {
           expect(item.provenance.executionId).toBeTruthy();
           expect(item.provenance.repositoryRevision).toBeTruthy();
         }
       }
+
+      // The loop above is the whole test, and an environment with no scanner
+      // installed walks straight through it: zero iterations, zero assertions,
+      // green. That is the failure mode this file's header warns about — a green
+      // suite that never ran. Both counters must be non-zero, or the run proved
+      // nothing and says so.
+      expect(
+        ran,
+        'no scanner was available — this suite passed without running anything',
+      ).toBeGreaterThan(0);
+      expect(
+        verdicts,
+        'adapters ran but produced no FAIL/PASS rows, only UNKNOWN — nothing was decided',
+      ).toBeGreaterThan(0);
     },
   );
 
