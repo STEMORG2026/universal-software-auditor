@@ -107,17 +107,25 @@ export { isEntryPoint };
 if (isEntryPoint()) {
   const out = main(process.argv.slice(2));
   if (typeof out === 'number') {
-    process.exit(out);
+    // Never process.exit() here. When stdout is a pipe, Node writes
+    // asynchronously, and exiting immediately drops whatever is still buffered.
+    // Measured: `usa rules` emits ~32 KB, and in CI it arrived truncated at
+    // ~25 KB — losing the last seven rule packs and the "N rule(s) across M
+    // pack(s)" summary entirely. Setting exitCode lets the process drain stdout
+    // and exit on its own.
+    process.exitCode = out;
   } else {
     // Static text: an async rejection can carry provider internals (env var
     // names, endpoints, HTTP snippets) from the agent layer, and this sink
     // must never paraphrase them into logs — see the cmdLive catch above.
     // Only `live` runs async today, and it already reports its own failures.
     out.then(
-      (code) => process.exit(code),
+      (code) => {
+        process.exitCode = code;
+      },
       () => {
         console.error('usa: async command failed unexpectedly (exit 2).');
-        process.exit(2);
+        process.exitCode = 2;
       },
     );
   }
