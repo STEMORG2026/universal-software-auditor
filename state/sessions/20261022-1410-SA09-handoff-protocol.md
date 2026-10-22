@@ -136,3 +136,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 14:10 — Commit
 
 `31df962` fix(release): verify the provenance chain instead of only filing it
+
+### 14:12 — Commit
+
+`11c2cf7` Merge remote-tracking branch 'origin/master' into fix/provenance-verified-not-just-filed

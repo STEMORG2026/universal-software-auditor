@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T14:10:42.566+05:45
+**Last Reconciled:** 2026-10-22T14:12:56.939+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `31df962 fix(release): verify the provenance chain instead of only filing it`
-2. `f269766 chore(master): release (#236)`
-3. `9051264 docs: attach SLSA provenance bundle for v2.28.1 (#233)`
-4. `e3099d0 docs: attach SLSA provenance bundle for v2.28.0 (#205)`
-5. `0e23ace chore(codeowners): make the provenance bundle owned by its signer (#238)`
-6. `d19d305 docs(state): record the three PRs waiting for signature (#237)`
-7. `77786ea fix(state): do not write state files on bot branches (#235)`
-8. `64e9fa4 fix(docs): refuse to generate the CLI reference from a partial rule load (#234)`
-9. `7fa5017 chore(master): release (#208)`
-10. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
+1. `11c2cf7 Merge remote-tracking branch 'origin/master' into fix/provenance-verified-not-just-filed`
+2. `506d5c0 chore(state): auto-update from post-commit hook`
+3. `31df962 fix(release): verify the provenance chain instead of only filing it`
+4. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
+5. `f269766 chore(master): release (#236)`
+6. `9051264 docs: attach SLSA provenance bundle for v2.28.1 (#233)`
+7. `e3099d0 docs: attach SLSA provenance bundle for v2.28.0 (#205)`
+8. `0e23ace chore(codeowners): make the provenance bundle owned by its signer (#238)`
+9. `d19d305 docs(state): record the three PRs waiting for signature (#237)`
+10. `77786ea fix(state): do not write state files on bot branches (#235)`
 
 ---
 
