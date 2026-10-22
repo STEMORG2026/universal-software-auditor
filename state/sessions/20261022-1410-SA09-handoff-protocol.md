@@ -120,3 +120,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:50 — Commit
 
 `7ad260a` fix(cli): stop truncating piped stdout on exit
+
+### 12:51 — Commit
+
+`07b3b7e` docs(state): record 2.28.1 published, #205 rescued, and the truncation root cause
