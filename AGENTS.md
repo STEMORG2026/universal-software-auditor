@@ -150,6 +150,13 @@ lands in the current working directory, never the target being audited.
 
 ## Commits and versioning
 
+- **Never push to `master`. Branch → PR → merge, for every change, without
+  being asked.** Not for a one-line data edit, not for a state-only commit, not
+  for docs. The owner has granted the agent authority to _merge_ a PR; that is
+  not authority to skip the PR. Branch protection enforces the shape (seven
+  required checks plus a CODEOWNERS review), but `enforce_admins` is off, so an
+  admin account can still bypass it — which is exactly why the rule is written
+  here rather than left to the setting.
 - Conventional Commits are still mandatory (the hook and the
   Conventional commits CI job enforce the format), but they no longer
   compute the bump: **the changeset does**. `feat:`/`fix:` titles keep the

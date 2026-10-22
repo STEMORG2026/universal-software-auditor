@@ -319,9 +319,12 @@ reviews:
     note: >-
       Read AGENTS.md 2026-10-22 (the only instruction file in the tree — no
       CLAUDE.md or .cursorrules). It forbids destructive operations without a
-      verified backup (L174), forbids hand-pushed v* tags (L308), and keeps
-      secrets out of the tree with .env gitignored (L316). GAP found: it
-      contains no explicit "never push to main, always branch then PR" rule —
-      that constraint lives in the operator's standing instruction and in
-      branch protection, not in the file an agent actually reads. First review
-      of this item — previously "never".
+      verified backup, forbids hand-pushed v* tags, and keeps secrets out of the
+      tree with .env gitignored. GAP found and closed the same day: it contained
+      no explicit "never push to master" rule, so the constraint lived only in
+      the operator's standing instruction and in branch protection — not in the
+      file an agent actually reads. The rule is now the first bullet of
+      "Commits and versioning", and it records that merge authority is not
+      authority to skip the PR. Residual, not fixable in this file:
+      enforce_admins is off, so an admin account can still bypass protection —
+      which is the reason the rule is written down at all.

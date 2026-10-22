@@ -56,3 +56,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 09:56 — Commit
 
 `25c57bc` chore(audit): refresh the review ledger, and settle two items that were never reviewed
+
+### 10:14 — Commit
+
+`f78536c` docs(agents): write down the no-direct-push rule where an agent reads it
