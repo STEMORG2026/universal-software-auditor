@@ -213,8 +213,18 @@ jobs:
       # its own protection (SUP-012).
       - name: Pack release tarball for attestation
         run: |
-          echo "TARBALL=$(npm pack | tail -1)" >> "$GITHUB_ENV"
-          echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+          # Two steps write TARBALL/VERSION to $GITHUB_ENV, and an assignment
+          # can only be read after the step that wrote it has EXITED. Inside
+          # this step "$TARBALL" is still EMPTY. The earlier version hashed
+          # "$TARBALL" here anyway; `sha256sum ''` failed with "No such file or
+          # directory" (stderr only, exit 0), the teardown `echo` returned 0,
+          # and TARBALL_SHA256 reached the provenance step as "". Measured on
+          # the 2.28.3 publish run: TARBALL_SHA256: (blank). Use the shell
+          # variable, not the environment entry.
+          TARBALL="$(npm pack | tail -1)"
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "TARBALL=${TARBALL}" >> "$GITHUB_ENV"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
           # The file packaged here is NOT byte-identical to the published one:
           # npm adds an `attestations` block to package.json inside the
           # published tarball, and package.json is tarred first, so the gzip
@@ -223,7 +233,16 @@ jobs:
           # same tree, built by the same workflow, from the same tag — but a
           # verification must say that in terms of THIS file's digest, never
           # pretend to be checking the registry's bytes.
-          echo "TARBALL_SHA256=$(sha256sum "$TARBALL" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          # `set -euo pipefail` so a missing tarball fails the step instead of
+          # hashing nothing, and `cut -c1-64` because `cut -d' ' -f1` returns
+          # the whole line when sha256sum emits a single space.
+          set -euo pipefail
+          TARBALL_SHA256="$(sha256sum "${TARBALL}" | cut -c1-64)"
+          case "${TARBALL_SHA256}" in
+            ????????????????????????????????????????????????????????????????) ;;
+            *) echo "refusing to file provenance: bad tarball digest '${TARBALL_SHA256}'"; exit 1 ;;
+          esac
+          echo "TARBALL_SHA256=${TARBALL_SHA256}" >> "$GITHUB_ENV"
 
       - name: Attest release tarball (SLSA provenance)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
@@ -279,10 +298,17 @@ jobs:
           # workflow signed this statement — against the artefact this run
           # produced rather than against an unreachable file name.
           SUBJECT="usa-release-${VERSION}.tgz@sha256:${TARBALL_SHA256}"
+          OFFICIAL_DIR="$(mktemp -d)"
+          cd "$OFFICIAL_DIR"
           gh attestation download "$SUBJECT" --repo "$GITHUB_REPOSITORY" \
             --predicate-type https://slsa.dev/provenance/v1 \
-            -L 1 --output /tmp/official-bundle/
-          OFFICIAL="$(ls /tmp/official-bundle/sha256*.jsonl | head -1)"
+            -L 1
+          # `gh attestation download` has no --output flag (checked against its
+          # own --help: unknown flag, exit 1 — that is how the 2.28.3 run died).
+          # It writes sha256:<digest>.jsonl into the CURRENT directory and
+          # overwrites any previous one, so it runs in a scratch dir.
+          OFFICIAL="$(ls sha256*.jsonl | head -1)"
+          cd - >/dev/null
           node -e '
             const fs = require("fs");
             const doc = JSON.parse(fs.readFileSync(process.argv[1], "utf8").split("\n")[0]);
