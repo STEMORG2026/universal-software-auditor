@@ -47,8 +47,8 @@ usa — Universal Software Auditor
   usa foundation show [path]    Print the effective intent and asserted facts
   usa live [path]               Conversational audit session (deterministic without a provider)
   usa serve [opts]              Localhost audit server (loopback only, bearer token)
-  usa scan [path]              Run scanner adapters, write a run manifest + evidence
-  usa intent <model.json>      Compare a declared threat model with observed evidence
+  usa scan [path]               Run scanner adapters, write a run manifest + evidence
+  usa intent <model.json>       Compare a declared threat model with observed evidence
   usa models --provider ID      List models the provider advertises
 
 evolve options
@@ -93,6 +93,17 @@ live options
 
 models options
   --provider <id>     LLM provider preset (or $USA_PROVIDER)
+
+scan options
+  --out <file>             Evidence report path (default .usa/evidence/<id>.md)
+  --scanner <id>           Run only this adapter (repeatable, or comma list)
+  --network                Allow adapters that declare they need network
+  --allow-build-commands   Permit build-requiring scanners (recorded, opt-in)
+  --json                   Print the manifest and evidence as JSON
+
+intent options
+  --evidence <file>        A \`usa scan --json\` payload to join against the model
+  --json                   Print the report as JSON
 
 serve options
   --port <n>          Port to listen on (default 0 = ephemeral, printed at startup)
