@@ -88,3 +88,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:18 — Commit
 
 `8b6911f` docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs
+
+### 11:24 — Commit
+
+`d28b04f` docs(state): hand off after the prose pass
