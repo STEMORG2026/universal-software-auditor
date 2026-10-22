@@ -5,6 +5,7 @@
 > Do not skip it. Do not summarize state without following it.
 
 **Last Reconciled:** 2026-10-22T12:22:28.324+05:45
+**Last Reconciled:** 2026-10-22T12:16:39.747+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -69,6 +70,16 @@ See `state/REGISTRY.md` for details.
 8. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
 9. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
 10. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
+1. `bd6e29f fix(docs): refuse to generate the CLI reference from a partial rule load`
+2. `7fa5017 chore(master): release (#208)`
+3. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
+4. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
+5. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
+6. `ae0c72e docs(state): hand off after the prose pass (#229)`
+7. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
+8. `777c175 docs(state): hand off after the gitleaks bump and the gate diagnostics (#227)`
+9. `5c51aad ci: make the cli-reference gate explain itself when it fails (#226)`
+10. `d79dc5e ci: bump the gitleaks pin to 8.30.1 (#225)`
 
 ---
 

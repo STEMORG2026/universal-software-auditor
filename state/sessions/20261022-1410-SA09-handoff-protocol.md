@@ -112,7 +112,3 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:16 — Commit
 
 `bd6e29f` fix(docs): refuse to generate the CLI reference from a partial rule load
-
-### 12:22 — Commit
-
-`7988b6a` chore(state): align hook-generated state files with master
