@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-21T18:20:24.652+05:45
+**Last Reconciled:** 2026-10-22T04:01:35.622+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `9bfc3f1 Merge remote-tracking branch 'origin/master' into fix/semgrep-scanned-guard`
-2. `32ca612 fix(scanner): pass dependency-cruiser's rules file to the command (#203)`
-3. `a3424dc test(e2e): drop the duplicated blocks from the scan suite (#202)`
-4. `36dd384 feat(scanner): verify the CodeQL adapter against the real toolchain (#200)`
-5. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
-6. `500792f chore(state): auto-update from post-commit hook`
-7. `9223f70 Merge remote-tracking branch 'origin/master' into fix/semgrep-scanned-guard`
+1. `5acd49c docs(state): hand off the post-release state`
+2. `da507d9 chore(master): release (#195)`
+3. `e8dd6fb fix(scanner): report a semgrep scan that read no files as UNKNOWN (#204)`
+4. `32ca612 fix(scanner): pass dependency-cruiser's rules file to the command (#203)`
+5. `a3424dc test(e2e): drop the duplicated blocks from the scan suite (#202)`
+6. `36dd384 feat(scanner): verify the CodeQL adapter against the real toolchain (#200)`
+7. `3ba3876 fix(scanner): read scanner artifacts from files, and run staged tools as stages (#199)`
 8. `f2de7fc fix(engine): resolve a SARIF result level from the rule default before filtering (#201)`
-9. `f37fea4 chore(state): auto-update from post-commit hook`
-10. `d9512f7 fix(scanner): report a semgrep scan that read no files as UNKNOWN`
+9. `aefa1cb docs(state): hand off the scanner/evidence work (#198)`
+10. `926839e feat(intent): declared threat model joined to observed evidence (#197)`
 
 ---
 
