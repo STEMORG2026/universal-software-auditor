@@ -52,3 +52,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 09:34 — Commit
 
 `085acb7` docs(state): record that the release branch was verified before signing
+
+### 09:56 — Commit
+
+`25c57bc` chore(audit): refresh the review ledger, and settle two items that were never reviewed

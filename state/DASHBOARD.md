@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T09:34:02.625+05:45
+**Last Reconciled:** 2026-10-22T09:56:45.084+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `085acb7 docs(state): record that the release branch was verified before signing`
-2. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
-3. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
-4. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
-5. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
-6. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
-7. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
-8. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
-9. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
-10. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
+1. `25c57bc chore(audit): refresh the review ledger, and settle two items that were never reviewed`
+2. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
+3. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
+4. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
+5. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
+6. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
+7. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
+8. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
+9. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
+10. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
 
 ---
 
