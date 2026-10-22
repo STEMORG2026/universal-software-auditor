@@ -144,3 +144,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 14:14 — Commit
 
 `4fa33d1` Merge remote-tracking branch 'origin/fix/provenance-verified-not-just-filed' into fix/provenance-verified-not-just-filed
+
+### 14:26 — Commit
+
+`446fdf3` docs(state): hand off with the provenance finding, and the fix on #240

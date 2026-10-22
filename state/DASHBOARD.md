@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T14:14:31.137+05:45
+**Last Reconciled:** 2026-10-22T14:26:51.485+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `4fa33d1 Merge remote-tracking branch 'origin/fix/provenance-verified-not-just-filed' into fix/provenance-verified-not-just-filed`
-2. `1401bdd Merge branch 'master' into fix/provenance-verified-not-just-filed`
-3. `279619d chore(state): auto-update from post-commit hook`
-4. `11c2cf7 Merge remote-tracking branch 'origin/master' into fix/provenance-verified-not-just-filed`
-5. `506d5c0 chore(state): auto-update from post-commit hook`
-6. `31df962 fix(release): verify the provenance chain instead of only filing it`
-7. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
-8. `f269766 chore(master): release (#236)`
-9. `9051264 docs: attach SLSA provenance bundle for v2.28.1 (#233)`
-10. `e3099d0 docs: attach SLSA provenance bundle for v2.28.0 (#205)`
+1. `446fdf3 docs(state): hand off with the provenance finding, and the fix on #240`
+2. `b1744a2 chore(state): auto-update from post-commit hook`
+3. `4fa33d1 Merge remote-tracking branch 'origin/fix/provenance-verified-not-just-filed' into fix/provenance-verified-not-just-filed`
+4. `1401bdd Merge branch 'master' into fix/provenance-verified-not-just-filed`
+5. `279619d chore(state): auto-update from post-commit hook`
+6. `11c2cf7 Merge remote-tracking branch 'origin/master' into fix/provenance-verified-not-just-filed`
+7. `506d5c0 chore(state): auto-update from post-commit hook`
+8. `31df962 fix(release): verify the provenance chain instead of only filing it`
+9. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
+10. `f269766 chore(master): release (#236)`
 
 ---
 
