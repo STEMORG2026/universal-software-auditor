@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T06:37:26.662+05:45
+**Last Reconciled:** 2026-10-22T07:00:35.954+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `ac91d71 docs(state): hand off after the vacuous-e2e pass`
-2. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
-3. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
-4. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
-5. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
-6. `c936f68 docs(state): hand off the post-release state (#206)`
-7. `da507d9 chore(master): release (#195)`
-8. `e8dd6fb fix(scanner): report a semgrep scan that read no files as UNKNOWN (#204)`
-9. `32ca612 fix(scanner): pass dependency-cruiser's rules file to the command (#203)`
-10. `a3424dc test(e2e): drop the duplicated blocks from the scan suite (#202)`
+1. `d9d47d4 fix(scanner): find a scanner installed as the project's own devDependency`
+2. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
+3. `fdec61d test(e2e): fail when no scanner is installed instead of passing vacuously (#211)`
+4. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
+5. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
+6. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
+7. `c936f68 docs(state): hand off the post-release state (#206)`
+8. `da507d9 chore(master): release (#195)`
+9. `e8dd6fb fix(scanner): report a semgrep scan that read no files as UNKNOWN (#204)`
+10. `32ca612 fix(scanner): pass dependency-cruiser's rules file to the command (#203)`
 
 ---
 

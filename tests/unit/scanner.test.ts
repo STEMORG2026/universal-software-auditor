@@ -109,6 +109,51 @@ describe('probe and availability', () => {
     expect(byId('trivy')).toBe(trivyAdapter);
   });
 
+  /**
+   * A scanner installed as the project's own devDependency is not on PATH, and
+   * it is the better binary: measured on this repository, a globally installed
+   * depcruise cruised **0 modules** against it while the devDependency cruised
+   * 108, because only the local one can resolve the project's TypeScript.
+   */
+  it('dependency-cruiser finds a project-local binary that PATH does not have', () => {
+    const project = tmp();
+    const bin = path.join(project, 'node_modules', '.bin');
+    fs.mkdirSync(bin, { recursive: true });
+    const local = path.join(bin, 'depcruise');
+    fs.writeFileSync(local, '#!/bin/sh\necho 18.7.0\n');
+    fs.chmodSync(local, 0o755);
+
+    const stub = vi.spyOn(process, 'env', 'get').mockReturnValue({ PATH: tmp() } as never);
+    try {
+      const probe = dependencyCruiserAdapter.probe({
+        path: project,
+        workdir: project,
+        revision: '',
+        executionId: 'e',
+      });
+      expect(probe.available).toBe(true);
+      expect(probe.executable).toBe(local);
+    } finally {
+      stub.mockRestore();
+    }
+  });
+
+  it('a project without node_modules falls back to PATH', () => {
+    const stub = vi.spyOn(process, 'env', 'get').mockReturnValue({ PATH: tmp() } as never);
+    try {
+      const probe = dependencyCruiserAdapter.probe({
+        path: tmp(),
+        workdir: tmp(),
+        revision: '',
+        executionId: 'e',
+      });
+      expect(probe.available).toBe(false);
+      expect(probe.reason).toMatch(/node_modules\/\.bin/);
+    } finally {
+      stub.mockRestore();
+    }
+  });
+
   it('an explicit false in the config disables an adapter that would run', () => {
     expect(enabledAdapters({ trivy: { enabled: false } }).map((a) => a.id)).not.toContain('trivy');
   });
