@@ -116,50 +116,57 @@ reviews:
       real leak must still fail loudly.
 
   - rule: SUP-012
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      Protection verified via API 2026-09-14: 6 required checks (Lint &
-      format, Test, Build, Validate rule packs, Docs & ADR hygiene, USA
-      audit), no force pushes, no deletions, CODEOWNERS review required,
-      stale reviews dismissed.
-
+      Verified via live API 2026-10-22: 7 required checks (Lint & format, Test,
+      Build, Validate rule packs, Docs & ADR hygiene, USA audit, Changeset
+      present), strict so a branch must be current, CODEOWNERS review required,
+      stale reviews dismissed, no force pushes, no deletions, conversation
+      resolution required. GAP found: enforce_admins is false, so an account
+      with admin can bypass every one of these. That is the one criterion this
+      rule asks for that is not met, and it is recorded here rather than
+      papered over.
   - rule: REL-001
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      SemVer holds in practice: package.json at 2.9.2, release-please maps
-      feat to minor and fix to patch (2.8.x line through 2.9.0 observed
-      across the session), tags match versions.
-
+      Re-verified 2026-10-22: package.json at 2.28.0, published to npmjs, and
+      the bump is chosen by the changeset note (patch/minor/major), never by
+      hand. Two patch notes are pending, which is why the release PR proposes
+      2.28.1. The 2026-09-14 note said 2.9.2 — that is how fast this rots.
   - rule: REL-002
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      Tags v2.8.0 through v2.9.2 present; release-please automation
-      (release-please-config.json plus the manifest) cuts a tag on every
-      release PR merge.
-
+      Re-verified 2026-10-22: 51 tags, newest @xenos1996/usa@2.28.0, pushed by
+      changesets/action on publish — not by hand. AGENTS.md forbids hand-pushed
+      v* tags. Note the tag shape changed from v2.9.x to @xenos1996/usa@2.x.y
+      when the release tooling changed; the older note listing v2.8.0-v2.9.2 is
+      stale on that point.
   - rule: CICD-002
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      ci.yml runs Lint & format, Test (incl. typecheck via tsc and build via
-      the Build job), and Validate rule packs on pull_request and master
-      push — observed green on every PR through the 2.8 to 2.9 series.
-
+      Re-verified 2026-10-22: ci.yml fires on pull_request with no branch
+      filter (the #197 fix — narrowing it once gave a stacked PR zero CI).
+      Jobs: lint, test, build, rules, commits, changesets, hygiene, resync,
+      security, analyze. Lint, typecheck (inside test), test and build all run.
+      The Test job now also installs semgrep 1.182.0 and trivy 0.75.0 so two
+      scanner e2e tests actually execute instead of skipping.
   - rule: DOC-001
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      README carries what (What USA adds, L206), install and run (Quick
-      start, L36), and contribute (Contributing, L316).
-
+      Re-verified 2026-10-22: what (title and strapline, L3-5), install and run
+      both under Quick start (L36, npx/npm usage), contribute (L316) plus a
+      separate CONTRIBUTING.md. All four covered; install and run share one
+      heading rather than having one each.
   - rule: CLI-003
     reviewed: 2026-09-14
     until: 2027-03-14
@@ -202,30 +209,24 @@ reviews:
       existence-checked; --dry-run previews every write.
 
   - rule: TEST-009
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      Ran 2026-09-14: full suite shuffled (seed 42) matches ordered exactly
-      (1026 passed, 1 skipped), and two consecutive ordered runs match to
-      the test. Live tests stub fetch (no network), no wall-clock dependence
-      observed. Known cosign failures are external-tool environment flakes
-      (fail identically ordered or shuffled, green in CI) — not order or
-      state leakage.
-
+      Re-run 2026-10-22: `vitest run --sequence.shuffle` gives 70 files, 1447
+      passed, 1 skipped — identical to the ordered run. Suite also green on
+      consecutive runs today. One run during this session showed 4 e2e failures
+      that did not reproduce and pass in isolation; the cause was NOT isolated,
+      so it is recorded as unexplained rather than dismissed as flake.
   - rule: CLI-006
-    reviewed: 2026-09-14
-    until: 2027-03-14
-    by: sajan
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
     note: >-
-      Verified 2026-09-14 by redirection: --help to stdout exit 0 with empty
-      stderr; errors and usage to stderr with exit 2 and empty stdout; audit
-      --format json writes a parseable report file while the human summary
-      stays on stdout and warnings on stderr; standards/categories --format
-      json emit pure stdout JSON with zero stderr. Observed, not changed:
-      rules silently ignores --format (it has no machine contract — human
-      output by design).
-
+      Re-measured 2026-10-22 by redirection: `usa audit /nonexistent` exits 2
+      with 0 bytes on stdout and 50 on stderr ("Target path does not exist");
+      `usa --version` writes to stdout with 0 bytes on stderr. Same contract as
+      the 2026-09-14 note, re-confirmed rather than assumed.
   - rule: CLI-005
     reviewed: 2026-09-14
     until: 2027-03-14
@@ -298,3 +299,29 @@ reviews:
       classic token by design. Never exercised — the closest event was a
       fail-closed duplicate publish, which is prevention, not rollback.
       Re-review immediately after first real use.
+
+  - rule: DEP-002
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Settled 2026-10-22 with the tool rather than by reading: `trivy fs
+      --scanners vuln --severity HIGH,CRITICAL` reports 0 findings once
+      fixtures/ is excluded. The 5 lodash 4.17.4 CVEs it does report all live
+      in fixtures/insecure-app/package-lock.json, which is planted on purpose
+      and excluded from the self-audit by .usa.yaml. First review of this item
+      — it was previously "never".
+
+  - rule: AI-011
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Read AGENTS.md 2026-10-22 (the only instruction file in the tree — no
+      CLAUDE.md or .cursorrules). It forbids destructive operations without a
+      verified backup (L174), forbids hand-pushed v* tags (L308), and keeps
+      secrets out of the tree with .env gitignored (L316). GAP found: it
+      contains no explicit "never push to main, always branch then PR" rule —
+      that constraint lives in the operator's standing instruction and in
+      branch protection, not in the file an agent actually reads. First review
+      of this item — previously "never".
