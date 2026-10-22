@@ -322,9 +322,15 @@ truncated output — which would have deleted seven rule packs on merge. Restore
 from master, and the hook-generated session file that made it `CONFLICTING` was
 aligned to master's copy.
 
-`[FACT]` Open PRs, all owner-signature only: **#205** (provenance 2.28.0),
-**#233** (provenance 2.28.1), **#235** (hook bot-branch guard + generator
-pack-count guard + the `process.exit` truncation fix).
+`[FACT]` Open PRs, all owner-signature only and **all 13 checks green**:
+
+| PR       | What                         | State                                                                                                                                              |
+| -------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **#205** | provenance bundle for 2.28.0 | MERGEABLE — the truncated `cli.md` it carried was restored from master, and its state files were aligned, so it now carries only its two artefacts |
+| **#233** | provenance bundle for 2.28.1 | MERGEABLE                                                                                                                                          |
+| **#236** | release **2.28.2**           | MERGEABLE — carries #235's truncation fix; merging publishes                                                                                       |
+
+Merge order: #205, #233, then #236 (which publishes).
 
 ## 13. Next steps
 
