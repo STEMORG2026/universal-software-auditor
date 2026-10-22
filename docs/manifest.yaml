@@ -188,6 +188,12 @@ standalone:
   - file: state/sessions/20261022-1345-SA08-trivy-ci.md
     reviewed: 2026-10-22
     reason: MACP state — SA08 session file (trivy runs end to end in CI)
+  - file: state/sessions/20261022-1410-SA09-handoff-protocol.md
+    reviewed: 2026-10-22
+    reason: MACP state — SA09 session file (handoff raised to the completion protocol)
+  - file: docs/scanners.md
+    reviewed: 2026-10-22
+    reason: Living doc — scanner adapter model, the analysed-nothing invariant, and the child-env boundary
   - file: state/CONTINUATION.md
     reviewed: 2026-10-21
     reason: 'MACP state — handoff doc for the scanner/evidence work'

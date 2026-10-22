@@ -16,7 +16,7 @@ latest release.
 
 Use GitHub's private reporting instead:
 
-<https://github.com/Er-Sajan-PLG/universal-software-auditor/security/advisories/new>
+<https://github.com/STEMORG2026/universal-software-auditor/security/advisories/new>
 
 Include:
 

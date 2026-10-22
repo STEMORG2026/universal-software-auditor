@@ -31,7 +31,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -113,7 +113,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -139,7 +139,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -173,7 +173,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -213,7 +213,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -290,7 +290,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -357,7 +357,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -415,7 +415,7 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -433,7 +433,7 @@ jobs:
       # findings in the demo app, or in the docs that quote it, are expected.
       - name: Secret scan
         run: |
-          VERSION=8.28.0
+          VERSION=8.30.1
           curl -sSfL -o /tmp/gitleaks.tar.gz \
             "https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}/gitleaks_${VERSION}_linux_x64.tar.gz"
           tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks

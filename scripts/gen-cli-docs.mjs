@@ -12,6 +12,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 const ROOT = process.cwd();
@@ -55,6 +56,34 @@ if (process.argv.includes('--check')) {
     console.error(
       'docs/reference/cli.md is stale — run `node scripts/gen-cli-docs.mjs` and commit the result.',
     );
+    // Diagnose rather than merely assert. This gate has failed on CI while
+    // passing locally, on PRs that cannot affect the CLI (a workflow-only
+    // change), and passed on a re-run of the same commit. A bare "is stale"
+    // message makes that indistinguishable from real drift, so the failure
+    // carries its own evidence: sizes, the first differing line, and the
+    // generated output on disk for a full diff.
+    console.error(`  committed: ${current === null ? 'missing' : `${current.length} bytes`}`);
+    console.error(`  generated: ${doc.length} bytes`);
+    if (current !== null) {
+      const a = current.split('\n');
+      const b = doc.split('\n');
+      for (let i = 0; i < Math.max(a.length, b.length); i += 1) {
+        if (a[i] !== b[i]) {
+          console.error(`  first difference at line ${i + 1}:`);
+          console.error(`    committed: ${JSON.stringify(a[i] ?? '<missing>')}`);
+          console.error(`    generated: ${JSON.stringify(b[i] ?? '<missing>')}`);
+          break;
+        }
+      }
+    }
+    // Where the generated output *stops* matters as much as where it first
+    // differs: a shorter file that ends mid-section is a truncation, while one
+    // that ends cleanly is a content change.
+    const generatedLines = doc.split('\n');
+    console.error(`  generated ends: ${JSON.stringify(generatedLines.slice(-3))}`);
+    const expected = path.join(os.tmpdir(), 'cli.md.generated');
+    fs.writeFileSync(expected, doc);
+    console.error(`  generated output: ${expected}  (diff it against ${path.relative(ROOT, OUT)})`);
     process.exit(1);
   }
   console.log('CLI reference: OK (in sync)');

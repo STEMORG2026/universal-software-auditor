@@ -7,6 +7,7 @@
 | [Concepts](concepts.md)                                      | Severity × status, scoring maths, confidence, applicability                                                                          |
 | [Configuration](configuration.md)                            | `.usa.yaml` reference                                                                                                                |
 | [Foundation readiness](foundation.md)                        | Vision, intents, pillars, and the interview file                                                                                     |
+| [Scanners and evidence](scanners.md)                         | `usa scan` — the six adapters, the analysed-nothing rule, the child-env boundary, and `usa intent`                                   |
 | [Rule packs](rule-packs.md)                                  | Every check kind, with examples — start here to contribute a pack                                                                    |
 | [Detectors](detectors.md)                                    | The fact catalogue and how to add signals                                                                                            |
 | [Maturity profiles](maturity-profiles.md)                    | Lifecycle stages, dampening, expected bands                                                                                          |
@@ -34,6 +35,7 @@
 - **Using an agent?** → [Agent integration](agent-integration.md)
 - **Coordinating agents?** → [MACP](macp.md)
 - **Contributing a rule pack?** → [Rule packs](rule-packs.md) → [Detectors](detectors.md)
+- **Running real scanners?** → [Scanners and evidence](scanners.md)
 - **Comparing to a standard?** → [Standards mapping](standards-mapping.md)
 - **Embedding USA in a tool?** → [API reference](reference/api.md)
 - **Wondering why it is built this way?** → [Architecture](ARCHITECTURE.md) → [ADRs](adr/)
