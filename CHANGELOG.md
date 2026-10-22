@@ -1,5 +1,67 @@
 # Changelog
 
+## 2.28.1
+
+### Patch Changes
+
+- [#231](https://github.com/STEMORG2026/universal-software-auditor/pull/231) [`57fd95e`](https://github.com/STEMORG2026/universal-software-auditor/commit/57fd95e50e814724bbfed3090987d9d4a21f122a) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Document `usa scan` and `usa intent`, and make their flags discoverable.
+  
+  The scanner subsystem had no prose documentation — it appeared only in the
+  generated `cli.md`. The reason turned out to be circular: `usa --help` carries an
+  option block for thirteen commands but **not** for `scan` or `intent`, and the
+  docs governance gate validates every documented flag against that help. So the
+  flags could not be documented without failing the gate, and nobody documented
+  them.
+  
+  `usa --help` now lists both blocks, which fixes the discoverability problem for
+  users and the validation problem for the gate. A new `docs/scanners.md` covers
+  what the subsystem is for (evidence, not scoring), the six adapters and their
+  defaults, the analysed-nothing rule that makes `UNKNOWN` the safe verdict, the
+  child-environment boundary, staged tools, and the `usa intent` join.
+
+- [#213](https://github.com/STEMORG2026/universal-software-auditor/pull/213) [`6b05f38`](https://github.com/STEMORG2026/universal-software-auditor/commit/6b05f38b5eaf1051ba4b3e35eedbceceac14345e) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Find a scanner installed as the project's own devDependency, and prefer it.
+  
+  `probe()` searched `PATH` only, so a scanner installed in the project's
+  `node_modules/.bin` was invisible — and that binary is the _better_ one. Measured
+  on this repository with dependency-cruiser:
+  
+  | binary                        | modules cruised against this repo |
+  | ----------------------------- | --------------------------------- |
+  | global `depcruise` on PATH    | **0**                             |
+  | `node_modules/.bin/depcruise` | **108**                           |
+  
+  A global install cannot resolve the project's TypeScript, so it silently cruised
+  nothing and the adapter reported a parse error. The devDependency is now also
+  added to this repository, and `usa scan .` reports the honest answer instead:
+  "dependency-cruiser ran without a rules config — a graph, not a verdict".
+  
+  `probe(target?)` takes the target optionally, so existing callers are unaffected;
+  the runner passes it and puts the project's bin directory first on the child's
+  PATH, keeping PATH for the global fallback. This helps every adapter, not just
+  dependency-cruiser.
+
+- [#207](https://github.com/STEMORG2026/universal-software-auditor/pull/207) [`4d0a10e`](https://github.com/STEMORG2026/universal-software-auditor/commit/4d0a10e302ae7971818dec52026776987c7a5f16) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - Carry a failing scanner's stderr into its UNKNOWN reason.
+  
+  When a tool exited non-zero and wrote nothing parseable to stdout, the reason
+  read "output was not valid JSON" — true of every failure and useful for none.
+  depcruise pointed at a project with no `src/` writes
+  `ERROR: Can't open 'src' for reading. Does it exist?` on stderr, and the adapter
+  reported `Unexpected end of JSON input`.
+  
+  The runner now appends the last non-empty stderr line to an UNKNOWN claim when
+  the process exited non-zero:
+  
+  ```
+  before  dependency-cruiser output was not valid JSON: Unexpected end of JSON input
+  after   dependency-cruiser output was not valid JSON: Unexpected end of JSON input
+           (exit 1: ERROR: Can't open 'src' for reading. Does it exist?)
+  ```
+  
+  Verdicts are untouched. A FAIL stays exactly what the parser produced — stderr is
+  diagnosis, not evidence — and a zero-exit UNKNOWN is not annotated, because
+  nothing failed. The last line is taken because tools print warnings first and
+  their error last, and it is capped at 200 characters.
+
 ## 2.28.0
 
 ### Minor Changes
