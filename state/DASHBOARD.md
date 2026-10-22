@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T11:03:50.072+05:45
+**Last Reconciled:** 2026-10-22T11:10:27.141+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `310caff ci: make the cli-reference gate explain itself when it fails`
-2. `d79dc5e ci: bump the gitleaks pin to 8.30.1 (#225)`
-3. `81aa364 docs(state): hand off with the queue cleared and CI on Node 24 (#224)`
-4. `aad6478 ci: move the test path off end-of-life Node 20 to Node 24 (#223)`
-5. `2e252fc chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL (#222)`
-6. `9ccbcf3 docs(agents): write down the no-direct-push rule where an agent reads it (#221)`
-7. `80c4d81 chore(audit): refresh the review ledger, and settle two items never reviewed (#220)`
-8. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
-9. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
-10. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
+1. `c6e23da docs(state): hand off after the gitleaks bump and the gate diagnostics`
+2. `5c51aad ci: make the cli-reference gate explain itself when it fails (#226)`
+3. `d79dc5e ci: bump the gitleaks pin to 8.30.1 (#225)`
+4. `81aa364 docs(state): hand off with the queue cleared and CI on Node 24 (#224)`
+5. `aad6478 ci: move the test path off end-of-life Node 20 to Node 24 (#223)`
+6. `2e252fc chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL (#222)`
+7. `9ccbcf3 docs(agents): write down the no-direct-push rule where an agent reads it (#221)`
+8. `80c4d81 chore(audit): refresh the review ledger, and settle two items never reviewed (#220)`
+9. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
+10. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
 
 ---
 
