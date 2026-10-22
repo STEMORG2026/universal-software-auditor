@@ -48,3 +48,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 09:14 — Commit
 
 `3ecbc1e` docs(state): record the handoff commit in the checkpoint
+
+### 09:34 — Commit
+
+`085acb7` docs(state): record that the release branch was verified before signing
