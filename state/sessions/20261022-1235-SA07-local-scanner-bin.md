@@ -61,3 +61,7 @@ bug. Recorded in the handoff rather than guessed at.
 
 1447 passed | 1 skipped (1448); typecheck, lint, format, docs:all clean;
 self-audit 100/100. Merged as #213 at 6b05f38.
+
+### 07:11 — Commit
+
+`3471f61` docs(state): hand off after the local-scanner-bin pass
