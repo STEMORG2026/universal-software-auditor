@@ -185,6 +185,9 @@ standalone:
   - file: state/sessions/20261022-1235-SA07-local-scanner-bin.md
     reviewed: 2026-10-22
     reason: MACP state — SA07 session file (scanner devDependency found and preferred)
+  - file: state/sessions/20261022-1345-SA08-trivy-ci.md
+    reviewed: 2026-10-22
+    reason: MACP state — SA08 session file (trivy runs end to end in CI)
   - file: state/CONTINUATION.md
     reviewed: 2026-10-21
     reason: 'MACP state — handoff doc for the scanner/evidence work'

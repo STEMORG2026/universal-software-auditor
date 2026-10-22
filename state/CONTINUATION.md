@@ -6,7 +6,7 @@ reconstruct state from `git log`.
 
 ## State at close
 
-`master` = `6b05f38`, version **2.28.0** (published), **two changesets pending**
+`master` = `bd3ed2d`, version **2.28.0** (published), **two changesets pending**
 (`scanner-stderr-reason`, `local-scanner-bin`, both patch → 2.28.1). Working tree clean.
 
 ### Resume point — two PRs, both waiting on the owner
@@ -124,19 +124,26 @@ first; the recipe is the easy half.
    publishes a numeric `properties.security-severity` (7.5 for both fixture
    findings), the only thing that distinguishes a 9.8 from a 5.3. A rule can read
    it only if the normaliser carries it; today it does not.
-3. **Only semgrep is end-to-end tested in CI.** Its e2e test used to skip loudly
-   when absent, which was honest but meant CI proved less than a local run — and
-   worse, the central test (_"every adapter that is installed produces
-   evidence"_) looped over the available adapters, so with none on PATH it ran
-   **zero iterations and passed**. Measured: with `PATH` stripped it reported
-   `1 passed`. #211 closed that with two counters (`ran` and `verdicts`, both
-   must be non-zero) and installed semgrep in CI — the fixture already vendors a
-   ruleset, so the run is offline and reproducible. Pinned to 1.182.0.
 
-   Still not in CI, deliberately: trivy (CVE database download), codeql (700 MB),
-   ort (docker), scorecard (token). Their tests still skip loudly. dependency-cruiser
-   runs but reports only an UNKNOWN row against this fixture, so it cannot satisfy
-   the `verdicts` counter on its own.
+3. **Two scanners are end-to-end tested in CI: semgrep and trivy.** The central
+   e2e test (_"every adapter that is installed produces evidence"_) used to loop
+   over the available adapters, so with none on PATH it ran **zero iterations and
+   passed** — measured, with `PATH` stripped it reported `1 passed`. #211 closed
+   that with two counters (`ran` and `verdicts`, both must be non-zero) and
+   installed semgrep; #215 added trivy.
+
+   Both work in CI because the fixture is built for it: it vendors a semgrep
+   ruleset (`.usa/scanners.yaml` points at it, so the run is offline) and ships a
+   **committed `package-lock.json`** (force-added past the gitignore rule). Both
+   binaries are pinned to the version the adapter was verified against — semgrep
+   1.182.0, trivy 0.75.0 — while the vulnerability database is deliberately not,
+   because the trivy e2e asserts only CVE-_format_, so database drift cannot turn
+   it red.
+
+   Still not in CI, deliberately: **codeql** (700 MB bundle), **ort** (docker),
+   **scorecard** (platform token). Their tests still skip loudly, which is honest.
+   dependency-cruiser runs but reports only an UNKNOWN row against this fixture,
+   so it cannot satisfy the `verdicts` counter on its own.
 
 4. **Closed by #213.** A globally installed `depcruise` cruised **0 modules**
    against this repo because it cannot resolve the project's TypeScript, and
