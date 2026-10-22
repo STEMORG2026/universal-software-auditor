@@ -64,3 +64,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 10:31 — Commit
 
 `1a1385a` chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL
+
+### 10:37 — Commit
+
+`1718081` ci: move the test path off end-of-life Node 20 to Node 24
