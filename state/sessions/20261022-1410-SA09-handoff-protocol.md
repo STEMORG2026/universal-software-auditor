@@ -124,3 +124,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:51 — Commit
 
 `07b3b7e` docs(state): record 2.28.1 published, #205 rescued, and the truncation root cause
+
+### 13:05 — Commit
+
+`8210808` docs(state): record the three PRs waiting for signature
