@@ -148,3 +148,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 14:26 — Commit
 
 `446fdf3` docs(state): hand off with the provenance finding, and the fix on #240
+
+### 15:38 — Commit
+
+`80aa97a` fix(release): unbreak the provenance step on its first real run
