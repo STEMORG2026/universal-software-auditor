@@ -53,6 +53,34 @@ download-by-digest path run for the first time; if `provenance/v2.28.3` is not
 filed, that step is where to look. The workflow now verifies via `cosign` over
 the DSSE payload, not `gh attestation verify <file>`.
 
+### The step failed twice more, for reasons that were knowledge, not code
+
+`[FACT]` Both failures below were reproduced by hand before being edited, and
+both were defects I had introduced in #240/#242.
+
+| run                              | failure                                                                                                  | cause                                                                                                                        |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''` |
+| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has  |
+
+`[FACT]` `cosign verify-blob-attestation` was also being handed the DSSE
+payload as its blob. With the default `--check-claims=true` it hashes that file
+and requires the digest to equal the statement's subject, so it could never
+pass: measured, exit 1, `provided artifact digests do not match digests in
+statement`. `--digest <sha256> --digestAlg sha256` names the subject directly
+and returns `Verified OK`.
+
+`[DECISION]` Fetch the attestation from
+`repos/{owner}/{repo}/attestations/sha256:<digest>` and select the statement
+whose `workflow.ref` is the release tag. The API returns **two** provenances
+for 2.28.3 — one from the tag push, one from the master dispatch — and `-L 1`
+returned whichever the server listed first. Selection is by ref and then by
+payload bytes, so it does not depend on API ordering.
+
+`[FACT]` `tests/unit/publish-workflow.test.ts` pins all four constraints
+against the workflow source. Each was watched failing by reintroducing the
+defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
+
 ## CHECKPOINT
 
 ```yaml
