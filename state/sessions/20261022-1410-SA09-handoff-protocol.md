@@ -92,3 +92,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:24 — Commit
 
 `d28b04f` docs(state): hand off after the prose pass
+
+### 11:33 — Commit
+
+`6d651be` docs(state): record the cli-reference failure signature
