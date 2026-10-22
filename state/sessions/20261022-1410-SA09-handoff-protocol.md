@@ -96,3 +96,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:33 — Commit
 
 `6d651be` docs(state): record the cli-reference failure signature
+
+### 11:45 — Commit
+
+`60ad74e` docs: document the scanner subsystem, and make its flags discoverable
