@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T11:45:36.191+05:45
+**Last Reconciled:** 2026-10-22T11:50:58.240+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `60ad74e docs: document the scanner subsystem, and make its flags discoverable`
-2. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
-3. `ae0c72e docs(state): hand off after the prose pass (#229)`
-4. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
-5. `777c175 docs(state): hand off after the gitleaks bump and the gate diagnostics (#227)`
-6. `5c51aad ci: make the cli-reference gate explain itself when it fails (#226)`
-7. `d79dc5e ci: bump the gitleaks pin to 8.30.1 (#225)`
-8. `81aa364 docs(state): hand off with the queue cleared and CI on Node 24 (#224)`
-9. `aad6478 ci: move the test path off end-of-life Node 20 to Node 24 (#223)`
-10. `2e252fc chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL (#222)`
+1. `eb9a8ce ci: print where the generated CLI reference ends, on mismatch`
+2. `704b36e chore(state): auto-update from post-commit hook`
+3. `60ad74e docs: document the scanner subsystem, and make its flags discoverable`
+4. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
+5. `ae0c72e docs(state): hand off after the prose pass (#229)`
+6. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
+7. `777c175 docs(state): hand off after the gitleaks bump and the gate diagnostics (#227)`
+8. `5c51aad ci: make the cli-reference gate explain itself when it fails (#226)`
+9. `d79dc5e ci: bump the gitleaks pin to 8.30.1 (#225)`
+10. `81aa364 docs(state): hand off with the queue cleared and CI on Node 24 (#224)`
 
 ---
 
