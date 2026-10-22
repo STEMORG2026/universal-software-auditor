@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T10:14:48.435+05:45
+**Last Reconciled:** 2026-10-22T10:31:41.101+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `f78536c docs(agents): write down the no-direct-push rule where an agent reads it`
-2. `80c4d81 chore(audit): refresh the review ledger, and settle two items never reviewed (#220)`
-3. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
-4. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
-5. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
-6. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
-7. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
-8. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
-9. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
-10. `bee3b2d docs(state): hand off after the vacuous-e2e pass (#212)`
+1. `1a1385a chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL`
+2. `9ccbcf3 docs(agents): write down the no-direct-push rule where an agent reads it (#221)`
+3. `80c4d81 chore(audit): refresh the review ledger, and settle two items never reviewed (#220)`
+4. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
+5. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
+6. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
+7. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
+8. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
+9. `4972050 docs(state): hand off after the local-scanner-bin pass (#214)`
+10. `6b05f38 fix(scanner): find a scanner installed as the project's own devDependency (#213)`
 
 ---
 

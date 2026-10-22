@@ -60,3 +60,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 10:14 — Commit
 
 `f78536c` docs(agents): write down the no-direct-push rule where an agent reads it
+
+### 10:31 — Commit
+
+`1a1385a` chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL
