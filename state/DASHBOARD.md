@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T10:43:57.359+05:45
+**Last Reconciled:** 2026-10-22T10:51:40.482+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `e414b58 docs(state): hand off with the queue cleared and CI on Node 24`
-2. `aad6478 ci: move the test path off end-of-life Node 20 to Node 24 (#223)`
-3. `2e252fc chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL (#222)`
-4. `9ccbcf3 docs(agents): write down the no-direct-push rule where an agent reads it (#221)`
-5. `80c4d81 chore(audit): refresh the review ledger, and settle two items never reviewed (#220)`
-6. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
-7. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
-8. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
-9. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
-10. `bd3ed2d ci: run the trivy adapter end to end in CI instead of skipping it (#215)`
+1. `b0522d3 ci: bump the gitleaks pin to 8.30.1`
+2. `81aa364 docs(state): hand off with the queue cleared and CI on Node 24 (#224)`
+3. `aad6478 ci: move the test path off end-of-life Node 20 to Node 24 (#223)`
+4. `2e252fc chore(audit): clear the never-reviewed backlog, and find Node 20 is EOL (#222)`
+5. `9ccbcf3 docs(agents): write down the no-direct-push rule where an agent reads it (#221)`
+6. `80c4d81 chore(audit): refresh the review ledger, and settle two items never reviewed (#220)`
+7. `823ce81 docs(state): record that the release branch was verified before signing (#219)`
+8. `1591969 docs(state): record the handoff commit in the checkpoint (#218)`
+9. `59e8942 docs(state): bring the canonical handoff up to the completion protocol (#217)`
+10. `b7241ec docs(state): hand off after the trivy-in-CI pass (#216)`
 
 ---
 

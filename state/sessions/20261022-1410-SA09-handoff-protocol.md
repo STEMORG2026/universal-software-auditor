@@ -72,3 +72,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 10:43 — Commit
 
 `e414b58` docs(state): hand off with the queue cleared and CI on Node 24
+
+### 10:51 — Commit
+
+`b0522d3` ci: bump the gitleaks pin to 8.30.1
