@@ -128,3 +128,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:05 — Commit
 
 `8210808` docs(state): record the three PRs waiting for signature
+
+### 13:27 — Commit
+
+`d336dd6` chore(codeowners): make the provenance bundle owned by its signer
