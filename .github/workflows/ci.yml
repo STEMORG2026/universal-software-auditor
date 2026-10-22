@@ -84,6 +84,19 @@ jobs:
       - name: Install semgrep
         run: pipx install 'semgrep==1.182.0'
 
+      # A second real scanner, so CI proves the trivy adapter end to end rather
+      # than skipping it. It works here for the same reason semgrep does: the
+      # fixture ships a committed `package-lock.json` (force-added past the
+      # gitignore rule — without it the CVE evidence silently disappears), and
+      # the e2e asserts only that rows exist and carry CVE-format identifiers, so
+      # a drifting vulnerability database cannot turn the test red.
+      # Pinned to 0.75.0, the version the adapter was verified against.
+      - name: Install trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin v0.75.0
+          trivy --version
+
       - name: Vitest
         run: pnpm run test:cov
 

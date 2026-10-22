@@ -65,3 +65,7 @@ self-audit 100/100. Merged as #213 at 6b05f38.
 ### 07:11 — Commit
 
 `3471f61` docs(state): hand off after the local-scanner-bin pass
+
+### 08:05 — Commit
+
+`d469795` ci: run the trivy adapter end to end in CI instead of skipping it
