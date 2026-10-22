@@ -139,11 +139,24 @@ first; the recipe is the easy half.
 6. **No requirement/control consumption yet.** `docs/architecture/finding-model.md`
    defines `Requirement` and `Control` as declared inputs; nothing reads them.
    The intent model (`src/intent/`) is the pattern to copy.
-7. **`state/DASHBOARD.md` guarantees a conflict between any two branches.** It
+7. **`state/DASHBOARD.md` guaranteed a conflict between any two branches.** It
    embeds a timestamp and the branch's own last-ten-commits, so no two branches
-   ever agree. Every merge writes a new one, so a branch updated before a merge
-   conflicts after it. Merges must be serial (see the traps table); a
-   `.gitattributes` merge driver or generating it at read time would end it.
+   ever agreed. Every merge wrote a new one, so a branch updated before a merge
+   conflicted after it.
+
+   Fixed by `.gitattributes` (`merge=union`), and the obvious fix was measured
+   first because it does not work:
+
+   | option        | result                                                                                                                                                  |
+   | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `merge=ours`  | **does not work** — git needs a per-clone `[merge "ours"] driver = true`, so a fresh clone still conflicts. A fix absent on a fresh clone is not a fix. |
+   | `merge=union` | works, needs no configuration, survives a clone.                                                                                                        |
+   | gitignore it  | would work, but MACP startup (AGENTS.md step 2) reads this file to judge staleness, so a fresh clone must contain it.                                   |
+
+   Accepted cost: for one commit — the merge commit — the file carries two
+   `Last Reconciled` lines, because `union` keeps both sides. The post-commit hook
+   rewrites the whole file in its auto-commit immediately after, so the doubled
+   state does not survive the merge, and the staleness check can still read it.
 
 ## Traps discovered — do not re-learn these
 
@@ -152,7 +165,7 @@ first; the recipe is the easy half.
 | `pull_request: branches: [master]`    | A **stacked PR got zero CI** and looked green. Removed in #197; do not narrow it again.                                                                                                                                                                                              |
 | Deleting a base branch                | `gh pr merge <n> --delete-branch` **closes every PR stacked on that branch**. Recreate the branch at its commit, reopen, retarget, then delete.                                                                                                                                      |
 | Merging a queue of PRs                | Must be **serial**: merge → fold the new `master` into the next branch → merge. Updating all branches first guarantees the second one conflicts.                                                                                                                                     |
-| `state/DASHBOARD.md` in any merge     | Always conflicts, always with itself. `git checkout --theirs` it; the post-commit hook regenerates the content on the next commit.                                                                                                                                                   |
+| `state/DASHBOARD.md` in any merge     | Used to conflict on every merge. Fixed by `.gitattributes merge=union`; the merge commit carries a doubled `Last Reconciled` line and the hook rewrites the whole file in its auto-commit. Do not remove that line without reading gap 7.                                            |
 | The post-commit state hook            | Leaves files **staged but uncommitted** after a merge commit. `git status` will show them; commit them before pushing.                                                                                                                                                               |
 | changesets release branch             | Its workflow runs land in `action_required`. Approving **all** of them at once is a mistake: stale runs' concurrency groups cancel the current head's, and `gh pr checks` then shows `fail` for checks that were `cancelled`. Approve only the current head, or `gh run rerun <id>`. |
 | npmjs metadata after a publish        | The packument and `/pkg/version` can 404 for minutes **after** the tarball URL already serves 200. Read the tarball's `package.json`, not the metadata.                                                                                                                              |
