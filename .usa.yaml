@@ -328,3 +328,179 @@ reviews:
       authority to skip the PR. Residual, not fixable in this file:
       enforce_admins is off, so an admin account can still bypass protection —
       which is the reason the rule is written down at all.
+
+  - rule: AI-003
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Read src/scanner/run.ts 2026-10-22. What a scanner child can call: the six
+      registered adapters and nothing else. With which credentials: none —
+      childEnv passes an allow-list of seven vars (HOME, PATH, LANG, LC_ALL,
+      TMPDIR, http_proxy, https_proxy) and then a deny-list of eleven
+      credential-bearing ones (GITHUB_TOKEN, GH_TOKEN, NODE_AUTH_TOKEN,
+      NPM_TOKEN, NPM_CONFIG_REGISTRY, NPM_CONFIG_USERCONFIG, SEMGREP_APP_TOKEN,
+      SNYK_TOKEN, GPR_TOKEN, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN).
+      Blocked by default: network — an adapter that needs it returns
+      `unavailable` naming the config key that makes it offline, and the engine
+      never runs a build command (CodeQL's --command is refused outright).
+      First review — previously "never".
+
+  - rule: AI-010
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Verified 2026-10-22 by grep and by running the help. No CLI command
+      deletes user files or publishes — there is no rmSync/unlinkSync anywhere
+      in src/, and the store is content-addressed append-only. Every writing
+      command honours --dry-run (audit, scan, intent all print the path they
+      would write and exit). The one irreversible action in the project, the
+      npm publish, happens in CI behind the release PR, which needs a human
+      merge and a CODEOWNERS review — it is not reachable from the CLI at all.
+      First review — previously "never".
+
+  - rule: DOC-002
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      The alternative evidence this rule accepts is satisfied: CI installs from
+      scratch on every PR (`pnpm install --frozen-lockfile`, ci.yml lines 37
+      and 74), so a broken setup instruction fails the build rather than the
+      next joiner. Independently, a clean-machine install of the published
+      tarball was done today and `usa --version` plus `usa audit .` both ran.
+      First review — previously "never".
+
+  - rule: DEP-007
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      One third-party API is reachable: scorecard's --repo mode against the
+      GitHub API. Timeout is 300s on the command and 15s on the version probe;
+      retry policy is none, and that is a deliberate choice — a scanner that
+      retries a rate-limited API turns a slow run into a hanging one. What the
+      user sees when it is down: `unavailable` with a reason, never a crash,
+      because network is denied by default and the adapter names the config key
+      that makes it offline. npmjs is reached only by the release workflow, not
+      by the CLI. First review — previously "never".
+
+  - rule: CICD-005
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      No environments exist and none are needed: USA is a versioned CLI
+      distributed through npm and a composite action, with no server, no
+      database and no deployed runtime. The closest analogue to an environment
+      boundary is local checkout versus published package, and that boundary is
+      enforced by the release PR plus CI rather than by configuration. Revisit
+      the day the project ships a hosted service. First review — previously
+      "never".
+
+  - rule: ARCH-009
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Three SPOFs, all in distribution rather than in the code: the npmjs
+      registry (the only channel to users), GitHub (source, CI, releases and
+      the GPR mirror), and a single maintainer account that holds both the
+      publish credentials and the CODEOWNERS approval. Mitigations: the
+      published tarball is self-contained with one runtime dependency, tags and
+      releases are cut by automation rather than by hand, and the GPR mirror
+      means a second registry holds the same artifact. The single-account
+      dependency is the real one and it is not mitigated — noted rather than
+      dressed up. First review — previously "never".
+
+  - rule: DOC-007
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      The examples are not hand-written, which is why they cannot rot: the CLI
+      reference and the sample report are *generated* and byte-compared on every
+      PR (`docs:cli` and `docs:sample` run --check in ci.yml lines 310 and 313),
+      and the resync job regenerates and pushes back when they drift. An example
+      that stops matching the tool fails the build. First review — previously
+      "never".
+
+  - rule: DOC-004
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Counted rather than eyeballed: 59 doc-comment lines in src/scanner/run.ts
+      and 35 in src/engine/evaluate.ts, and the house style is *why* not *what*
+      — the deny-list explains that it is a security boundary, the artifact
+      reader explains that a missing file must not look like a clean run, the
+      SARIF normaliser cites the spec section. First review — previously
+      "never".
+
+  - rule: FUT-002
+    reviewed: 2026-10-22
+    until: 2027-01-22
+    by: sathi
+    note: >-
+      NOT SATISFIED, and this is the one queue item where the answer is a real
+      gap rather than a pass. CI pins Node 20 (ci.yml lines 34, 71, 116) and
+      .nvmrc pins 20, but Node 20 left LTS maintenance in April 2026 — roughly
+      six months ago as of this review. `engines: >=20.0.0` still admits newer
+      lines and the local toolchain runs v24, so the package is fine; the CI
+      runtime is not. Deliberately not changed here: bumping the runtime is a
+      decision with a blast radius, not a doc fix. Short re-review window set on
+      purpose.
+
+  - rule: ARCH-008
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Side effects sit behind the spawn boundary: every adapter is invoked
+      through one spawnSync call in src/scanner/run.ts, so the unit tests
+      substitute `process.execPath` fakes rather than reaching for a real
+      binary, and the filesystem is reached only through copyTreeForScan and
+      readArtifact, both of which take an explicit root. Clock and randomness
+      are read at call time and injected nowhere — that is the honest weakness
+      here, and it is why the e2e tests declare their own timeouts. First
+      review — previously "never".
+
+  - rule: CQ-007
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Partially satisfied, recorded as such. The machine-readable surface is
+      genuinely structured: `usa scan --json` and `usa audit --format json`
+      emit parseable JSON, and the evidence manifest carries executionId,
+      revision and elapsedMs per row. The human surface is prose, not
+      key=value, and there are no levels — one stream for progress, one for
+      errors. That is a defensible choice for a CLI whose output is a report
+      rather than a log, but it is not what this rule asks for. First review —
+      previously "never".
+
+  - rule: TEST-010
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      Genuinely absent, and recorded as absent rather than argued away: there is
+      no load-test script and no performance budget in the repository. The
+      nearest thing is the e2e suite's per-test timeouts, which detect hangs,
+      not ceilings. Whether a local auditor needs a load test is a fair
+      question — its critical path is a single checkout scan — but the honest
+      answer to this rule today is "no". First review — previously "never".
+
+  - rule: FUT-005
+    reviewed: 2026-10-22
+    until: 2027-04-22
+    by: sathi
+    note: >-
+      No tech radar exists. The closest artefact is docs/adr/ (45 records),
+      which records decisions after they are made but does not classify
+      technology as adopt / trial / assess / hold. For a single-maintainer
+      project the radar's real value — stopping every new project from
+      re-litigating the same choices — is partly served by the ADR index, so
+      this is recorded as a gap with a partial mitigation rather than a bare
+      "no". First review — previously "never".
