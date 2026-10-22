@@ -44,6 +44,14 @@ describe('publish.yml files provenance it has actually verified', () => {
     expect(provenanceStep).toMatch(/for attempt in 1 2 3 4 5; do/);
   });
 
+  it('only promotes the API response after a successful call', () => {
+    // `gh api` can print a JSON error body on stdout, so redirecting straight
+    // into the file the parser reads would let an error body masquerade as a
+    // response. The response is written to a scratch path and moved on zero exit.
+    expect(provenanceStep).toMatch(/attestations\.try\.json/);
+    expect(provenanceStep).toMatch(/mv \/tmp\/attestations\.try\.json \/tmp\/attestations\.json/);
+  });
+
   it('selects the provenance built from the release tag, not merely the first', () => {
     // A re-dispatch for the same version accumulates a second provenance with
     // the same subject; `-L 1` returned whichever the server listed first.

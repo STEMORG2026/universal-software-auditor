@@ -306,7 +306,11 @@ jobs:
           # die on a transient upstream error.
           ATTEST_URL="repos/${GITHUB_REPOSITORY}/attestations/sha256:${TARBALL_SHA256}"
           for attempt in 1 2 3 4 5; do
-            if gh api "$ATTEST_URL" > /tmp/attestations.json 2>/tmp/attest.err; then
+            # Write to a scratch file and move it only on success: `gh api`
+            # can emit a JSON error body on the same stream, so a plain
+            # redirect would leave a "successful" file holding an error.
+            if gh api "$ATTEST_URL" > /tmp/attestations.try.json 2>/tmp/attest.err; then
+              mv /tmp/attestations.try.json /tmp/attestations.json
               break
             fi
             if [ "$attempt" = 5 ]; then
