@@ -84,3 +84,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:10 — Commit
 
 `c6e23da` docs(state): hand off after the gitleaks bump and the gate diagnostics
+
+### 11:18 — Commit
+
+`8b6911f` docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs
