@@ -44,3 +44,7 @@ sample-report.md in sync). Format clean. No placeholder TODOs — the nine
 The CHECKPOINT initially shipped `handoff_commit_sha: null` because the commit
 that lands a document cannot contain its own hash. A follow-up commit recorded
 the real value. Both are docs-only; neither changes `code_commit_sha`.
+
+### 09:14 — Commit
+
+`3ecbc1e` docs(state): record the handoff commit in the checkpoint
