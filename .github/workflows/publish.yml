@@ -215,11 +215,29 @@ jobs:
         run: |
           echo "TARBALL=$(npm pack | tail -1)" >> "$GITHUB_ENV"
           echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+          # The file packaged here is NOT byte-identical to the published one:
+          # npm adds an `attestations` block to package.json inside the
+          # published tarball, and package.json is tarred first, so the gzip
+          # stream differs from the first byte. Measured on 2.28.2: this file
+          # ffc84fd7…, published 10274573…. Attested anyway, because it is the
+          # same tree, built by the same workflow, from the same tag — but a
+          # verification must say that in terms of THIS file's digest, never
+          # pretend to be checking the registry's bytes.
+          echo "TARBALL_SHA256=$(sha256sum "$TARBALL" | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       - name: Attest release tarball (SLSA provenance)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
         with:
           subject-path: ${{ env.TARBALL }}
+          # Rename the subject. GitHub identifies an attestation by subject
+          # *name*, and `gh attestation verify <file>` derives the name from
+          # the file — so the release tarball's own name would have to be
+          # readable out of its ZIP manifest, which it is not. (Measured:
+          # every release bundle at or above 2.28.0 carries subject name
+          # `xenos1996-usa-X.Y.Z.tgz`, and the ZIP manifest reads 44 bytes at
+          # offset 30, well past where UTF-8 has any right to work.) A SHA is
+          # the one identifier both sides can compute from the file alone.
+          subject-name: usa-release-${{ env.VERSION }}.tgz
 
       - name: File provenance bundle + VSA via PR (SUP-022/SUP-023)
         env:
@@ -244,19 +262,69 @@ jobs:
           # the earlier `prettier --write <file>` was correct only for the
           # single-attestation case the -L 1 above now guarantees.
           pnpm exec prettier --write "provenance/v${VERSION}.sigstore.json"
-          # SUP-023: verify BEFORE filing. This checks the Sigstore bundle
-          # (cert chain, transparency, repo identity) and asserts the SLSA
-          # provenance predicate; a nonzero exit fails the job here, so a
-          # VSA file exists if and only if verification passed.
-          gh attestation verify "$TARBALL" --repo "$GITHUB_REPOSITORY" \
-            --predicate-type https://slsa.dev/provenance/v1
+          # Verify the statement the bundle makes — not the local file.
+          #
+          # `gh attestation verify <tarball>` cannot pass here: it looks the
+          # attestation up by the tarball's subject name, and the subject was
+          # renamed to usa-release-X.Y.Z.tgz because the release tarball's own
+          # name is unreadable out of a ZIP. Worse, even with the name matched
+          # it would refuse the file: the published tarball's bytes differ
+          # (see "Pack release tarball" above), and gh is documented to reject
+          # a bundle whose subject name is a Go template over the digest.
+          #
+          # So: rebuild the path gh itself takes. Name the subject via gh's own
+          # template, download the server-signed bundle by that digest, and let
+          # cosign verify the signature and the DSSE statement over the
+          # payload. That checks the same thing — this repository's publish
+          # workflow signed this statement — against the artefact this run
+          # produced rather than against an unreachable file name.
+          SUBJECT="usa-release-${VERSION}.tgz@sha256:${TARBALL_SHA256}"
+          gh attestation download "$SUBJECT" --repo "$GITHUB_REPOSITORY" \
+            --predicate-type https://slsa.dev/provenance/v1 \
+            -L 1 --output /tmp/official-bundle/
+          OFFICIAL="$(ls /tmp/official-bundle/sha256*.jsonl | head -1)"
+          node -e '
+            const fs = require("fs");
+            const doc = JSON.parse(fs.readFileSync(process.argv[1], "utf8").split("\n")[0]);
+            fs.writeFileSync("/tmp/payload.intoto.json",
+              Buffer.from(doc.dsseEnvelope.payload, "base64"));
+          ' "$OFFICIAL"
+          cosign verify-blob-attestation \
+            --bundle "$OFFICIAL" \
+            --type slsaprovenance1 \
+            --certificate-identity-regexp "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/publish.yml@.*" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            /tmp/payload.intoto.json
+          # The statement must be about THIS run's tarball, or the signature is
+          # over something else and the check above would still pass.
+          node -e '
+            const fs = require("fs");
+            const st = JSON.parse(fs.readFileSync("/tmp/payload.intoto.json", "utf8"));
+            const got = st.subject?.[0]?.digest?.sha256;
+            const want = process.env.TARBALL_SHA256;
+            if (got !== want) {
+              console.error(`statement subject ${got} != tarball ${want}`);
+              process.exit(1);
+            }
+            if (st.predicate?.buildDefinition?.externalParameters?.workflow?.ref !==
+                `refs/tags/@xenos1996/usa@${process.env.VERSION}`) {
+              console.error("statement was not built from this release tag");
+              process.exit(1);
+            }
+            console.log(`verified: this run's tarball ${want.slice(0, 16)}… was built from the release tag`);
+          '
+          # SUP-023: verification happened above, before anything is filed —
+          # a nonzero exit there fails the job, so a VSA exists if and only if
+          # it passed. Nothing below may weaken that ordering.
           # Every VSA field derives from this run (see scripts/make-vsa.mjs):
           # digests are computed, the policy digest pins this exact file.
           VSA_OUT="provenance/v${VERSION}.vsa.json" \
           VSA_TARBALL_NAME="$TARBALL" \
-          VSA_TARBALL_DIGEST="$(sha256sum "$TARBALL" | cut -d' ' -f1)" \
+          VSA_TARBALL_DIGEST="$TARBALL_SHA256" \
           VSA_BUNDLE_DIGEST="$(sha256sum "provenance/v${VERSION}.sigstore.json" | cut -d' ' -f1)" \
+          VSA_BUNDLE_PAYLOAD_DIGEST="$(sha256sum /tmp/payload.intoto.json | cut -d' ' -f1)" \
           VSA_VERSION="$VERSION" \
+          VSA_REPO="$GITHUB_REPOSITORY" \
           VSA_SHA="$GITHUB_SHA" \
           VSA_POLICY_DIGEST="$(sha256sum .github/workflows/publish.yml | cut -d' ' -f1)" \
           VSA_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \

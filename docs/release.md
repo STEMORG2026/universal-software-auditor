@@ -37,8 +37,61 @@ happens on its own.
 
 The VSA step is driven entirely by `VSA_*` environment variables set by the
 workflow (`VSA_TARBALL_NAME`, `VSA_TARBALL_DIGEST`, `VSA_BUNDLE_DIGEST`,
-`VSA_VERSION`, `VSA_SHA`, `VSA_POLICY_DIGEST`, `VSA_TIME`, `VSA_GH_VERSION`)
-and written to the path named by `VSA_OUT` — see `scripts/make-vsa.mjs`.
+`VSA_BUNDLE_PAYLOAD_DIGEST`, `VSA_VERSION`, `VSA_SHA`, `VSA_REPO`,
+`VSA_POLICY_DIGEST`, `VSA_TIME`, `VSA_GH_VERSION`) and written to the path
+named by `VSA_OUT` — see `scripts/make-vsa.mjs`.
+
+## What the attestation covers, precisely
+
+Two different tarballs exist for every release, and saying "the tarball is
+attested" without naming which one is how four releases' worth of provenance
+went unread.
+
+| artefact              | digest (2.28.2)                                                           | what it is                                                                                                                                                                   |
+| --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **release tarball**   | `sha256:ffc84fd7a7dd3c7795d434e26682b0229fbf478104441fd7eef186b3e076f1f5` | `npm pack` in the publish run. **This** is the SLSA subject. Also the `.sigstore.json` payload's own hash, which is why that file's subject line is `usa-release-2.28.2.tgz` |
+| **published tarball** | `sha256:10274573be0fc65dac1d394b0e6dd96fbd54cbc81f04d47144cb5132373989e1` | what the registry serves and npm installs. Registry-signed (`npm audit signatures`). **Not** the attested file                                                               |
+
+They differ for a mundane reason: npm adds an `attestations` block to
+`package.json` inside the published tarball, and `package.json` is the first
+entry in the archive, so the gzip stream diverges immediately. Everything
+outside `package.json` is byte-identical (445 entries, measured).
+
+**So do not claim the published tarball is attested.** The honest statement,
+which the workflow now enforces mechanically, is: the release tag was built by
+`publish.yml`, that build produced a tarball, and that tarball is what the
+statement names. For the bytes you installed, the evidence is the registry's
+own signature and attestation:
+
+```bash
+npm audit signatures                      # registry signature + attestation
+node scripts/check-provenance.mjs 2.28.2  # our own bundle and VSA, read back
+```
+
+`scripts/check-provenance.mjs <version>` is the read-back. It checks the
+registry's `sha512` against the served bytes, verifies the bundle's signature
+over its DSSE payload with `cosign`, and asserts every VSA field against the
+bundle and against `publish.yml`. It is not wired into CI yet — see the
+`[TODO]` in `state/CONTINUATION.md`.
+
+### Why the verification is `cosign`, not `gh attestation verify`
+
+`gh attestation verify <tarball>` derives the attestation's subject _name_ from
+the file (`<basename>@sha256:<digest>`), and GitHub stores the subject name
+inside a ZIP manifest. Measured on every bundle at or above 2.28.0, that
+manifest reads `xenos1996-usa-X.Y.Z.tgz` — 44 bytes at offset 30, far past
+where UTF-8 decoding can succeed — so the name can never round-trip and the
+command 404s on this repository's own release tarballs. It is not a
+provenance defect; it is a naming defect, and renaming the subject to
+`usa-release-X.Y.Z.tgz` puts the one identifier both sides can compute (the
+sha256) in the one place they can both see.
+
+`gh attestation verify` also rejects a bundle whose subject name is a Go
+template over the digest, so the renamed subject cannot be matched by name
+either. The workflow therefore rebuilds gh's own path — name the subject,
+download the server-signed bundle by digest, and verify the DSSE statement
+with `cosign` — and then asserts in code that the statement's subject digest
+equals this run's tarball and that its `workflow.ref` is this release tag.
 
 ## Why changesets and not release-please
 
