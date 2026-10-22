@@ -13,7 +13,7 @@
 
 ## READ THIS FIRST
 
-Master is at **`b7241ec`**, version **2.28.0**, already published to npmjs.
+Master is at **`aad6478`**, version **2.28.0**, already published to npmjs.
 Everything I was asked to do is merged and verified; the working tree is clean.
 
 **Two PRs are open and both are waiting on you, not on me** — they are gated by
@@ -27,7 +27,7 @@ is in progress.
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: b7241ec4604da8a5ce44b1e4370908c671ba4f37
+  code_commit_sha: aad6478 # verified implementation state; docs commits follow
   handoff_commit_sha: 59e8942e6dcb0e3e07d5a94b8b0e17d5b2ba9a56
   branch: master
   working_tree_clean: true
@@ -87,6 +87,17 @@ Latest, tag `@xenos1996/usa@2.28.0`, `provenance/v2.28.0` filed by `publish.yml`
 findings**.
 
 `[FACT]` Two changesets are pending, both patch, so the next release is 2.28.1.
+
+`[FACT]` The audit's judgement queue has **zero items marked "never reviewed"**.
+Twenty-two reviews are dated 2026-10-22 in `.usa.yaml`, each carrying the
+measurement that settled it. Verdicts are unchanged — a review never moves a
+score (ADR-0023).
+
+`[FACT]` CI and `.nvmrc` run **Node 24**, not 20. Node 20 left LTS maintenance in
+April 2026 and was still pinned in 17 places; the giveaway was that
+`release.yml` and `publish.yml` had already moved to 24, so only the test path
+was stale. `engines: >=20.0.0` is deliberately unchanged — narrowing a
+compatibility promise is the owner's call, not a maintenance fix.
 
 ### The invariant the adapters kept getting wrong
 

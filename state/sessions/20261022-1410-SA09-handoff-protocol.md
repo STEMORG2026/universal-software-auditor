@@ -68,3 +68,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 10:37 — Commit
 
 `1718081` ci: move the test path off end-of-life Node 20 to Node 24
+
+### 10:43 — Commit
+
+`e414b58` docs(state): hand off with the queue cleared and CI on Node 24
