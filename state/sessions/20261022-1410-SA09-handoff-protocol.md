@@ -104,3 +104,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:50 — Commit
 
 `eb9a8ce` ci: print where the generated CLI reference ends, on mismatch
+
+### 11:56 — Commit
+
+`6e428da` docs(state): hand off after documenting the scanner subsystem
