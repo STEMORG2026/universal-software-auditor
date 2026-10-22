@@ -112,3 +112,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:16 — Commit
 
 `bd6e29f` fix(docs): refuse to generate the CLI reference from a partial rule load
+
+### 12:26 — Commit
+
+`e8db299` fix(state): do not write state files on bot branches
