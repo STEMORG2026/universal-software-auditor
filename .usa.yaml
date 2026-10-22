@@ -440,17 +440,19 @@ reviews:
 
   - rule: FUT-002
     reviewed: 2026-10-22
-    until: 2027-01-22
+    until: 2027-04-22
     by: sathi
     note: >-
-      NOT SATISFIED, and this is the one queue item where the answer is a real
-      gap rather than a pass. CI pins Node 20 (ci.yml lines 34, 71, 116) and
-      .nvmrc pins 20, but Node 20 left LTS maintenance in April 2026 — roughly
-      six months ago as of this review. `engines: >=20.0.0` still admits newer
-      lines and the local toolchain runs v24, so the package is fine; the CI
-      runtime is not. Deliberately not changed here: bumping the runtime is a
-      decision with a blast radius, not a doc fix. Short re-review window set on
-      purpose.
+      Found broken and fixed the same day. CI pinned Node 20 in 17 places and
+      .nvmrc pinned 20, but Node 20 left LTS maintenance in April 2026 — six
+      months before this review. The inconsistency was the giveaway: release.yml
+      and publish.yml had already moved to 24, so only the test path was stale,
+      and the local toolchain runs v24. All 17 pins and .nvmrc are now 24
+      (Active LTS, supported to April 2028), which aligns CI with the publishing
+      path rather than inventing a new target. Residual, deliberately not
+      changed: `engines: >=20.0.0` still promises Node 20 support that CI no
+      longer exercises — narrowing it is a compatibility decision for the owner,
+      not a maintenance fix.
 
   - rule: ARCH-008
     reviewed: 2026-10-22
