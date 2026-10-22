@@ -194,6 +194,80 @@ describe('scanner runner: prepare stages', () => {
   });
 });
 
+/**
+ * A tool that dies leaves a reason. "output was not valid JSON" is true of every
+ * failure and useful for none: the tool's own stderr says *why* it died, and
+ * that line is the whole diagnosis. Measured on depcruise pointed at a project
+ * with no `src/` — stderr says `ERROR: Can't open 'src' for reading. Does it
+ * exist?`, and the adapter reported "Unexpected end of JSON input".
+ */
+describe('scanner runner: a failing tool says why', () => {
+  const failing = (status: 'UNKNOWN' | 'FAIL', claim: string): ScannerAdapter => ({
+    id: 'fake',
+    name: 'fake',
+    defaultConfig: () => ({}),
+    probe: () => ({ available: true, version: '1.0.0', executable: NODE }),
+    buildCommand: () => ({
+      argv: [
+        NODE,
+        '-e',
+        "console.error(\"ERROR: Can't open 'src' for reading. Does it exist?\"); process.exit(1)",
+      ],
+    }),
+    parse: () => [
+      {
+        id: `fake-${status}`,
+        source: { tool: 'fake', version: '1.0.0', kind: 'check', identifier: 'x' },
+        provenance: {
+          executionId: 'e',
+          command: [],
+          config: {},
+          repositoryRevision: 'r',
+          timestamp: 't',
+          executable: NODE,
+          timeoutMs: 0,
+          elapsedMs: 0,
+        },
+        claim,
+        severity: 'INFO',
+        confidence: 1,
+        status,
+        location: null,
+        rawReference: {},
+      },
+    ],
+  });
+
+  it('an UNKNOWN row carries the tool stderr when the process failed', () => {
+    const target = tmp();
+    const result = new ScannerRunner([failing('UNKNOWN', 'fake output was not valid JSON')]).run({
+      target,
+      adapters: ['fake'],
+    });
+    const row = result.evidence[0]!;
+    expect(row.status).toBe('UNKNOWN');
+    expect(row.claim).toContain("Can't open 'src' for reading");
+    expect(row.claim).toContain('exit 1');
+  });
+
+  it('a verdict row is never annotated — stderr is diagnosis, not evidence', () => {
+    const target = tmp();
+    const result = new ScannerRunner([failing('FAIL', 'eval found')]).run({
+      target,
+      adapters: ['fake'],
+    });
+    expect(result.evidence[0]!.claim).toBe('eval found');
+  });
+
+  it('a zero-exit UNKNOWN is not annotated — nothing failed', () => {
+    const target = tmp();
+    const adapter = failing('UNKNOWN', 'fake ran without a rules config');
+    adapter.buildCommand = () => ({ argv: [NODE, '-e', 'process.exit(0)'] });
+    const result = new ScannerRunner([adapter]).run({ target, adapters: ['fake'] });
+    expect(result.evidence[0]!.claim).toBe('fake ran without a rules config');
+  });
+});
+
 describe('readArtifact', () => {
   it('returns the first declared artifact that exists', () => {
     const root = tmp();

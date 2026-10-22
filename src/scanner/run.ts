@@ -192,7 +192,7 @@ export class ScannerRunner {
         findings: [],
       };
     }
-    const evidence = parsed.evidence;
+    const evidence = annotateFailure(parsed.evidence, spawn);
 
     stampProvenance(evidence, {
       executionId: target.executionId,
@@ -221,6 +221,39 @@ export class ScannerRunner {
 /** Adapters opt into path (2); the default is no findings. */
 function findingsOf(adapter: ScannerAdapter, evidence: Evidence[]): ScannerFinding[] {
   return adapter.findings ? adapter.findings(evidence) : [];
+}
+
+/**
+ * A tool that exited non-zero left the reason on stderr, and that reason is the
+ * whole diagnosis. "output was not valid JSON" is true of every failure and
+ * useful for none — depcruise pointed at a project with no `src/` writes
+ * `ERROR: Can't open 'src' for reading. Does it exist?` and the adapter reported
+ * `Unexpected end of JSON input`.
+ *
+ * Only UNKNOWN rows are annotated, and only when the process actually failed:
+ * a FAIL is a verdict and must stay exactly what the parser produced, and a
+ * zero-exit UNKNOWN means nothing failed. The last non-empty line is taken
+ * because tools print their warnings first and their error last.
+ */
+function annotateFailure(evidence: Evidence[], spawn: SpawnSuccess): Evidence[] {
+  if (spawn.exitCode === 0) return evidence;
+  const line = lastStderrLine(spawn.stderr);
+  if (!line) return evidence;
+  return evidence.map((item) =>
+    item.status === 'UNKNOWN'
+      ? { ...item, claim: `${item.claim} (exit ${spawn.exitCode}: ${line})` }
+      : item,
+  );
+}
+
+/** The last non-empty stderr line, trimmed and capped — errors come last. */
+function lastStderrLine(stderr: string): string {
+  const lines = stderr
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  const line = lines[lines.length - 1] ?? '';
+  return line.length > 200 ? `${line.slice(0, 197)}…` : line;
 }
 
 /** Default config under the project's, so a config file overrides one key. */
@@ -378,7 +411,13 @@ function runGates(
   return null;
 }
 
-type SpawnSuccess = { stdout: string; exitCode: number; elapsedMs: number; startedAt: number };
+type SpawnSuccess = {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  elapsedMs: number;
+  startedAt: number;
+};
 type SpawnResult = SpawnSuccess | { failure: AdapterRun };
 
 function spawnScanner(
@@ -402,6 +441,7 @@ function spawnScanner(
   }
   return {
     stdout: proc.stdout ? proc.stdout.toString('utf8') : '',
+    stderr: proc.stderr ? proc.stderr.toString('utf8') : '',
     exitCode: proc.status,
     elapsedMs,
     startedAt,
