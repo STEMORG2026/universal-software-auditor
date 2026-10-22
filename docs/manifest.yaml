@@ -179,6 +179,9 @@ standalone:
   - file: state/sessions/20261022-1008-SA05-stderr-reason.md
     reviewed: 2026-10-22
     reason: MACP state — SA05 session file (scanner stderr surfaced into UNKNOWN reasons)
+  - file: state/sessions/20261022-1205-SA06-vacuous-e2e.md
+    reviewed: 2026-10-22
+    reason: MACP state — SA06 session file (e2e suite failed open when no scanner installed)
   - file: state/CONTINUATION.md
     reviewed: 2026-10-21
     reason: 'MACP state — handoff doc for the scanner/evidence work'

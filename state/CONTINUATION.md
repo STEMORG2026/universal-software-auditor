@@ -6,7 +6,7 @@ reconstruct state from `git log`.
 
 ## State at close
 
-`master` = `4d0a10e`, version **2.28.0** (published), **one changeset pending**
+`master` = `fdec61d`, version **2.28.0** (published), **one changeset pending**
 (`scanner-stderr-reason`, patch → 2.28.1). Working tree clean.
 
 ### Resume point — two PRs, both waiting on the owner
@@ -124,9 +124,20 @@ first; the recipe is the easy half.
    publishes a numeric `properties.security-severity` (7.5 for both fixture
    findings), the only thing that distinguishes a 9.8 from a 5.3. A rule can read
    it only if the normaliser carries it; today it does not.
-3. **Semgrep and dependency-cruiser are only end-to-end tested where installed.**
-   Their e2e tests skip loudly when absent, which is honest but means CI proves
-   less than a local run. If they should run in CI, install them in the workflow.
+3. **Only semgrep is end-to-end tested in CI.** Its e2e test used to skip loudly
+   when absent, which was honest but meant CI proved less than a local run — and
+   worse, the central test (_"every adapter that is installed produces
+   evidence"_) looped over the available adapters, so with none on PATH it ran
+   **zero iterations and passed**. Measured: with `PATH` stripped it reported
+   `1 passed`. #211 closed that with two counters (`ran` and `verdicts`, both
+   must be non-zero) and installed semgrep in CI — the fixture already vendors a
+   ruleset, so the run is offline and reproducible. Pinned to 1.182.0.
+
+   Still not in CI, deliberately: trivy (CVE database download), codeql (700 MB),
+   ort (docker), scorecard (token). Their tests still skip loudly. dependency-cruiser
+   runs but reports only an UNKNOWN row against this fixture, so it cannot satisfy
+   the `verdicts` counter on its own.
+
 4. **dependency-cruiser still needs a local devDependency** to resolve
    TypeScript. A globally installed `depcruise` cruises **0 modules** against this
    repo. #203 fixed the rules half; this half remains.
