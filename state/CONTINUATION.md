@@ -1,12 +1,28 @@
 # Continuation — where the scanner/evidence work stopped
 
-Written 2026-10-22 after **2.28.0 shipped**. Read this first; it exists so the
-next session does not reconstruct state from `git log`.
+Written 2026-10-22 after **2.28.0 shipped**, updated the same day after the
+stderr-diagnosis pass. Read this first; it exists so the next session does not
+reconstruct state from `git log`.
 
 ## State at close
 
-`master` = `da507d9`, version **2.28.0**, **published to npmjs**, no open pull
-requests, no pending changesets, working tree clean.
+`master` = `4d0a10e`, version **2.28.0** (published), **one changeset pending**
+(`scanner-stderr-reason`, patch → 2.28.1). Working tree clean.
+
+### Resume point — two PRs, both waiting on the owner
+
+Nothing else is in progress. Both of these are gated on a human signature and
+nothing else:
+
+| PR                                  | What                         | Why it is stuck                                                                                                                                            |
+| ----------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **#205** `provenance/v2.28.0`       | SLSA bundle + VSA for 2.28.0 | Authored by `app/github-actions`; `master` requires a code-owner review and `CODEOWNERS` is `* @Er-Sajan-PLG`. All 13 checks pass. Approve it, then merge. |
+| **#208** `changeset-release/master` | Release **2.28.1**           | Same review rule, plus its workflow runs land in `action_required` — approve **only the runs for the current head**, then merge. Merging publishes.        |
+
+Do not `--admin` either one, and do not approve them as `Er-Sajan-PLG`: that is
+recording his sign-off on his own behalf. They are deliberately waiting.
+
+## What shipped
 
 `@xenos1996/usa@2.28.0` is live: tarball on npmjs, GitHub release marked Latest,
 tag `@xenos1996/usa@2.28.0`, and `provenance/v2.28.0` filed by `publish.yml`.
@@ -28,9 +44,11 @@ tag `@xenos1996/usa@2.28.0`, and `provenance/v2.28.0` filed by `publish.yml`.
 | #203   | dependency-cruiser's configured rules file reaches the command             |
 | #204   | a semgrep scan that read no files reports UNKNOWN, not clean               |
 | #195   | release 2.28.0                                                             |
+| #206   | the post-release handoff                                                   |
+| #207   | a failing scanner's stderr carried into its UNKNOWN reason                 |
 
-Gates at close: **1443 tests** (1442 passed, 1 skipped), lint 0 warnings,
-`docs:all` clean (44 ADRs, 139 docs), self-audit **100/100 with no open
+Gates at close: **1446 tests** (1445 passed, 1 skipped), lint 0 warnings,
+`docs:all` clean (44 ADRs, 132 docs), self-audit **100/100 with no open
 findings**.
 
 ## The one invariant the adapters kept getting wrong
@@ -113,9 +131,11 @@ first; the recipe is the easy half.
    TypeScript. A globally installed `depcruise` cruises **0 modules** against this
    repo. #203 fixed the rules half; this half remains.
 5. **dependency-cruiser's default target is `src`.** A project whose sources are
-   elsewhere gets `ok` plus one UNKNOWN row whose reason reads "output was not
-   valid JSON" when the truth is "`src/` does not exist". The verdict is safe; the
-   reason misleads. Surfacing stderr in that reason is the fix.
+   elsewhere gets `ok` plus one UNKNOWN row. The reason no longer misleads —
+   #207 appends the tool's stderr, so it now reads
+   `(exit 1: ERROR: Can't open 'src' for reading. Does it exist?)`. What remains
+   is the default itself: changing `src` to `.` is a design decision, not a fix,
+   because it changes what every depcruise run scans.
 6. **No requirement/control consumption yet.** `docs/architecture/finding-model.md`
    defines `Requirement` and `Control` as declared inputs; nothing reads them.
    The intent model (`src/intent/`) is the pattern to copy.
@@ -151,6 +171,8 @@ first; the recipe is the easy half.
 | `codeql --version`                    | Prints `… release 2.27.3.` — `[\d.]+` records the full stop.                                                                                                                                                                                                                         |
 | A file-writing scanner's fixture test | Proves the parser and nothing about the wiring. If the tool writes a file, the test must go through the runner.                                                                                                                                                                      |
 | `docs:all` "cli.md is stale"          | Can fire when it is in sync. Run `node scripts/gen-cli-docs.mjs` (it writes identical bytes) and re-run; the gate then passes.                                                                                                                                                       |
+| `gh pr checks --watch`                | Dies with `error connecting to api.github.com` after a long outage **while the checks actually complete**. Never trust the watcher's exit — re-read `gh pr view --json mergeStateStatus` before calling a PR red.                                                                    |
+| e2e tests under load                  | A first full-suite run reported 4 failures in `cli.test.ts` and `evolution-determinism.test.ts`; a re-run was green and both files pass in isolation. Consistent with the 15s flake trap, but the cause was **not** isolated. Re-run before believing it.                            |
 
 ## Local tooling used for verification (not committed)
 
@@ -176,7 +198,7 @@ exec docker run --rm --network host -u "$(id -u):$(id -g)" \
 ```bash
 npm run typecheck && npm run lint && npm run format:check
 npm run docs:all            # 6 gates; regenerates cli.md + sample-report.md
-npm test                    # 1443 tests
+npm test                    # 1446 tests
 npm run build && node dist/cli.js audit . --out AUDIT.md   # must be 100/100
 ```
 
