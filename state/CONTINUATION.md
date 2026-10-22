@@ -6,8 +6,8 @@ reconstruct state from `git log`.
 
 ## State at close
 
-`master` = `fdec61d`, version **2.28.0** (published), **one changeset pending**
-(`scanner-stderr-reason`, patch → 2.28.1). Working tree clean.
+`master` = `6b05f38`, version **2.28.0** (published), **two changesets pending**
+(`scanner-stderr-reason`, `local-scanner-bin`, both patch → 2.28.1). Working tree clean.
 
 ### Resume point — two PRs, both waiting on the owner
 
@@ -47,7 +47,7 @@ tag `@xenos1996/usa@2.28.0`, and `provenance/v2.28.0` filed by `publish.yml`.
 | #206   | the post-release handoff                                                   |
 | #207   | a failing scanner's stderr carried into its UNKNOWN reason                 |
 
-Gates at close: **1446 tests** (1445 passed, 1 skipped), lint 0 warnings,
+Gates at close: **1448 tests** (1447 passed, 1 skipped), lint 0 warnings,
 `docs:all` clean (44 ADRs, 132 docs), self-audit **100/100 with no open
 findings**.
 
@@ -138,9 +138,18 @@ first; the recipe is the easy half.
    runs but reports only an UNKNOWN row against this fixture, so it cannot satisfy
    the `verdicts` counter on its own.
 
-4. **dependency-cruiser still needs a local devDependency** to resolve
-   TypeScript. A globally installed `depcruise` cruises **0 modules** against this
-   repo. #203 fixed the rules half; this half remains.
+4. **Closed by #213.** A globally installed `depcruise` cruised **0 modules**
+   against this repo because it cannot resolve the project's TypeScript, and
+   `probe()` searched `PATH` only, so the local binary was invisible.
+   `probe(target?)` now takes the target and the runner puts the project's
+   `node_modules/.bin` **first** on the child's PATH. Measured: global 0 modules,
+   local **108**. dependency-cruiser is now a devDependency here.
+
+   Still open, and a design decision rather than a fix: this repo ships no
+   `.dependency-cruiser.json`, so `usa scan .` honestly reports _"ran without a
+   rules config — a graph, not a verdict"_. Writing the rules is choosing the
+   architecture, not fixing a bug.
+
 5. **dependency-cruiser's default target is `src`.** A project whose sources are
    elsewhere gets `ok` plus one UNKNOWN row. The reason no longer misleads —
    #207 appends the tool's stderr, so it now reads
@@ -222,7 +231,7 @@ exec docker run --rm --network host -u "$(id -u):$(id -g)" \
 ```bash
 npm run typecheck && npm run lint && npm run format:check
 npm run docs:all            # 6 gates; regenerates cli.md + sample-report.md
-npm test                    # 1446 tests
+npm test                    # 1448 tests
 npm run build && node dist/cli.js audit . --out AUDIT.md   # must be 100/100
 ```
 
