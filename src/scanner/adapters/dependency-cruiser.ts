@@ -10,7 +10,13 @@
 import { spawnSync } from 'node:child_process';
 import { statSync } from 'node:fs';
 import path from 'node:path';
-import type { AdapterProbe, Evidence, ScannerAdapter, ScannerConfig } from '../types.js';
+import type {
+  AdapterProbe,
+  Evidence,
+  ScannerAdapter,
+  ScannerConfig,
+  ScanTarget,
+} from '../types.js';
 import { buildEvidence } from '../identity.js';
 import { DETERMINISTIC_CONFIDENCE, dig, tryParseJson } from '../normalize.js';
 
@@ -32,9 +38,15 @@ export const dependencyCruiserAdapter: ScannerAdapter = {
    * the output.
    */
 
-  probe(): AdapterProbe {
+  probe(target?: ScanTarget): AdapterProbe {
+    // A scanner installed as the project's own devDependency is not on PATH, and
+    // it is the *better* binary: it has the project's node_modules and can
+    // resolve the project's TypeScript. Measured on this repository — a globally
+    // installed depcruise cruised **0 modules**, the devDependency cruised 108.
+    // So the local bin directory is searched first, not last.
+    const local = target ? localBin(target.path) : null;
     for (const binary of ['depcruise', 'dependency-cruiser']) {
-      const executable = which(binary);
+      const executable = local?.[binary] ?? which(binary);
       if (executable) {
         return { available: true, version: versionOf(executable), executable };
       }
@@ -42,7 +54,8 @@ export const dependencyCruiserAdapter: ScannerAdapter = {
     return {
       available: false,
       version: '',
-      reason: 'depcruise executable not found on PATH (not installed in this environment)',
+      reason:
+        'depcruise executable not found on PATH or in the project node_modules/.bin (not installed in this environment)',
     };
   },
 
@@ -163,6 +176,20 @@ function placeholder(): Evidence['provenance'] {
     timeoutMs: 0,
     elapsedMs: 0,
   };
+}
+
+/** Executables in the project's own `node_modules/.bin`, keyed by binary name. */
+function localBin(root: string): Record<string, string> {
+  const dir = path.join(root, 'node_modules', '.bin');
+  const found: Record<string, string> = {};
+  for (const binary of ['depcruise', 'dependency-cruiser']) {
+    try {
+      if (statSync(path.join(dir, binary)).isFile()) found[binary] = path.join(dir, binary);
+    } catch {
+      /* not installed locally — fall through to PATH */
+    }
+  }
+  return found;
 }
 
 function which(binary: string): string | null {

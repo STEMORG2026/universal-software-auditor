@@ -1,0 +1,30 @@
+# Generated state files are never merged, only regenerated.
+#
+# `state/DASHBOARD.md` embeds a reconciliation timestamp and the last ten
+# commits, so it is *different on every branch by construction*. Textually
+# merging it fails on every merge — the same conflict in `state/DASHBOARD.md` was
+# resolved by hand on every one of the seven PRs in the 2.28.0 cycle.
+#
+# `merge=union` keeps both sides instead of conflicting. That is correct here and
+# for one reason only: the file is a build artefact, and the post-commit hook
+# regenerates it from the tree it lands on. The doubled lines exist for exactly
+# one commit — the merge commit itself — and the hook's own auto-commit replaces
+# the whole file immediately after.
+#
+# Measured, not assumed:
+#
+#   merge=ours   does NOT work from .gitattributes alone. Git needs a per-clone
+#                `[merge "ours"] driver = true`, so a fresh clone would still
+#                conflict — the fix would be silently absent exactly where it
+#                matters.
+#   merge=union  works, needs no configuration, and survives a clone.
+#   gitignore    would also end the conflicts, but MACP's startup protocol
+#                (AGENTS.md step 2) reads this file to judge staleness, so a
+#                fresh clone must contain it.
+#
+# Trade-off accepted: for one commit the file carries two `Last Reconciled`
+# lines. The protocol reads that line to decide trust, and a doubled line is
+# still readable — the hook has already rewritten it by the time anything else
+# runs.
+
+state/DASHBOARD.md merge=union

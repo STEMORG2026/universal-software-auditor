@@ -98,6 +98,46 @@
 | Task         | unknown                                                    |
 | Status       | COMPLETED                                                  |
 
+### 2026-10-22 — SA05 (Sathi / WorkBuddy)
+
+| Field        | Value                                          |
+| ------------ | ---------------------------------------------- |
+| Session file | `sessions/20261022-1008-SA05-stderr-reason.md` |
+| Agent        | SA05 (Sathi / WorkBuddy)                       |
+| Branch       | fix/scanner-stderr-reason                      |
+| Task         | unknown                                        |
+| Status       | COMPLETED (merged as #207)                     |
+
+### 2026-10-22 — SA06 (Sathi / WorkBuddy)
+
+| Field        | Value                                        |
+| ------------ | -------------------------------------------- |
+| Session file | `sessions/20261022-1205-SA06-vacuous-e2e.md` |
+| Agent        | SA06 (Sathi / WorkBuddy)                     |
+| Branch       | ci/e2e-no-vacuous-pass                       |
+| Task         | unknown                                      |
+| Status       | COMPLETED (merged as #211)                   |
+
+### 2026-10-22 — SA07 (Sathi / WorkBuddy)
+
+| Field        | Value                                              |
+| ------------ | -------------------------------------------------- |
+| Session file | `sessions/20261022-1235-SA07-local-scanner-bin.md` |
+| Agent        | SA07 (Sathi / WorkBuddy)                           |
+| Branch       | fix/local-scanner-bin                              |
+| Task         | unknown                                            |
+| Status       | COMPLETED (merged as #213)                         |
+
+### 2026-10-22 — SA08 (Sathi / WorkBuddy)
+
+| Field        | Value                                     |
+| ------------ | ----------------------------------------- |
+| Session file | `sessions/20261022-1345-SA08-trivy-ci.md` |
+| Agent        | SA08 (Sathi / WorkBuddy)                  |
+| Branch       | ci/trivy-in-ci                            |
+| Task         | unknown                                   |
+| Status       | COMPLETED (merged as #215)                |
+
 ---
 
 ## Search by Keyword

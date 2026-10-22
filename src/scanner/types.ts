@@ -229,7 +229,13 @@ export interface ScannerAdapter {
    */
   readonly networkConfigKey?: string;
   defaultConfig(): ScannerConfig;
-  probe(): AdapterProbe;
+  /**
+   * `target` is optional so existing callers keep working, but the runner passes
+   * it: a scanner installed as the project's own devDependency lives in
+   * `node_modules/.bin`, not on PATH, and it is the better binary because it can
+   * resolve the project's dependencies.
+   */
+  probe(target?: ScanTarget): AdapterProbe;
   buildCommand(target: ScanTarget, config: ScannerConfig): ScannerCommand;
   parse(raw: string, context: ParseContext): Evidence[];
   findings?(evidence: Evidence[]): ScannerFinding[];
