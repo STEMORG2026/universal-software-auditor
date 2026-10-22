@@ -50,6 +50,31 @@ const doc =
   run(['rules']).trimEnd() +
   '\n```\n';
 
+// A document generated from a partial rule load is worse than no document: it
+// silently drops packs and then looks authoritative. CI has twice produced a
+// `usa rules` listing 25 of 32 packs (the last seven stack packs missing), which
+// `--check` reported only as "stale" and the resync job then committed.
+// Compare against the index — the source of truth for how many packs should load
+// — and refuse to emit anything if they disagree.
+const indexRaw = fs.readFileSync(path.join(ROOT, 'rules/index.yaml'), 'utf8');
+const expectedPacks = (indexRaw.match(/^\s*-\s+\S+\.yaml\s*$/gm) ?? []).length;
+const summary = /(\d+) rule\(s\) across (\d+) pack\(s\)\./.exec(doc);
+if (!summary) {
+  console.error('gen-cli-docs: could not find the "N rule(s) across M pack(s)" summary.');
+  process.exit(2);
+}
+const loadedPacks = Number(summary[2]);
+if (expectedPacks > 0 && loadedPacks !== expectedPacks) {
+  console.error(
+    `gen-cli-docs: usa rules loaded ${loadedPacks} of ${expectedPacks} packs from rules/index.yaml.`,
+  );
+  console.error(
+    '  Refusing to write a document generated from a partial rule load — it would ' +
+      'silently drop packs and then read as authoritative.',
+  );
+  process.exit(2);
+}
+
 if (process.argv.includes('--check')) {
   const current = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : null;
   if (current !== doc) {
