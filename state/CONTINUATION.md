@@ -299,6 +299,23 @@ Ordered. **Step 1 is a health check, not a feature.**
    merge it. This publishes **2.28.1** to npmjs and is irreversible. Merging
    also fires `publish.yml`, which files `provenance/v2.28.1` — approve that
    when it appears, same rule.
+
+   `[FACT]` **The release branch was verified before you are asked to sign it**,
+   in a scratch worktree, so the merge is not a leap of faith:
+
+   | check                                      | result                                                            |
+   | ------------------------------------------ | ----------------------------------------------------------------- |
+   | builds on the release branch               | 0 type errors                                                     |
+   | `usa --version` from the built CLI         | `2.28.1`                                                          |
+   | self-audit on the release tree             | **100/100**, no open findings                                     |
+   | `npm pack`                                 | `xenos1996-usa-2.28.1.tgz`                                        |
+   | clean install of that tarball              | `usa 2.28.1` runs                                                 |
+   | both pending fixes present in the artifact | semgrep "scanned no files" guard, depcruise `node_modules` search |
+   | `CHANGELOG.md`                             | 2.28.1 section carries #213 and #207                              |
+
+   None of this substitutes for your review — it only means the build, the
+   version bump and the two changesets are known-good.
+
 4. `[TODO]` Only then pick from §10. Nothing there is urgent; #208 is the only
    item with an external consequence.
 
