@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T12:51:09.906+05:45
+**Last Reconciled:** 2026-10-22T13:05:23.775+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `07b3b7e docs(state): record 2.28.1 published, #205 rescued, and the truncation root cause`
-2. `17488c0 chore(state): auto-update from post-commit hook`
-3. `7ad260a fix(cli): stop truncating piped stdout on exit`
-4. `052aeab chore(state): auto-update from post-commit hook`
-5. `e8db299 fix(state): do not write state files on bot branches`
-6. `64e9fa4 fix(docs): refuse to generate the CLI reference from a partial rule load (#234)`
-7. `7fa5017 chore(master): release (#208)`
-8. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
-9. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
-10. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
+1. `8210808 docs(state): record the three PRs waiting for signature`
+2. `77786ea fix(state): do not write state files on bot branches (#235)`
+3. `64e9fa4 fix(docs): refuse to generate the CLI reference from a partial rule load (#234)`
+4. `7fa5017 chore(master): release (#208)`
+5. `cd56acb docs(state): hand off after documenting the scanner subsystem (#232)`
+6. `57fd95e docs: document the scanner subsystem, and make its flags discoverable (#231)`
+7. `4e5f25f docs(state): record the cli-reference failure signature (#230)`
+8. `ae0c72e docs(state): hand off after the prose pass (#229)`
+9. `cab3c97 docs: prose pass — fix a broken action ref, an EOL Node example, and stale URLs (#228)`
+10. `777c175 docs(state): hand off after the gitleaks bump and the gate diagnostics (#227)`
 
 ---
 
