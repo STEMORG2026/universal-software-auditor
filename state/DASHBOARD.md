@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-22T06:11:47.025+05:45
+**Last Reconciled:** 2026-10-22T06:28:26.390+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,8 +59,8 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `fb4507b docs(state): record the dashboard merge fix in the handoff`
-2. `7affc68 chore: union-merge the generated dashboard`
+1. `c0fa11f test(e2e): fail when no scanner is installed instead of passing vacuously`
+2. `6ef3423 ci: union-merge the generated dashboard instead of conflicting (#210)`
 3. `594e960 docs(state): hand off after the stderr-diagnosis pass (#209)`
 4. `4d0a10e fix(scanner): carry a failing scanner's stderr into its UNKNOWN reason (#207)`
 5. `c936f68 docs(state): hand off the post-release state (#206)`

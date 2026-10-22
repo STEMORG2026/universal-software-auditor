@@ -73,6 +73,17 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # The e2e suite's central test — "every adapter that is installed produces
+      # evidence" — now asserts that at least one scanner actually ran. Without
+      # one on PATH it fails on purpose, because it used to pass by walking a loop
+      # zero times. semgrep is the one scanner that works here for free: the
+      # fixture vendors a ruleset (`fixtures/insecure-app/semgrep-rules`) and
+      # points `.usa/scanners.yaml` at it, so the run is offline and reproducible.
+      # Pinned to the version the adapter was verified against (1.182.0) — CI
+      # should test the measured configuration, not whatever shipped last week.
+      - name: Install semgrep
+        run: pipx install 'semgrep==1.182.0'
+
       - name: Vitest
         run: pnpm run test:cov
 
