@@ -76,6 +76,11 @@ if (process.argv.includes('--check')) {
         }
       }
     }
+    // Where the generated output *stops* matters as much as where it first
+    // differs: a shorter file that ends mid-section is a truncation, while one
+    // that ends cleanly is a content change.
+    const generatedLines = doc.split('\n');
+    console.error(`  generated ends: ${JSON.stringify(generatedLines.slice(-3))}`);
     const expected = path.join(os.tmpdir(), 'cli.md.generated');
     fs.writeFileSync(expected, doc);
     console.error(`  generated output: ${expected}  (diff it against ${path.relative(ROOT, OUT)})`);
