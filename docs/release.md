@@ -88,10 +88,26 @@ sha256) in the one place they can both see.
 
 `gh attestation verify` also rejects a bundle whose subject name is a Go
 template over the digest, so the renamed subject cannot be matched by name
-either. The workflow therefore rebuilds gh's own path — name the subject,
-download the server-signed bundle by digest, and verify the DSSE statement
-with `cosign` — and then asserts in code that the statement's subject digest
-equals this run's tarball and that its `workflow.ref` is this release tag.
+either. The workflow therefore reads the attestation from
+`repos/{owner}/{repo}/attestations/sha256:<digest>`, selects the statement
+whose `workflow.ref` is this release tag, and verifies it with `cosign` —
+then asserts in code that the statement's subject digest equals this run's
+tarball.
+
+Two CLI facts behind that, both measured rather than assumed:
+
+- **`gh attestation download` cannot be addressed by digest.** Its positional
+  argument is a local file path; `name@sha256:<digest>` is treated as a
+  filename. Handing it the real tarball fails too, because it hashes those
+  bytes and looks that digest up — and the published tarball's bytes differ
+  (npm rewrites `package.json` inside the archive).
+- **`cosign verify-blob-attestation` must be given `--digest`.** With the
+  default `--check-claims=true` it hashes the blob it is handed and requires
+  that digest to equal the statement's subject, so passing the DSSE payload
+  fails for every bundle, valid or not.
+
+The same digest addressing applies to `scripts/check-provenance.mjs`, which
+is why it verifies against the statement's own subject digest.
 
 ## Why changesets and not release-please
 
