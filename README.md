@@ -6,10 +6,10 @@
 
 **An open-source, self-adapting audit framework for any project, any stack, any stage.**
 
-[![CI](https://github.com/Er-Sajan-PLG/universal-software-auditor/actions/workflows/ci.yml/badge.svg)](https://github.com/Er-Sajan-PLG/universal-software-auditor/actions/workflows/ci.yml)
+[![CI](https://github.com/STEMORG2026/universal-software-auditor/actions/workflows/ci.yml/badge.svg)](https://github.com/STEMORG2026/universal-software-auditor/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@xenos1996/usa)](https://www.npmjs.com/package/@xenos1996/usa)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Rules](https://img.shields.io/badge/rules-280%2B-blue)](rules/)
+[![Rules](https://img.shields.io/badge/rules-315%2B-blue)](rules/)
 [![CII Best Practices](https://img.shields.io/badge/CII%20Best%20Practices-in%20progress-yellow)](https://www.bestpractices.dev/en)
 
 </div>
@@ -318,7 +318,7 @@ The full index — including architecture, ADRs, and the CLI reference — is
 Rule packs are the easiest high-value contribution — one YAML file, no TypeScript.
 
 ```bash
-git clone https://github.com/Er-Sajan-PLG/universal-software-auditor
+git clone https://github.com/STEMORG2026/universal-software-auditor
 cd universal-software-auditor
 pnpm install && pnpm test
 pnpm run usa -- audit .       # run the CLI from source

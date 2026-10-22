@@ -21,7 +21,7 @@ TypeScript, no build step. If you have ever run an audit checklist and thought
 ## Development setup
 
 ```bash
-git clone https://github.com/Er-Sajan-PLG/universal-software-auditor
+git clone https://github.com/STEMORG2026/universal-software-auditor
 cd universal-software-auditor
 pnpm install
 

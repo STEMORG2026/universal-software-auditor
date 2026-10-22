@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Run USA
         id: usa
@@ -117,7 +117,10 @@ month and diff against it. A missing, unreadable, or malformed baseline exits
 ### Composite action
 
 ```yaml
-- uses: Er-Sajan-PLG/universal-software-auditor@v2
+# Pinned to the 2.28.0 release commit. Tags in this repo are
+# `@xenos1996/usa@X.Y.Z` (the changesets format), not a moving `vN`, so pin the
+# commit — it is immutable and cannot resolve to something else later.
+- uses: STEMORG2026/universal-software-auditor@da507d9259b46fdeebee3addbe33e970f637a88f
   with:
     depth: standard
     fail-on: high
@@ -131,7 +134,7 @@ See [`action.yml`](../action.yml).
 
 ```yaml
 usa-audit:
-  image: node:20
+  image: node:24
   stage: test
   script:
     - npx --yes @xenos1996/usa@2 audit . --out usa-report.md --fail-on critical
