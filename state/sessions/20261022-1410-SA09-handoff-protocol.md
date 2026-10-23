@@ -208,3 +208,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:12 — Commit
 
 `8f3942c` fix(release): export the expected ref so the provenance selector can read it
+
+### 12:55 — Commit
+
+`d541b42` Merge remote-tracking branch 'origin/master' into docs/continuation-post-243
