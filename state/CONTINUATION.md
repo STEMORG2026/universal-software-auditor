@@ -137,18 +137,28 @@ the DSSE payload, not `gh attestation verify <file>`.
 `[FACT]` Both failures below were reproduced by hand before being edited, and
 both were defects I had introduced in #240/#242.
 
-| run                              | failure                                                                                                  | cause                                                                                                                                           |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''`                    |
-| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has                     |
-| 39943859454 (dispatch on master) | `no provenance for 71e5278c… built from undefined (saw 3)`                                               | `EXPECTED_REF` was assigned without `export`, so `node -e` read `undefined`; fixed in #246                                                      |
-| 39956868762 (dispatch on master) | `cosign: command not found`, exit 127 — **after** `selected provenance … (1 match)`                      | Nothing installed cosign. Four earlier runs died at the selector, one line above the call, so the missing tool was never reached; fixed in #250 |
+| run                              | failure                                                                                                  | cause                                                                                                                                                                                                              |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''`                                                                                       |
+| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has                                                                                        |
+| 39943859454 (dispatch on master) | `no provenance for 71e5278c… built from undefined (saw 3)`                                               | `EXPECTED_REF` was assigned without `export`, so `node -e` read `undefined`; fixed in #246                                                                                                                         |
+| 39956868762 (dispatch on master) | `cosign: command not found`, exit 127 — **after** `selected provenance … (1 match)`                      | Nothing installed cosign. Four earlier runs died at the selector, one line above the call, so the missing tool was never reached; fixed in #250                                                                    |
+| 39963116205 (dispatch on master) | HTTP 22 on `.../v3.1.3/cosign-linux-amd64.sig`, exit 22                                                  | cosign v3 publishes `.sigstore.json` bundles, **not** the legacy `.sig` that `cosign-installer` verifies against — no installer version can fetch a v3 (newest is v4.1.2, which predates cosign v3); fixed in #251 |
 
-`[FACT]` The last row is the one that matters for prediction. #246 was correct
-and necessary and **not sufficient**: fixing it moved the failure one line down
-and revealed a second, independent defect that had been invisible behind the
-first. "Fix the known bug and it will work" was never safe here, and the
-dispatch is what proved it.
+`[FACT]` The last two rows are the ones that matter for prediction. #246 was
+correct and necessary and **not sufficient**: fixing it moved the failure one
+line down and revealed a second, independent defect that had been invisible
+behind the first. "Fix the known bug and it will work" was never safe here, and
+the dispatch is what proved it.
+
+`[FACT]` Then #250 repeated the pattern in a subtler direction, and this is the
+one to remember: its flags were verified against **cosign v3.1.3**, which is what
+happens to be installed on this machine — and cosign v3 cannot be installed by
+`cosign-installer` at all. A locally-verified version is not necessarily an
+installable version. **A pinned action is not a pinned tool, and neither is a
+tool you happened to have.** Two of the six failures came from measuring the
+wrong thing; #251 now pins `v2.6.5`, whose flags were checked on the real binary
+and whose install path was confirmed against the release's assets.
 
 `[FACT]` The third failure was reproduced and fixed **locally, against the live
 API response**, before the workflow was edited: the same snippet exits 1 with
@@ -184,23 +194,23 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: f1a0ebe # master; #246 merged. #250 (cosign) is not
+  code_commit_sha: 1363676 # master; #246 and #250 merged. #251 (cosign v2 pin) is not
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
   version: 2.28.4 # master; published without a provenance bundle
   published: npmjs @xenos1996/usa@2.28.4
   provenance: { latest_filed: 2.28.2, missing: [2.28.3, 2.28.4] }
-  provenance_dispatch: '39956868762 — selector PASSED, died at cosign (exit 127)'
+  provenance_dispatch: '39956868762 selector PASSED, died at missing cosign; 39963116205 died installing cosign v3. #251 fixes'
   tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 250
-      title: 'fix(release): install cosign, which the provenance step calls'
+    - number: 251
+      title: 'fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3'
       state: CLEAN # merge this first
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
-      state: BLOCKED # DO NOT merge before #250 — it would publish another bundle-less release
+      state: BLOCKED # DO NOT merge before #251 — it would publish another bundle-less release
     - number: 247
       title: 'ci: read the filed provenance bundles back on a schedule'
       state: CLEAN
@@ -210,7 +220,7 @@ checkpoint:
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
       state: CLEAN # merge last; take its SEALED SA09 on any further conflict
-  merged_this_phase: [244, 246] # 244 out of order; it published 2.28.4 and broke its provenance step
+  merged_this_phase: [244, 246, 250] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
   last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
@@ -525,11 +535,14 @@ Ordered. Step 1 already ran green on this tree.
    selector worked: `selected provenance for refs/tags/@xenos1996/usa@2.28.4
 (1 match)`, and the runner repacked to the same digest `5e24c520…`. It then
    died with `cosign: command not found`.
-3. `[BLOCKED]` **Merge #250** — installs cosign, pinned, before the step that
-   calls it. Three tests pin the shape. Nothing else is known to be missing, but
-   see the note in step 5: this step has surprised us five times.
-4. `[TODO]` **Re-dispatch `publish.yml` on master** after #250 lands. It should
-   file `provenance/v2.28.4` and open its own PR for the owner to merge.
+3. `[DONE]` **#250 merged** — cosign installed, action pinned and version
+   pinned. **Re-dispatched** (run `39963116205`) and it failed _installing_
+   cosign: HTTP 22 on `…/v3.1.3/cosign-linux-amd64.sig`, because cosign v3 does
+   not publish that asset and no installer can fetch a v3. Fixed in **#251**
+   (`cosign-release: v2.6.5`, flags checked on the real binary).
+4. `[BLOCKED]` **Merge #251**, then re-dispatch again. This step has now failed
+   six times; assume the next run will also surprise, and check what actually
+   runs rather than what is convenient to check locally.
 5. `[TODO]` `node scripts/check-provenance.mjs 2.28.4` once the bundle lands.
    **Rehearsed before any dispatch, not predicted**: selecting the live 2.28.4
    attestation with #246's own node block prints
