@@ -176,3 +176,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:12 — Commit
 
 `4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
+
+### 13:45 — Commit
+
+`210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
