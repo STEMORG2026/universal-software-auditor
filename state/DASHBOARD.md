@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T11:25:03.150+05:45
+**Last Reconciled:** 2026-10-23T11:31:46.480+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `be55902 docs(state): list #247 and its dispatch limitation`
-2. `2ff6001 chore(state): auto-update from post-commit hook`
-3. `0d86d84 chore(state): auto-update from post-commit hook`
-4. `cb45446 docs(state): record the third provenance failure and the merge order`
-5. `0d48f0d chore(state): auto-update from post-commit hook`
-6. `7f3ce1c docs(state): hand off with master at ab19ef7 and the provenance step unverified`
-7. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
-8. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
-9. `b642596 chore(master): release (#241)`
-10. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
+1. `7c82367 docs(state): record what the provenance step was rehearsed against`
+2. `86ce548 chore(state): auto-update from post-commit hook`
+3. `be55902 docs(state): list #247 and its dispatch limitation`
+4. `2ff6001 chore(state): auto-update from post-commit hook`
+5. `0d86d84 chore(state): auto-update from post-commit hook`
+6. `cb45446 docs(state): record the third provenance failure and the merge order`
+7. `0d48f0d chore(state): auto-update from post-commit hook`
+8. `7f3ce1c docs(state): hand off with master at ab19ef7 and the provenance step unverified`
+9. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
+10. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
 
 ---
 

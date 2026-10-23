@@ -180,3 +180,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:25 — Commit
 
 `be55902` docs(state): list #247 and its dispatch limitation
+
+### 11:31 — Commit
+
+`7c82367` docs(state): record what the provenance step was rehearsed against
