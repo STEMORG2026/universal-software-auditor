@@ -172,3 +172,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:13 — Commit
 
 `cb45446` docs(state): record the third provenance failure and the merge order
+
+### 11:14 — Commit
+
+`0d86d84` chore(state): auto-update from post-commit hook
