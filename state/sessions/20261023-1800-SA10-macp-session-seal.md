@@ -65,3 +65,7 @@ the remote. The only outstanding item was OC01's status.
   says so in those words rather than implying protection it does not have.
 - `[FACT]` No harness transcript is exported into this repository, for any
   session. `History:` says that instead of inventing a reference.
+
+### 11:35 — Commit
+
+`800a029` docs(macp): sessions are opened and sealed by the owner
