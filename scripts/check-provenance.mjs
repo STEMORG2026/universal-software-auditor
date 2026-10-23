@@ -121,7 +121,19 @@ export function payloadMismatch(bundle, tarballSha256) {
   return { payloadSha256: sha256(payload), differsFromTarball: sha256(payload) !== tarballSha256 };
 }
 
-function ghVerifyPayload(bundlePath, payloadPath) {
+/**
+ * Verify the bundle's signature over its own statement.
+ *
+ * The subject digest is named with `--digest`, NOT passed as a positional
+ * blob. `verify-blob-attestation` hashes whatever blob it is given and (with
+ * the default `--check-claims=true`) requires that digest to equal the
+ * statement's subject — but the blob here would be the DSSE *payload*, whose
+ * hash can never be the tarball's hash. Handed the payload, cosign answers
+ * `provided artifact digests do not match digests in statement` for every
+ * bundle, including a perfectly good one. Measuring it on the 2.28.3 bundle is
+ * what caught this: the workflow had the same defect and was fixed alongside.
+ */
+function verifyBundleSignature(bundlePath, subjectSha256) {
   try {
     execFileSync(
       'cosign',
@@ -135,7 +147,10 @@ function ghVerifyPayload(bundlePath, payloadPath) {
         `https://github.com/${REPO}/.github/workflows/publish.yml@.*`,
         '--certificate-oidc-issuer',
         OIDC_ISSUER,
-        payloadPath,
+        '--digest',
+        subjectSha256,
+        '--digestAlg',
+        'sha256',
       ],
       { stdio: 'pipe' },
     );
@@ -178,15 +193,19 @@ if (invoked) {
   const payload = payloadMismatch(bundle, registry.tarballSha256);
 
   // cosign is optional locally; SKIP is not PASS.
-  const payloadPath = path.join(dir, `.payload-v${version}.intoto.json`);
-  fs.writeFileSync(payloadPath, Buffer.from(bundle.dsseEnvelope.payload, 'base64'));
+  // Verify against the statement's OWN subject digest — the digest the
+  // signature is actually about — not against a locally written payload.
+  const statement = JSON.parse(Buffer.from(bundle.dsseEnvelope.payload, 'base64').toString('utf8'));
+  const subjectSha256 = statement?.subject?.[0]?.digest?.sha256;
   let sig;
-  try {
-    sig = ghVerifyPayload(bundlePath, payloadPath);
-  } catch {
-    sig = { ok: false, detail: 'cosign unavailable' };
-  } finally {
-    fs.rmSync(payloadPath, { force: true });
+  if (!/^[0-9a-f]{64}$/.test(String(subjectSha256))) {
+    sig = { ok: false, detail: 'statement names no sha256 subject to verify against' };
+  } else {
+    try {
+      sig = verifyBundleSignature(bundlePath, subjectSha256);
+    } catch {
+      sig = { ok: false, detail: 'cosign unavailable' };
+    }
   }
 
   const row = (name, ok, detail) =>
@@ -197,7 +216,7 @@ if (invoked) {
     registry.ok,
     `tarball sha256 ${registry.tarballSha256.slice(0, 16)}…`,
   );
-  row('bundle signature over its own DSSE payload', sig.ok, sig.ok ? undefined : sig.detail);
+  row('bundle signature over its own statement', sig.ok, sig.ok ? undefined : sig.detail);
   for (const f of findings) row('VSA field', false, f);
   if (findings.length === 0) row('VSA fields', true);
 
@@ -205,7 +224,7 @@ if (invoked) {
   // Reported because it is the reason `gh attestation verify <tarball>` fails.
   if (payload.differsFromTarball) {
     console.log(
-      `NOTE  the attested subject (payload hash ${payload.payloadSha256.slice(0, 16)}…) ` +
+      `NOTE  the attested subject (${String(subjectSha256).slice(0, 16)}…) ` +
         `is not any published tarball — see docs/release.md, "What the attestation covers".`,
     );
   }
