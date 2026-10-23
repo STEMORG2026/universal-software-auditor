@@ -73,3 +73,39 @@ the remote. The only outstanding item was OC01's status.
 ### 11:39 — Commit
 
 `73cec8a` docs(state): classify SA10 and add the changeset
+
+## Outcome — COMPLETED, awaiting the owner's seal
+
+`[FACT]` **PR #248** — 13 checks pass, CLEAN/MERGEABLE. Gates on this branch:
+`docs:all` clean, lint, typecheck, format, `actions:pin --check`, **1466 passed /
+1 skipped**.
+
+`[FACT]` Both protocol gates pass on this tree:
+`check-sessions.mjs` → `sessions: OK (15 files · 14 sealed · 0 findings)`, and
+`check-protocol.mjs` → all four checks PASS.
+
+`[FACT]` The gate was watched failing five times before being trusted, each
+mutation restored byte-identical: editing a sealed file, dropping a `## Close`
+block, listing a sealed session as active, INDEX disagreeing with a file, and
+reopening without a passkey.
+
+`[TODO]` This session is `COMPLETED`, not `CLOSED`. Closing it is the owner's
+act — `## Close` with an instruction, a date, an outcome and a passkey line.
+
+## Outcome — COMPLETED, awaiting the owner's seal
+
+`[FACT]` **PR #248** — 13 checks pass, CLEAN/MERGEABLE. Gates on this branch:
+`docs:all` clean, lint, typecheck, format, `actions:pin --check`, **1466 passed /
+1 skipped**.
+
+`[FACT]` Both protocol gates pass on this tree:
+`check-sessions.mjs` → `sessions: OK (15 files · 14 sealed · 0 findings)`, and
+`check-protocol.mjs` → all four checks PASS.
+
+`[FACT]` The gate was watched failing five times before being trusted, each
+mutation restored byte-identical: editing a sealed file, dropping a `## Close`
+block, listing a sealed session as active, INDEX disagreeing with a file, and
+reopening without a passkey.
+
+`[TODO]` This session is `COMPLETED`, not `CLOSED`. Closing it is the owner's
+act — `## Close` with an instruction, a date, an outcome and a passkey line.
