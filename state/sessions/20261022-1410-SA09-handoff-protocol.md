@@ -244,3 +244,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 14:24 — Commit
 
 `33fe893` Merge remote-tracking branch 'origin/master' into docs/continuation-post-243
+
+### 14:27 — Commit
+
+`3ece011` docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back
