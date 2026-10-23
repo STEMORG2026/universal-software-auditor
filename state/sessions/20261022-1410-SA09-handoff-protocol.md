@@ -168,3 +168,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:12 — Commit
 
 `8f3942c` fix(release): export the expected ref so the provenance selector can read it
+
+### 13:00 — Commit
+
+`5476f96` fix(release): install cosign, which the provenance step calls
