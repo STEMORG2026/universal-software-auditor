@@ -145,3 +145,49 @@ describe('publish.yml files provenance it has actually verified', () => {
     expect(unresolved).toEqual([]);
   });
 });
+
+/**
+ * The fifth failure, and the first that was not about knowledge.
+ *
+ * The provenance step shells out to `cosign verify-blob-attestation`, and
+ * nothing in the workflow installed cosign. Four earlier runs died a line
+ * earlier — before the call — so the missing tool was never reached. Run
+ * 39956868762 got past selection and died with `cosign: command not found`,
+ * exit 127.
+ *
+ * A tool a step calls has to be installed *before* that step, in the same job.
+ * Both halves are asserted, because an installer placed after the step is
+ * exactly as broken as no installer at all.
+ */
+describe('the provenance step has the tools it calls', () => {
+  it('calls cosign', () => {
+    // If this ever stops being true, the two assertions below are moot and
+    // should be deleted with it rather than left to pass vacuously.
+    expect(provenanceStep).toMatch(/\bcosign\s+verify-blob-attestation\b/);
+  });
+
+  it('installs cosign, pinned to a commit', () => {
+    expect(WORKFLOW).toMatch(/uses:\s*sigstore\/cosign-installer@[0-9a-f]{40}\b/);
+  });
+
+  it('installs cosign before the step that calls it', () => {
+    const installedAt = WORKFLOW.indexOf('sigstore/cosign-installer@');
+    const stepAt = WORKFLOW.indexOf('name: File provenance bundle');
+    expect(installedAt).toBeGreaterThan(-1);
+    expect(stepAt).toBeGreaterThan(-1);
+    expect(installedAt).toBeLessThan(stepAt);
+  });
+
+  it('pins the cosign version instead of inheriting the installer default', () => {
+    // The installer commit we pin defaults to cosign v2.5.2. The flag surface
+    // of the call below was verified against v3.1.3 locally, so letting the
+    // default decide means the version that runs is not the version that was
+    // checked — the exact failure mode this whole PR is about.
+    const at = WORKFLOW.indexOf('name: Install cosign');
+    expect(at).toBeGreaterThan(-1);
+    const step = WORKFLOW.slice(at);
+    const next = step.indexOf('\n      - name:', 1);
+    const body = next === -1 ? step : step.slice(0, next);
+    expect(body).toMatch(/cosign-release:\s*'?v\d+\.\d+\.\d+'?/);
+  });
+});
