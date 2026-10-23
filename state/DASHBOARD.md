@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T12:05:54.722+05:45
+**Last Reconciled:** 2026-10-23T12:12:26.869+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `c4c63b0 docs(state): 2.28.4 shipped without provenance, and the backfill is measurable`
-2. `5f4893c chore(state): auto-update from post-commit hook`
-3. `40787e3 docs(state): mark the ADR count so the claim gate can hold it`
-4. `0f4a19d Merge branch 'master' into docs/continuation-post-243`
-5. `902871f chore(master): release (#244)`
-6. `02ccf0c chore(state): auto-update from post-commit hook`
-7. `7c82367 docs(state): record what the provenance step was rehearsed against`
-8. `86ce548 chore(state): auto-update from post-commit hook`
-9. `be55902 docs(state): list #247 and its dispatch limitation`
-10. `2ff6001 chore(state): auto-update from post-commit hook`
+1. `c9e919c docs(state): the checkpoint said 2.28.3 and listed a merged PR as open`
+2. `2534239 chore(state): auto-update from post-commit hook`
+3. `c4c63b0 docs(state): 2.28.4 shipped without provenance, and the backfill is measurable`
+4. `5f4893c chore(state): auto-update from post-commit hook`
+5. `40787e3 docs(state): mark the ADR count so the claim gate can hold it`
+6. `0f4a19d Merge branch 'master' into docs/continuation-post-243`
+7. `902871f chore(master): release (#244)`
+8. `02ccf0c chore(state): auto-update from post-commit hook`
+9. `7c82367 docs(state): record what the provenance step was rehearsed against`
+10. `86ce548 chore(state): auto-update from post-commit hook`
 
 ---
 

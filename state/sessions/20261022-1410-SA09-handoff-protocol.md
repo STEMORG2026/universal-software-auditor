@@ -192,3 +192,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:05 — Commit
 
 `c4c63b0` docs(state): 2.28.4 shipped without provenance, and the backfill is measurable
+
+### 12:12 — Commit
+
+`c9e919c` docs(state): the checkpoint said 2.28.3 and listed a merged PR as open
