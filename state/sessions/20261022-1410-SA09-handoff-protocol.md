@@ -200,3 +200,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:12 — Commit
 
 `54dc961` docs(state): fill in handoff_commit_sha
+
+### 12:42 — Commit
+
+`9681c1a` docs(state): step 5 is rehearsed, not expected
