@@ -1,7 +1,10 @@
 **Agent:** SA09 (Sathi / WorkBuddy)
+**Harness:** WorkBuddy
+**History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** docs/handoff-protocol, docs/handoff-sha
 **Started:** 2026-10-22T14:10+05:45
-**Status:** COMPLETED (merged as #217)
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 **Base commit:** b7241ec (master, after #216)
 
 # Session SA09 — handoff to the completion protocol
@@ -164,3 +167,13 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 17:01 — Commit
 
 `b89d942` docs(release): correct how the attestation is fetched
+
+---
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** COMPLETED (merged as #217)
+- **Outcome:** COMPLETED — work reached master before the seal (merged as #217).
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

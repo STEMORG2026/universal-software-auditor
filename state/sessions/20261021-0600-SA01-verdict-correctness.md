@@ -1,7 +1,10 @@
 **Agent:** SA01 (Sathi / WorkBuddy)
+**Harness:** WorkBuddy
+**History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** fix/verdict-correctness
 **Started:** 2026-10-21T05:58+05:45
-**Status:** COMPLETED
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 **Base commit:** d1289a4 (master)
 
 # Session SA01 — Verdict correctness and production readiness
@@ -149,3 +152,13 @@ symlink-skipped warnings and fails `tests/e2e` "audits itself without warnings".
 ### 17:52 — Commit
 
 `0cef562` Merge remote-tracking branch 'origin/master' into test/e2e-dedup
+
+---
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** COMPLETED — the session's work was merged before the seal; the record carried no PR number.
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

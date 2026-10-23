@@ -1,10 +1,14 @@
 # Session: 20261001-1630-HX01-bootstrap-macp
 
 **Agent:** HX01 (HERMES)
+**Harness:** HERMES
+**History:** not exported — the transcript lives in the harness, not the repo
 **Model:** meituan/longcat-2.5-preview:free
 **Branch:** docs/0042-continuous-ingestion
+**Base commit:** none — state/ did not exist when this session opened
 **Started:** 2026-10-01T16:30:00+05:45
-**Status:** COMPLETED
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 
 ---
 
@@ -197,3 +201,13 @@ infrastructure from scratch.
 2. Fix AGENTS.md G3 (two-word edit, needs owner consent)
 3. Release pending changeset
 4. Open PR to master when ready
+
+---
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** COMPLETED — the session's work was merged before the seal; the record carried no PR number.
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

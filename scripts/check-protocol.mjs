@@ -12,7 +12,7 @@
  */
 
 import { execSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = process.cwd();
@@ -37,28 +37,37 @@ function checkWorkingTreeClean() {
 }
 
 function checkSessionFile() {
-  const sessionDir = resolve(root, 'state/sessions');
-  if (!existsSync(sessionDir)) return { pass: true, detail: 'no sessions dir' };
+  const latest = latestSession();
+  if (!latest) return { pass: true, detail: 'no session files' };
 
-  // Find most recent session file
-  const files = execSync('ls -t state/sessions/*.md 2>/dev/null || true', {
-    cwd: root,
-    encoding: 'utf-8',
-  })
-    .trim()
-    .split('\n')
-    .filter((f) => f.endsWith('.md'));
-
-  if (files.length === 0) return { pass: true, detail: 'no session files' };
-
-  const latest = files[0];
   const content = readFileSync(latest, 'utf-8');
-
-  if (!content.includes('**Status:** COMPLETED')) {
-    return { pass: false, detail: `latest session file not COMPLETED: ${latest}` };
+  // CLOSED is the stronger state: the owner sealed it. Requiring COMPLETED and
+  // nothing else made sealing a session fail the gate that is supposed to
+  // reward sealing it.
+  if (!/\*\*Status:\*\* (COMPLETED|CLOSED)/.test(content)) {
+    return { pass: false, detail: `latest session file not COMPLETED or CLOSED: ${latest}` };
   }
 
-  return { pass: true, detail: 'session file COMPLETED' };
+  return { pass: true, detail: 'session file COMPLETED or CLOSED' };
+}
+
+/**
+ * The newest session, chosen by FILENAME.
+ *
+ * `ls -t` sorted by mtime, and mtime in a fresh clone is checkout order, not
+ * authorship order — so the gate's idea of "the latest session" was whichever
+ * file the checkout happened to write last. Demonstrated: touching
+ * `20261001-1630-HX01-bootstrap-macp.md` made the gate judge HX01 as the
+ * current session and report a violation about a session closed three weeks
+ * earlier. Filenames begin `YYYYMMDD-HHMM`, so lexical order is chronological.
+ */
+function latestSession() {
+  const sessionDir = resolve(root, 'state/sessions');
+  if (!existsSync(sessionDir)) return null;
+  const files = readdirSync(sessionDir)
+    .filter((f) => f.endsWith('.md'))
+    .sort();
+  return files.length === 0 ? null : resolve(sessionDir, files[files.length - 1]);
 }
 
 function checkRegistry() {
@@ -76,34 +85,47 @@ function checkRegistry() {
 }
 
 function checkPRs() {
+  // The check used `--head master`, which lists pull requests *from* master —
+  // always empty. It had therefore never looked at the one thing it exists to
+  // check. The question is narrower than "any open PR": it is whether the
+  // branch this session worked on is still open. `--base master` would have
+  // failed every master push whenever any unrelated green PR was queued.
+  const latest = latestSession();
+  if (!latest) return { pass: true, detail: 'no session to check' };
+  const content = readFileSync(latest, 'utf-8');
+  if (/\*\*Status:\*\* CLOSED/.test(content)) {
+    return { pass: true, detail: 'latest session is sealed' };
+  }
+  const branchLine = content.match(/^\*\*Branch:\*\*[ \t]*(.*)$/m)?.[1] ?? '';
+  const branches = branchLine
+    .split(',')
+    .map((b) => b.trim().split(/[\s(]/)[0])
+    .filter((b) => b && b !== 'master');
+
+  if (branches.length === 0) return { pass: true, detail: 'session has no feature branch' };
+
   try {
-    const result = execSync(
-      'gh pr list --head master --state open --json number,title,mergeable,mergeStateStatus,statusCheckRollup',
-      { cwd: root, encoding: 'utf-8' },
-    );
-    const prs = JSON.parse(result);
-
-    if (prs.length === 0) return { pass: true, detail: 'no open PRs' };
-
-    const issues = [];
-    for (const pr of prs) {
-      if (pr.mergeable === 'MERGEABLE' && pr.mergeStateStatus === 'CLEAN') {
-        const ciGreen = pr.statusCheckRollup?.every(
-          (c) => c.conclusion === 'SUCCESS' || c.conclusion === 'SKIPPED',
-        );
-        if (ciGreen) {
-          issues.push(
-            `PR #${pr.number} is mergeable and CI green — must be merged before session close`,
+    for (const branch of branches) {
+      const result = execSync(
+        `gh pr list --head ${JSON.stringify(branch)} --state open --json number,title,mergeable,mergeStateStatus,statusCheckRollup`,
+        { cwd: root, encoding: 'utf-8' },
+      );
+      for (const pr of JSON.parse(result)) {
+        if (pr.mergeable === 'MERGEABLE' && pr.mergeStateStatus === 'CLEAN') {
+          const ciGreen = pr.statusCheckRollup?.every(
+            (c) => c.conclusion === 'SUCCESS' || c.conclusion === 'SKIPPED',
           );
+          if (ciGreen) {
+            return {
+              pass: false,
+              detail: `PR #${pr.number} on ${branch} is mergeable and CI green — must be merged before session close`,
+            };
+          }
         }
       }
     }
 
-    if (issues.length > 0) {
-      return { pass: false, detail: issues.join('; ') };
-    }
-
-    return { pass: true, detail: 'no mergeable PRs pending' };
+    return { pass: true, detail: 'no mergeable PR on the session branch' };
   } catch {
     return { pass: true, detail: 'could not check PRs (gh not available)' };
   }

@@ -356,7 +356,8 @@ session that produced the event. Partial updates are failures.
 | Technical debt introduced    | state/DEBT.md                                                                    |
 | Branch merged                | state/DASHBOARD.md, state/DEBT.md                                                |
 | Session started              | state/REGISTRY.md, state/INDEX.md, state/STARTUP.md (read)                       |
-| Session ended                | state/REGISTRY.md, state/INDEX.md, state/DASHBOARD.md (incl. Next Steps section) |
+| Session ended (agent done)   | state/REGISTRY.md, state/INDEX.md, state/DASHBOARD.md (incl. Next Steps section) |
+| Session sealed by the owner  | session file `## Close` block, state/REGISTRY.md, state/INDEX.md                 |
 | Plan created                 | state/plans/                                                                     |
 | Plan completed               | state/plans/ (delete)                                                            |
 | Conflict detected            | state/conflicts/                                                                 |
@@ -367,6 +368,100 @@ covered, add a row to this table as part of session shutdown.
 
 Event definition: an event is anything that would make an existing claim
 in a state file become false or incomplete.
+
+═══════════════════════════════════════════════════════════════
+SECTION 4C: SESSION LIFECYCLE — OWNER-OPENED, OWNER-SEALED
+═══════════════════════════════════════════════════════════════
+
+A session is not a scratch file an agent makes for itself. It is the unit of
+work the owner hands out, and it has a lifecycle with two gates that the agent
+does not control.
+
+WHO OPENS A SESSION
+• The **owner** opens a session. The agent records the one it was given.
+• An agent that finds no open session **asks the owner for one**. It does not
+create one, and it does not start work in the hope that a session will be
+retro-fitted afterwards.
+• Exception, and it must be stated in the file: the owner may open a session in
+the same instruction that orders the work ("do X, in a new session"). The
+session file records that sentence verbatim. `SA10` is the first such case.
+
+ONE SESSION, ONE PIECE OF WORK
+• A session solves one piece of work, start to finish.
+• **New work is a new session and a new branch.** Not a continuation, not a
+"while I am here", not a second objective appended to a finished one.
+• If the work turns out to be two things, the session says so and the second
+thing becomes a new session. Splitting mid-session is a legitimate close.
+
+REQUIRED FIELDS (front matter of every session file)
+
+| Field              | Meaning                                                                                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `**Agent:**`       | The agent's own id and harness, e.g. `SA09 (Sathi / WorkBuddy)`                                                                                   |
+| `**Harness:**`     | The harness that ran it. **Not** assumed to be one product — several agents on different harnesses may work this repo, and do.                    |
+| `**History:**`     | A pointer to that harness's own transcript, in whatever form the harness offers. If nothing is exported, say `not exported` — never invent an id. |
+| `**Branch:**`      | The branch the session works on                                                                                                                   |
+| `**Started:**`     | ISO 8601 with offset                                                                                                                              |
+| `**Status:**`      | `OPEN` · `COMPLETED` · `CLOSED` · `REOPENED`                                                                                                      |
+| `**Base commit:**` | The commit the branch was cut from                                                                                                                |
+
+STATUS VOCABULARY — and the difference that matters
+
+• `OPEN` — the owner opened it; work is in progress.
+• `COMPLETED` — the **agent** says the work is done. This is a claim, not a
+closure. It may still be reviewed, merged, and questioned.
+• `CLOSED` — the **owner** closed it. Sealed. Immutable.
+• `REOPENED` — the owner reopened a sealed session, with a passkey.
+
+CLOSING IS THE OWNER'S ACT
+• The agent finishes, marks `COMPLETED`, and stops. It does **not** decide that
+a session is closed.
+• The owner closes by saying so. The close is recorded in the session file as a
+`## Close` block, and it quotes the owner's instruction verbatim:
+
+      ## Close
+
+      - **Closed by:** owner (<name>) — instruction: "<verbatim>"
+      - **Closed at:** <ISO 8601>
+      - **Status at close:** COMPLETED | PARTIAL | BLOCKED
+      - **Outcome:** <one line, checkable>
+      - **Passkey:** <the passkey the owner gave, or "none issued">
+
+• `scripts/check-sessions.mjs` enforces the block, the field set, the status
+vocabulary, and agreement between the file, `state/INDEX.md`, and
+`state/REGISTRY.md`.
+
+THE SEAL
+• A `CLOSED` session file is **immutable**. The gate compares it byte-for-byte
+with the commit that sealed it; any later edit is a finding.
+• A sealed session owns no files, blocks nothing, and is not a place to put
+"one more thing". Its record is evidence, not a workspace.
+
+REOPENING REQUIRES A PASSKEY
+• A sealed session reopens **only** on an explicit owner instruction that names
+a passkey.
+• Record it under `## Reopen`, and flip `**Status:**` to `REOPENED`:
+
+      ## Reopen
+
+      - **Reopened at:** <ISO 8601>
+      - **Passkey:** <verbatim from the owner>
+      - **Reason:** <what triggered it — user request, cold-read finding, new evidence>
+      - **Delta:** <what changes relative to the sealed state>
+
+• The agent never invents a passkey, and never reopens a session because it
+found something interesting in it. A finding after a seal is a **new
+session**, not a reopen. Reopening is for continuing the same objective.
+• On re-close, the file gets a fresh `## Close` block and a fresh seal.
+
+WHAT THE PASSKEY IS, AND IS NOT
+
+`[FACT]` It is an **audit control**, not a security control. Anyone with the
+checkout can write these files, so no passkey can stop a determined edit. What
+it buys is visibility: the seal is pinned to a commit, a reopen must quote the
+owner's words, and an edit to a sealed file is a readable diff. Do not describe
+it as protection — that would be the exact kind of claim this repository has
+been burned by.
 
 ═══════════════════════════════════════════════════════════════
 SECTION 5: CONFLICT HANDLING RULES
