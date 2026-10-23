@@ -326,11 +326,30 @@ jobs:
           # selection of the thing we are about to sign a VSA over.) Select the
           # statement built from the release TAG; anything else is another
           # run's provenance and must not be filed as this version's.
-          EXPECTED_REF="refs/tags/@xenos1996/usa@${VERSION}"
+          # `export`, and this is not decoration: a bare shell assignment is
+          # NOT an environment entry, so `node -e` could not see it. Measured
+          # on the 2.28.3 dispatch (run 39943859454): the selector compared
+          # every statement's ref against `undefined` and the step died with
+          #   no provenance for 71e5278c… built from undefined (saw 3)
+          # while all three attestations — including the tag one — were
+          # present in the response. The digest was right; only the expected
+          # ref was invisible.
+          export EXPECTED_REF="refs/tags/@xenos1996/usa@${VERSION}"
           node -e '
             const fs = require("fs");
             const want = process.env.EXPECTED_REF;
             const digest = process.env.TARBALL_SHA256;
+            // Fail on the cause, not on its symptom: without this, an
+            // unexported ref surfaces as "no provenance … built from
+            // undefined", which reads like a missing attestation.
+            if (!want) {
+              console.error("EXPECTED_REF is not in the environment — it must be exported, not merely assigned");
+              process.exit(1);
+            }
+            if (!digest) {
+              console.error("TARBALL_SHA256 is not in the environment");
+              process.exit(1);
+            }
             const doc = JSON.parse(fs.readFileSync("/tmp/attestations.json", "utf8"));
             const all = doc.attestations || [];
             const matches = [];
