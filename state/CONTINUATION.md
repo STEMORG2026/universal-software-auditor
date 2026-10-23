@@ -25,18 +25,50 @@ Three attestations were returned for that digest and one was built from
 `refs/tags/@xenos1996/usa@2.28.3`. `EXPECTED_REF="…"` was a shell assignment,
 not an environment entry, so `node -e` read `undefined`. Fixed in **#246**.
 
-**Merge order, and it matters: #246 first, then #244.** #244 is the Version
-Packages PR for **2.28.4** (all checks green after the bot's runs were
-approved). Merging #244 first publishes 2.28.4 and its provenance step fails
-for the same reason #246 fixes.
+**#244 was merged before #246, and it failed exactly as predicted.** 2.28.4 is
+on npmjs; `publish.yml` run `39949269341` died at the provenance step with
 
-**After #246 is on master: dispatch `publish.yml` on master.** That files
-`provenance/v2.28.3` from a master build — the honest ref for that version —
-and is the first end-to-end run of the step. Then
-`node scripts/check-provenance.mjs 2.28.3` should print three PASS and one
+```
+no provenance for 5e24c5200386ee6a8af527efd8b60cb9e6532b34ac8eee304135298742962378 built from undefined (saw 1)
+```
+
+`built from undefined` is #246's bug. One attestation existed and was skipped.
+So **2.28.4 shipped without a filed provenance bundle**, and so did 2.28.3:
+`provenance/` stops at 2.28.2.
+
+**What the dispatch can and cannot recover — measured, not reasoned.**
+Decoding the 2.28.4 attestation's DSSE payload shows the statement records
+`workflow.ref = refs/tags/@xenos1996/usa@2.28.4`, which is exactly the string
+the selector compares against. The dispatch therefore does **not** need to run
+on the tag; it needs to repack the same bytes, because the tarball is packed
+from the working tree and looked up by digest.
+
+That is the part that is easy to get wrong in both directions. A local
+`npm pack` of this tree gives `cb6c50db…`, not `5e24c520…` — the tarball is
+**not** reproducible across environments, so a laptop cannot stand in for a
+runner. Across GitHub runners it is: 2.28.3's digest carries three
+attestations, two from `refs/heads/master` and one from the tag, all on the
+same `71e5278cc8d6…`. Two master dispatches already repacked 2.28.3 to the
+identical byte. A master dispatch of 2.28.4 should do the same, find the tag
+attestation, and file it.
+
+**Merge order, and it matters: #246 first, then #247, #245, #248.** #247 is a
+new workflow file and conflicts with nothing; #245 and #248 both touch `state/`
+and will conflict on `state/sessions/20261022-1410-SA09-handoff-protocol.md`
+(hook-appended commit-log noise) — take #248's sealed copy when rebasing.
+
+**After #246 is on master: dispatch `publish.yml` on master.** `VERSION` comes
+from `package.json`, so that run files `provenance/v2.28.4`, not 2.28.3. Then
+`node scripts/check-provenance.mjs 2.28.4` should print three PASS and one
 NOTE. Do **not** dispatch it on the #246 branch to "test" it: the step skips
-when `provenance/v2.28.3` already exists, so a branch run would pin that
-version's bundle to a feature-branch build permanently.
+when the branch `provenance/v2.28.4` already exists, so a branch run would file
+that version's bundle permanently from a feature-branch dispatch.
+
+**2.28.3 is now unfilable by this route**, because the version selector reads
+`package.json` and master has moved to 2.28.4. Recovering it would mean a
+branch cut from the 2.28.3 tag carrying only #246's workflow change — a
+deliberate, separate decision, not a side effect of the 2.28.4 backfill. The
+honest default is to leave it unfiled and say so.
 
 ## The provenance chain does not verify (found 2026-10-22, fixed in #240)
 
@@ -97,10 +129,10 @@ and returns `Verified OK`.
 
 `[DECISION]` Fetch the attestation from
 `repos/{owner}/{repo}/attestations/sha256:<digest>` and select the statement
-whose `workflow.ref` is the release tag. The API returns **two** provenances
-for 2.28.3 — one from the tag push, one from the master dispatch — and `-L 1`
-returned whichever the server listed first. Selection is by ref and then by
-payload bytes, so it does not depend on API ordering.
+whose `workflow.ref` is the release tag. The API returns **three** provenances
+for 2.28.3 — one from the tag push, two from master dispatches, each dispatch
+adding one — and `-L 1` returned whichever the server listed first. Selection
+is by ref and then by payload bytes, so it does not depend on API ordering.
 
 `[FACT]` `tests/unit/publish-workflow.test.ts` pins all four constraints
 against the workflow source. Each was watched failing by reintroducing the
@@ -445,17 +477,20 @@ Ordered. Step 1 already ran green on this tree.
    OK, `self-audit` **100/100** no open findings, lint/typecheck/format clean.
 2. `[BLOCKED]` **Merge #246** — the export fix. All checks green; the
    code-owner gate applies as designed, so approving it is the normal path.
-3. `[BLOCKED]` **Then merge #244**, the 2.28.4 Version Packages PR. Merging it
-   publishes to npmjs. Do not merge it first.
-4. `[TODO]` **Dispatch `publish.yml` on master** after #246 lands. That files
-   `provenance/v2.28.3` from a master build and is the first end-to-end run of
-   the step; it is also the only way to backfill that version's bundle, since
-   the step skips when the branch already exists.
-5. `[TODO]` `node scripts/check-provenance.mjs 2.28.3` once the bundle lands.
+3. `[DONE]` **#244 was merged anyway**, out of order, and published 2.28.4 with
+   its provenance step failing (`built from undefined`, run `39949269341`).
+   Nothing to do here now; it is why step 4 targets 2.28.4.
+4. `[TODO]` **Dispatch `publish.yml` on master** after #246 lands. `VERSION`
+   comes from `package.json`, so it files `provenance/v2.28.4`; it is also the
+   first end-to-end run of the fixed selector.
+5. `[TODO]` `node scripts/check-provenance.mjs 2.28.4` once the bundle lands.
    Expected on a correct bundle: three PASS and one NOTE (the attested subject
    is not the published tarball — see `docs/release.md`, "What the attestation
    covers"). For 2.25.x–2.28.2 it reports 3 findings per version; those records
    are historical and are deliberately left as filed.
+   5b. `[OPEN]` **2.28.3 has no bundle and this route cannot produce one.**
+   Recovering it needs a branch cut from the 2.28.3 tag carrying only #246's
+   workflow change. Decide separately; do not let it ride on step 4.
 6. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
    `schedule` only. Not done in #240 on purpose: it needs npm and the
    attestation API, and a network check on every PR is a check people learn to
