@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T11:24:02.930+05:45
+**Last Reconciled:** 2026-10-23T12:36:50.588+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `07fc125 ci: read the filed provenance bundles back on a schedule`
-2. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
-3. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
-4. `b642596 chore(master): release (#241)`
-5. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
-6. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
-7. `f269766 chore(master): release (#236)`
-8. `9051264 docs: attach SLSA provenance bundle for v2.28.1 (#233)`
-9. `e3099d0 docs: attach SLSA provenance bundle for v2.28.0 (#205)`
-10. `0e23ace chore(codeowners): make the provenance bundle owned by its signer (#238)`
+1. `f6f2c89 fix(provenance): check agreement, not a spelling`
+2. `f27cfdc Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
+3. `902871f chore(master): release (#244)`
+4. `3c79532 chore(state): auto-update from post-commit hook`
+5. `07fc125 ci: read the filed provenance bundles back on a schedule`
+6. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
+7. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
+8. `b642596 chore(master): release (#241)`
+9. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
+10. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
 
 ---
 

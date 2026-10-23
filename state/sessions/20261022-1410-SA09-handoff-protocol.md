@@ -168,3 +168,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:24 — Commit
 
 `07fc125` ci: read the filed provenance bundles back on a schedule
+
+### 12:36 — Commit
+
+`f6f2c89` fix(provenance): check agreement, not a spelling
