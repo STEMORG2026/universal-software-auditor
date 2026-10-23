@@ -13,15 +13,30 @@
 
 ## READ THIS FIRST
 
-**Master is `ab19ef7` and the provenance step is now correct — but it has never
-run green in CI.** #243 (merged 2026-10-23) fixed three defects found by
-reproducing the 2.28.3 publish failure by hand. Until a real publish run
-passes, treat that step as **unverified**, not fixed.
+**The dispatch called for in the previous handoff ran, and the step failed a
+third time — for a third reason of the same shape.** Run 39943859454 on
+`ab19ef7` died at `File provenance bundle + VSA` with
 
-**Next action: dispatch `publish.yml` on master, then confirm
-`provenance/v2.28.3` exists and `node scripts/check-provenance.mjs 2.28.3`
-prints PASS.** Nothing else is open; no PRs are pending. The full history is
-in the two sections below.
+```
+no provenance for 71e5278cc8d6… built from undefined (saw 3)
+```
+
+Three attestations were returned for that digest and one was built from
+`refs/tags/@xenos1996/usa@2.28.3`. `EXPECTED_REF="…"` was a shell assignment,
+not an environment entry, so `node -e` read `undefined`. Fixed in **#246**.
+
+**Merge order, and it matters: #246 first, then #244.** #244 is the Version
+Packages PR for **2.28.4** (all checks green after the bot's runs were
+approved). Merging #244 first publishes 2.28.4 and its provenance step fails
+for the same reason #246 fixes.
+
+**After #246 is on master: dispatch `publish.yml` on master.** That files
+`provenance/v2.28.3` from a master build — the honest ref for that version —
+and is the first end-to-end run of the step. Then
+`node scripts/check-provenance.mjs 2.28.3` should print three PASS and one
+NOTE. Do **not** dispatch it on the #246 branch to "test" it: the step skips
+when `provenance/v2.28.3` already exists, so a branch run would pin that
+version's bundle to a feature-branch build permanently.
 
 ## The provenance chain does not verify (found 2026-10-22, fixed in #240)
 
@@ -61,6 +76,17 @@ both were defects I had introduced in #240/#242.
 | -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''` |
 | 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has  |
+| 39943859454 (dispatch on master) | `no provenance for 71e5278c… built from undefined (saw 3)`                                               | `EXPECTED_REF` was assigned without `export`, so `node -e` read `undefined`; fixed in #246                                   |
+
+`[FACT]` The third failure was reproduced and fixed **locally, against the live
+API response**, before the workflow was edited: the same snippet exits 1 with
+`built from undefined (saw 3)` when the variable is unexported and 0 with
+`selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)` when it is
+exported. `cosign verify-blob-attestation --digest 71e5278c…` over the selected
+bundle returns `Verified OK`. `make-vsa.mjs` then built a VSA from it and
+`check-provenance.mjs 2.28.3` returned three PASS and one NOTE (exit 0) — so
+every part of the step downstream of selection was exercised without spending
+a release.
 
 `[FACT]` `cosign verify-blob-attestation` was also being handed the DSSE
 payload as its blob. With the default `--check-claims=true` it hashes that file
@@ -86,21 +112,26 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: af3247f # master; the provenance work is on #240's branch
-  handoff_commit_sha: b1744a2 # this handoff; branch fix/provenance-verified-not-just-filed
-  branch: fix/provenance-verified-not-just-filed
+  code_commit_sha: ab19ef7 # master; the #246 fix is not merged yet
+  handoff_commit_sha: PENDING # this handoff; branch docs/continuation-post-243
+  branch: docs/continuation-post-243
   working_tree_clean: true
-  version: 2.28.2
-  published: npmjs @xenos1996/usa@2.28.2
-  tests: { total: 1460, passed: 1459, skipped: 1 }
+  version: 2.28.3 # master; 2.28.4 is staged in #244
+  published: npmjs @xenos1996/usa@2.28.3
+  tests: { total: 1468, passed: 1467, skipped: 1 }
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 240
-      title: 'fix(release): verify the provenance chain instead of only filing it'
-      state: BLOCKED # code-owner review, as designed
-      checks: 14 green locally; CI as reported on the PR
+    - number: 246
+      title: 'fix(release): export the expected ref so the provenance selector can read it'
+      state: BLOCKED # code-owner review, as designed; all checks green
+    - number: 244
+      title: 'chore(master): release 2.28.4'
+      state: BLOCKED # code-owner review; merge AFTER #246
+    - number: 245
+      title: 'docs(state): hand off …'
+      state: OPEN # this file
   open_findings: 0
-  last_verified: 2026-10-22T19:56+05:45
+  last_verified: 2026-10-23T17:20+05:45
   last_verified_by: Sathi (WorkBuddy)
 ```
 
@@ -387,27 +418,33 @@ Merge order: #205, #233, then #236 (which publishes).
 
 Ordered. Step 1 already ran green on this tree.
 
-1. `[FACT]` `pnpm test` 1459 passed / 1 skipped, `docs:all` OK, `self-audit`
-   **100/100** no open findings, lint/typecheck/format clean — run at
-   `b1744a2`, the branch tip.
-2. `[BLOCKED]` **Review and merge #240.** The code-owner gate applies to it as
-   designed; it is authored by you, so approving it is the normal path. All
-   the work in this handoff is on that branch.
-3. `[TODO]` After merge, the next changeset release files `provenance/v2.28.3`.
-   **Watch that step.** `subject-name: usa-release-X.Y.Z.tgz` and the
-   download-by-digest / `cosign` verification path run for the first time, and
-   the workflow now fails closed if the statement's subject digest is not this
-   run's tarball. If the PR is not filed, read that step's log first.
-4. `[TODO]` `node scripts/check-provenance.mjs 2.28.3` once the bundle lands.
-   For 2.25.x–2.28.2 it reports 3 findings per version — those records are
-   historical and are deliberately left as filed.
-5. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
+1. `[FACT]` On the #246 branch: `pnpm test` 1467 passed / 1 skipped, `docs:all`
+   OK, `self-audit` **100/100** no open findings, lint/typecheck/format clean.
+2. `[BLOCKED]` **Merge #246** — the export fix. All checks green; the
+   code-owner gate applies as designed, so approving it is the normal path.
+3. `[BLOCKED]` **Then merge #244**, the 2.28.4 Version Packages PR. Merging it
+   publishes to npmjs. Do not merge it first.
+4. `[TODO]` **Dispatch `publish.yml` on master** after #246 lands. That files
+   `provenance/v2.28.3` from a master build and is the first end-to-end run of
+   the step; it is also the only way to backfill that version's bundle, since
+   the step skips when the branch already exists.
+5. `[TODO]` `node scripts/check-provenance.mjs 2.28.3` once the bundle lands.
+   Expected on a correct bundle: three PASS and one NOTE (the attested subject
+   is not the published tarball — see `docs/release.md`, "What the attestation
+   covers"). For 2.25.x–2.28.2 it reports 3 findings per version; those records
+   are historical and are deliberately left as filed.
+6. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
    `schedule` only. Not done in #240 on purpose: it needs npm and the
    attestation API, and a network check on every PR is a check people learn to
    ignore.
-6. `[TODO]` Otherwise pick from §10. The one with an external consequence is
+7. `[TODO]` Otherwise pick from §10. The one with an external consequence is
    the npm Trusted Publisher org confirmation (`docs/release.md` says
    `STEMORG2026`; only you can check the package page).
+
+`[DECISION]` The step is still **unverified in CI** as of this handoff. The
+logic was proven locally against the live API response, but no run of
+`publish.yml` has reached the PR-creating tail of the step. Say so until one
+has; three handoffs have now claimed this step was fixed and it was not.
 
 ## 14. Completion criteria
 
