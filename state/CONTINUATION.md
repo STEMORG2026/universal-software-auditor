@@ -48,27 +48,53 @@ That is the part that is easy to get wrong in both directions. A local
 **not** reproducible across environments, so a laptop cannot stand in for a
 runner. Across GitHub runners it is: 2.28.3's digest carries three
 attestations, two from `refs/heads/master` and one from the tag, all on the
-same `71e5278cc8d6…`. Two master dispatches already repacked 2.28.3 to the
-identical byte. A master dispatch of 2.28.4 should do the same, find the tag
-attestation, and file it.
+same `71e5278cc8d6…`.
 
-**Merge order, and it matters: #246 first, then #247, #245, #248.** #247 is a
-new workflow file and conflicts with nothing; #245 and #248 both touch `state/`
-and will conflict on `state/sessions/20261022-1410-SA09-handoff-protocol.md`
-(hook-appended commit-log noise) — take #248's sealed copy when rebasing.
+**That was then confirmed on 2.28.4, by running it.** #246 merged as `f1a0ebe`;
+`publish.yml` was dispatched on master (run `39956868762`) and it printed
 
-**After #246 is on master: dispatch `publish.yml` on master.** `VERSION` comes
-from `package.json`, so that run files `provenance/v2.28.4`, not 2.28.3. Then
-`node scripts/check-provenance.mjs 2.28.4` should print three PASS and one
-NOTE. Do **not** dispatch it on the #246 branch to "test" it: the step skips
-when the branch `provenance/v2.28.4` already exists, so a branch run would file
-that version's bundle permanently from a feature-branch dispatch.
+```
+TARBALL_SHA256: 5e24c5200386ee6a8af527efd8b60cb9e6532b34ac8eee304135298742962378
+selected provenance for refs/tags/@xenos1996/usa@2.28.4 (1 match)
+```
+
+The runner repacked to the identical byte, and #246's selector worked on real
+data. The digest now carries two attestations — `refs/heads/master` and the tag
+— the same shape 2.28.3 has. Both publish legs skipped (`already on npmjs`,
+`already on GPR`), so the dispatch published nothing.
+
+**It then failed one line later, on a fifth defect:**
+
+```
+line 125: cosign: command not found
+exit 127
+```
+
+`publish.yml` calls `cosign verify-blob-attestation` and never installed cosign.
+Four earlier runs died at the selector, one line above the call, so the missing
+tool was never reached. **The step was two defects deep, not one** — which is
+why "fix the export and it will work" was never a safe prediction. Fixed in
+**#250** (`sigstore/cosign-installer`, pinned), with three tests pinning that
+the tool is installed, pinned, and installed _before_ the step that calls it.
+
+**Merge order now: #250 first, then #247, #245, #248.** #245 and #248 both touch
+`state/` and conflict on `state/sessions/20261022-1410-SA09-handoff-protocol.md`
+(hook-appended commit-log noise) — take #248's **sealed** copy, never a union:
+the seal is checked against the commit that sealed it, so injecting master's log
+line would break it.
+
+**After #250 is on master: re-dispatch `publish.yml` on master.** That run
+should file `provenance/v2.28.4` and open its own PR. Then
+`node scripts/check-provenance.mjs 2.28.4` — rehearsed against the live
+attestation already, three PASS and one NOTE. Do **not** dispatch on a feature
+branch: the step skips when the branch `provenance/v2.28.4` already exists, so a
+branch run would file that version's bundle permanently from the wrong place.
 
 **2.28.3 is now unfilable by this route**, because the version selector reads
 `package.json` and master has moved to 2.28.4. Recovering it would mean a
-branch cut from the 2.28.3 tag carrying only #246's workflow change — a
-deliberate, separate decision, not a side effect of the 2.28.4 backfill. The
-honest default is to leave it unfiled and say so.
+branch cut from the 2.28.3 tag carrying only the workflow fix — a deliberate,
+separate decision, not a side effect of the 2.28.4 backfill. The honest default
+is to leave it unfiled and say so.
 
 ## The provenance chain does not verify (found 2026-10-22, fixed in #240)
 
@@ -104,11 +130,18 @@ the DSSE payload, not `gh attestation verify <file>`.
 `[FACT]` Both failures below were reproduced by hand before being edited, and
 both were defects I had introduced in #240/#242.
 
-| run                              | failure                                                                                                  | cause                                                                                                                        |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''` |
-| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has  |
-| 39943859454 (dispatch on master) | `no provenance for 71e5278c… built from undefined (saw 3)`                                               | `EXPECTED_REF` was assigned without `export`, so `node -e` read `undefined`; fixed in #246                                   |
+| run                              | failure                                                                                                  | cause                                                                                                                                           |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''`                    |
+| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has                     |
+| 39943859454 (dispatch on master) | `no provenance for 71e5278c… built from undefined (saw 3)`                                               | `EXPECTED_REF` was assigned without `export`, so `node -e` read `undefined`; fixed in #246                                                      |
+| 39956868762 (dispatch on master) | `cosign: command not found`, exit 127 — **after** `selected provenance … (1 match)`                      | Nothing installed cosign. Four earlier runs died at the selector, one line above the call, so the missing tool was never reached; fixed in #250 |
+
+`[FACT]` The last row is the one that matters for prediction. #246 was correct
+and necessary and **not sufficient**: fixing it moved the failure one line down
+and revealed a second, independent defect that had been invisible behind the
+first. "Fix the known bug and it will work" was never safe here, and the
+dispatch is what proved it.
 
 `[FACT]` The third failure was reproduced and fixed **locally, against the live
 API response**, before the workflow was edited: the same snippet exits 1 with
@@ -144,31 +177,32 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: 902871f # master, tagged @xenos1996/usa@2.28.4; #246 still unmerged
+  code_commit_sha: f1a0ebe # master; #246 merged. #250 (cosign) is not
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
   version: 2.28.4 # master; published without a provenance bundle
   published: npmjs @xenos1996/usa@2.28.4
   provenance: { latest_filed: 2.28.2, missing: [2.28.3, 2.28.4] }
-  tests: { total: 1467, passed: 1466, skipped: 1 } # on this branch; 1470 once #246 (+1) and #247 (+3) merge
+  provenance_dispatch: '39956868762 — selector PASSED, died at cosign (exit 127)'
+  tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 246
-      title: 'fix(release): export the expected ref so the provenance selector can read it'
+    - number: 250
+      title: 'fix(release): install cosign, which the provenance step calls'
       state: CLEAN # merge this first
+    - number: 247
+      title: 'ci: read the filed provenance bundles back on a schedule'
+      state: CLEAN
     - number: 245
       title: 'docs(state): hand off …'
       state: CLEAN # this file
-    - number: 247
-      title: 'ci: read the filed provenance bundles back on a schedule'
-      state: BEHIND # strict up-to-date required; update after #246 lands
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
-      state: BEHIND # update last, after #245: conflicts on SA09's session file
-  merged_this_phase: [244] # out of order; published 2.28.4 and broke its provenance step
+      state: CLEAN # merge last; take its SEALED SA09 on any further conflict
+  merged_this_phase: [244, 246] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
-  last_verified: 2026-10-23T17:56+05:45
+  last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
 ```
 
@@ -476,18 +510,18 @@ Merge order: #205, #233, then #236 (which publishes).
 
 Ordered. Step 1 already ran green on this tree.
 
-1. `[FACT]` On the #246 branch: `pnpm test` 1467 passed / 1 skipped, `docs:all`
-   OK, `self-audit` **100/100** no open findings, lint/typecheck/format clean.
-2. `[BLOCKED]` **Merge #246** — the export fix. All checks green; the
-   code-owner gate applies as designed, so approving it is the normal path.
-3. `[DONE]` **#244 was merged anyway**, out of order, and published 2.28.4 with
-   its provenance step failing (`built from undefined`, run `39949269341`).
-   Nothing to do here now; it is why step 4 targets 2.28.4.
-4. `[TODO]` **Dispatch `publish.yml` on master** after #246 lands. `VERSION`
-   comes from `package.json`, so it files `provenance/v2.28.4`; it is also the
-   first end-to-end run of the fixed selector.
+1. `[DONE]` **#246 merged** as `f1a0ebe`. The export fix is on master.
+2. `[DONE]` **`publish.yml` dispatched on master** — run `39956868762`. The
+   selector worked: `selected provenance for refs/tags/@xenos1996/usa@2.28.4
+(1 match)`, and the runner repacked to the same digest `5e24c520…`. It then
+   died with `cosign: command not found`.
+3. `[BLOCKED]` **Merge #250** — installs cosign, pinned, before the step that
+   calls it. Three tests pin the shape. Nothing else is known to be missing, but
+   see the note in step 5: this step has surprised us five times.
+4. `[TODO]` **Re-dispatch `publish.yml` on master** after #250 lands. It should
+   file `provenance/v2.28.4` and open its own PR for the owner to merge.
 5. `[TODO]` `node scripts/check-provenance.mjs 2.28.4` once the bundle lands.
-   **Rehearsed before the dispatch, not predicted**: selecting the live 2.28.4
+   **Rehearsed before any dispatch, not predicted**: selecting the live 2.28.4
    attestation with #246's own node block prints
    `selected provenance for refs/tags/@xenos1996/usa@2.28.4 (1 match)`; feeding
    that bundle through `make-vsa.mjs` and `check-provenance.mjs 2.28.4` gives
