@@ -318,22 +318,42 @@ observed on a real merge of two divergent branches since `.gitattributes` landed
 
 Every row below was **run**, not expected. `[FACT]` throughout.
 
-| Check              | Command                                             | Result                                                                       |
-| ------------------ | --------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Types              | `pnpm run typecheck`                                | 0 errors                                                                     |
-| Lint               | `pnpm run lint`                                     | 0 errors, 0 warnings                                                         |
-| Format             | `pnpm run format:check`                             | clean                                                                        |
-| Docs (6 gates)     | `pnpm run docs:all`                                 | OK — 44 ADRs, 138 tracked docs, cli.md + sample-report.md in sync            |
-| Tests              | `pnpm test`                                         | 1447 passed, 1 skipped (1448)                                                |
-| Self-audit         | `pnpm run self-audit`                               | **100/100**, no open findings                                                |
-| Build              | `pnpm run build`                                    | 0 errors                                                                     |
-| Published artifact | `npm pack` → clean install → `usa --version`        | 2.28.0 runs                                                                  |
-| Packaged fixes     | `usa scan` on both defect projects from the tarball | depcruise `--config` row present; semgrep "scanned no files" UNKNOWN present |
+| Check          | Command                                | Result                                                            |
+| -------------- | -------------------------------------- | ----------------------------------------------------------------- |
+| Types          | `pnpm run typecheck`                   | 0 errors                                                          |
+| Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                              |
+| Format         | `pnpm run format:check`                | clean                                                             |
+| Docs (6 gates) | `pnpm run docs:all`                    | OK — 45 ADRs, 139 tracked docs, cli.md + sample-report.md in sync |
+| Tests          | `npx vitest run`                       | 1469 passed, 1 skipped (1470)                                     |
+| Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                     |
+| Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                         |
+
+`[FACT]` On this machine `pnpm test` aborts before running: the harness's
+safe-delete guard counts 63 files in one `_tmp_*` directory against a
+per-turn threshold of 50. `npx vitest run` runs the same suite and is what the
+number above came from.
 
 `[FACT]` Guards were watched failing before being trusted, individually: the
 e2e vacuous-pass counter, the depcruise `--config` argv assertion, the semgrep
 `paths.scanned` guard, and the local-bin probe. Each was neutered, observed
 failing, restored, and re-run green.
+
+### The provenance step, rehearsed off-CI
+
+The step has failed three times, so each stage was exercised against the live
+API response for `sha256:71e5278c…` (2.28.3) rather than waited for:
+
+| Stage                | How                                                            | Result                                                                                                                             |
+| -------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| select the statement | the workflow's own `node -e`, unexported then exported         | exit 1 `built from undefined (saw 3)` → exit 0 `selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)`                 |
+| verify the signature | `cosign verify-blob-attestation --digest … --digestAlg sha256` | `Verified OK`; a wrong `--digest` exits 1                                                                                          |
+| assert subject + ref | the block extracted verbatim from `publish.yml`                | `verified: tarball 71e5278c… was built from the release tag`; a wrong digest exits 1 `statement subject … != tarball …`            |
+| format, then digest  | `prettier --write` on the bundle, then `make-vsa.mjs`          | 12220 → 12506 B, file digest `4890e6db…` → `ef0adadb…`; the VSA must use the **post-format** digest, which is the workflow's order |
+| read the pair back   | `check-provenance.mjs 2.28.3` on the rehearsed pair            | 3 PASS + 1 NOTE, exit 0                                                                                                            |
+
+`[UNVERIFIED]` **Not** exercised: `git checkout -b provenance/vX`, the `git
+push`, and `gh pr create`. Those four lines are the only part of the step that
+has never run, and they cannot be rehearsed without filing a real bundle.
 
 ## 8. Known issues and limitations
 
