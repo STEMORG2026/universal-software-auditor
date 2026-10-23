@@ -236,3 +236,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:51 — Commit
 
 `4224394` docs(state): the sixth failure, and it was caused by my own pre-flight
+
+### 13:45 — Commit
+
+`210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3

@@ -7,6 +7,7 @@
 **Last Reconciled:** 2026-10-23T13:51:50.981+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
+**Last Reconciled:** 2026-10-23T13:45:36.839+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -71,6 +72,16 @@ See `state/REGISTRY.md` for details.
 8. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
 9. `29d26e7 chore(state): auto-update from post-commit hook`
 10. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+11. `210b780 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3`
+12. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
+13. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
+14. `902871f chore(master): release (#244)`
+15. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
+16. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
+17. `b642596 chore(master): release (#241)`
+18. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
+19. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
+20. `f269766 chore(master): release (#236)`
 
 ---
 
