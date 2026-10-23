@@ -83,12 +83,16 @@ the tool is installed, pinned, and installed _before_ the step that calls it.
 the seal is checked against the commit that sealed it, so injecting master's log
 line would break it.
 
-**#249 must not merge before #250.** It is the changesets bot's Version
-Packages PR for **2.28.5**, opened within minutes of #246 landing, and its only
-changeset is #246's. Merging it publishes 2.28.5 through the same workflow that
-just died at `cosign: command not found`, so the new release would ship without
-a provenance bundle too — the 2.28.4 mistake repeated one version later. Merge
-#250, re-dispatch, confirm the bundle, and only then take #249.
+**#249 is the changesets bot's Version Packages PR for 2.28.5**, opened within
+minutes of #246 landing, and its only changeset is #246's. For two dispatches it
+was a trap: merging it would have published 2.28.5 through a workflow that had
+just failed, shipping another bundle-less release.
+
+**That trap is now disarmed.** The dispatch succeeded (#252 filed the 2.28.4
+bundle), so merging #249 would publish 2.28.5 through a working provenance step.
+Merge #252 first so `provenance/` is complete for 2.28.4 before 2.28.5 exists,
+then #249 is ordinary. Keep the ordering anyway: #249 should never go ahead of a
+filed bundle for the version it supersedes.
 
 **After #250 is on master: re-dispatch `publish.yml` on master.** That run
 should file `provenance/v2.28.4` and open its own PR. Then
@@ -194,20 +198,20 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: 1363676 # master; #246 and #250 merged. #251 (cosign v2 pin) is not
+  code_commit_sha: dcb24c3 # master; #246, #250, #251 all merged
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
   version: 2.28.4 # master; published without a provenance bundle
   published: npmjs @xenos1996/usa@2.28.4
-  provenance: { latest_filed: 2.28.2, missing: [2.28.3, 2.28.4] }
-  provenance_dispatch: '39956868762 selector PASSED, died at missing cosign; 39963116205 died installing cosign v3. #251 fixes'
+  provenance: { latest_filed: '2.28.4 (in #252, unmerged)', missing: [2.28.3] }
+  provenance_dispatch: '39968402220 SUCCESS — filed provenance/v2.28.4 as PR #252; check-provenance 2.28.4 = 3 PASS + 1 NOTE'
   tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 251
-      title: 'fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3'
-      state: CLEAN # merge this first
+    - number: 252
+      title: 'docs: attach SLSA provenance bundle for v2.28.4'
+      state: BLOCKED # bot branch, no checks; needs your approval
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
       state: BLOCKED # DO NOT merge before #251 — it would publish another bundle-less release
@@ -220,7 +224,7 @@ checkpoint:
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
       state: CLEAN # merge last; take its SEALED SA09 on any further conflict
-  merged_this_phase: [244, 246, 250] # 244 out of order; it published 2.28.4 and broke its provenance step
+  merged_this_phase: [244, 246, 250, 251] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
   last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
@@ -540,18 +544,32 @@ Ordered. Step 1 already ran green on this tree.
    cosign: HTTP 22 on `…/v3.1.3/cosign-linux-amd64.sig`, because cosign v3 does
    not publish that asset and no installer can fetch a v3. Fixed in **#251**
    (`cosign-release: v2.6.5`, flags checked on the real binary).
-4. `[BLOCKED]` **Merge #251**, then re-dispatch again. This step has now failed
-   six times; assume the next run will also surprise, and check what actually
-   runs rather than what is convenient to check locally.
-5. `[TODO]` `node scripts/check-provenance.mjs 2.28.4` once the bundle lands.
-   **Rehearsed before any dispatch, not predicted**: selecting the live 2.28.4
-   attestation with #246's own node block prints
-   `selected provenance for refs/tags/@xenos1996/usa@2.28.4 (1 match)`; feeding
-   that bundle through `make-vsa.mjs` and `check-provenance.mjs 2.28.4` gives
-   three PASS and one NOTE, exit 0. The NOTE is expected — the attested subject
-   is not the published tarball, see `docs/release.md`, "What the attestation
-   covers". For 2.25.x–2.28.2 it reports 3 findings per version; those records
-   are historical and are deliberately left as filed.
+4. `[DONE]` **#251 merged** (`dcb24c3`), `publish.yml` re-dispatched as run
+   `39968402220` → **`conclusion: success`**. Six failures, then it worked. See
+   step 5 for what it produced.
+5. `[DONE]` **The backfill worked.** #251 merged; `publish.yml` dispatched (run
+   `39968402220`) → `conclusion: success`. It filed **`provenance/v2.28.4`** and
+   opened **PR #252** (`docs: attach SLSA provenance bundle for v2.28.4`).
+   Read back with `node scripts/check-provenance.mjs 2.28.4` on the branch's own
+   files:
+
+   ```
+   PASS  registry integrity (sha512 of the served tarball) — tarball sha256 55db0933ef97baaf…
+   PASS  bundle signature over its own statement
+   PASS  VSA fields
+   NOTE  the attested subject (5e24c5200386ee6a…) is not any published tarball
+   exit 0
+   ```
+
+   Exactly the three PASS and one NOTE this handoff had only ever promised. The
+   attestation covers the _release_ tarball, not the published one — see
+   `docs/release.md`, "What the attestation covers". For 2.25.x–2.28.2 it reports
+   3 findings per version; those records are historical and are deliberately left
+   as filed.
+
+6. `[BLOCKED]` **Merge #252** — it has no checks (bot branch) and is waiting on
+   your approval. After it lands, `provenance/` covers every release except
+   **2.28.3**.
    The rehearsal also found that `checkVsa` required the subject name to be
    `xenos1996-usa-<version>.tgz` while the workflow attests
    `usa-release-X.Y.Z.tgz`, so the backfill would have filed a bundle the weekly
@@ -559,18 +577,18 @@ Ordered. Step 1 already ran green on this tree.
    5b. `[OPEN]` **2.28.3 has no bundle and this route cannot produce one.**
    Recovering it needs a branch cut from the 2.28.3 tag carrying only #246's
    workflow change. Decide separately; do not let it ride on step 4.
-6. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
+7. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
    `schedule` only. Not done in #240 on purpose: it needs npm and the
    attestation API, and a network check on every PR is a check people learn to
    ignore.
-7. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
+8. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
    it does not interact with the release order above. Its first real run is the
    one after it lands, because GitHub refuses to dispatch a workflow that is not
    on the default branch (`HTTP 404 … not found on the default branch`,
    measured). **Watch that first run**: the loop was measured locally in both
    directions, but the checkout / setup-node / cosign-installer plumbing around
    it has never executed.
-8. `[TODO]` Otherwise pick from §10. The one with an external consequence is
+9. `[TODO]` Otherwise pick from §10. The one with an external consequence is
    the npm Trusted Publisher org confirmation (`docs/release.md` says
    `STEMORG2026`; only you can check the package page).
 
