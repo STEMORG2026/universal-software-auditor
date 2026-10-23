@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T13:02:48.499+05:45
+**Last Reconciled:** 2026-10-23T13:05:23.889+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
@@ -60,16 +60,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
-2. `29d26e7 chore(state): auto-update from post-commit hook`
-3. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-4. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-5. `f6bf44e chore(state): auto-update from post-commit hook`
-6. `9681c1a docs(state): step 5 is rehearsed, not expected`
-7. `781a131 chore(state): auto-update from post-commit hook`
-8. `54dc961 docs(state): fill in handoff_commit_sha`
-9. `9cd0fea chore(state): auto-update from post-commit hook`
-10. `c9e919c docs(state): the checkpoint said 2.28.3 and listed a merged PR as open`
+1. `12c77b4 docs(state): #249 would publish 2.28.5 through the broken step`
+2. `5d4fbc3 chore(state): auto-update from post-commit hook`
+3. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
+4. `29d26e7 chore(state): auto-update from post-commit hook`
+5. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+6. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
+7. `f6bf44e chore(state): auto-update from post-commit hook`
+8. `9681c1a docs(state): step 5 is rehearsed, not expected`
+9. `781a131 chore(state): auto-update from post-commit hook`
+10. `54dc961 docs(state): fill in handoff_commit_sha`
 
 ---
 

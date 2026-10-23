@@ -216,3 +216,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:02 — Commit
 
 `3f419b2` docs(state): the dispatch ran, and the step was two defects deep
+
+### 13:05 — Commit
+
+`12c77b4` docs(state): #249 would publish 2.28.5 through the broken step
