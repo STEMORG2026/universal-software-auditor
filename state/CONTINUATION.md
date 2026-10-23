@@ -145,7 +145,7 @@ checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
   code_commit_sha: 902871f # master, tagged @xenos1996/usa@2.28.4; #246 still unmerged
-  handoff_commit_sha: PENDING # set in the commit that follows this one
+  handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
   version: 2.28.4 # master; published without a provenance bundle
