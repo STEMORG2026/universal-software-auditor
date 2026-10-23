@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T13:46:48.914+05:45
+**Last Reconciled:** 2026-10-23T13:51:50.981+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
 **Reconciled by:** auto-update (post-commit)
@@ -61,16 +61,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `b7c55a7 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-2. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
-3. `ed10b3f chore(state): auto-update from post-commit hook`
-4. `12c77b4 docs(state): #249 would publish 2.28.5 through the broken step`
-5. `5d4fbc3 chore(state): auto-update from post-commit hook`
-6. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
-7. `29d26e7 chore(state): auto-update from post-commit hook`
-8. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-9. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-10. `f6bf44e chore(state): auto-update from post-commit hook`
+1. `4224394 docs(state): the sixth failure, and it was caused by my own pre-flight`
+2. `f744760 chore(state): auto-update from post-commit hook`
+3. `b7c55a7 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+4. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
+5. `ed10b3f chore(state): auto-update from post-commit hook`
+6. `12c77b4 docs(state): #249 would publish 2.28.5 through the broken step`
+7. `5d4fbc3 chore(state): auto-update from post-commit hook`
+8. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
+9. `29d26e7 chore(state): auto-update from post-commit hook`
+10. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
 
 ---
 
