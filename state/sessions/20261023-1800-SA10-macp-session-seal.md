@@ -1,9 +1,10 @@
 **Agent:** SA10 (Sathi / WorkBuddy)
 **Harness:** WorkBuddy
 **History:** not exported — the transcript lives in the harness, not the repo
-**Branch:** docs/macp-session-seal
+**Branch:** docs/macp-session-seal, docs/continuation-post-243
 **Started:** 2026-10-23T18:00+05:45
-**Status:** COMPLETED
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:20+05:45 by owner
 **Base commit:** ab19ef7 (master)
 
 # Session SA10 — owner-sealed session lifecycle
@@ -86,9 +87,9 @@ the remote. The only outstanding item was OC01's status.
 
 ---
 
-### 11:49 — Commit
+### 11:50 — Commit
 
-`9da0675` chore(state): auto-update from post-commit hook
+`551ba77` fix(state): the hook maintains the table, and never writes into a seal
 
 ---
 
@@ -107,23 +108,46 @@ mutation restored byte-identical: editing a sealed file, dropping a `## Close`
 block, listing a sealed session as active, INDEX disagreeing with a file, and
 reopening without a passkey.
 
-`[TODO]` This session is `COMPLETED`, not `CLOSED`. Closing it is the owner's
-act — `## Close` with an instruction, a date, an outcome and a passkey line.
+`[FACT]` The owner closed this session on 2026-10-23, after the work above.
+The seal is in `## Close`.
 
-## Outcome — COMPLETED, awaiting the owner's seal
+## A second piece of work was absorbed mid-session — recorded, not hidden
 
-`[FACT]` **PR #248** — 13 checks pass, CLEAN/MERGEABLE. Gates on this branch:
-`docs:all` clean, lint, typecheck, format, `actions:pin --check`, **1466 passed /
-1 skipped**.
+`[FACT]` This is the drift §4C now forbids, caught happening in the session
+that wrote §4C. After #248 was opened, the owner merged #244 out of order and
+2.28.4 published with its provenance step failing, so #245's failing docs check
+and the provenance question were worked in this same session, on a different
+branch (`docs/continuation-post-243`).
 
-`[FACT]` Both protocol gates pass on this tree:
-`check-sessions.mjs` → `sessions: OK (15 files · 14 sealed · 0 findings)`, and
-`check-protocol.mjs` → all four checks PASS.
+What that produced, all on #245:
 
-`[FACT]` The gate was watched failing five times before being trusted, each
-mutation restored byte-identical: editing a sealed file, dropping a `## Close`
-block, listing a sealed session as active, INDEX disagreeing with a file, and
-reopening without a passkey.
+- The `Docs & ADR hygiene` failure was a real defect, not staleness:
+  `state/CONTINUATION.md:326` carried a bare ADR count of 45 against a real count of
+  <!-- usa:fact adrs -->44<!-- /usa:fact -->. Marked with `usa:fact adrs`, which
+  also required dropping the file's now-contradictory `standalone` manifest
+  entry. Mutation-checked: restoring that bare number reproduced CI's error verbatim.
+- Two more figures in the same "every row was run" table were wrong and were
+  replaced with measured values: `139 tracked docs` → 138, and
+  `1469 / 1470` → `1466 / 1467`.
+- The handoff's claim that a master dispatch files "a master build — the honest
+  ref" was **wrong**. The 2.28.4 attestation records
+  `refs/tags/@xenos1996/usa@2.28.4`, the exact string the selector demands.
+- The tarball is not reproducible across environments (local `npm pack` gives
+  `cb6c50db…`, the attested digest is `5e24c520…`) but is across runners —
+  2.28.3's digest carries three attestations, two from master, one from the tag,
+  all on `71e5278cc8d6…`.
+- The CHECKPOINT block had every field stale, including a merged PR listed as
+  open and a `[TODO]` claiming `provenance/v2.28.0` was unfiled when both files
+  have been on master since `e3099d0`.
 
-`[TODO]` This session is `COMPLETED`, not `CLOSED`. Closing it is the owner's
-act — `## Close` with an instruction, a date, an outcome and a passkey line.
+`[FACT]` The correct response to this is not to fold it in silently. It is the
+reason `state/CONTINUATION.md` records the merge order and the provenance gap in
+detail, and it is why this section exists.
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "Close the session after finishing this work."
+- **Closed at:** 2026-10-23T18:20+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** #248's protocol work is complete and CLEAN; #245's docs fix is CLEAN; #246 and #247 are CLEAN and unmerged; 2.28.3 and 2.28.4 still have no provenance bundle.
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

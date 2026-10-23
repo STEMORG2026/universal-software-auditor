@@ -191,9 +191,6 @@ standalone:
   - file: state/sessions/20261022-1410-SA09-handoff-protocol.md
     reviewed: 2026-10-22
     reason: MACP state — SA09 session file (handoff raised to the completion protocol)
-  - file: state/sessions/20261023-1800-SA10-macp-session-seal.md
-    reviewed: 2026-10-23
-    reason: MACP state — SA10 session file (session lifecycle sealed by the owner)
   - file: state/CONTINUATION.md
     reviewed: 2026-10-21
     reason: 'MACP state — handoff doc for the scanner/evidence work'
