@@ -180,3 +180,11 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:54 — Commit
 
 `fece0aa` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
+### 13:00 — Commit
+
+`5476f96` fix(release): install cosign, which the provenance step calls
+
+### 13:12 — Commit
+
+`4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
