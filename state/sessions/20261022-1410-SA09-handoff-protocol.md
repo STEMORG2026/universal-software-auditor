@@ -164,3 +164,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 17:01 — Commit
 
 `b89d942` docs(release): correct how the attestation is fetched
+
+### 11:24 — Commit
+
+`07fc125` ci: read the filed provenance bundles back on a schedule
