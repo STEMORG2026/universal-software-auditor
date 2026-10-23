@@ -318,15 +318,15 @@ observed on a real merge of two divergent branches since `.gitattributes` landed
 
 Every row below was **run**, not expected. `[FACT]` throughout.
 
-| Check          | Command                                | Result                                                            |
-| -------------- | -------------------------------------- | ----------------------------------------------------------------- |
-| Types          | `pnpm run typecheck`                   | 0 errors                                                          |
-| Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                              |
-| Format         | `pnpm run format:check`                | clean                                                             |
-| Docs (6 gates) | `pnpm run docs:all`                    | OK — 45 ADRs, 139 tracked docs, cli.md + sample-report.md in sync |
-| Tests          | `npx vitest run`                       | 1469 passed, 1 skipped (1470)                                     |
-| Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                     |
-| Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                         |
+| Check          | Command                                | Result                                                                                                    |
+| -------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Types          | `pnpm run typecheck`                   | 0 errors                                                                                                  |
+| Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                                                                      |
+| Format         | `pnpm run format:check`                | clean                                                                                                     |
+| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
+| Tests          | `npx vitest run`                       | 1466 passed, 1 skipped (1467) on this branch — 1470 once #246 (+1) and #247 (+3) merge                    |
+| Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                                                             |
+| Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                                                                 |
 
 `[FACT]` On this machine `pnpm test` aborts before running: the harness's
 safe-delete guard counts 63 files in one `_tmp_*` directory against a

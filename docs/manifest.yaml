@@ -194,9 +194,6 @@ standalone:
   - file: docs/scanners.md
     reviewed: 2026-10-22
     reason: Living doc — scanner adapter model, the analysed-nothing invariant, and the child-env boundary
-  - file: state/CONTINUATION.md
-    reviewed: 2026-10-21
-    reason: 'MACP state — handoff doc for the scanner/evidence work'
   - file: docs/research/README.md
     reviewed: 2026-10-21
     reason: Scanner research — capability matrix and evidence-class legend
