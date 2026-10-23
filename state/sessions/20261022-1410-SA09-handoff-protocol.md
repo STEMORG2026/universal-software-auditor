@@ -184,3 +184,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:31 — Commit
 
 `7c82367` docs(state): record what the provenance step was rehearsed against
+
+### 12:02 — Commit
+
+`40787e3` docs(state): mark the ADR count so the claim gate can hold it
