@@ -13,16 +13,15 @@
 
 ## READ THIS FIRST
 
-**2.28.2 is published** (`npm latest`, tag `@xenos1996/usa@2.28.2`), its bundle
-is filed (#239, merged), and the code-owner gate that had held #205 and #238
-is fixed by `/provenance/ @github-actions[bot]` in `CODEOWNERS`.
+**Master is `ab19ef7` and the provenance step is now correct — but it has never
+run green in CI.** #243 (merged 2026-10-23) fixed three defects found by
+reproducing the 2.28.3 publish failure by hand. Until a real publish run
+passes, treat that step as **unverified**, not fixed.
 
-**One PR is open and it is yours to merge: [#240](https://github.com/STEMORG2026/universal-software-auditor/pull/240)** —
-`fix/provenance-verified-not-just-filed`. It is not a feature. I ran the
-provenance verification this repo documents, and it does not do what the docs
-said (§ below). Four defects, all confirmed by measurement.
-
-Nothing else is in progress. `master` = `af3247f`.
+**Next action: dispatch `publish.yml` on master, then confirm
+`provenance/v2.28.3` exists and `node scripts/check-provenance.mjs 2.28.3`
+prints PASS.** Nothing else is open; no PRs are pending. The full history is
+in the two sections below.
 
 ## The provenance chain does not verify (found 2026-10-22, fixed in #240)
 
