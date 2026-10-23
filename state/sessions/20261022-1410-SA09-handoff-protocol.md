@@ -176,3 +176,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:36 — Commit
 
 `f6f2c89` fix(provenance): check agreement, not a spelling
+
+### 12:54 — Commit
+
+`fece0aa` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
