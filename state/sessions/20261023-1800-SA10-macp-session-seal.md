@@ -69,3 +69,7 @@ the remote. The only outstanding item was OC01's status.
 ### 11:35 — Commit
 
 `800a029` docs(macp): sessions are opened and sealed by the owner
+
+### 11:39 — Commit
+
+`73cec8a` docs(state): classify SA10 and add the changeset
