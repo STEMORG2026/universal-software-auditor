@@ -144,29 +144,31 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: ab19ef7 # master; the #246 fix is not merged yet
-  handoff_commit_sha: cb45446 # this handoff; branch docs/continuation-post-243
+  code_commit_sha: 902871f # master, tagged @xenos1996/usa@2.28.4; #246 still unmerged
+  handoff_commit_sha: PENDING # set in the commit that follows this one
   branch: docs/continuation-post-243
   working_tree_clean: true
-  version: 2.28.3 # master; 2.28.4 is staged in #244
-  published: npmjs @xenos1996/usa@2.28.3
-  tests: { total: 1468, passed: 1467, skipped: 1 }
+  version: 2.28.4 # master; published without a provenance bundle
+  published: npmjs @xenos1996/usa@2.28.4
+  provenance: { latest_filed: 2.28.2, missing: [2.28.3, 2.28.4] }
+  tests: { total: 1467, passed: 1466, skipped: 1 } # on this branch; 1470 once #246 (+1) and #247 (+3) merge
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
     - number: 246
       title: 'fix(release): export the expected ref so the provenance selector can read it'
-      state: BLOCKED # code-owner review, as designed; all checks green
-    - number: 244
-      title: 'chore(master): release 2.28.4'
-      state: BLOCKED # code-owner review; merge AFTER #246
+      state: CLEAN # merge this first
     - number: 245
       title: 'docs(state): hand off …'
-      state: OPEN # this file
+      state: CLEAN # this file
     - number: 247
       title: 'ci: read the filed provenance bundles back on a schedule'
-      state: BLOCKED # code-owner review; independent of the merge order above
+      state: BEHIND # strict up-to-date required; update after #246 lands
+    - number: 248
+      title: 'docs(macp): sessions are opened and sealed by the owner'
+      state: BEHIND # update last, after #245: conflicts on SA09's session file
+  merged_this_phase: [244] # out of order; published 2.28.4 and broke its provenance step
   open_findings: 0
-  last_verified: 2026-10-23T17:20+05:45
+  last_verified: 2026-10-23T17:56+05:45
   last_verified_by: Sathi (WorkBuddy)
 ```
 
@@ -408,8 +410,9 @@ follows is not a blocker but is a real limitation.
 - `[TODO]` CodeQL's `security-severity` is dropped by the normaliser. **Latent,
   not live**: no shipped rule uses `source: sarif`, so no score moves. Carrying
   it would be plumbing for a path nothing uses — do not add it speculatively.
-- `[TODO]` `provenance/v2.28.0` (#205) is unfiled. Bot-authored, needs a human
-  approval.
+- `[FIXED]` ~~`provenance/v2.28.0` (#205) is unfiled.~~ It is filed: `v2.28.0.sigstore.json`
+  (12224 B) and `v2.28.0.vsa.json` (1355 B) both landed in `e3099d0`, PR #205's own commit.
+  The live gap is **2.28.3 and 2.28.4**, not 2.28.0.
 
 ## 10. Deferred work, and why
 
