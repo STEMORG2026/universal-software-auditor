@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T13:05:23.889+05:45
+**Last Reconciled:** 2026-10-23T13:46:48.914+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
 **Reconciled by:** auto-update (post-commit)
@@ -61,26 +61,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `12c77b4 docs(state): #249 would publish 2.28.5 through the broken step`
-2. `5d4fbc3 chore(state): auto-update from post-commit hook`
-3. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
-4. `29d26e7 chore(state): auto-update from post-commit hook`
-5. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-6. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-7. `f6bf44e chore(state): auto-update from post-commit hook`
-8. `9681c1a docs(state): step 5 is rehearsed, not expected`
-9. `781a131 chore(state): auto-update from post-commit hook`
-10. `54dc961 docs(state): fill in handoff_commit_sha`
-11. `4c2b1dc fix(release): pin the cosign version, and verify the call it makes`
-12. `e834234 chore(state): auto-update from post-commit hook`
-13. `5476f96 fix(release): install cosign, which the provenance step calls`
-14. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-15. `902871f chore(master): release (#244)`
-16. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
-17. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
-18. `b642596 chore(master): release (#241)`
-19. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
-20. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
+1. `b7c55a7 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+2. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
+3. `ed10b3f chore(state): auto-update from post-commit hook`
+4. `12c77b4 docs(state): #249 would publish 2.28.5 through the broken step`
+5. `5d4fbc3 chore(state): auto-update from post-commit hook`
+6. `3f419b2 docs(state): the dispatch ran, and the step was two defects deep`
+7. `29d26e7 chore(state): auto-update from post-commit hook`
+8. `d541b42 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+9. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
+10. `f6bf44e chore(state): auto-update from post-commit hook`
 
 ---
 
