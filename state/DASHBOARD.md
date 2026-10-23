@@ -5,6 +5,7 @@
 > Do not skip it. Do not summarize state without following it.
 
 **Last Reconciled:** 2026-10-23T12:42:12.090+05:45
+**Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -69,6 +70,16 @@ See `state/REGISTRY.md` for details.
 8. `5f4893c chore(state): auto-update from post-commit hook`
 9. `40787e3 docs(state): mark the ADR count so the claim gate can hold it`
 10. `0f4a19d Merge branch 'master' into docs/continuation-post-243`
+11. `8f3942c fix(release): export the expected ref so the provenance selector can read it`
+12. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
+13. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
+14. `b642596 chore(master): release (#241)`
+15. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
+16. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
+17. `f269766 chore(master): release (#236)`
+18. `9051264 docs: attach SLSA provenance bundle for v2.28.1 (#233)`
+19. `e3099d0 docs: attach SLSA provenance bundle for v2.28.0 (#205)`
+20. `0e23ace chore(codeowners): make the provenance bundle owned by its signer (#238)`
 
 ---
 

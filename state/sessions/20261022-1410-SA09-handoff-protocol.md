@@ -204,3 +204,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:42 — Commit
 
 `9681c1a` docs(state): step 5 is rehearsed, not expected
+
+### 11:12 — Commit
+
+`8f3942c` fix(release): export the expected ref so the provenance selector can read it
