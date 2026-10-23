@@ -37,7 +37,7 @@ const SESSIONS = path.join(ROOT, 'state', 'sessions');
 const INDEX = path.join(ROOT, 'state', 'INDEX.md');
 const REGISTRY = path.join(ROOT, 'state', 'REGISTRY.md');
 
-const STATUSES = new Set(['OPEN', 'COMPLETED', 'CLOSED', 'REOPENED']);
+const STATUSES = new Set(['IN-PROGRESS', 'COMPLETED', 'CLOSED', 'REOPENED']);
 const REQUIRED = ['Agent', 'Harness', 'History', 'Branch', 'Started', 'Status', 'Base commit'];
 
 const git = (...args) =>
@@ -81,6 +81,7 @@ function checkFile(file, findings) {
     findings.push(`${rel}: status "${status}" is not one of ${[...STATUSES].join(', ')}`);
   }
 
+  // A sealed session is also the only state in which the file may not change.
   if (status?.startsWith('CLOSED')) {
     if (!field(text, 'Closed')) findings.push(`${rel}: CLOSED without a **Closed:** field`);
     const close = section(text, 'Close');

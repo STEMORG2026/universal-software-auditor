@@ -407,7 +407,9 @@ REQUIRED FIELDS (front matter of every session file)
 
 STATUS VOCABULARY — and the difference that matters
 
-• `OPEN` — the owner opened it; work is in progress.
+• `IN-PROGRESS` — the owner opened it; work is in progress. (The word is the
+one the start gate and `STARTUP.md` already use — a second vocabulary for the
+same state is how two gates end up disagreeing.)
 • `COMPLETED` — the **agent** says the work is done. This is a claim, not a
 closure. It may still be reviewed, merged, and questioned.
 • `CLOSED` — the **owner** closed it. Sealed. Immutable.

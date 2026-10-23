@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T11:49:20.227+05:45
+**Last Reconciled:** 2026-10-23T11:50:01.915+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `9da0675 chore(state): auto-update from post-commit hook`
-2. `442812d docs(state): record SA10's outcome and the PR it ships in`
-3. `99fce42 chore(state): auto-update from post-commit hook`
-4. `73cec8a docs(state): classify SA10 and add the changeset`
-5. `851dc2a chore(state): auto-update from post-commit hook`
-6. `800a029 docs(macp): sessions are opened and sealed by the owner`
-7. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
-8. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
-9. `b642596 chore(master): release (#241)`
-10. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
+1. `9a3437a chore(state): auto-update from post-commit hook`
+2. `9da0675 chore(state): auto-update from post-commit hook`
+3. `442812d docs(state): record SA10's outcome and the PR it ships in`
+4. `99fce42 chore(state): auto-update from post-commit hook`
+5. `73cec8a docs(state): classify SA10 and add the changeset`
+6. `851dc2a chore(state): auto-update from post-commit hook`
+7. `800a029 docs(macp): sessions are opened and sealed by the owner`
+8. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
+9. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
+10. `b642596 chore(master): release (#241)`
 
 ---
 
