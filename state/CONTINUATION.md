@@ -113,7 +113,7 @@ checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
   code_commit_sha: ab19ef7 # master; the #246 fix is not merged yet
-  handoff_commit_sha: PENDING # this handoff; branch docs/continuation-post-243
+  handoff_commit_sha: cb45446 # this handoff; branch docs/continuation-post-243
   branch: docs/continuation-post-243
   working_tree_clean: true
   version: 2.28.3 # master; 2.28.4 is staged in #244

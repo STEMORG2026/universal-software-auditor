@@ -168,3 +168,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:00 — Commit
 
 `7f3ce1c` docs(state): hand off with master at ab19ef7 and the provenance step unverified
+
+### 11:13 — Commit
+
+`cb45446` docs(state): record the third provenance failure and the merge order
