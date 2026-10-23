@@ -187,6 +187,17 @@ function updateSessionFile() {
     console.warn('Failed to get commit info:', e.message);
   }
 
+  // Idempotent, because the hook can run twice for one commit: husky's
+  // backup/restore re-runs it, and an amend re-runs it. The entry carries a
+  // fresh timestamp each time, so comparing the whole entry would not catch it.
+  // Measured on 2026-10-23: two runs took SA09 from 42 entries to 44, both
+  // naming `f6bf44e`. SA10 had already shipped a duplicated commit line and a
+  // duplicated Outcome section for the same reason, and the seal froze them.
+  if (commitSha !== 'unknown' && content.includes(`\`${commitSha}\` ${commitMsg}`)) {
+    console.log('  Session file already logs this commit — not appending');
+    return;
+  }
+
   // Add commit to session log
   const timestamp = new Date().toISOString().slice(11, 16);
   const logEntry = `\n### ${timestamp} — Commit\n\n\`${commitSha}\` ${commitMsg}\n`;
