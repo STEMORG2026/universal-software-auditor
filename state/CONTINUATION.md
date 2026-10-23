@@ -130,6 +130,9 @@ checkpoint:
     - number: 245
       title: 'docs(state): hand off …'
       state: OPEN # this file
+    - number: 247
+      title: 'ci: read the filed provenance bundles back on a schedule'
+      state: BLOCKED # code-owner review; independent of the merge order above
   open_findings: 0
   last_verified: 2026-10-23T17:20+05:45
   last_verified_by: Sathi (WorkBuddy)
@@ -437,7 +440,14 @@ Ordered. Step 1 already ran green on this tree.
    `schedule` only. Not done in #240 on purpose: it needs npm and the
    attestation API, and a network check on every PR is a check people learn to
    ignore.
-7. `[TODO]` Otherwise pick from §10. The one with an external consequence is
+7. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
+   it does not interact with the release order above. Its first real run is the
+   one after it lands, because GitHub refuses to dispatch a workflow that is not
+   on the default branch (`HTTP 404 … not found on the default branch`,
+   measured). **Watch that first run**: the loop was measured locally in both
+   directions, but the checkout / setup-node / cosign-installer plumbing around
+   it has never executed.
+8. `[TODO]` Otherwise pick from §10. The one with an external consequence is
    the npm Trusted Publisher org confirmation (`docs/release.md` says
    `STEMORG2026`; only you can check the package page).
 
