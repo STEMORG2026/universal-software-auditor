@@ -98,4 +98,50 @@ describe('publish.yml files provenance it has actually verified', () => {
     expect(/TARBALL="\$\(npm pack/.test(packStep)).toBe(true);
     expect(packStep).toMatch(/set -euo pipefail/);
   });
+
+  it('puts every variable a node block reads into the environment, not just a shell variable', () => {
+    // A shell assignment is not an environment entry: `EXPECTED_REF="…"` on
+    // its own line is invisible to `node -e`, which then reads `undefined`.
+    // Measured on the 2.28.3 dispatch (run 39943859454) — three attestations
+    // in the response, one of them from the release tag, and the selector
+    // rejected all of them:
+    //   no provenance for 71e5278c… built from undefined (saw 3)
+    // The digest was correct; only the expected ref was invisible. This is the
+    // third defect in this step of the same shape, so it is checked by
+    // derivation rather than by naming EXPECTED_REF.
+    const body = provenanceStep;
+    const logical = body.replace(/\\\n\s*/g, ' '); // join shell continuations
+    const header = body.slice(0, body.indexOf('run: |'));
+    const declaredInStepEnv = new Set(
+      [...header.matchAll(/^\s+([A-Z0-9_]+):/gm)].map((m) => m[1] as string),
+    );
+    // Values a previous step exported, which later steps do receive.
+    const writtenToGithubEnv = new Set(
+      [...WORKFLOW.matchAll(/echo\s+"([A-Z0-9_]+)=[^"]*"\s*>>\s*"\$GITHUB_ENV"/g)].map(
+        (m) => m[1] as string,
+      ),
+    );
+    // Inline prefix form: `NAME=… node scripts/x.mjs`, including the
+    // multi-line variant that joins into one logical line.
+    const inlinePrefix = new Set<string>();
+    for (const line of logical.split('\n')) {
+      const nodeAt = line.search(/\bnode\s/);
+      if (nodeAt === -1) continue;
+      for (const m of line.slice(0, nodeAt).matchAll(/([A-Z0-9_]+)=/g)) {
+        inlinePrefix.add(m[1] as string);
+      }
+    }
+    const used = new Set(
+      [...body.matchAll(/process\.env\.([A-Z0-9_]+)/g)].map((m) => m[1] as string),
+    );
+    expect(used.size).toBeGreaterThan(0);
+    const unresolved = [...used].filter((name) => {
+      if (/^(GITHUB|RUNNER)_/.test(name)) return false;
+      if (writtenToGithubEnv.has(name)) return false;
+      if (declaredInStepEnv.has(name)) return false;
+      if (inlinePrefix.has(name)) return false;
+      return !new RegExp(`export ${name}=`).test(body);
+    });
+    expect(unresolved).toEqual([]);
+  });
 });
