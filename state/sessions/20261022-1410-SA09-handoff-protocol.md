@@ -176,3 +176,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 11:14 — Commit
 
 `0d86d84` chore(state): auto-update from post-commit hook
+
+### 11:25 — Commit
+
+`be55902` docs(state): list #247 and its dispatch limitation
