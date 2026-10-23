@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T12:48:16.770+05:45
+**Last Reconciled:** 2026-10-23T13:01:07.089+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
@@ -60,26 +60,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `0daf4d6 fix(state): the hook must not log the same commit twice`
-2. `42d8d76 chore(state): auto-update from post-commit hook`
-3. `91e1959 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
-4. `958b668 chore(state): auto-update from post-commit hook`
-5. `f3c50db fix(state): the start gate must accept a sealed session, and seal SA10`
-6. `902871f chore(master): release (#244)`
-7. `551ba77 fix(state): the hook maintains the table, and never writes into a seal`
-8. `9a3437a chore(state): auto-update from post-commit hook`
-9. `9da0675 chore(state): auto-update from post-commit hook`
-10. `442812d docs(state): record SA10's outcome and the PR it ships in`
-11. `8f3942c fix(release): export the expected ref so the provenance selector can read it`
-12. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
-13. `1bc3c8e fix(release): unbreak the provenance step on its first real run (#242)`
-14. `b642596 chore(master): release (#241)`
-15. `a96aac3 fix(release): verify the provenance chain instead of only filing it (#240)`
-16. `af3247f docs: attach SLSA provenance bundle for v2.28.2 (#239)`
-17. `f269766 chore(master): release (#236)`
-18. `9051264 docs: attach SLSA provenance bundle for v2.28.1 (#233)`
-19. `e3099d0 docs: attach SLSA provenance bundle for v2.28.0 (#205)`
-20. `0e23ace chore(codeowners): make the provenance bundle owned by its signer (#238)`
+1. `89292b9 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
+2. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
+3. `75e1b7b chore(state): auto-update from post-commit hook`
+4. `0daf4d6 fix(state): the hook must not log the same commit twice`
+5. `42d8d76 chore(state): auto-update from post-commit hook`
+6. `91e1959 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
+7. `958b668 chore(state): auto-update from post-commit hook`
+8. `f3c50db fix(state): the start gate must accept a sealed session, and seal SA10`
+9. `902871f chore(master): release (#244)`
+10. `551ba77 fix(state): the hook maintains the table, and never writes into a seal`
 
 ---
 
