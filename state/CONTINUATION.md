@@ -83,6 +83,13 @@ the tool is installed, pinned, and installed _before_ the step that calls it.
 the seal is checked against the commit that sealed it, so injecting master's log
 line would break it.
 
+**#249 must not merge before #250.** It is the changesets bot's Version
+Packages PR for **2.28.5**, opened within minutes of #246 landing, and its only
+changeset is #246's. Merging it publishes 2.28.5 through the same workflow that
+just died at `cosign: command not found`, so the new release would ship without
+a provenance bundle too — the 2.28.4 mistake repeated one version later. Merge
+#250, re-dispatch, confirm the bundle, and only then take #249.
+
 **After #250 is on master: re-dispatch `publish.yml` on master.** That run
 should file `provenance/v2.28.4` and open its own PR. Then
 `node scripts/check-provenance.mjs 2.28.4` — rehearsed against the live
@@ -191,6 +198,9 @@ checkpoint:
     - number: 250
       title: 'fix(release): install cosign, which the provenance step calls'
       state: CLEAN # merge this first
+    - number: 249
+      title: 'chore(master): release' # changesets bot; would publish 2.28.5
+      state: BLOCKED # DO NOT merge before #250 — it would publish another bundle-less release
     - number: 247
       title: 'ci: read the filed provenance bundles back on a schedule'
       state: CLEAN
