@@ -188,3 +188,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:02 — Commit
 
 `40787e3` docs(state): mark the ADR count so the claim gate can hold it
+
+### 12:05 — Commit
+
+`c4c63b0` docs(state): 2.28.4 shipped without provenance, and the backfill is measurable
