@@ -188,3 +188,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:12 — Commit
 
 `4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
+
+### 13:56 — Commit
+
+`7a199d2` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
