@@ -74,6 +74,12 @@ the remote. The only outstanding item was OC01's status.
 
 `73cec8a` docs(state): classify SA10 and add the changeset
 
+### 11:44 — Commit
+
+`442812d` docs(state): record SA10's outcome and the PR it ships in
+
+---
+
 ## Outcome — COMPLETED, awaiting the owner's seal
 
 `[FACT]` **PR #248** — 13 checks pass, CLEAN/MERGEABLE. Gates on this branch:
