@@ -220,3 +220,11 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:05 — Commit
 
 `12c77b4` docs(state): #249 would publish 2.28.5 through the broken step
+
+### 13:00 — Commit
+
+`5476f96` fix(release): install cosign, which the provenance step calls
+
+### 13:12 — Commit
+
+`4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
