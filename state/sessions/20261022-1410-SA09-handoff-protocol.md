@@ -196,3 +196,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 12:12 — Commit
 
 `c9e919c` docs(state): the checkpoint said 2.28.3 and listed a merged PR as open
+
+### 12:12 — Commit
+
+`54dc961` docs(state): fill in handoff_commit_sha
