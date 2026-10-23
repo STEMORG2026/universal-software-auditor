@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T12:19:07.958+05:45
+**Last Reconciled:** 2026-10-23T12:22:55.129+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -59,16 +59,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `01c4803 fix(state): the start gate must accept a sealed session, and seal SA10`
-2. `5e6fbc4 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
-3. `902871f chore(master): release (#244)`
-4. `de104c1 chore(state): auto-update from post-commit hook`
-5. `551ba77 fix(state): the hook maintains the table, and never writes into a seal`
-6. `9a3437a chore(state): auto-update from post-commit hook`
-7. `9da0675 chore(state): auto-update from post-commit hook`
-8. `442812d docs(state): record SA10's outcome and the PR it ships in`
-9. `99fce42 chore(state): auto-update from post-commit hook`
-10. `73cec8a docs(state): classify SA10 and add the changeset`
+1. `f3c50db fix(state): the start gate must accept a sealed session, and seal SA10`
+2. `551ba77 fix(state): the hook maintains the table, and never writes into a seal`
+3. `9a3437a chore(state): auto-update from post-commit hook`
+4. `9da0675 chore(state): auto-update from post-commit hook`
+5. `442812d docs(state): record SA10's outcome and the PR it ships in`
+6. `99fce42 chore(state): auto-update from post-commit hook`
+7. `73cec8a docs(state): classify SA10 and add the changeset`
+8. `851dc2a chore(state): auto-update from post-commit hook`
+9. `800a029 docs(macp): sessions are opened and sealed by the owner`
+10. `ab19ef7 fix(release): fetch the provenance by digest, not by a file that does not exist (#243)`
 
 ---
 
