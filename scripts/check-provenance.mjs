@@ -68,9 +68,20 @@ export function checkVsa(vsa, bundle, { repo = REPO, version }) {
     findings.push(`predicateType is ${vsa?.predicateType}, not the SLSA VSA type`);
   }
 
-  const expectedName = `xenos1996-usa-${version}.tgz`;
-  if (vsa?.subject?.[0]?.name !== expectedName) {
-    findings.push(`subject name is ${vsa?.subject?.[0]?.name}, expected ${expectedName}`);
+  // The spelling of the subject is the producer's business: `subject-name` in
+  // publish.yml sets it, and it has already changed once. Pinning it to a
+  // constant here made the checker reject a bundle the producer was about to
+  // file — measured 2026-10-23: 2.28.0 through 2.28.2 carry
+  // `xenos1996-usa-X.Y.Z.tgz` (npm pack's own name), while the 2.28.4
+  // attestation carries `usa-release-2.28.4.tgz` (the override). A naming
+  // choice should not be able to turn the weekly read-back red.
+  // What is not negotiable: the VSA must name THIS version, and it must agree
+  // with the statement it summarises (checked below).
+  const vsaSubjectName = String(vsa?.subject?.[0]?.name ?? '');
+  if (!vsaSubjectName.endsWith(`-${version}.tgz`)) {
+    findings.push(
+      `subject name is ${vsaSubjectName || '(none)'}, expected a name ending -${version}.tgz`,
+    );
   }
 
   // The verifier performs the verification, so it must be the workflow that
@@ -102,10 +113,20 @@ export function checkVsa(vsa, bundle, { repo = REPO, version }) {
     : null;
   if (!subject) {
     findings.push('bundle has no decodable DSSE payload');
-  } else if (subject.subject?.[0]?.digest?.sha256 !== vsa.subject?.[0]?.digest?.sha256) {
-    findings.push(
-      `VSA subject ${vsa.subject?.[0]?.digest?.sha256} != bundle subject ${subject.subject?.[0]?.digest?.sha256}`,
-    );
+  } else {
+    // The VSA is a summary OF this statement. If the two disagree about which
+    // artefact they are about, the summary is describing something else.
+    const statementName = subject.subject?.[0]?.name;
+    if (statementName !== vsa.subject?.[0]?.name) {
+      findings.push(
+        `VSA subject name ${vsa.subject?.[0]?.name} != bundle subject name ${statementName}`,
+      );
+    }
+    if (subject.subject?.[0]?.digest?.sha256 !== vsa.subject?.[0]?.digest?.sha256) {
+      findings.push(
+        `VSA subject ${vsa.subject?.[0]?.digest?.sha256} != bundle subject ${subject.subject?.[0]?.digest?.sha256}`,
+      );
+    }
   }
 
   if (!String(input?.uri ?? '').includes(`/repos/${repo}/attestations/`)) {
