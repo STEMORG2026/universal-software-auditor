@@ -258,6 +258,21 @@ jobs:
           # the one identifier both sides can compute from the file alone.
           subject-name: usa-release-${{ env.VERSION }}.tgz
 
+      # The next step verifies the bundle with cosign before filing it, and
+      # nothing installed cosign. Four earlier failures stopped one line above
+      # this point (before `verify-blob-attestation`), which is why the missing
+      # tool was never reached; the first run to get past attestation died with
+      # `cosign: command not found`, exit 127, run 39956868762.
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+        with:
+          # Pinned, not inherited. This action commit defaults to cosign v2.5.2,
+          # and the flag surface of the call below was verified against v3.1.3
+          # (`--digestAlg` is camelCase and is what v3 accepts; `--type
+          # slsaprovenance1` is in v3's value list). Taking the default would
+          # mean the version that runs is not the version that was checked.
+          cosign-release: 'v3.1.3'
+
       - name: File provenance bundle + VSA via PR (SUP-022/SUP-023)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
