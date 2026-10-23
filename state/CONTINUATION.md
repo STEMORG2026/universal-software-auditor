@@ -487,10 +487,18 @@ Ordered. Step 1 already ran green on this tree.
    comes from `package.json`, so it files `provenance/v2.28.4`; it is also the
    first end-to-end run of the fixed selector.
 5. `[TODO]` `node scripts/check-provenance.mjs 2.28.4` once the bundle lands.
-   Expected on a correct bundle: three PASS and one NOTE (the attested subject
-   is not the published tarball — see `docs/release.md`, "What the attestation
-   covers"). For 2.25.x–2.28.2 it reports 3 findings per version; those records
+   **Rehearsed before the dispatch, not predicted**: selecting the live 2.28.4
+   attestation with #246's own node block prints
+   `selected provenance for refs/tags/@xenos1996/usa@2.28.4 (1 match)`; feeding
+   that bundle through `make-vsa.mjs` and `check-provenance.mjs 2.28.4` gives
+   three PASS and one NOTE, exit 0. The NOTE is expected — the attested subject
+   is not the published tarball, see `docs/release.md`, "What the attestation
+   covers". For 2.25.x–2.28.2 it reports 3 findings per version; those records
    are historical and are deliberately left as filed.
+   The rehearsal also found that `checkVsa` required the subject name to be
+   `xenos1996-usa-<version>.tgz` while the workflow attests
+   `usa-release-X.Y.Z.tgz`, so the backfill would have filed a bundle the weekly
+   job rejects. Fixed in #247, which is now the PR that makes step 5 pass.
    5b. `[OPEN]` **2.28.3 has no bundle and this route cannot produce one.**
    Recovering it needs a branch cut from the 2.28.3 tag carrying only #246's
    workflow change. Decide separately; do not let it ride on step 4.
