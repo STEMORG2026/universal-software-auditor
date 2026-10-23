@@ -177,4 +177,17 @@ describe('the provenance step has the tools it calls', () => {
     expect(stepAt).toBeGreaterThan(-1);
     expect(installedAt).toBeLessThan(stepAt);
   });
+
+  it('pins the cosign version instead of inheriting the installer default', () => {
+    // The installer commit we pin defaults to cosign v2.5.2. The flag surface
+    // of the call below was verified against v3.1.3 locally, so letting the
+    // default decide means the version that runs is not the version that was
+    // checked — the exact failure mode this whole PR is about.
+    const at = WORKFLOW.indexOf('name: Install cosign');
+    expect(at).toBeGreaterThan(-1);
+    const step = WORKFLOW.slice(at);
+    const next = step.indexOf('\n      - name:', 1);
+    const body = next === -1 ? step : step.slice(0, next);
+    expect(body).toMatch(/cosign-release:\s*'?v\d+\.\d+\.\d+'?/);
+  });
 });
