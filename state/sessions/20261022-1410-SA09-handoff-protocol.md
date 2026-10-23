@@ -240,3 +240,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:45 — Commit
 
 `210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
+
+### 14:24 — Commit
+
+`33fe893` Merge remote-tracking branch 'origin/master' into docs/continuation-post-243
