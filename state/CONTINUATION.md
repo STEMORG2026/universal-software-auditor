@@ -237,32 +237,24 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: a6f7eb3 # master; #254 merged, the read-back is green on 2.28.4
+  code_commit_sha: bf1a1bd # master, after #259
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
-  branch: docs/continuation-post-243
+  branch: master
   working_tree_clean: true
-  version: 2.28.5 # published 2026-10-24T05:20Z, provenance filed as #253
-  published: npmjs @xenos1996/usa@2.28.5
-  provenance: { latest_filed: '2.28.5 (in #253) + 2.28.3 (in #255)', missing: [] }
-  provenance_dispatch: 'tag push 40065874654 fired on its own and filed #253; read-back rejected the VSA name — #254 fixes'
-  tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
+  version: 2.28.6 # published 2026-10-24T07:08Z with its provenance bundle filed and merged (#258)
+  published: npmjs @xenos1996/usa@2.28.6
+  provenance: { latest_filed: 2.28.6, missing: [] } # every published release has one
+  provenance_dispatch: '2.28.6 tag push fired publish.yml on its own (40072909170) → filed #258 → VSA fields PASS'
+  read_back: 'provenance-check.yml green in CI on master (40073936909): 12 PASS, 0 FAIL'
+  tests: { total: 1481, passed: 1480, skipped: 1 } # on master, after #259
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 253
-      title: 'docs: attach SLSA provenance bundle for v2.28.5'
-      state: CLEAN # merge first; verifies against master's checker
-    - number: 256
-      title: 'docs(provenance): file the recovered 2.28.3 bundle'
-      state: CLEAN # cut from master, 2 files; replaces the closed #255
-    - number: 248
-      title: 'docs(macp): sessions are opened and sealed by the owner'
-      state: CLEAN # take its SEALED SA09 on any further conflict
-    - number: 245
-      title: 'docs(state): hand off …'
-      state: CLEAN # this file; merge after the bundles so it describes the end state
-  merged_this_phase: [244, 246, 247, 249, 250, 251, 252, 254] # 244 out of order; it published 2.28.4 and broke its provenance step
+    - number: 260
+      title: 'chore(master): release' # changesets bot; would publish 2.28.7
+      state: BLOCKED # left open on purpose — publishing is a release decision
+  merged_this_phase: [244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 256, 257, 258, 259]
   open_findings: 0
-  last_verified: 2026-10-23T19:05+05:45
+  last_verified: 2026-10-24T13:13+05:45
   last_verified_by: Sathi (WorkBuddy)
 ```
 
@@ -670,13 +662,14 @@ on master since the last successful run`. Measured: `publish.yml` is
     `schedule` only. Not done in #240 on purpose: it needs npm and the
     attestation API, and a network check on every PR is a check people learn to
     ignore.
-12. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
-    it does not interact with the release order above. Its first real run is the
-    one after it lands, because GitHub refuses to dispatch a workflow that is not
-    on the default branch (`HTTP 404 … not found on the default branch`,
-    measured). **Watch that first run**: the loop was measured locally in both
-    directions, but the checkout / setup-node / cosign-installer plumbing around
-    it has never executed.
+12. `[DONE]` **#247 merged**, and its first real run paid for itself. The
+    plumbing that had never executed (checkout, setup-node, cosign-installer)
+    failed every bundle with `unknown flag: --digest`: the job inherited the
+    installer's default cosign **v2.5.2** while `publish.yml` pins **v2.6.5**,
+    and `--digest` does not exist in 2.5.2. Locally it passed because this
+    machine has v3.1.3. Fixed in #259; both workflows now pin v2.6.5 and a
+    test asserts they agree. **A workflow's `run:` block run locally is not
+    the workflow** — dispatch the job before believing it.
 13. `[TODO]` Otherwise pick from §10. The one with an external consequence is
     the npm Trusted Publisher org confirmation (`docs/release.md` says
     `STEMORG2026`; only you can check the package page).
