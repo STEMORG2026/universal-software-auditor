@@ -1,5 +1,99 @@
 # Changelog
 
+## 2.28.5
+
+### Patch Changes
+
+- [#251](https://github.com/STEMORG2026/universal-software-auditor/pull/251) [`dcb24c3`](https://github.com/STEMORG2026/universal-software-auditor/commit/dcb24c387b11fccb7da0c7fd97bbdf7ab32bb72e) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
+  
+  [#250](https://github.com/Er-Sajan-PLG/universal-software-auditor/issues/250) pinned `cosign-release: v3.1.3` to match the version its flags were checked
+  against. That was the right instinct and the wrong version: the install step
+  failed on the very next dispatch with HTTP 22, downloading
+  
+  ```
+  https://github.com/sigstore/cosign/releases/download/v3.1.3/cosign-linux-amd64.sig
+  ```
+  
+  cosign v3 releases ship `.sigstore.json` bundles and **no** `cosign-linux-amd64.sig`,
+  which is the asset `cosign-installer` verifies the download against. No installer
+  version helps — the newest, v4.1.2, predates cosign v3.
+  
+  `v2.6.5` is the newest v2.x and carries the legacy assets. Its flag surface was
+  checked on the real binary rather than assumed: `--bundle`, `--digest`,
+  `--digestAlg` and `--type` all exist, and the step's exact
+  `verify-blob-attestation` invocation returns `Verified OK` against the real
+  2.28.4 bundle (and fails on a wrong digest).
+
+- [#247](https://github.com/STEMORG2026/universal-software-auditor/pull/247) [`b6393aa`](https://github.com/STEMORG2026/universal-software-auditor/commit/b6393aa593f59a35e53a96e02e4de06f0315d769) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - ci: read the filed provenance bundles back on a schedule
+  
+  `publish.yml` verifies the bundle before filing it, which is necessary and not
+  sufficient — verification that happens only in the run that produced the
+  artefact cannot notice that the artefact was withdrawn afterwards, that the
+  signature no longer resolves, or that a VSA field was edited.
+  
+  `.github/workflows/provenance-check.yml` runs `check-provenance.mjs` over every
+  filed bundle at or above **2.28.3** (the first version filed by the verified
+  path; older bundles carry three known findings and are left as filed) on a
+  weekly schedule and on manual dispatch. It is not a PR check: it needs the npm
+  registry and the cosign trust root, and a network check on every PR is a check
+  people learn to ignore.
+  
+  Measured both directions before the job was added: at a floor of 2.28.2 it
+  enumerates `v2.28.2`, reports two FAIL and one NOTE, and exits 1; at the real
+  floor of 2.28.3 it reports `no filed bundle at or above 2.28.3 — nothing to read
+  yet` and exits 0. `docs/release.md` no longer says the read-back is unwired.
+  
+  The checker also stopped requiring one spelling of the subject name. It
+  demanded `xenos1996-usa-<version>.tgz`, which every bundle up to 2.28.2 happens
+  to carry, while `publish.yml` has since set its `subject-name` to
+  `usa-release-X.Y.Z.tgz`. The first bundle filed after that change would have
+  failed the weekly job on a naming choice. It now requires the name to end
+  `-<version>.tgz` and to match the statement the VSA summarises — measured on the
+  live 2.28.4 attestation, which now reports three PASS and one NOTE.
+
+- [#250](https://github.com/STEMORG2026/universal-software-auditor/pull/250) [`1363676`](https://github.com/STEMORG2026/universal-software-auditor/commit/1363676d731ee57dddc4dad9ebcdcd4e767ba235) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - fix(release): install cosign, which the provenance step calls
+  
+  `publish.yml` verifies the bundle with `cosign verify-blob-attestation` before
+  filing it, and nothing in the workflow ever installed cosign. Four earlier runs
+  died a line earlier — at the ref selector — so the missing tool was never
+  reached. The first run to get past selection (39956868762) died with:
+  
+  ```
+  selected provenance for refs/tags/@xenos1996/usa@2.28.4 (1 match)
+  line 125: cosign: command not found
+  exit 127
+  ```
+  
+  Adds `sigstore/cosign-installer`, pinned to `398d4b0` (v3.9.1), before the step
+  that calls it. Three assertions in `tests/unit/publish-workflow.test.ts` pin the
+  shape: the step calls cosign, cosign is installed from a commit-pinned action,
+  and it is installed _before_ the step — an installer placed after the step is
+  as broken as none at all.
+
+- [#246](https://github.com/STEMORG2026/universal-software-auditor/pull/246) [`f1a0ebe`](https://github.com/STEMORG2026/universal-software-auditor/commit/f1a0ebe980a837ef6c957fbe3ac9b58412b796d4) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - release: export the expected ref so the provenance selector can read it
+  
+  The `File provenance bundle + VSA` step failed for the third time on the 2.28.3
+  dispatch (run 39943859454), and again for a reason that was knowledge rather
+  than logic:
+  
+  - `EXPECTED_REF="refs/tags/@xenos1996/usa@${VERSION}"` was a shell assignment,
+    which is **not** an environment entry. `node -e` therefore read
+    `process.env.EXPECTED_REF` as `undefined` and compared every statement's ref
+    against it, so the step died with
+    `no provenance for 71e5278c… built from undefined (saw 3)` — while all three
+    attestations were present in the response, one of them from the release tag.
+    The digest was correct the whole time; only the expected ref was invisible.
+    The line is now `export`ed.
+  - The selector also refuses to run without `EXPECTED_REF` or `TARBALL_SHA256`
+    in the environment, so this class of defect reports its cause instead of
+    reading like a missing attestation.
+  
+  `tests/unit/publish-workflow.test.ts` derives the constraint rather than naming
+  the variable: every `process.env.X` read by a node block in the step must come
+  from `$GITHUB_ENV`, the step's `env:` block, an inline `X=… node` prefix, or an
+  `export`. Reintroducing the bare assignment makes it fail with
+  `['EXPECTED_REF']`; restored, the file is byte-identical.
+
 ## 2.28.4
 
 ### Patch Changes
