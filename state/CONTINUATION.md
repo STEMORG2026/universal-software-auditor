@@ -107,6 +107,22 @@ Verified: `40065932882` went from `action_required` to `in_progress` on approval
 post-commit hook appended a `chore(state)` commit to the release branch and it had
 to be removed with `--force-with-lease`. Approving touches nothing.
 
+### The read-back loop is live, and master is green
+
+`#254` merged as `a6f7eb3`. The scheduled job's own `run:` block, executed against
+master's `provenance/`:
+
+```
+### provenance v2.28.4
+FAILs: 0
+job exit: 0
+```
+
+One version, three PASS and one NOTE. That is the loop doing its job on a real
+filed bundle — it rejected this same bundle an hour earlier, correctly, and now
+accepts it because the record was fixed rather than because the check was
+weakened.
+
 **#249 is the changesets bot's Version Packages PR for 2.28.5**, opened within
 minutes of #246 landing, and its only changeset is #246's. For two dispatches it
 was a trap: merging it would have published 2.28.5 through a workflow that had
@@ -221,7 +237,7 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: 830a6c5 # master; released 2.28.5; #254 (VSA name) is not
+  code_commit_sha: a6f7eb3 # master; #254 merged, the read-back is green on 2.28.4
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
@@ -232,28 +248,19 @@ checkpoint:
   tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 254
-      title: 'fix(release): the VSA named the npm pack file, not the attested subject'
-      state: CLEAN # merge this first — without it #247's job is red on 2.28.4/2.28.5
-    - number: 256
-      title: 'docs(provenance): file the recovered 2.28.3 bundle'
-      state: BLOCKED # cut from master, 2 files; replaces the closed #255
     - number: 253
       title: 'docs: attach SLSA provenance bundle for v2.28.5'
-      state: CLEAN # VSA name corrected on the branch (84e767a)
-    - number: 249
-      title: 'chore(master): release' # changesets bot; would publish 2.28.5
-      state: BLOCKED # DO NOT merge before #251 — it would publish another bundle-less release
-    - number: 247
-      title: 'ci: read the filed provenance bundles back on a schedule'
-      state: CLEAN
-    - number: 245
-      title: 'docs(state): hand off …'
-      state: CLEAN # this file
+      state: CLEAN # merge first; verifies against master's checker
+    - number: 256
+      title: 'docs(provenance): file the recovered 2.28.3 bundle'
+      state: CLEAN # cut from master, 2 files; replaces the closed #255
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
-      state: CLEAN # merge last; take its SEALED SA09 on any further conflict
-  merged_this_phase: [244, 246, 247, 249, 250, 251, 252] # #253/#254/#255 open # 244 out of order; it published 2.28.4 and broke its provenance step
+      state: CLEAN # take its SEALED SA09 on any further conflict
+    - number: 245
+      title: 'docs(state): hand off …'
+      state: CLEAN # this file; merge after the bundles so it describes the end state
+  merged_this_phase: [244, 246, 247, 249, 250, 251, 252, 254] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
   last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
