@@ -315,14 +315,14 @@ function isSealingCommit(sessions, branch) {
   // `macp seal` writes `- **Code commit:** <sha>` in the `## Close` block, but
   // `macp close` writes the same fact as prose in its close report — and the
   // close commit has to be recordable *before* the seal exists. Read both.
-  // A reopened session carries one close report per close, and each seal
-  // carries its own code commit — the first seal's field is older than the
-  // second close's report. So read the newest close report first, and fall back
-  // to the seal's field only when there is no report.
-  const report = session.text.slice(session.text.indexOf('## Close report'));
+  // A reopened session carries one close report per close and one seal per
+  // seal, and each states the commit it froze at. The seal sits after the close
+  // report in the file, so the last `**Code commit:**` field is the newest fact
+  // — the seal's, once one exists. The close report is the fallback for a
+  // session that is closed but not yet sealed, which has no field at all.
   const codeCommit =
-    [...report.matchAll(/Code commit `([0-9a-f]{7,40})`/g)].pop()?.[1] ??
     lastField(session.text, 'Code commit') ??
+    [...session.text.matchAll(/Code commit `([0-9a-f]{7,40})`/g)].pop()?.[1] ??
     null;
   if (!codeCommit) return false;
 

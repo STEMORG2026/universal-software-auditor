@@ -39,10 +39,20 @@ export function canonicalPayload(fields) {
   return `${keys.map((key) => `${key}=${fields[key] ?? ''}`).join('\n')}\n`;
 }
 
-function run(command, args, options = {}) {
+/**
+ * Run a helper. `interactive` hands the child this process's terminal.
+ *
+ * Signing must be interactive: a passphrase-protected key — the shape the owner
+ * was told to use, and the only shape that stops an agent from sealing on his
+ * behalf — needs `ssh-keygen` to prompt. With piped stdio there is no terminal
+ * to prompt on, so it falls through to `ssh-askpass`, which does not exist on a
+ * headless box, and the seal dies with "incorrect passphrase" even when the
+ * passphrase was right.
+ */
+function run(command, args, { interactive = false, ...options } = {}) {
   return execFileSync(command, args, {
     encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
+    stdio: interactive ? ['ignore', 'inherit', 'inherit'] : ['pipe', 'pipe', 'pipe'],
     ...options,
   });
 }
@@ -80,7 +90,9 @@ export function signPayload(payload, keyPath) {
   return withTempDir((dir) => {
     const messageFile = path.join(dir, 'payload.txt');
     writeFileSync(messageFile, payload, 'utf8');
-    run('ssh-keygen', ['-Y', 'sign', '-f', keyPath, '-n', SIGN_NAMESPACE, messageFile]);
+    run('ssh-keygen', ['-Y', 'sign', '-f', keyPath, '-n', SIGN_NAMESPACE, messageFile], {
+      interactive: true,
+    });
     const signature = readFileSync(`${messageFile}.sig`);
     return {
       signature: signature.toString('base64'),

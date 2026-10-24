@@ -8,25 +8,25 @@ status column must agree with the file's own `**Status:**`, which
 drifted: HX04 read IN-PROGRESS here for three weeks while its file said
 COMPLETED.
 
-| ID     | Date       | Agent | Harness   | Branch                                                       | Task                                         | Status    | File                                                 |
-| ------ | ---------- | ----- | --------- | ------------------------------------------------------------ | -------------------------------------------- | --------- | ---------------------------------------------------- |
-| `HX01` | 2026-10-01 | HX01  | HERMES    | `docs/0042-continuous-ingestion`                             | Bootstrap the MACP state directory           | CLOSED    | `sessions/20261001-1630-HX01-bootstrap-macp.md`      |
-| `HX02` | 2026-10-01 | HX02  | HERMES    | `docs/0042-continuous-ingestion`                             | MACP startup fix + HX01 handoff              | CLOSED    | `sessions/20261001-2003-HX02-continue-macp.md`       |
-| `HX03` | 2026-10-01 | HX03  | HERMES    | `master`                                                     | Fresh session — no summary was written       | CLOSED    | `sessions/20261001-2157-HX03-fresh-session.md`       |
-| `HX04` | 2026-10-02 | HX04  | HERMES    | `fix/protocol-start-gate`                                    | Protocol start gate + AGENTS.md truncation   | CLOSED    | `sessions/20261002-0514-HX04-protocol-start-gate.md` |
-| `OC01` | 2026-10-09 | OC01  | opencode  | `fix/release-oidc-and-git-cli`                               | Release pipeline diagnosis                   | CLOSED    | `sessions/20261009-0458-OC01-release-diagnosis.md`   |
-| `SA01` | 2026-10-21 | SA01  | WorkBuddy | `fix/verdict-correctness`                                    | Verdict correctness and production readiness | CLOSED    | `sessions/20261021-0600-SA01-verdict-correctness.md` |
-| `SA02` | 2026-10-21 | SA02  | WorkBuddy | `fix/scanner-artifact-contract`                              | Scanner artifacts, not stdout                | CLOSED    | `sessions/20261021-2037-SA02-scanner-artifacts.md`   |
-| `SA03` | 2026-10-21 | SA03  | WorkBuddy | `feat/codeql-verified`                                       | CodeQL, actually run                         | CLOSED    | `sessions/20261021-2104-SA03-codeql-verified.md`     |
-| `SA04` | 2026-10-22 | SA04  | WorkBuddy | `master (merge-out + release; no feature branch of its own)` | Merge the queue, ship 2.28.0                 | CLOSED    | `sessions/20261022-0945-SA04-release.md`             |
-| `SA05` | 2026-10-22 | SA05  | WorkBuddy | `fix/scanner-stderr-reason`                                  | A failing scanner says why                   | CLOSED    | `sessions/20261022-1008-SA05-stderr-reason.md`       |
-| `SA06` | 2026-10-22 | SA06  | WorkBuddy | `ci/e2e-no-vacuous-pass`                                     | The e2e suite that passed without running    | CLOSED    | `sessions/20261022-1205-SA06-vacuous-e2e.md`         |
-| `SA07` | 2026-10-22 | SA07  | WorkBuddy | `fix/local-scanner-bin`                                      | The scanner that could not see itself        | CLOSED    | `sessions/20261022-1235-SA07-local-scanner-bin.md`   |
-| `SA08` | 2026-10-22 | SA08  | WorkBuddy | `ci/trivy-in-ci`                                             | The second scanner in CI                     | CLOSED    | `sessions/20261022-1345-SA08-trivy-ci.md`            |
-| `SA09` | 2026-10-22 | SA09  | WorkBuddy | `docs/handoff-protocol`                                      | Handoff to the completion protocol           | CLOSED    | `sessions/20261022-1410-SA09-handoff-protocol.md`    |
-| `SA10` | 2026-10-23 | SA10  | WorkBuddy | `docs/macp-session-seal`, `docs/continuation-post-243`       | Owner-sealed session lifecycle               | CLOSED    | `sessions/20261023-1800-SA10-macp-session-seal.md`   |
-| `SA11` | 2026-10-24 | SA11  | WorkBuddy | `fix/release-pr-born-red`, `docs/resync-token-correction`    | The provenance chain, closed end to end      | CLOSED    | `sessions/20261024-0918-SA11-provenance-chain.md`    |
-| `SA12` | 2026-10-24 | SA12  | WorkBuddy | `feat/macp-runtime-v2`                                       | MACP runtime, pre-work gate, SSH seal        | COMPLETED | `sessions/20261024-1840-SA12-macp-runtime-v2.md`     |
+| ID     | Date       | Agent | Harness   | Branch                                                       | Task                                         | Status | File                                                 |
+| ------ | ---------- | ----- | --------- | ------------------------------------------------------------ | -------------------------------------------- | ------ | ---------------------------------------------------- |
+| `HX01` | 2026-10-01 | HX01  | HERMES    | `docs/0042-continuous-ingestion`                             | Bootstrap the MACP state directory           | CLOSED | `sessions/20261001-1630-HX01-bootstrap-macp.md`      |
+| `HX02` | 2026-10-01 | HX02  | HERMES    | `docs/0042-continuous-ingestion`                             | MACP startup fix + HX01 handoff              | CLOSED | `sessions/20261001-2003-HX02-continue-macp.md`       |
+| `HX03` | 2026-10-01 | HX03  | HERMES    | `master`                                                     | Fresh session — no summary was written       | CLOSED | `sessions/20261001-2157-HX03-fresh-session.md`       |
+| `HX04` | 2026-10-02 | HX04  | HERMES    | `fix/protocol-start-gate`                                    | Protocol start gate + AGENTS.md truncation   | CLOSED | `sessions/20261002-0514-HX04-protocol-start-gate.md` |
+| `OC01` | 2026-10-09 | OC01  | opencode  | `fix/release-oidc-and-git-cli`                               | Release pipeline diagnosis                   | CLOSED | `sessions/20261009-0458-OC01-release-diagnosis.md`   |
+| `SA01` | 2026-10-21 | SA01  | WorkBuddy | `fix/verdict-correctness`                                    | Verdict correctness and production readiness | CLOSED | `sessions/20261021-0600-SA01-verdict-correctness.md` |
+| `SA02` | 2026-10-21 | SA02  | WorkBuddy | `fix/scanner-artifact-contract`                              | Scanner artifacts, not stdout                | CLOSED | `sessions/20261021-2037-SA02-scanner-artifacts.md`   |
+| `SA03` | 2026-10-21 | SA03  | WorkBuddy | `feat/codeql-verified`                                       | CodeQL, actually run                         | CLOSED | `sessions/20261021-2104-SA03-codeql-verified.md`     |
+| `SA04` | 2026-10-22 | SA04  | WorkBuddy | `master (merge-out + release; no feature branch of its own)` | Merge the queue, ship 2.28.0                 | CLOSED | `sessions/20261022-0945-SA04-release.md`             |
+| `SA05` | 2026-10-22 | SA05  | WorkBuddy | `fix/scanner-stderr-reason`                                  | A failing scanner says why                   | CLOSED | `sessions/20261022-1008-SA05-stderr-reason.md`       |
+| `SA06` | 2026-10-22 | SA06  | WorkBuddy | `ci/e2e-no-vacuous-pass`                                     | The e2e suite that passed without running    | CLOSED | `sessions/20261022-1205-SA06-vacuous-e2e.md`         |
+| `SA07` | 2026-10-22 | SA07  | WorkBuddy | `fix/local-scanner-bin`                                      | The scanner that could not see itself        | CLOSED | `sessions/20261022-1235-SA07-local-scanner-bin.md`   |
+| `SA08` | 2026-10-22 | SA08  | WorkBuddy | `ci/trivy-in-ci`                                             | The second scanner in CI                     | CLOSED | `sessions/20261022-1345-SA08-trivy-ci.md`            |
+| `SA09` | 2026-10-22 | SA09  | WorkBuddy | `docs/handoff-protocol`                                      | Handoff to the completion protocol           | CLOSED | `sessions/20261022-1410-SA09-handoff-protocol.md`    |
+| `SA10` | 2026-10-23 | SA10  | WorkBuddy | `docs/macp-session-seal`, `docs/continuation-post-243`       | Owner-sealed session lifecycle               | CLOSED | `sessions/20261023-1800-SA10-macp-session-seal.md`   |
+| `SA11` | 2026-10-24 | SA11  | WorkBuddy | `fix/release-pr-born-red`, `docs/resync-token-correction`    | The provenance chain, closed end to end      | CLOSED | `sessions/20261024-0918-SA11-provenance-chain.md`    |
+| `SA12` | 2026-10-24 | SA12  | WorkBuddy | `feat/macp-runtime-v2`                                       | MACP runtime, pre-work gate, SSH seal        | CLOSED | `sessions/20261024-1840-SA12-macp-runtime-v2.md`     |
 
 ---
 
