@@ -1,8 +1,11 @@
 **Agent:** HX04 (HERMES)
+**Harness:** HERMES
+**History:** not exported — the transcript lives in the harness, not the repo
 **Model:** meituan/longcat-2.5-preview:free
 **Branch:** fix/protocol-start-gate
 **Started:** 2026-10-02T05:14:00+05:45
-**Status:** COMPLETED
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 **Base commit:** 614530a
 
 # Session HX04 — Protocol start gate + AGENTS.md truncation root cause
@@ -175,3 +178,13 @@ was legitimately in progress. This blocked every mid-session feature-branch
 push and contradicted AGENTS.md's "push when a reviewable whole is
 complete." Both are now scoped to master. This is why the protocol was
 unworkable in practice, not just unenforced.
+
+---
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** COMPLETED — the start gate merged; INDEX.md still listed this session as IN-PROGRESS, which is corrected in the same commit as this seal.
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

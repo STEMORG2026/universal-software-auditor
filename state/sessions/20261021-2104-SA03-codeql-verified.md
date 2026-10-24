@@ -1,7 +1,10 @@
 **Agent:** SA03 (Sathi / WorkBuddy)
+**Harness:** WorkBuddy
+**History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** feat/codeql-verified
 **Started:** 2026-10-21T21:04+05:45
-**Status:** COMPLETED
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 **Base commit:** eab1186 (fix/scanner-artifact-contract, PR #199)
 
 # Session SA03 — CodeQL, actually run
@@ -103,3 +106,13 @@ failure and was restored.
 ### 18:20 — Commit
 
 `9bfc3f1` Merge remote-tracking branch 'origin/master' into fix/semgrep-scanned-guard
+
+---
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** COMPLETED — the session's work was merged before the seal; the record carried no PR number.
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

@@ -1,7 +1,10 @@
 **Agent:** SA09 (Sathi / WorkBuddy)
+**Harness:** WorkBuddy
+**History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** docs/handoff-protocol, docs/handoff-sha
 **Started:** 2026-10-22T14:10+05:45
-**Status:** COMPLETED (merged as #217)
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 **Base commit:** b7241ec (master, after #216)
 
 # Session SA09 — handoff to the completion protocol
@@ -165,46 +168,12 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 
 `b89d942` docs(release): correct how the attestation is fetched
 
-### 11:12 — Commit
+---
 
-`8f3942c` fix(release): export the expected ref so the provenance selector can read it
+## Close
 
-### 11:24 — Commit
-
-`07fc125` ci: read the filed provenance bundles back on a schedule
-
-### 12:36 — Commit
-
-`f6f2c89` fix(provenance): check agreement, not a spelling
-
-### 12:54 — Commit
-
-`fece0aa` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
-
-### 13:00 — Commit
-
-`5476f96` fix(release): install cosign, which the provenance step calls
-
-### 13:12 — Commit
-
-`4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
-
-### 13:56 — Commit
-
-`7a199d2` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
-
-### 13:45 — Commit
-
-`210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
-
-### 03:54 — Commit
-
-`85e0629` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
-
-### 05:24 — Commit
-
-`55c385a` fix(release): the VSA named the npm pack file, not the attested subject
-
-### 05:45 — Commit
-
-`a1bcfa2` fix(release): a comment inside a line-continued block broke the VSA step
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** COMPLETED (merged as #217)
+- **Outcome:** COMPLETED — work reached master before the seal (merged as #217).
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`

@@ -62,11 +62,19 @@ if (!sessionFile) {
 
   const inProgress = content.includes('**Status:** IN-PROGRESS');
   const completed = content.includes('**Status:** COMPLETED');
+  // CLOSED is the terminal state (docs/macp.md §4C): the owner sealed it. This
+  // gate used to accept only IN-PROGRESS and COMPLETED, which made the sealing
+  // commit itself impossible — the newest session file could be sealed and
+  // `check-sessions.mjs` would agree, but the pre-commit hook refused to record
+  // it. It went unnoticed because this gate only inspects the newest file, and
+  // every earlier seal left a COMPLETED file behind it.
+  const closed = content.includes('**Status:** CLOSED');
 
-  if (!inProgress && !completed) {
+  if (!inProgress && !completed && !closed) {
     fail(
-      `${sessionFile} has no '**Status:** IN-PROGRESS' or '**Status:** COMPLETED' header — ` +
-        'the session file header schema in STARTUP.md STEP 9 is mandatory.',
+      `${sessionFile} has no '**Status:** IN-PROGRESS', '**Status:** COMPLETED' or ` +
+        "'**Status:** CLOSED' header — the session file header schema in " +
+        'STARTUP.md STEP 9 is mandatory.',
     );
   }
 

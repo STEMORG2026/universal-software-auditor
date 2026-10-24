@@ -1,8 +1,11 @@
 **Agent:** OC01 (opencode)
+**Harness:** opencode
+**History:** not exported — the transcript lives in the harness, not the repo
 **Model:** opencode/longcat-2.5-preview-free
 **Branch:** fix/release-oidc-and-git-cli
 **Started:** 2026-10-09T04:58:12+05:45
-**Status:** IN-PROGRESS
+**Status:** CLOSED
+**Closed:** 2026-10-23T18:05+05:45 by owner
 **Base commit:** 7f25fbf
 
 # Session OC01 — Release Pipeline Diagnosis
@@ -92,3 +95,13 @@ review dependabot #176–#179.
 ### 00:38 — Commit
 
 `9793d6c` fix(invariants): an asserted rule that does not apply cannot fail
+
+---
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "complete the work left in each session and close them — all the sessions must be closed"
+- **Closed at:** 2026-10-23T18:05+05:45
+- **Status at close:** IN-PROGRESS
+- **Outcome:** COMPLETED — the release fix merged as #184; the four follow-ups the session left open were verified resolved before sealing (#174 closed, #180 closed, #176–#179 merged).
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`
