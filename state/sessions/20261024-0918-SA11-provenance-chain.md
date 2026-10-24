@@ -66,6 +66,12 @@ itself is unproven until it runs.
 review. They are not defects — the engine excludes them from the score rather than
 counting them as passes — but they are the owner's call, not the agent's.
 
+### 12:25 — Commit
+
+`3fc7da5` docs(session): reopen SA11 to record what was got wrong
+
+---
+
 ## Outcome — COMPLETED, awaiting the owner's seal
 
 - master `0bb0144`, **0 open PRs**, `master` the only local branch, tree clean
