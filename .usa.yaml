@@ -100,6 +100,37 @@ suppressions:
       automation, and settings-as-code is disproportionate for a
       single-branch repo. Revisit with a drift check, not a snapshot.
 
+  # The Python pack now fires because this repository ships one Python file:
+  # `scripts/macp/hooks/adapters/hermes_plugin.py`, a ~60-line adapter for a
+  # Python host (Hermes), stdlib-only (json/os/subprocess/pathlib/typing). It
+  # is copied into the host's plugin directory and executed there; the Node
+  # runtime never imports it. There is no Python package, no third-party
+  # Python dependency, and no Python CI job — so the four rules below ask
+  # questions whose premise is false here. They stay listed (not silently
+  # dropped) and must burn the moment a second `.py` file with a third-party
+  # import appears.
+  - rule: PY-001
+    reason: >-
+      No Python manifest exists because there are no Python dependencies to
+      declare. The single adapter imports only the standard library. Adding a
+      pyproject.toml would create the appearance of a package that nothing
+      builds, tests, or publishes.
+  - rule: PY-003
+    reason: >-
+      Nothing to pin. Pinning is for third-party packages; this adapter has
+      none. An empty requirements.txt with a comment would satisfy the pattern
+      and prove nothing.
+  - rule: PY-002
+    reason: >-
+      This repository does not choose a Python runtime. The adapter runs inside
+      whatever interpreter Hermes already uses, on the machine that installed
+      it; there is no Python step in CI to pin against.
+  - rule: PY-010
+    reason: >-
+      No Python code is authored here beyond one glue file that is reviewed by
+      the same PR gate as the rest of the tree. A ruff configuration would lint
+      60 lines once and then need its own maintenance.
+
 # Reviews — dated human attention (ADR-0023). A review never changes a
 # verdict; it records that someone looked, with evidence, and when to look
 # again. Stale reviews warn instead of silently rotting.

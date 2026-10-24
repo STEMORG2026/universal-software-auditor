@@ -331,8 +331,24 @@ export function docFiles() {
 export const META_DOCS = new Set(['docs/writing-docs.md']);
 
 /** Docs the claim scanner skips entirely (generated, immutable history, or meta). */
+/**
+ * Session files are sealed records: `scripts/check-sessions.mjs` compares each
+ * one byte for byte against the commit that sealed it, so nothing may rewrite
+ * them afterwards — not the fact sync, not the claim scanner.
+ *
+ * The conflict this resolves is real and was measured: adding ADR-0045 moved
+ * the ADR count to 45, `sync-docs` rewrote the `44` inside SA04/SA09/HX01/SA10,
+ * and the session gate then failed all four as "edited after its seal". A
+ * number in a session file is a measurement from the day it was taken; editing
+ * it to today's value does not keep the record current, it falsifies it. The
+ * living documents (CONTINUATION, DASHBOARD) are where counts stay current.
+ */
+export const IMMUTABLE_RECORDS = /^state\/sessions\//;
+
 export function claimScannedFiles() {
-  return docFiles().filter((f) => !f.startsWith('docs/adr/') && !META_DOCS.has(f));
+  return docFiles().filter(
+    (f) => !f.startsWith('docs/adr/') && !META_DOCS.has(f) && !IMMUTABLE_RECORDS.test(f),
+  );
 }
 
 /** Read a doc's current content. */

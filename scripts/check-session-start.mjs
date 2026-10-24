@@ -1,31 +1,44 @@
 #!/usr/bin/env node
 /**
- * Start-of-session gate (ADR-0044) — the missing half of check-protocol.mjs.
+ * Start-of-session gate (ADR-0044, hardened by ADR-0045).
  *
- * `check-protocol.mjs` verifies the session CLOSED cleanly (tree clean,
- * session COMPLETED, no active agents, no mergeable PRs). Every one of its
- * checks is end-loaded: an agent can skip the entire 10-step MACP startup,
- * do the work, and only meet friction at push time. This gate checks the
- * START actually happened, so skipping it fails at the first commit rather
- * than after the work is done.
+ * WHAT WAS WRONG. The first version of this gate answered one question: "is the
+ * newest session file `IN-PROGRESS` with a plan?" If the newest file was
+ * `COMPLETED` — the normal state of `master` between sessions — it exited 0
+ * without looking at anything else. So an agent could cut a branch, skip the
+ * entire startup, edit the tree, and commit: the gate saw a `COMPLETED` session
+ * (somebody else's, from last week) and approved. Reproduced before the fix in
+ * a scratch repository: feature branch, staged change, no session for that
+ * branch, no plan, not in `REGISTRY.md` → exit 0.
  *
- * Checks (only when `state/` exists — a repo with no MACP state passes,
- * that is the bootstrap case handled by AGENTS.md Section 7):
+ * WHAT IT ASKS NOW. On a branch that is not `master` and is not a bot branch,
+ * and that carries work, it requires all five:
  *
- * 1. A session file exists (something registered this session).
- * 2. If the latest session file is IN-PROGRESS:
- *    a. it has a matching plan in state/plans/ (STEP 10), and
- *    b. it is listed under Active Agents in REGISTRY.md (STEP 9).
- * 3. If the latest session file is COMPLETED, the gate passes — the close
- *    path is check-protocol.mjs's job, not this one.
+ *   1. a session whose `**Branch:**` names THIS branch,
+ *   2. that session is `IN-PROGRESS` or `REOPENED`,
+ *   3. a plan in `state/plans/` for that agent,
+ *   4. an entry under Active Agents in `REGISTRY.md`,
+ *   5. a local lease under `~/.macp/leases/` for this repo and branch — proof
+ *      that `macp start` ran on this machine, not just that a file exists.
+ *
+ * `master` and bot branches keep the close-path behaviour: they are where work
+ * arrives, so requiring an active session there would fail every merge.
+ *
+ * THE LEASE AND CI. A fresh CI checkout has no `~/.macp`, so the lease check is
+ * skipped when `GITHUB_ACTIONS=true`. That is an audit control, not a security
+ * control: an agent can set the variable locally and defeat check 5. Checks 1-4
+ * still hold, and they are the ones CI enforces. Do not describe the lease as
+ * protection.
  *
  * Exit 0 compliant, 1 violation. Usage: `node scripts/check-session-start.mjs`.
  */
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
 
 const root = process.cwd();
-const stateDir = resolve(root, 'state');
+const stateDir = path.resolve(root, 'state');
 
 /** No MACP state at all → bootstrap case, nothing to enforce. */
 if (!existsSync(stateDir)) {
@@ -33,98 +46,254 @@ if (!existsSync(stateDir)) {
   process.exit(0);
 }
 
-const sessionDir = resolve(stateDir, 'sessions');
-const plansDir = resolve(stateDir, 'plans');
-const registryPath = resolve(stateDir, 'REGISTRY.md');
+const SESSION_DIR = path.join(stateDir, 'sessions');
+const PLANS_DIR = path.join(stateDir, 'plans');
+const REGISTRY = path.join(stateDir, 'REGISTRY.md');
+
+const ACTIVE = new Set(['IN-PROGRESS', 'REOPENED']);
+const TERMINAL = new Set(['COMPLETED', 'CLOSED']);
+const BOT_BRANCH = /^(dependabot\/|changeset-release\/|provenance\/|renovate\/)/;
 
 const failures = [];
-const fail = (m) => failures.push(m);
+const fail = (message) => failures.push(message);
 
-function latestSessionFile() {
-  if (!existsSync(sessionDir)) return null;
-  const files = readdirSync(sessionDir)
-    .filter((f) => f.endsWith('.md'))
-    .sort()
-    .reverse();
-  return files.length > 0 ? files[0] : null;
+function git(args) {
+  try {
+    return execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch {
+    return '';
+  }
 }
 
-const sessionFile = latestSessionFile();
+/**
+ * The branch this run is about.
+ *
+ * In CI a pull request is checked out detached, so `rev-parse` says `HEAD` and
+ * the gate would look for a session on a branch called `HEAD` — failing every
+ * PR for a reason that has nothing to do with the PR. GitHub names the real
+ * branch in `GITHUB_HEAD_REF`; a push names it in `GITHUB_REF_NAME`.
+ */
+function currentBranch() {
+  const ciBranch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || '';
+  return ciBranch || git(['rev-parse', '--abbrev-ref', 'HEAD']);
+}
 
-if (!sessionFile) {
-  fail(
-    'no session file in state/sessions/ — STEP 9 (register yourself) was skipped. ' +
-      'Create state/sessions/YYYYMMDD-HHMM-<AGENT-ID>-<slug>.md before committing.',
-  );
-} else {
-  const sessionPath = resolve(sessionDir, sessionFile);
-  const content = readFileSync(sessionPath, 'utf-8');
+/** `**Field:** value` from a session file. */
+function field(text, name) {
+  const match = text.match(new RegExp(`^\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'm'));
+  return match ? match[1].trim() : null;
+}
 
-  const inProgress = content.includes('**Status:** IN-PROGRESS');
-  const completed = content.includes('**Status:** COMPLETED');
-  // CLOSED is the terminal state (docs/macp.md §4C): the owner sealed it. This
-  // gate used to accept only IN-PROGRESS and COMPLETED, which made the sealing
-  // commit itself impossible — the newest session file could be sealed and
-  // `check-sessions.mjs` would agree, but the pre-commit hook refused to record
-  // it. It went unnoticed because this gate only inspects the newest file, and
-  // every earlier seal left a COMPLETED file behind it.
-  const closed = content.includes('**Status:** CLOSED');
+function statusOf(text) {
+  const raw = field(text, 'Status');
+  return raw ? raw.split(/[ (]/)[0] : null;
+}
 
-  if (!inProgress && !completed && !closed) {
+/** Branches a session declares, normalised the same way `macp` does it. */
+function branchesNamed(text) {
+  const raw = field(text, 'Branch');
+  if (!raw) return [];
+  return raw
+    .split(',')
+    .map((part) => part.replace(/`/g, '').split(/[(\s]/)[0].trim())
+    .filter((part) => part && part !== 'master');
+}
+
+function sessionFiles() {
+  if (!existsSync(SESSION_DIR)) return [];
+  return readdirSync(SESSION_DIR)
+    .filter((name) => name.endsWith('.md'))
+    .sort()
+    .map((name) => path.join(SESSION_DIR, name));
+}
+
+function readAll() {
+  return sessionFiles().map((file) => {
+    const text = readFileSync(file, 'utf8');
+    return {
+      file,
+      name: path.basename(file),
+      id: path.basename(file).split('-')[2] ?? path.basename(file),
+      text,
+      status: statusOf(text),
+      agent: field(text, 'Agent')?.split(/[\s(]/)[0] ?? null,
+      branches: branchesNamed(text),
+    };
+  });
+}
+
+/** Staged or unstaged entries, plus commits `master` does not have. */
+function hasWork() {
+  let status;
+  try {
+    status = execFileSync('git', ['status', '--porcelain'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch {
+    status = '';
+  }
+  if (status.trim()) return true;
+  return Number.parseInt(git(['rev-list', '--count', 'master..HEAD']) || '0', 10) > 0;
+}
+
+/** The lease `macp start` writes outside the tree. Mirrors lib/repo.mjs. */
+function leaseFor(repoIdValue, branch) {
+  const home = process.env.MACP_HOME || path.join(process.env.HOME ?? '~', '.macp');
+  const file = path.join(home, 'leases', `${repoIdValue}.json`);
+  if (!existsSync(file)) return null;
+  try {
+    return JSON.parse(readFileSync(file, 'utf8')).leases?.[branch] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The repository identity the lease store is keyed by — the same derivation as
+ * `scripts/macp/lib/repo.mjs`, duplicated rather than imported so this gate
+ * stays a single file with no internal coupling.
+ */
+function repoIdValue() {
+  const remote = git(['remote', 'get-url', 'origin']);
+  const identity = remote || path.resolve(root);
+  const slug = identity
+    .replace(/^git@([^:]+):/, '$1/')
+    .replace(/^https?:\/\//, '')
+    .replace(/\.git$/, '')
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .toLowerCase();
+  return `${slug}-${createHash('sha256').update(identity).digest('hex').slice(0, 8)}`;
+}
+
+/** 1-4: a session that owns this branch, is live, is planned, is registered. */
+function checkActiveSession(sessions, branch) {
+  const owned = sessions.filter((session) => session.branches.includes(branch));
+  if (owned.length === 0) {
     fail(
-      `${sessionFile} has no '**Status:** IN-PROGRESS', '**Status:** COMPLETED' or ` +
-        "'**Status:** CLOSED' header — the session file header schema in " +
-        'STARTUP.md STEP 9 is mandatory.',
+      `no session in state/sessions/ names branch "${branch}" — MACP startup was skipped. ` +
+        'Run `pnpm run macp -- start --agent <ID> --harness <name> --task "…" ' +
+        '--authorized-by "…"` before the first edit.',
+    );
+    return null;
+  }
+
+  const live = owned.filter((session) => ACTIVE.has(session.status));
+  if (live.length === 0) {
+    const seen = owned.map((session) => `${session.name} is ${session.status ?? 'unlabelled'}`);
+    fail(
+      `branch "${branch}" has a session, but none is IN-PROGRESS or REOPENED (${seen.join('; ')}). ` +
+        'A finished session does not authorise more work on the same branch — that is a new session.',
+    );
+    return null;
+  }
+
+  const session = live[live.length - 1];
+
+  if (!session.agent) {
+    fail(
+      `${session.name} has no **Agent:** field — the header schema in STARTUP.md STEP 9 is mandatory`,
+    );
+    return session;
+  }
+
+  const plans = existsSync(PLANS_DIR)
+    ? readdirSync(PLANS_DIR).filter((n) => n.endsWith('.md'))
+    : [];
+  if (!plans.some((plan) => plan.includes(session.agent))) {
+    fail(
+      `${session.name} is ${session.status} but no plan in state/plans/ references ${session.agent} — ` +
+        'STEP 10 was skipped.',
     );
   }
 
-  if (inProgress) {
-    // STEP 10 — a plan must exist for this session.
-    if (!existsSync(plansDir)) {
-      fail(
-        `${sessionFile} is IN-PROGRESS but state/plans/ does not exist — ` +
-          'STEP 10 (create a plan entry) was skipped.',
-      );
-    } else {
-      const plans = readdirSync(plansDir).filter((f) => f.endsWith('.md'));
-      const agentMatch = content.match(/\*\*Agent:\*\*\s*([A-Za-z0-9]+)/);
-      const agentId = agentMatch ? agentMatch[1] : null;
-      const hasPlan = agentId ? plans.some((p) => p.includes(agentId)) : plans.length > 0;
-      if (!hasPlan) {
-        fail(
-          `${sessionFile} is IN-PROGRESS but no plan in state/plans/ references it ` +
-            `(agent ${agentId ?? 'unknown'}) — STEP 10 was skipped.`,
-        );
-      }
-    }
-
-    // STEP 9 — the session must be listed as an active agent.
-    if (!existsSync(registryPath)) {
-      fail(`${sessionFile} is IN-PROGRESS but state/REGISTRY.md is missing.`);
-    } else {
-      const registry = readFileSync(registryPath, 'utf-8');
-      const activeSection = registry.split('## Active Agents')[1]?.split('\n## ')[0] ?? '';
-      const agentMatch = content.match(/\*\*Agent:\*\*\s*([A-Za-z0-9]+)/);
-      const agentId = agentMatch ? agentMatch[1] : null;
-      const registered = agentId
-        ? activeSection.includes(agentId)
-        : !activeSection.includes('None');
-      if (!registered) {
-        fail(
-          `${sessionFile} is IN-PROGRESS but its agent (${agentId ?? 'unknown'}) is not ` +
-            'listed under Active Agents in REGISTRY.md — STEP 9 was skipped.',
-        );
-      }
-    }
+  if (!existsSync(REGISTRY)) {
+    fail(`${session.name} is ${session.status} but state/REGISTRY.md is missing.`);
+    return session;
   }
+  const registry = readFileSync(REGISTRY, 'utf8');
+  const activeSection = registry.split('## Active Agents')[1]?.split(/^## /m)[0] ?? '';
+  if (!activeSection.includes(session.agent)) {
+    fail(
+      `${session.name} is ${session.status} but ${session.agent} is not under Active Agents in ` +
+        'REGISTRY.md — STEP 9 was skipped.',
+    );
+  }
+
+  return session;
+}
+
+/** 5: the local lease, skipped in CI. */
+function checkLease(session, branch) {
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    console.log('session start: CI checkout — local lease not required.');
+    return;
+  }
+  const lease = leaseFor(repoIdValue(), branch);
+  if (!lease) {
+    fail(
+      `no local lease for "${branch}". The session file exists but \`macp start\` never ran on this ` +
+        'machine for it — that is exactly the gap a committed file cannot close. Run `macp start`.',
+    );
+    return;
+  }
+  if (lease.state !== 'ACTIVE' && lease.state !== 'CLOSING') {
+    fail(`the lease for "${branch}" is ${lease.state}; only ACTIVE or CLOSING authorises edits.`);
+  }
+  if (session && lease.session !== session.id) {
+    fail(
+      `the lease for "${branch}" belongs to ${lease.session}, but the live session file is ` +
+        `${session.id}. Re-run \`macp start\` for the session you are actually working in.`,
+    );
+  }
+}
+
+/* -------------------------------------------------------------------- run -- */
+
+const branch = currentBranch();
+const sessions = readAll();
+
+if (!branch || branch === 'HEAD') {
+  if (hasWork()) {
+    fail(
+      'HEAD is detached, so no branch owns this work. Check out a branch before committing — ' +
+        'a session is bound to a branch, and a detached commit belongs to none.',
+    );
+  }
+} else if (BOT_BRANCH.test(branch)) {
+  console.log(`session start: ${branch} is a bot branch — state belongs on master, skipping.`);
+} else if (branch === 'master') {
+  // Where work lands. The close gate (check-protocol.mjs) judges this path; here
+  // the only requirement is that the newest session is a finished one, so a
+  // merge commit is not blocked by the very session it is landing.
+  const newest = sessions[sessions.length - 1];
+  if (!newest) {
+    fail('no session file in state/sessions/ — the repository has state/ but no recorded session.');
+  } else if (!TERMINAL.has(newest.status)) {
+    fail(
+      `${newest.name} is ${newest.status ?? 'unlabelled'} on master. A session reaching master must ` +
+        'be COMPLETED or CLOSED first.',
+    );
+  }
+} else if (!hasWork()) {
+  console.log(`session start: ${branch} carries no staged change and no commit ahead of master.`);
+} else {
+  const session = checkActiveSession(sessions, branch);
+  checkLease(session, branch);
 }
 
 if (failures.length > 0) {
   console.error(`session start: ${failures.length} problem(s):\n- ${failures.join('\n- ')}`);
   console.error(
     '\nThis gate exists because the MACP startup is otherwise unenforced until push time.\n' +
-      'See AGENTS.md "MACP — Multi-Agent Coordination Protocol" and state/STARTUP.md.',
+      'See docs/macp.md §4C-4D and state/STARTUP.md.',
   );
   process.exit(1);
 }
-console.log(`session start: OK (${sessionFile})`);
+
+console.log(`session start: OK (${branch})`);

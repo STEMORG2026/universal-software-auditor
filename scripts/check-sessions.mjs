@@ -137,8 +137,20 @@ function checkFile(file, findings) {
     const reopen = section(text, 'Reopen');
     if (!reopen) {
       findings.push(`${rel}: REOPENED without a "## Reopen" block`);
-    } else if (!/\*\*Passkey:\*\*\s*\S/.test(reopen)) {
-      findings.push(`${rel}: REOPENED without a passkey — the owner must name one`);
+    } else {
+      if (!/\*\*Passkey:\*\*\s*\S/.test(reopen)) {
+        findings.push(`${rel}: REOPENED without a passkey — the owner must name one`);
+      }
+      // A passkey is a string, and a string is something anyone can type. Since
+      // ADR-0045 a reopen also carries an SSH signature over the reason and the
+      // delta; `macp verify` checks that it is genuine, and this checks that it
+      // exists at all, so a reopen cannot pass by quoting a key id.
+      if (!/\*\*Reopen signature:\*\*\s*\S/.test(reopen)) {
+        findings.push(
+          `${rel}: REOPENED without a "**Reopen signature:**" — a passkey string alone does not ` +
+            'authorise a reopen (ADR-0045)',
+        );
+      }
     }
   }
 
