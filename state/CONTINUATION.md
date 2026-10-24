@@ -658,10 +658,11 @@ on master since the last successful run`. Measured: `publish.yml` is
     `VAR=x \` continuation, which broke the env prefix. Both were caught by
     running the recovery, not by reading it.
 
-11. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
-    `schedule` only. Not done in #240 on purpose: it needs npm and the
-    attestation API, and a network check on every PR is a check people learn to
-    ignore.
+11. `[SUPERSEDED]` ~~Wire `check-provenance.mjs` into `self-audit.yml` on
+    `schedule` only.~~ Done differently and better: it got its **own** workflow
+    (`provenance-check.yml`, #247), because it needs npm and the attestation API
+    and a network check on every PR is a check people learn to ignore. Keeping it
+    separate also lets it own its own cosign version.
 12. `[DONE]` **#247 merged**, and its first real run paid for itself. The
     plumbing that had never executed (checkout, setup-node, cosign-installer)
     failed every bundle with `unknown flag: --digest`: the job inherited the
@@ -679,14 +680,37 @@ logic was proven locally against the live API response, but no run of
 `publish.yml` has reached the PR-creating tail of the step. Say so until one
 has; three handoffs have now claimed this step was fixed and it was not.
 
+14. `[DONE]` **2.28.6 shipped, and the fix proved itself in production.** The tag
+    push fired `publish.yml` on its own (run `40072909170`) and filed **#258**.
+    The read-back then returned three PASS and one NOTE **with `VSA fields`
+    passing** — the #254 change, on the first real release after it merged.
+15. `[DONE]` **The read-back's first real CI run found a defect, which is what it
+    is for.** `provenance-check.yml` inherited the installer's default cosign
+    **v2.5.2**, which has no `--digest`, so every bundle failed with
+    `unknown flag: --digest` while the same call passed locally under v3.1.3.
+    Fixed in **#259**; both workflows pin **v2.6.5** and a test asserts they
+    agree. Green on master (run `40073936909`): **12 PASS, 0 FAIL**.
+    This only surfaced because the job was dispatched rather than assumed — its
+    `run:` block had been run locally many times and always passed.
+16. `[DONE]` **Checkpoint rewritten** (#261) from measurements taken on that
+    commit, and the **cosign version constraint documented** in
+    `docs/release.md` (#262) — it had lived only in a workflow comment and a test.
+17. `[OPEN]` **#260**, the bot's Version Packages PR for 2.28.7, left open
+    deliberately: publishing a version to absorb a CI pin is a release decision.
+    Merging any changeset-bearing PR regenerates one of these.
+
 ## 14. Completion criteria
 
 The phase is complete when: `master` is clean and green on all gates in §7;
-2.28.1 is published with its provenance branch filed; `state/CONTINUATION.md`
+every published release has a filed provenance bundle; `state/CONTINUATION.md`
 matches reality; and no PR is open that the agent could have closed.
 
-`[FACT]` As of this handoff, the first criterion is met. The second and third are
-blocked on the owner's signature by design.
+`[FACT]` **All four are met** as of this handoff — take the sha from the
+CHECKPOINT below, which is the one place allowed to name a commit. `master` is clean, every gate in §7
+passes, `provenance/` covers every published release through 2.28.6, and the
+read-back is green in CI on `master` (12 PASS, 0 FAIL). The one open PR is #260,
+the bot's 2.28.7 release PR — open by choice, not blocked: merging it publishes a
+version, which is a release decision rather than a step in this work.
 
 ## 15. Runbook
 
