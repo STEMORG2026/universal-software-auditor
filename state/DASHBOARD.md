@@ -5,6 +5,7 @@
 > Do not skip it. Do not summarize state without following it.
 
 **Last Reconciled:** 2026-10-24T06:29:57.070+05:45
+**Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-24T05:45:52.564+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
@@ -74,6 +75,16 @@ See `state/REGISTRY.md` for details.
 8. `e127483 chore(state): auto-update from post-commit hook`
 9. `27fe64d docs(state): 2.28.3 recovered — every published release now has a bundle`
 10. `2351848 chore(state): auto-update from post-commit hook`
+11. `e5a7a41 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
+12. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
+13. `ff109fd Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
+14. `830a6c5 chore(master): release (#249)`
+15. `5fc06cd chore(state): auto-update from post-commit hook`
+16. `dafb68a Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
+17. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
+18. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
+19. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
+20. `9d24b1e chore(state): auto-update from post-commit hook`
 
 ---
 

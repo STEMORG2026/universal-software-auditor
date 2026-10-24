@@ -1,173 +1,32 @@
 # INDEX.md — Searchable Session Log
 
-**Last updated:** 2026-10-01T20:25:00+05:45
+**Last updated:** 2026-10-23T18:10+05:45
+
+One row per session, and the row is **generated from the session file** — the
+status column must agree with the file's own `**Status:**`, which
+`scripts/check-sessions.mjs` enforces. It used to be hand-maintained, and it
+drifted: HX04 read IN-PROGRESS here for three weeks while its file said
+COMPLETED.
+
+| ID     | Date       | Agent | Harness   | Branch                                                       | Task                                         | Status | File                                                 |
+| ------ | ---------- | ----- | --------- | ------------------------------------------------------------ | -------------------------------------------- | ------ | ---------------------------------------------------- |
+| `HX01` | 2026-10-01 | HX01  | HERMES    | `docs/0042-continuous-ingestion`                             | Bootstrap the MACP state directory           | CLOSED | `sessions/20261001-1630-HX01-bootstrap-macp.md`      |
+| `HX02` | 2026-10-01 | HX02  | HERMES    | `docs/0042-continuous-ingestion`                             | MACP startup fix + HX01 handoff              | CLOSED | `sessions/20261001-2003-HX02-continue-macp.md`       |
+| `HX03` | 2026-10-01 | HX03  | HERMES    | `master`                                                     | Fresh session — no summary was written       | CLOSED | `sessions/20261001-2157-HX03-fresh-session.md`       |
+| `HX04` | 2026-10-02 | HX04  | HERMES    | `fix/protocol-start-gate`                                    | Protocol start gate + AGENTS.md truncation   | CLOSED | `sessions/20261002-0514-HX04-protocol-start-gate.md` |
+| `OC01` | 2026-10-09 | OC01  | opencode  | `fix/release-oidc-and-git-cli`                               | Release pipeline diagnosis                   | CLOSED | `sessions/20261009-0458-OC01-release-diagnosis.md`   |
+| `SA01` | 2026-10-21 | SA01  | WorkBuddy | `fix/verdict-correctness`                                    | Verdict correctness and production readiness | CLOSED | `sessions/20261021-0600-SA01-verdict-correctness.md` |
+| `SA02` | 2026-10-21 | SA02  | WorkBuddy | `fix/scanner-artifact-contract`                              | Scanner artifacts, not stdout                | CLOSED | `sessions/20261021-2037-SA02-scanner-artifacts.md`   |
+| `SA03` | 2026-10-21 | SA03  | WorkBuddy | `feat/codeql-verified`                                       | CodeQL, actually run                         | CLOSED | `sessions/20261021-2104-SA03-codeql-verified.md`     |
+| `SA04` | 2026-10-22 | SA04  | WorkBuddy | `master (merge-out + release; no feature branch of its own)` | Merge the queue, ship 2.28.0                 | CLOSED | `sessions/20261022-0945-SA04-release.md`             |
+| `SA05` | 2026-10-22 | SA05  | WorkBuddy | `fix/scanner-stderr-reason`                                  | A failing scanner says why                   | CLOSED | `sessions/20261022-1008-SA05-stderr-reason.md`       |
+| `SA06` | 2026-10-22 | SA06  | WorkBuddy | `ci/e2e-no-vacuous-pass`                                     | The e2e suite that passed without running    | CLOSED | `sessions/20261022-1205-SA06-vacuous-e2e.md`         |
+| `SA07` | 2026-10-22 | SA07  | WorkBuddy | `fix/local-scanner-bin`                                      | The scanner that could not see itself        | CLOSED | `sessions/20261022-1235-SA07-local-scanner-bin.md`   |
+| `SA08` | 2026-10-22 | SA08  | WorkBuddy | `ci/trivy-in-ci`                                             | The second scanner in CI                     | CLOSED | `sessions/20261022-1345-SA08-trivy-ci.md`            |
+| `SA09` | 2026-10-22 | SA09  | WorkBuddy | `docs/handoff-protocol`                                      | Handoff to the completion protocol           | CLOSED | `sessions/20261022-1410-SA09-handoff-protocol.md`    |
+| `SA10` | 2026-10-23 | SA10  | WorkBuddy | `docs/macp-session-seal`, `docs/continuation-post-243`       | Owner-sealed session lifecycle               | CLOSED | `sessions/20261023-1800-SA10-macp-session-seal.md`   |
 
 ---
 
-## Sessions
-
-### 2026-10-01 — HX01 Bootstrap
-
-| Field        | Value                                                                                                                                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Session file | `sessions/20261001-1630-HX01-bootstrap-macp.md`                                                                                                                                                              |
-| Agent        | HX01 (HERMES)                                                                                                                                                                                                |
-| Branch       | docs/0042-continuous-ingestion                                                                                                                                                                               |
-| Task         | Bootstrap MACP state/ directory                                                                                                                                                                              |
-| Keywords     | bootstrap, macp, state, initialization                                                                                                                                                                       |
-| Outcome      | COMPLETED — Full state/ directory created, MACP protocol in AGENTS.md, startup sequence tested, 8 branches merged, MACP amendments P1-P6 applied, all branches deleted. Session closed by owner instruction. |
-
-### 2026-10-01 — HX02 Continuation
-
-| Field        | Value                                                                                                                                                                                      |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Session file | `sessions/20261001-2003-HX02-continue-macp.md`                                                                                                                                             |
-| Agent        | HX02 (HERMES)                                                                                                                                                                              |
-| Branch       | docs/0042-continuous-ingestion                                                                                                                                                             |
-| Task         | MACP startup fix + HX01 handoff                                                                                                                                                            |
-| Keywords     | continuation, macp, startup, fix, dashboard, agents.md                                                                                                                                     |
-| Outcome      | COMPLETED — 3-part MACP startup fix applied. PR #169 fixed (ASVS-2.2.4 invalid reference removed, changeset added). CI green. Protocol upgraded with STEP 8: VERIFY STATE AGAINST REALITY. |
-
-### 2026-10-01 — HX03 (HERMES)
-
-| Field        | Value                                          |
-| ------------ | ---------------------------------------------- |
-| Session file | `sessions/20261001-2157-HX03-fresh-session.md` |
-| Agent        | HX03 (HERMES)                                  |
-| Branch       | master                                         |
-| Task         | unknown                                        |
-| Status       | COMPLETED                                      |
-
-### 2026-10-01 — HX04 (HERMES)
-
-| Field        | Value                                                |
-| ------------ | ---------------------------------------------------- |
-| Session file | `sessions/20261002-0514-HX04-protocol-start-gate.md` |
-| Agent        | HX04 (HERMES)                                        |
-| Branch       | fix/protocol-start-gate                              |
-| Task         | unknown                                              |
-| Status       | IN-PROGRESS                                          |
-
-### 2026-10-09 — OC01 (opencode)
-
-| Field        | Value                                              |
-| ------------ | -------------------------------------------------- |
-| Session file | `sessions/20261009-0458-OC01-release-diagnosis.md` |
-| Agent        | OC01 (opencode)                                    |
-| Branch       | fix/release-oidc-and-git-cli                       |
-| Task         | unknown                                            |
-| Status       | IN-PROGRESS                                        |
-
-### 2026-10-21 — SA01 (Sathi / WorkBuddy)
-
-| Field        | Value                                                |
-| ------------ | ---------------------------------------------------- |
-| Session file | `sessions/20261021-0600-SA01-verdict-correctness.md` |
-| Agent        | SA01 (Sathi / WorkBuddy)                             |
-| Branch       | fix/verdict-correctness                              |
-| Task         | unknown                                              |
-| Status       | COMPLETED                                            |
-
-### 2026-10-21 — SA02 (Sathi / WorkBuddy)
-
-| Field        | Value                                              |
-| ------------ | -------------------------------------------------- |
-| Session file | `sessions/20261021-2037-SA02-scanner-artifacts.md` |
-| Agent        | SA02 (Sathi / WorkBuddy)                           |
-| Branch       | fix/scanner-artifact-contract                      |
-| Task         | unknown                                            |
-| Status       | COMPLETED                                          |
-
-### 2026-10-21 — SA03 (Sathi / WorkBuddy)
-
-| Field        | Value                                            |
-| ------------ | ------------------------------------------------ |
-| Session file | `sessions/20261021-2104-SA03-codeql-verified.md` |
-| Agent        | SA03 (Sathi / WorkBuddy)                         |
-| Branch       | feat/codeql-verified                             |
-| Task         | unknown                                          |
-| Status       | COMPLETED                                        |
-
-### 2026-10-22 — SA04 (Sathi / WorkBuddy)
-
-| Field        | Value                                                      |
-| ------------ | ---------------------------------------------------------- |
-| Session file | `sessions/20261022-0945-SA04-release.md`                   |
-| Agent        | SA04 (Sathi / WorkBuddy)                                   |
-| Branch       | master (merge-out + release; no feature branch of its own) |
-| Task         | unknown                                                    |
-| Status       | COMPLETED                                                  |
-
-### 2026-10-22 — SA05 (Sathi / WorkBuddy)
-
-| Field        | Value                                          |
-| ------------ | ---------------------------------------------- |
-| Session file | `sessions/20261022-1008-SA05-stderr-reason.md` |
-| Agent        | SA05 (Sathi / WorkBuddy)                       |
-| Branch       | fix/scanner-stderr-reason                      |
-| Task         | unknown                                        |
-| Status       | COMPLETED (merged as #207)                     |
-
-### 2026-10-22 — SA06 (Sathi / WorkBuddy)
-
-| Field        | Value                                        |
-| ------------ | -------------------------------------------- |
-| Session file | `sessions/20261022-1205-SA06-vacuous-e2e.md` |
-| Agent        | SA06 (Sathi / WorkBuddy)                     |
-| Branch       | ci/e2e-no-vacuous-pass                       |
-| Task         | unknown                                      |
-| Status       | COMPLETED (merged as #211)                   |
-
-### 2026-10-22 — SA07 (Sathi / WorkBuddy)
-
-| Field        | Value                                              |
-| ------------ | -------------------------------------------------- |
-| Session file | `sessions/20261022-1235-SA07-local-scanner-bin.md` |
-| Agent        | SA07 (Sathi / WorkBuddy)                           |
-| Branch       | fix/local-scanner-bin                              |
-| Task         | unknown                                            |
-| Status       | COMPLETED (merged as #213)                         |
-
-### 2026-10-22 — SA08 (Sathi / WorkBuddy)
-
-| Field        | Value                                     |
-| ------------ | ----------------------------------------- |
-| Session file | `sessions/20261022-1345-SA08-trivy-ci.md` |
-| Agent        | SA08 (Sathi / WorkBuddy)                  |
-| Branch       | ci/trivy-in-ci                            |
-| Task         | unknown                                   |
-| Status       | COMPLETED (merged as #215)                |
-
-### 2026-10-22 — SA09 (Sathi / WorkBuddy)
-
-| Field        | Value                                             |
-| ------------ | ------------------------------------------------- |
-| Session file | `sessions/20261022-1410-SA09-handoff-protocol.md` |
-| Agent        | SA09 (Sathi / WorkBuddy)                          |
-| Branch       | docs/handoff-protocol, docs/handoff-sha           |
-| Task         | unknown                                           |
-| Status       | COMPLETED (merged as #217)                        |
-
----
-
-## Search by Keyword
-
-| Keyword      | Sessions        |
-| ------------ | --------------- |
-| bootstrap    | 2026-10-01 HX01 |
-| macp         | 2026-10-01 HX01 |
-| state        | 2026-10-01 HX01 |
-| continuation | 2026-10-01 HX02 |
-| startup      | 2026-10-01 HX02 |
-| fix          | 2026-10-01 HX02 |
-| dashboard    | 2026-10-01 HX02 |
-| agents.md    | 2026-10-01 HX02 |
-
----
-
-## Search by File Path
-
-| Path   | Sessions        |
-| ------ | --------------- |
-| state/ | 2026-10-01 HX01 |
-| state/ | 2026-10-01 HX02 |
+Search by keyword with grep — the table above is the index:
+`grep -i provenance state/INDEX.md`, or read the session file it names.

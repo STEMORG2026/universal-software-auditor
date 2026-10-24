@@ -68,3 +68,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/check-protocol.mjs
+
+      # The seal gate. `check-protocol.mjs` answers "is the session that just
+      # landed finished?"; this answers "is the record of every session
+      # consistent and unedited since it was sealed?". Both run on a master
+      # push only: on a PR, an active session is the correct state.
+      - name: Session lifecycle check
+        run: node scripts/check-sessions.mjs

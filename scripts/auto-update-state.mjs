@@ -106,57 +106,50 @@ function updateRegistry() {
 function updateIndex() {
   const path = resolve(root, 'state/INDEX.md');
   if (!existsSync(path)) return;
-
-  let content = readFileSync(path, 'utf-8');
   const sessionDir = resolve(root, 'state/sessions');
   if (!existsSync(sessionDir)) return;
 
-  const sessions = readdirSync(sessionDir)
+  const files = readdirSync(sessionDir)
     .filter((f) => f.endsWith('.md'))
-    .sort()
-    .reverse();
+    .sort();
+  if (files.length === 0) return;
 
-  if (sessions.length === 0) return;
+  const latestFile = files[files.length - 1];
+  const content = readFileSync(resolve(sessionDir, latestFile), 'utf-8');
+  const field = (n) =>
+    (content.match(new RegExp(`^\\*\\*${n}:\\*\\*[ \\t]*(.*)$`, 'm'))?.[1] ?? '').trim();
+  const id = latestFile.split('-')[2];
+  const status = field('Status').split(' ')[0];
+  if (!id || !status) return;
 
-  const latestFile = sessions[0];
-  const latestSession = resolve(sessionDir, latestFile);
-  const sessionContent = readFileSync(latestSession, 'utf-8');
+  const lines = readFileSync(path, 'utf-8').split('\n');
+  const headerAt = lines.findIndex((l) => l.startsWith('|') && /\|\s*Status\s*\|/.test(l));
+  if (headerAt === -1) return; // no table to maintain; check-sessions.mjs reports it
+  const statusCol = lines[headerAt].split('|').findIndex((c) => c.trim() === 'Status');
 
-  // Extract session info
-  const agentMatch = sessionContent.match(/\*\*Agent:\*\* (.+)/);
-  const branchMatch = sessionContent.match(/\*\*Branch:\*\* (.+)/);
-  const taskMatch = sessionContent.match(/\*\*Task:\*\* (.+)/);
-  const statusMatch = sessionContent.match(/\*\*Status:\*\* (.+)/);
+  const rowAt = lines.findIndex((l) => l.startsWith('|') && l.includes(`\`${id}\``));
+  if (rowAt !== -1) {
+    const cells = lines[rowAt].split('|');
+    if ((cells[statusCol] ?? '').trim() === status) return;
+    cells[statusCol] = ` ${status} `;
+    lines[rowAt] = cells.join('|');
+    writeFileSync(path, lines.join('\n'));
+    console.log('  INDEX.md status updated');
+    return;
+  }
 
-  if (!agentMatch) return;
+  // A new session needs a row, or `check-sessions.mjs` fails on the next push.
+  // The table is the index; it is not optional prose.
+  const date = `${latestFile.slice(0, 4)}-${latestFile.slice(4, 6)}-${latestFile.slice(6, 8)}`;
+  const task = (content.match(/^# Session\s+\S+\s+—\s+(.+)$/m)?.[1] ?? 'unknown').trim();
+  const row =
+    `| \`${id}\` | ${date} | ${field('Agent').replace(/\s*\(.*\)$/, '')} | ${field('Harness')} | ` +
+    `\`${field('Branch').split(',')[0].trim()}\` | ${task} | ${status} | \`sessions/${latestFile}\` |`;
 
-  const agent = agentMatch[1];
-  const branch = branchMatch?.[1] || 'unknown';
-  const task = taskMatch?.[1] || 'unknown';
-  const status = statusMatch?.[1] || 'unknown';
-
-  // Check if already in INDEX
-  if (content.includes(latestFile)) return;
-
-  // Add new entry
-  const entry = `
-### ${new Date().toISOString().slice(0, 10)} — ${agent}
-
-| Field        | Value                     |
-| ------------ | ------------------------- |
-| Session file | \`sessions/${latestFile}\` |
-| Agent        | ${agent}                  |
-| Branch       | ${branch}                 |
-| Task         | ${task}                    |
-| Status       | ${status}                  |
-`;
-
-  content = content.replace(
-    /\n---\n\n## Search by Keyword/,
-    `${entry}\n---\n\n## Search by Keyword`,
-  );
-
-  writeFileSync(path, content);
+  let last = headerAt;
+  for (let i = headerAt + 1; i < lines.length && lines[i].startsWith('|'); i++) last = i;
+  lines.splice(last + 1, 0, row);
+  writeFileSync(path, lines.join('\n'));
   console.log('  INDEX.md updated');
 }
 
@@ -175,6 +168,15 @@ function updateSessionFile() {
   const latestSession = resolve(sessionDir, latestFile);
   let content = readFileSync(latestSession, 'utf-8');
 
+  // A sealed session is immutable — that is what sealing means, and
+  // `check-sessions.mjs` compares the file byte-for-byte with the commit that
+  // sealed it. Appending a commit log to one would turn every later commit into
+  // a protocol violation on master.
+  if (/^\*\*Status:\*\* CLOSED/m.test(content)) {
+    console.log('  Session file is sealed — not appending');
+    return;
+  }
+
   // Get the commit that just happened
   let commitMsg = 'unknown';
   let commitSha = 'unknown';
@@ -183,6 +185,17 @@ function updateSessionFile() {
     commitMsg = execSync('git log -1 --format=%s', { cwd: root, encoding: 'utf-8' }).trim();
   } catch (e) {
     console.warn('Failed to get commit info:', e.message);
+  }
+
+  // Idempotent, because the hook can run twice for one commit: husky's
+  // backup/restore re-runs it, and an amend re-runs it. The entry carries a
+  // fresh timestamp each time, so comparing the whole entry would not catch it.
+  // Measured on 2026-10-23: two runs took SA09 from 42 entries to 44, both
+  // naming `f6bf44e`. SA10 had already shipped a duplicated commit line and a
+  // duplicated Outcome section for the same reason, and the seal froze them.
+  if (commitSha !== 'unknown' && content.includes(`\`${commitSha}\` ${commitMsg}`)) {
+    console.log('  Session file already logs this commit — not appending');
+    return;
   }
 
   // Add commit to session log
