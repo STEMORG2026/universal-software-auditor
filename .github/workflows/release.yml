@@ -94,6 +94,14 @@ jobs:
           sed -i 's#^@xenos1996:registry=.*#@xenos1996:registry=https://registry.npmjs.org/#' .npmrc
           echo "effective scope registry: $(npm config get @xenos1996:registry)"
 
+      # `version-packages` regenerates the committed generated docs, and
+      # `gen-sample-report.mjs` runs an audit — which needs `dist/`. Without this
+      # the version bump leaves `examples/sample-report.md` stale, every release
+      # PR is born red on "Sample report is generated and committed", and the
+      # only repair is the resync job.
+      - name: Build, so the doc generators can run
+        run: pnpm run build
+
       - name: Create Release PR or publish
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2
         with:

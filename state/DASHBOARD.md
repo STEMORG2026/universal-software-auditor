@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T07:35:15.051+05:45
+**Last Reconciled:** 2026-10-24T07:51:51.868+05:45
 **Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-24T05:45:52.564+05:45
@@ -65,16 +65,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `3038c06 docs(release): the cosign version is now a load-bearing constraint`
-2. `6bce418 docs(state): checkpoint to the true final state (#261)`
-3. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
-4. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
-5. `501cad7 chore(master): release (#257)`
-6. `045d11c docs(state): hand off with #246 (the export fix) and #244 (release 2.28.4) awaiting your merge (#245)`
-7. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
-8. `d160196 docs(provenance): file the recovered 2.28.3 bundle (#256)`
-9. `abd0056 docs: attach SLSA provenance bundle for v2.28.5 (#253)`
-10. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
+1. `71b5b61 chore(changeset): the release-PR fix needs a patch bump`
+2. `8eb69a4 chore(state): auto-update from post-commit hook`
+3. `0816c11 fix(release): stop the release PR being born red`
+4. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
+5. `6bce418 docs(state): checkpoint to the true final state (#261)`
+6. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
+7. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
+8. `501cad7 chore(master): release (#257)`
+9. `045d11c docs(state): hand off with #246 (the export fix) and #244 (release 2.28.4) awaiting your merge (#245)`
+10. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
 
 ---
 
