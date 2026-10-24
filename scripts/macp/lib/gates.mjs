@@ -7,16 +7,38 @@
  * a confident paragraph.
  */
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 
 const MAX_BUFFER = 32 * 1024 * 1024;
 const TAIL_LINES = 40;
 
-/** Ordered by cost. `self_audit` builds first and is the slowest by far. */
+/**
+ * Ordered by cost. `self_audit` builds first and is the slowest by far.
+ *
+ * `tool` means "the binary in this repository's own `node_modules/.bin`, if it
+ * is installed"; `command` means "whatever is on PATH". The first four prefer
+ * the tool over `pnpm run <script>` because the script indirection adds a
+ * process layer that can fail for reasons unrelated to the check — measured
+ * here: `pnpm run typecheck` exited 1 with an environment delete-guard error
+ * while the same `tsc` invocation nested inside `node -e` exited 0. A gate that
+ * reports the package manager's mood is not measuring the code.
+ *
+ * The `script` fallback keeps the runtime portable: a repository onboarded with
+ * `macp init-repo` has no `node_modules/.bin`, and `pnpm run <script>` is what
+ * its own CI would run. `docs_all` and `self_audit` are script chains, not
+ * binaries, so they always go through the package manager.
+ */
 export const GATES = Object.freeze([
-  { name: 'typecheck', command: 'pnpm', args: ['run', 'typecheck'] },
-  { name: 'lint', command: 'pnpm', args: ['run', 'lint'] },
-  { name: 'format', command: 'pnpm', args: ['run', 'format:check'] },
-  { name: 'test', command: 'pnpm', args: ['test'] },
+  {
+    name: 'typecheck',
+    tool: 'tsc',
+    script: 'typecheck',
+    args: ['-p', 'tsconfig.json', '--noEmit'],
+  },
+  { name: 'lint', tool: 'eslint', script: 'lint', args: ['.'] },
+  { name: 'format', tool: 'prettier', script: 'format:check', args: ['--check', '.'] },
+  { name: 'test', tool: 'vitest', script: 'test', args: ['run'] },
   { name: 'docs_all', command: 'pnpm', args: ['run', 'docs:all'] },
   { name: 'self_audit', command: 'pnpm', args: ['run', 'self-audit'] },
 ]);
@@ -45,9 +67,13 @@ function tail(text) {
 export function runGate(root, name, { timeoutMs = 20 * 60 * 1000 } = {}) {
   const gate = GATES.find((entry) => entry.name === name);
   if (!gate) throw new Error(`unknown gate "${name}"`);
+  const local = gate.tool ? path.join(root, 'node_modules', '.bin', gate.tool) : null;
+  const useLocal = local !== null && existsSync(local);
+  const command = useLocal ? local : (gate.command ?? 'pnpm');
+  const args = useLocal ? gate.args : gate.command ? gate.args : ['run', gate.script];
   const started = Date.now();
   try {
-    const stdout = execFileSync(gate.command, gate.args, {
+    const stdout = execFileSync(command, args, {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
