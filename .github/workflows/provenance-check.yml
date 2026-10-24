@@ -34,7 +34,16 @@ jobs:
 
       # cosign is the verifier, not an optional extra: `check-provenance.mjs`
       # treats its absence as a FAIL, because SKIP is not PASS.
+      #
+      # The version is pinned, and it must match publish.yml's. Without
+      # `cosign-release` the installer defaults to v2.5.2, whose
+      # `verify-blob-attestation` has no `--digest` flag — measured on run
+      # 40073426157, which failed every bundle with `unknown flag: --digest`
+      # while the same call passed in publish.yml under v2.6.5. A pinned action
+      # is not a pinned tool.
       - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+        with:
+          cosign-release: 'v2.6.5'
 
       - name: Verify every bundle at or above the floor
         run: |

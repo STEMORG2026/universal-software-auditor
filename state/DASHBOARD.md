@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T06:49:21.577+05:45
+**Last Reconciled:** 2026-10-24T07:17:35.624+05:45
 **Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-24T05:45:52.564+05:45
@@ -65,16 +65,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `52767c7 docs(state): drop the CONTINUATION.md manifest entry`
-2. `db49df0 chore(state): auto-update from post-commit hook`
-3. `2373925 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-4. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
-5. `d160196 docs(provenance): file the recovered 2.28.3 bundle (#256)`
-6. `abd0056 docs: attach SLSA provenance bundle for v2.28.5 (#253)`
-7. `68e41a0 chore(state): auto-update from post-commit hook`
-8. `3199d57 docs(state): #254 merged — the read-back loop is live and master is green`
-9. `065b79c docs(state): #254 merged — the read-back loop is live and master is green`
-10. `460a5ed chore(state): auto-update from post-commit hook`
+1. `dff9b66 fix(ci): the read-back job installed a cosign that cannot verify`
+2. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
+3. `501cad7 chore(master): release (#257)`
+4. `045d11c docs(state): hand off with #246 (the export fix) and #244 (release 2.28.4) awaiting your merge (#245)`
+5. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
+6. `d160196 docs(provenance): file the recovered 2.28.3 bundle (#256)`
+7. `abd0056 docs: attach SLSA provenance bundle for v2.28.5 (#253)`
+8. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
+9. `830a6c5 chore(master): release (#249)`
+10. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
 
 ---
 
