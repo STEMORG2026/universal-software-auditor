@@ -248,3 +248,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 14:27 — Commit
 
 `3ece011` docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back
+
+### 03:51 — Commit
+
+`5446d89` docs(state): #252 merged — the provenance chain is closed for 2.28.4

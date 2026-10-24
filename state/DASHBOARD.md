@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-23T14:27:42.219+05:45
+**Last Reconciled:** 2026-10-24T03:51:42.322+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
 **Last Reconciled:** 2026-10-23T13:45:36.839+05:45
@@ -62,16 +62,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `3ece011 docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back`
-2. `72a52e4 chore(state): auto-update from post-commit hook`
-3. `33fe893 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-4. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
-5. `de48c61 chore(state): auto-update from post-commit hook`
-6. `4224394 docs(state): the sixth failure, and it was caused by my own pre-flight`
-7. `f744760 chore(state): auto-update from post-commit hook`
-8. `b7c55a7 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-9. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
-10. `ed10b3f chore(state): auto-update from post-commit hook`
+1. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
+2. `e2aee00 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+3. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
+4. `2b62ddd chore(state): auto-update from post-commit hook`
+5. `3ece011 docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back`
+6. `72a52e4 chore(state): auto-update from post-commit hook`
+7. `33fe893 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+8. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
+9. `de48c61 chore(state): auto-update from post-commit hook`
+10. `4224394 docs(state): the sixth failure, and it was caused by my own pre-flight`
 
 ---
 
