@@ -198,7 +198,7 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: 203e18a # master; #246, #250, #251, #252 all merged
+  code_commit_sha: b6393aa # master; #246, #247, #250, #251, #252 all merged
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
@@ -211,7 +211,7 @@ checkpoint:
   open_prs:
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
-      state: BLOCKED # SAFE now: the provenance step works. Merge after #252 (done)
+      state: BLOCKED # carries #246 #247 #250 #251 — ships WITH the read-back
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
       state: BLOCKED # DO NOT merge before #251 — it would publish another bundle-less release
@@ -224,7 +224,7 @@ checkpoint:
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
       state: CLEAN # merge last; take its SEALED SA09 on any further conflict
-  merged_this_phase: [244, 246, 250, 251, 252] # 244 out of order; it published 2.28.4 and broke its provenance step
+  merged_this_phase: [244, 246, 247, 250, 251, 252] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
   last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
@@ -570,17 +570,24 @@ Ordered. Step 1 already ran green on this tree.
 6. `[DONE]` **#252 merged** (`203e18a`). `provenance/v2.28.4` is on master, and
    the read-back re-run against master's own files gives three PASS and one NOTE,
    exit 0. **The provenance chain is closed for 2.28.4.**
-7. `[TODO]` **#249 is now safe to merge** — it is the bot's Version Packages PR
-   for **2.28.5**. Its two-dispatch trap was that it would have published through
-   a broken step; the step works. Merging it publishes 2.28.5 with provenance
-   rather than without. The ordering advice still stands as a rule: never let a
-   Version Packages PR merge ahead of a filed bundle for the version it
-   supersedes.
-8. `[TODO]` Once #247 lands, its first scheduled run reads **2.28.4** — the floor
-   is 2.28.3 and 2.28.4 is now the only bundle at or above it. Rehearsed against
-   master's own `provenance/`: the enumeration returns exactly `2.28.4`, and
-   `check-provenance.mjs 2.28.4` on those files gives three PASS and one NOTE.
-   That is the first live exercise of the read-back loop, and it is green.
+7. `[DONE]` **#247 merged** (`b6393aa`). The read-back loop is on master, and
+   #249 now carries **#246, #247, #250 and #251** — so **2.28.5 ships with the
+   read-back**, which was the whole reason for the order. Merging #249 first
+   would have shipped the first release from a newly-repaired provenance step
+   with nothing watching it.
+   **No re-dispatch is needed, and this was got wrong once already.** A
+   re-dispatch was proposed on the grounds that `#251 changed the cosign version
+on master since the last successful run`. Measured: `publish.yml` is
+   byte-identical between `dcb24c3` and master, and `dcb24c3` is the commit run
+   `39968402220` already executed on — so that run already included the v2.6.5
+   pin. The dispatch would also be a no-op rather than a test: the
+   `provenance/v2.28.4` branch still exists on the remote, so the step's own
+   guard fires with `already exists — bundle for v2.28.4 is already filed` and
+   exits 0. **Check what commit a claim is about before acting on it.**
+8. `[DONE]` **#247's first scheduled run is rehearsed.** The enumeration against
+   master's own `provenance/` with the real floor (2.28.3) returns exactly
+   `2.28.4`, and `check-provenance.mjs 2.28.4` on those files gives three PASS
+   and one NOTE, exit 0. The read-back loop starts green and reads real evidence.
 9. `[OPEN]` **2.28.3 stays unfiled.** It cannot be produced from master —
    `VERSION` comes from `package.json`, which is now 2.28.4. Recovering it needs a
    branch cut from the 2.28.3 tag carrying the workflow fix; a deliberate
