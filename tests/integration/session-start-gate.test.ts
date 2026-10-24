@@ -124,7 +124,20 @@ function run(f: Fixture, env: Record<string, string> = {}) {
   const result = spawnSync('node', [SCRIPT], {
     cwd: f.dir,
     encoding: 'utf8',
-    env: { ...process.env, MACP_HOME: f.home, GITHUB_ACTIONS: '', ...env },
+    env: {
+      ...process.env,
+      MACP_HOME: f.home,
+      GITHUB_ACTIONS: '',
+      // CI sets these two, and the gate prefers them over `git rev-parse`
+      // (ADR-0045: a pull request is checked out detached, so GitHub names the
+      // real branch here). In a fixture the branch is the fixture's, so an
+      // inherited value makes the gate look for a branch that only exists in
+      // the pull request — every case then fails with "no session names
+      // branch <the PR branch>" instead of exercising the rule.
+      GITHUB_HEAD_REF: '',
+      GITHUB_REF_NAME: '',
+      ...env,
+    },
   });
   return { code: result.status ?? 1, out: `${result.stdout ?? ''}${result.stderr ?? ''}` };
 }
