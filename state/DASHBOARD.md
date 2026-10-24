@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T07:41:54.969+05:45
+**Last Reconciled:** 2026-10-24T08:16:44.514+05:45
 **Last Reconciled:** 2026-10-24T07:51:51.868+05:45
 **Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
@@ -66,26 +66,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `9b9169a docs(state): §13 and §14 to match reality — the phase is done`
-2. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
-3. `6bce418 docs(state): checkpoint to the true final state (#261)`
-4. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
-5. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
-6. `501cad7 chore(master): release (#257)`
-7. `045d11c docs(state): hand off with #246 (the export fix) and #244 (release 2.28.4) awaiting your merge (#245)`
-8. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
-9. `d160196 docs(provenance): file the recovered 2.28.3 bundle (#256)`
-10. `abd0056 docs: attach SLSA provenance bundle for v2.28.5 (#253)`
-11. `71b5b61 chore(changeset): the release-PR fix needs a patch bump`
-12. `8eb69a4 chore(state): auto-update from post-commit hook`
-13. `0816c11 fix(release): stop the release PR being born red`
-14. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
-15. `6bce418 docs(state): checkpoint to the true final state (#261)`
-16. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
-17. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
-18. `501cad7 chore(master): release (#257)`
-19. `045d11c docs(state): hand off with #246 (the export fix) and #244 (release 2.28.4) awaiting your merge (#245)`
-20. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
+1. `0db1244 chore(state): format DASHBOARD.md after the merge`
+2. `609c3f7 Merge remote-tracking branch 'origin/master' into docs/section13-final`
+3. `a5644e7 docs: attach SLSA provenance bundle for v2.28.7 (#265)`
+4. `b995a0b chore(master): release (#260)`
+5. `06bc4cb fix(release): stop the release PR being born red (#264)`
+6. `60f7855 chore(state): auto-update from post-commit hook`
+7. `9b9169a docs(state): §13 and §14 to match reality — the phase is done`
+8. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
+9. `6bce418 docs(state): checkpoint to the true final state (#261)`
+10. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
 
 ---
 
