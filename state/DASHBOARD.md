@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T06:29:36.798+05:45
+**Last Reconciled:** 2026-10-24T06:29:57.070+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-24T05:45:52.564+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
@@ -64,16 +64,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `065b79c docs(state): #254 merged — the read-back loop is live and master is green`
-2. `460a5ed chore(state): auto-update from post-commit hook`
-3. `9f2b722 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-4. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
-5. `c4e1390 chore(state): auto-update from post-commit hook`
-6. `caea295 docs(state): the 2.28.3 bundle comes in as #256, not #255`
-7. `e127483 chore(state): auto-update from post-commit hook`
-8. `27fe64d docs(state): 2.28.3 recovered — every published release now has a bundle`
-9. `2351848 chore(state): auto-update from post-commit hook`
-10. `84664f4 docs(state): the release PRs were never un-triggered — they are awaiting approval`
+1. `3199d57 docs(state): #254 merged — the read-back loop is live and master is green`
+2. `065b79c docs(state): #254 merged — the read-back loop is live and master is green`
+3. `460a5ed chore(state): auto-update from post-commit hook`
+4. `9f2b722 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+5. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
+6. `c4e1390 chore(state): auto-update from post-commit hook`
+7. `caea295 docs(state): the 2.28.3 bundle comes in as #256, not #255`
+8. `e127483 chore(state): auto-update from post-commit hook`
+9. `27fe64d docs(state): 2.28.3 recovered — every published release now has a bundle`
+10. `2351848 chore(state): auto-update from post-commit hook`
 
 ---
 
