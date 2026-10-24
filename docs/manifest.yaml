@@ -194,6 +194,12 @@ standalone:
   - file: state/sessions/20261024-0918-SA11-provenance-chain.md
     reviewed: 2026-10-24
     reason: 'MACP state — SA11 session file (provenance chain closed end to end)'
+  - file: state/sessions/20261024-1840-SA12-macp-runtime-v2.md
+    reviewed: 2026-10-24
+    reason: 'MACP state — SA12 session file (MACP runtime, pre-work gate, SSH seal)'
+  - file: state/macp/queue.md
+    reviewed: 2026-10-24
+    reason: 'MACP state — discovered/deferred queue, appended by `macp queue`'
   - file: docs/scanners.md
     reviewed: 2026-10-22
     reason: Living doc — scanner adapter model, the analysed-nothing invariant, and the child-env boundary

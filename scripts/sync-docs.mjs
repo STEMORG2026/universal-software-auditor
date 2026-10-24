@@ -13,7 +13,15 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { computeFacts, docFiles, readDoc, regenerate, ROOT, META_DOCS } from './lib/docs-sync.mjs';
+import {
+  computeFacts,
+  docFiles,
+  IMMUTABLE_RECORDS,
+  readDoc,
+  regenerate,
+  ROOT,
+  META_DOCS,
+} from './lib/docs-sync.mjs';
 
 const check = process.argv.includes('--check');
 const facts = computeFacts();
@@ -22,7 +30,9 @@ const drift = [];
 let changed = 0;
 
 for (const rel of docFiles()) {
-  if (rel.startsWith('docs/adr/') || META_DOCS.has(rel)) continue; // ADRs immutable; meta-docs quote the machinery
+  // ADRs are immutable; meta-docs quote the machinery; session files are
+  // sealed records whose numbers are dated measurements (see IMMUTABLE_RECORDS).
+  if (rel.startsWith('docs/adr/') || META_DOCS.has(rel) || IMMUTABLE_RECORDS.test(rel)) continue;
   const before = readDoc(rel);
   const after = regenerate(before, facts);
   if (before === after) continue;

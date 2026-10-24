@@ -92,5 +92,14 @@ export default tseslint.config(
         clearTimeout: 'readonly',
       },
     },
+    rules: {
+      // Same convention as the TypeScript block above: a leading underscore
+      // marks a parameter that exists to fix a signature, not to be read —
+      // `MacpBackend`'s abstract methods are exactly that case. Both spellings
+      // are set because `tseslint.configs.recommended` applies to `.mjs` too
+      // and turns the base rule off in favour of its own.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
 );

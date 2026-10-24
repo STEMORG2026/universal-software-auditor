@@ -288,8 +288,7 @@ ship it"**. It ran across eleven merged PRs:
 Latest, tag `@xenos1996/usa@2.28.0`, `provenance/v2.28.0` filed by `publish.yml`.
 
 `[FACT]` Gates at close: **1448 tests** (1447 passed, 1 skipped), lint 0 warnings,
-`docs:all` clean (44 ADRs, 138 tracked docs), self-audit **100/100, no open
-findings**.
+`docs:all` clean (44 ADRs, 138 tracked docs), self-audit **100/100, no open findings**. <!-- usa:allow-claim: measured at the 2.28.0 close; a dated record, not a current claim -->
 
 `[FACT]` Two changesets are pending, both patch, so the next release is 2.28.1.
 
@@ -443,7 +442,7 @@ Every row below was **run**, not expected. `[FACT]` throughout.
 | Types          | `pnpm run typecheck`                   | 0 errors                                                                                                  |
 | Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                                                                      |
 | Format         | `pnpm run format:check`                | clean                                                                                                     |
-| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
+| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->45<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
 | Tests          | `npx vitest run`                       | 1466 passed, 1 skipped (1467) on this branch — 1470 once #246 (+1) and #247 (+3) merge                    |
 | Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                                                             |
 | Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                                                                 |

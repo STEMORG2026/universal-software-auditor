@@ -77,18 +77,28 @@ STEP 2 — Check if state/ directory exists
 IF state/ DOES NOT EXIST → Jump to Section 7 (Bootstrap Protocol)
 IF state/ EXISTS → Continue to Step 3
 
-STEP 3 — Read DASHBOARD.md
-This gives you the full picture in <60 seconds:
-• What's the current state of the project?
-• Which agents are active right now?
-• What are the critical alerts and blockers?
-• What was recently completed?
+STEP 3 — Read CONTINUATION.md, then DASHBOARD.md
+`state/CONTINUATION.md` is the handoff and it is the FIRST thing to read: what
+the last session finished, what it left undone, the traps it learned, and the
+next recommended task. `macp start` prints it into the transcript before
+anything else for exactly this reason. If the file is missing, that is a
+finding, not a blank — the session that closed before this one failed to write
+it.
 
-Check the "Last Reconciled" timestamp at the top:
-• <24h old → Trust it, proceed
-• 24-48h old → Verify against git log before trusting
-• >48h old → STALE. You must reconcile DASHBOARD.md before working
-(read recent session files and rebuild it)
+Then read `state/DASHBOARD.md` for the shape of the project:
+• What is this project, and what are its gates?
+• Which agents are active right now?
+• Where does the truth live?
+
+`DASHBOARD.md` has two halves, and they are not equally trustworthy:
+
+• The `<!-- macp:generated -->` block is **measured**. `scripts/auto-update-state.mjs`
+rebuilds it from `package.json`, `git` and the ADR directory, and writes
+nothing at all when those facts are unchanged. `**Machine Reconciled:**` is
+therefore current by construction. Trust it.
+• The prose around it is **not** machine-checked. `**Owner Reconciled:**` says
+when a human last read it. If that is absent or old, verify the prose against
+the code before relying on it.
 
 STEP 4 — Read REGISTRY.md
 Identify:
@@ -402,7 +412,7 @@ REQUIRED FIELDS (front matter of every session file)
 | `**History:**`     | A pointer to that harness's own transcript, in whatever form the harness offers. If nothing is exported, say `not exported` — never invent an id. |
 | `**Branch:**`      | The branch the session works on                                                                                                                   |
 | `**Started:**`     | ISO 8601 with offset                                                                                                                              |
-| `**Status:**`      | `OPEN` · `COMPLETED` · `CLOSED` · `REOPENED`                                                                                                      |
+| `**Status:**`      | `IN-PROGRESS` · `COMPLETED` · `CLOSED` · `REOPENED`                                                                                               |
 | `**Base commit:**` | The commit the branch was cut from                                                                                                                |
 
 STATUS VOCABULARY — and the difference that matters
@@ -436,6 +446,13 @@ vocabulary, and agreement between the file, `state/INDEX.md`, and
 THE SEAL
 • A `CLOSED` session file is **immutable**. The gate compares it byte-for-byte
 with the commit that sealed it; any later edit is a finding.
+• No tool may rewrite one either. `scripts/lib/docs-sync.mjs` exports
+`IMMUTABLE_RECORDS` (`state/sessions/**`), which excludes session files from
+both the fact-marker sync and the numeric-claim scanner. Without that boundary
+adding one ADR breaks four old sessions: the sync rewrites their ADR count, and
+the seal gate then fails them as edited. Counts stay current in
+`CONTINUATION.md` and `DASHBOARD.md`; a session file keeps the number it
+measured on the day it was sealed.
 • A sealed session owns no files, blocks nothing, and is not a place to put
 "one more thing". Its record is evidence, not a workspace.
 
@@ -464,6 +481,156 @@ it buys is visibility: the seal is pinned to a commit, a reopen must quote the
 owner's words, and an edit to a sealed file is a readable diff. Do not describe
 it as protection — that would be the exact kind of claim this repository has
 been burned by.
+
+═══════════════════════════════════════════════════════════════
+SECTION 4D: THE RUNTIME — AN EXECUTABLE STATE MACHINE
+═══════════════════════════════════════════════════════════════
+
+Sections 4A-4C describe a lifecycle. This section is the machine that enforces
+it: `pnpm run macp -- <command>`, implemented in `scripts/macp/`.
+
+WHY A RUNTIME AND NOT MORE PROSE
+
+`AGENTS.md` asked agents to read the state before working. Three PRs in a row
+skipped it and every gate stayed green, because the only thing that looked at
+the startup was a `pre-commit` hook — and by then the agent had already edited
+ten files, and could fabricate the session and plan files retroactively to get
+past it. A rule that is checked after the fact is a rule an agent can satisfy
+backwards.
+
+THE STATES
+
+    UNBOUND ──start──▶ ACTIVE ──close──▶ COMPLETED ──seal──▶ CLOSED
+                          ▲  │                                  │
+                          │  └──close --prepare──▶ CLOSING      │
+                          │                                  reopen
+                          └──────────── REOPENED ◀─────────────┘
+
+| State       | How you get there                     | What it permits                                               |
+| ----------- | ------------------------------------- | ------------------------------------------------------------- |
+| `UNBOUND`   | the default on launching any harness  | read-only recon. No edit, no commit, no session file.         |
+| `ACTIVE`    | `macp start …`                        | edits on the session's branch, `macp log`                     |
+| `CLOSING`   | `macp close --prepare`                | nothing. Source is frozen; run the gates, then close.         |
+| `COMPLETED` | `macp close --outcome …`              | nothing. The agent's claim; the owner has not sealed it.      |
+| `CLOSED`    | `macp seal --session … --ssh-key …`   | nothing. Immutable, byte-compared against its sealing commit. |
+| `REOPENED`  | `macp reopen --session … --ssh-key …` | edits again, on the same objective, until re-closed.          |
+
+`UNBOUND` is the important one. Asking a question in a repository should not
+create a session file, a plan, a registry entry and a branch; that is how a
+protocol acquires a reputation for ceremony and then gets ignored. Read-only
+tools are allowed in `UNBOUND` precisely so the cheap case stays cheap.
+
+THE TWO LAYERS OF THE PRE-WORK GATE
+
+1. **`macp start`** runs the reconnaissance, prints the `CONTINUATION` brief and
+   the authorised scope to stdout — into the agent's transcript, whether the
+   agent wanted it or not — registers the session and plan, updates `REGISTRY`
+   and `INDEX`, and writes a **local lease** to `~/.macp/leases/<repo-id>.json`.
+   The lease is outside the working tree on purpose: a receipt inside the tree
+   is a receipt an agent can copy from another branch, and copying a startup it
+   never performed is the exact defect this replaces.
+
+2. **The harness pre-tool guard** (`scripts/macp/hooks/pretool.mjs`, installed
+   by `macp install-hooks --harness <claude|opencode|hermes|dsh>`) refuses
+   mutating tool calls while the repository is `UNBOUND`. One decision, four
+   adapters, so the rule cannot drift between harnesses.
+
+   `[FACT]` It is a speed bump, not a sandbox. The mutating-command list is a
+   heuristic and a determined agent can route around it. What it buys is that
+   the _normal_ path is the authorised one, and that the deviation is a
+   deliberate act rather than an oversight.
+
+3. **`scripts/check-session-start.mjs`** is the structural gate behind both. On
+   a non-`master`, non-bot branch that carries work it requires a session naming
+   that branch, in `IN-PROGRESS` or `REOPENED`, with a plan, a `REGISTRY` entry,
+   and a matching local lease. `master` and bot branches keep the close-path
+   behaviour, because that is where work arrives.
+
+MID-SESSION EVENTS
+
+    macp log --type DISCOVERY|DECISION|PIVOT|BUG_FOUND|DEFERRED|BLOCKER \
+             --summary "…" [--files a,b]
+
+`BUG_FOUND` and `DEFERRED` also land in `state/macp/queue.md`, and the next
+`macp start` prints the open entries. That is the mechanism for "log it, do not
+fix it": the idea survives the session that had it, without derailing the
+session that was authorised.
+
+THE CONTINUATION OBJECT — TWO HALVES THAT MUST NOT BE CONFUSED
+
+`macp close` writes `state/macp/handoff/<session>.json` and a rendered block at
+the top of `state/CONTINUATION.md`.
+
+| Half                | Fields                                                                                                                      | Who produces it        |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| **Machine-stamped** | `base_commit_sha`, `code_commit_sha`, `branch`, `working_tree_clean`, `commits[]`, `open_prs[]`, gate exit codes and times  | `macp close`, measured |
+| **Agent-authored**  | `outcome`, `completed[]`, `remaining[]`, `discovered_bugs[]`, `deferred_work[]`, `traps_learned[]`, `next_recommended_task` | the agent, validated   |
+
+`COMPLETED` requires every recorded gate to exit 0. `PARTIAL` and `BLOCKED` are
+allowed to close red — that is what "blocked" means — but only when the tree is
+committed, the failing gate's output was recorded, and `remaining[]` and
+`next_recommended_task` are non-empty. A close that satisfies none of those is
+refused, and the refusal names the missing piece.
+
+THE SSH SEAL — MECHANISM
+
+§4C says the passkey is an audit control, not a security control, because a
+string typed into a file is a string anyone can type. That is true of a string.
+It is not true of a signature.
+
+**How it works.** The owner already has an ed25519 key (`~/.ssh/id_ed25519`).
+At seal time `macp seal` builds a canonical payload — sorted `key=value` lines
+covering the repository, session, agent, branch, base commit, code commit,
+outcome and close time — and signs it:
+
+    ssh-keygen -Y sign -f ~/.ssh/id_ed25519 -n macp payload.txt
+
+The result is an SSHSIG, stored base64 in the session file as
+`**Seal signature:**`. The matching **public** key is committed to
+`state/macp/owner.pub`; the private key never leaves `~/.ssh`.
+
+At check time `macp verify` (and CI) rebuilds the payload from the session file
+itself and verifies:
+
+    ssh-keygen -Y verify -f allowed_signers -I macp-owner -n macp -s payload.sig
+
+Measured behaviour: a one-character edit to any signed field exits 255 and
+`macp verify` reports "seal signature does not verify". The edit is detected
+because the payload is derived from the file — there is no second copy to keep
+in sync.
+
+**What this buys.** A reopen cannot be produced without the private key. The
+old flow let anyone write `**Passkey:** whatever` and the gate accepted it; the
+new flow requires a signature that verifies against the committed public key, so
+a forged reopen fails in CI even if the local gate was bypassed.
+
+**What it does not buy.** It does not stop a determined agent deleting the seal
+block and writing a fresh session. Nothing in a working tree can. The seal makes
+an unrequested reopen _visible and non-verifiable_, which is a different and
+much stronger property than invisible.
+
+**How to use it.** One command, once, with the owner's key:
+
+    pnpm run macp -- seal --session SA12 --instruction "<the owner's words, verbatim>" \
+      --ssh-key ~/.ssh/id_ed25519
+
+and to reopen, the same key is required:
+
+    pnpm run macp -- reopen --session SA12 --ssh-key ~/.ssh/id_ed25519 \
+      --reason "why" --delta "what changes"
+
+Without the key, `macp reopen` refuses and the session stays closed. That is the
+whole point.
+
+THE BACKEND BOUNDARY — LOCAL NOW, JARVIS LATER
+
+`scripts/macp/lib/backend.mjs` defines `MacpBackend` with `start`, `log`,
+`close`, `seal`, `reopen`, `status`, `verify`. `LocalBackend` runs them
+in-process. `JarvisBackend` posts the same request objects to a central
+authority and is a documented stub: `MACP_BACKEND=jarvis` plus
+`MACP_JARVIS_URL` selects it, and it throws with the route it wanted rather than
+pretending to work. The boundary exists now because adding it later means
+touching every command and every harness adapter.
 
 ═══════════════════════════════════════════════════════════════
 SECTION 5: CONFLICT HANDLING RULES

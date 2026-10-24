@@ -75,3 +75,12 @@ jobs:
       # push only: on a PR, an active session is the correct state.
       - name: Session lifecycle check
         run: node scripts/check-sessions.mjs
+
+      # The signatures. `check-sessions.mjs` compares a sealed file byte-for-byte
+      # with the commit that sealed it, which catches an edit to the FILE. This
+      # catches an edit to the FACTS: every `**Seal signature:**` and
+      # `**Reopen signature:**` is re-verified against the committed
+      # `state/macp/owner.pub`, so a reopen that was not signed by the owner's
+      # key fails here even if the file diff looked plausible.
+      - name: Seal signature check
+        run: node scripts/macp/cli.mjs verify
