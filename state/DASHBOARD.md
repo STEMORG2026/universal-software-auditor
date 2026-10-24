@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T05:31:19.375+05:45
+**Last Reconciled:** 2026-10-24T05:37:54.475+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
@@ -63,16 +63,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `061a672 docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect`
-2. `2e6cb0b Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-3. `830a6c5 chore(master): release (#249)`
-4. `56f2282 chore(state): auto-update from post-commit hook`
-5. `899890f docs(state): the release PR had no checks, and that is systematic`
-6. `78af7d7 chore(state): auto-update from post-commit hook`
-7. `6a5d25b fix(state): remove conflict markers I committed into SA09`
-8. `5edcc00 chore(state): auto-update from post-commit hook`
-9. `4439030 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-10. `f795047 chore(state): auto-update from post-commit hook`
+1. `84664f4 docs(state): the release PRs were never un-triggered — they are awaiting approval`
+2. `39fbd2f chore(state): auto-update from post-commit hook`
+3. `061a672 docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect`
+4. `2e6cb0b Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+5. `830a6c5 chore(master): release (#249)`
+6. `56f2282 chore(state): auto-update from post-commit hook`
+7. `899890f docs(state): the release PR had no checks, and that is systematic`
+8. `78af7d7 chore(state): auto-update from post-commit hook`
+9. `6a5d25b fix(state): remove conflict markers I committed into SA09`
+10. `5edcc00 chore(state): auto-update from post-commit hook`
 
 ---
 

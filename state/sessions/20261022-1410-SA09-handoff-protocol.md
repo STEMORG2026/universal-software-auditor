@@ -296,3 +296,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 05:31 — Commit
 
 `061a672` docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect
+
+### 05:37 — Commit
+
+`84664f4` docs(state): the release PRs were never un-triggered — they are awaiting approval
