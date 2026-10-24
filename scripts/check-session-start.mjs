@@ -96,6 +96,20 @@ function field(text, name) {
   return match ? match[1].trim() : null;
 }
 
+/**
+ * The *last* `**Name:** value` in the text.
+ *
+ * A reopened session carries one close report and one seal per close, so the
+ * first match is the oldest close — using it made the gate compare against a
+ * commit three commits behind HEAD and refuse a close it should have allowed.
+ */
+function lastField(text, name) {
+  const matches = [
+    ...text.matchAll(new RegExp(`^[-*]?[ \\t]*\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'gm')),
+  ];
+  return matches.length > 0 ? matches[matches.length - 1][1].trim() : null;
+}
+
 function statusOf(text) {
   const raw = field(text, 'Status');
   return raw ? raw.split(/[ (]/)[0] : null;
@@ -298,7 +312,18 @@ function isSealingCommit(sessions, branch) {
   const session = owned[owned.length - 1];
   if (!session || !TERMINAL.has(session.status)) return false;
 
-  const codeCommit = field(session.text, 'Code commit');
+  // `macp seal` writes `- **Code commit:** <sha>` in the `## Close` block, but
+  // `macp close` writes the same fact as prose in its close report — and the
+  // close commit has to be recordable *before* the seal exists. Read both.
+  // A reopened session carries one close report per close, and each seal
+  // carries its own code commit — the first seal's field is older than the
+  // second close's report. So read the newest close report first, and fall back
+  // to the seal's field only when there is no report.
+  const report = session.text.slice(session.text.indexOf('## Close report'));
+  const codeCommit =
+    [...report.matchAll(/Code commit `([0-9a-f]{7,40})`/g)].pop()?.[1] ??
+    lastField(session.text, 'Code commit') ??
+    null;
   if (!codeCommit) return false;
 
   const sinceSeal = git(['rev-list', '--count', `${codeCommit}..HEAD`]);
@@ -313,8 +338,14 @@ function isSealingCommit(sessions, branch) {
     .filter(Boolean)
     .map((line) => line.replace(/^[ MADRCU?!]{1,2}\s+/, '').trim());
   if (pending.length === 0) return true; // nothing to record; the push is already made
-  // Door 1: bookkeeping only, never a sealed record.
-  return pending.every((rel) => rel.startsWith('state/') && !rel.startsWith('state/sessions/'));
+  // Door 1: bookkeeping only. A sealed record (`CLOSED`) is never writable —
+  // that is what the seal gate enforces byte for byte. A `COMPLETED` session is
+  // closed but not yet sealed, and its own close and seal are what move it to
+  // CLOSED, so its file is writable until the seal exists.
+  const sealed = session.status === 'CLOSED';
+  return pending.every(
+    (rel) => rel.startsWith('state/') && (!sealed || !rel.startsWith('state/sessions/')),
+  );
 }
 
 /* -------------------------------------------------------------------- run -- */

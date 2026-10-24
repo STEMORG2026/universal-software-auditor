@@ -406,3 +406,73 @@ describe('check-session-start gate — recording a closed session', () => {
     expect(r.out).toMatch(/state-only change/);
   });
 });
+
+describe('check-session-start gate — a reopened session', () => {
+  /**
+   * A reopen leaves one close report per close and one seal per seal, so the
+   * *first* code commit in the file is the oldest close. Reading it made the
+   * gate compare against a commit several commits behind HEAD and refuse the
+   * close it was supposed to record. These pin the newest-close rule.
+   */
+  function reopened() {
+    const f = fixture({ branch: 'feat/x' });
+    session(f.dir, { name: '20261024-0000-TEST-x.md', branch: 'feat/x', status: 'IN-PROGRESS' });
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore: register the session']);
+    const first = git(f.dir, ['rev-parse', 'HEAD']);
+
+    // first close, sealed
+    writeFileSync(
+      path.join(f.dir, 'state/sessions', '20261024-0000-TEST-x.md'),
+      `**Agent:** TEST (tester)\n**Harness:** vitest\n**History:** not exported\n` +
+        `**Branch:** feat/x\n**Started:** 2026-10-24T00:00:00+05:45\n` +
+        `**Status:** CLOSED\n**Base commit:** abc1234\n\n## Close report\n\n` +
+        `Machine-stamped at 2026-10-24T01:00:00+05:45 from \`macp close\`. Code commit \`${first}\`.\n\n` +
+        `## Close\n\n- **Code commit:** ${first}\n- **Seal signature:** x\n`,
+    );
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore(macp): close and seal']);
+
+    // reopen, more work, second close
+    writeFileSync(
+      path.join(f.dir, 'state/sessions', '20261024-0000-TEST-x.md'),
+      `**Agent:** TEST (tester)\n**Harness:** vitest\n**History:** not exported\n` +
+        `**Branch:** feat/x\n**Started:** 2026-10-24T00:00:00+05:45\n` +
+        `**Status:** REOPENED\n**Base commit:** abc1234\n\n## Close report\n\n` +
+        `Machine-stamped at 2026-10-24T01:00:00+05:45 from \`macp close\`. Code commit \`${first}\`.\n\n` +
+        `## Reopen\n\n- **Reason:** finish it here\n`,
+    );
+    writeFileSync(path.join(f.dir, 'file.txt'), 'more work\n');
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'fix: the work the close found']);
+    const second = git(f.dir, ['rev-parse', 'HEAD']);
+
+    const file = path.join(f.dir, 'state/sessions', '20261024-0000-TEST-x.md');
+    writeFileSync(
+      file,
+      readFileSync(file, 'utf8')
+        .replace('**Status:** REOPENED', '**Status:** COMPLETED')
+        .concat(
+          `\nMachine-stamped at 2026-10-24T02:00:00+05:45 from \`macp close\`. Code commit \`${second}\`.\n`,
+        ),
+    );
+    return f;
+  }
+
+  it('records the close against the newest close report, not the oldest', () => {
+    const f = reopened();
+    const r = run(f);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/recording a finished session/);
+  });
+
+  it('still refuses source work once a commit has followed that close', () => {
+    const f = reopened();
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore(state): auto-update from post-commit hook']);
+    writeFileSync(path.join(f.dir, 'file.txt'), 'new work, no session\n');
+    const r = run(f);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/none is IN-PROGRESS or REOPENED/);
+  });
+});
