@@ -3,8 +3,8 @@
 **History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** fix/release-pr-born-red, docs/resync-token-correction, and 16 others, all merged
 **Started:** 2026-10-24T09:18+05:45
-**Status:** COMPLETED
-**Closed:** 2026-10-24T17:57+05:45 by owner, reopened 2026-10-24T18:09+05:45
+**Status:** CLOSED
+**Closed:** 2026-10-24T18:09+05:45 by owner (first closed 17:57, reopened 18:09 to record `## Mistakes`)
 **Base commit:** f1a0ebe (master, after #246)
 
 # Session SA11 — the provenance chain, closed end to end
@@ -81,14 +81,6 @@ counting them as passes — but they are the owner's call, not the agent's.
 - self-audit **100/100**, 93 passed, 0 open findings
 - gates: `format:check` clean, `docs:all` 5/5, `check-sessions` 15 sealed 0
   findings, `check-protocol` all passed
-
-## Close
-
-- **Closed by:** owner (Sajan Gurung) — instruction: "close the session."
-- **Closed at:** 2026-10-24T17:57+05:45
-- **Status at close:** COMPLETED
-- **Outcome:** the provenance chain is closed end to end. Every published release has a filed bundle, the read-back runs green in CI, and a Version Packages PR is now green when it is created instead of needing a human to repair it every release. 18 PRs merged, 0 open.
-- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`
 
 ## Reopen
 
@@ -182,3 +174,20 @@ cost real time.
 - **"Nothing is left" needs evidence.** If it is true, the evidence is a list of
   what was checked; if it is a feeling, it is not a claim.
 - **Load the skill.** Especially the one you wrote about this exact situation.
+
+## Close
+
+- **Closed by:** owner (Sajan Gurung) — instruction: "close the session."
+- **Closed at:** 2026-10-24T18:09+05:45 — the second close. The first was at
+  17:57; the owner reopened it at 18:09 because the record stated what was
+  established and omitted what was got wrong.
+- **Status at close:** COMPLETED
+- **Outcome:** the provenance chain is closed end to end. Every published release
+  has a filed bundle, the read-back runs green in CI, and a Version Packages PR is
+  now green when it is created instead of needing a human to repair it every
+  release. 18 PRs merged, 0 open.
+- **What the second close adds:** `## Mistakes` — fifteen, with the rules they
+  earned. The first close had none of them, which made a session that took a wrong
+  turn every few hours read as a clean one.
+- **Passkey:** the owner's reopening instruction, recorded verbatim under
+  `## Reopen`. No separate key was named.
