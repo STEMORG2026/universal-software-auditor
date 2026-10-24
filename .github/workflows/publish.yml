@@ -213,8 +213,18 @@ jobs:
       # its own protection (SUP-012).
       - name: Pack release tarball for attestation
         run: |
-          echo "TARBALL=$(npm pack | tail -1)" >> "$GITHUB_ENV"
-          echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+          # Two steps write TARBALL/VERSION to $GITHUB_ENV, and an assignment
+          # can only be read after the step that wrote it has EXITED. Inside
+          # this step "$TARBALL" is still EMPTY. The earlier version hashed
+          # "$TARBALL" here anyway; `sha256sum ''` failed with "No such file or
+          # directory" (stderr only, exit 0), the teardown `echo` returned 0,
+          # and TARBALL_SHA256 reached the provenance step as "". Measured on
+          # the 2.28.3 publish run: TARBALL_SHA256: (blank). Use the shell
+          # variable, not the environment entry.
+          TARBALL="$(npm pack | tail -1)"
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "TARBALL=${TARBALL}" >> "$GITHUB_ENV"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
           # The file packaged here is NOT byte-identical to the published one:
           # npm adds an `attestations` block to package.json inside the
           # published tarball, and package.json is tarred first, so the gzip
@@ -223,7 +233,16 @@ jobs:
           # same tree, built by the same workflow, from the same tag — but a
           # verification must say that in terms of THIS file's digest, never
           # pretend to be checking the registry's bytes.
-          echo "TARBALL_SHA256=$(sha256sum "$TARBALL" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          # `set -euo pipefail` so a missing tarball fails the step instead of
+          # hashing nothing, and `cut -c1-64` because `cut -d' ' -f1` returns
+          # the whole line when sha256sum emits a single space.
+          set -euo pipefail
+          TARBALL_SHA256="$(sha256sum "${TARBALL}" | cut -c1-64)"
+          case "${TARBALL_SHA256}" in
+            ????????????????????????????????????????????????????????????????) ;;
+            *) echo "refusing to file provenance: bad tarball digest '${TARBALL_SHA256}'"; exit 1 ;;
+          esac
+          echo "TARBALL_SHA256=${TARBALL_SHA256}" >> "$GITHUB_ENV"
 
       - name: Attest release tarball (SLSA provenance)
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
@@ -239,29 +258,43 @@ jobs:
           # the one identifier both sides can compute from the file alone.
           subject-name: usa-release-${{ env.VERSION }}.tgz
 
+      # The next step verifies the bundle with cosign before filing it, and
+      # nothing installed cosign. Four earlier failures stopped one line above
+      # this point (before `verify-blob-attestation`), which is why the missing
+      # tool was never reached; the first run to get past attestation died with
+      # `cosign: command not found`, exit 127, run 39956868762.
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+        with:
+          # Pinned, not inherited — and it must be a v2.x, which is measured, not
+          # assumed. cosign v3 releases ship `.sigstore.json` bundles and no
+          # `cosign-linux-amd64.sig`; this installer verifies the download
+          # against that legacy `.sig` asset, so a v3 release fails the install
+          # with HTTP 22 (run 39963116205, pinning v3.1.3). No installer version
+          # helps: the newest, v4.1.2, predates cosign v3 entirely.
+          #
+          # v2.6.5 is the newest v2.x and has the assets. The call below was run
+          # verbatim against the real 2.28.4 bundle with this exact binary —
+          # `Verified OK`, and a wrong digest fails with "provided artifact
+          # digest does not match any digest in statement". `--digestAlg` is
+          # camelCase in v2 and v3 alike; `slsaprovenance1` is in both `--type`
+          # value lists.
+          cosign-release: 'v2.6.5'
+
       - name: File provenance bundle + VSA via PR (SUP-022/SUP-023)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # -L 1 --predicate-type pins exactly one attestation. The default is
-          # up to 30, and `gh attestation download` writes them all into one
-          # JSONL file — so a second dispatch for the same tarball produced a
-          # two-document file that Prettier could not parse (it parses before
-          # it formats, so --write aborts on JSONL) and the job died at the
-          # reformat, after the mirror and attestation had already succeeded.
-          # One attestation, one JSON document, one clean file.
-          gh attestation download "$TARBALL" --repo "$GITHUB_REPOSITORY" \
-            --predicate-type https://slsa.dev/provenance/v1 \
-            -L 1
-          dl=(sha256*.jsonl)
+          # One attestation, one JSON document, one clean file — and the RIGHT
+          # attestation. `gh attestation download -L 1` used to do this and is
+          # removed: it can only address a local file path, it hashes that file
+          # to find the attestation (so any byte difference is a 404), and with
+          # -L 1 it returns whichever of the digest's provenances the server
+          # listed first — which, after a second publish run for the same
+          # version, is not necessarily the one built from the release tag.
+          # The block below fetches by digest and selects on the tag ref.
           mkdir -p provenance
-          mv "${dl[0]}" "provenance/v${VERSION}.sigstore.json"
-          # Format the bundle in place. Prettier is applied to a temp path
-          # holding the single document, which is the only shape it accepts;
-          # the earlier `prettier --write <file>` was correct only for the
-          # single-attestation case the -L 1 above now guarantees.
-          pnpm exec prettier --write "provenance/v${VERSION}.sigstore.json"
           # Verify the statement the bundle makes — not the local file.
           #
           # `gh attestation verify <tarball>` cannot pass here: it looks the
@@ -272,29 +305,117 @@ jobs:
           # (see "Pack release tarball" above), and gh is documented to reject
           # a bundle whose subject name is a Go template over the digest.
           #
-          # So: rebuild the path gh itself takes. Name the subject via gh's own
-          # template, download the server-signed bundle by that digest, and let
-          # cosign verify the signature and the DSSE statement over the
-          # payload. That checks the same thing — this repository's publish
-          # workflow signed this statement — against the artefact this run
-          # produced rather than against an unreachable file name.
-          SUBJECT="usa-release-${VERSION}.tgz@sha256:${TARBALL_SHA256}"
-          gh attestation download "$SUBJECT" --repo "$GITHUB_REPOSITORY" \
-            --predicate-type https://slsa.dev/provenance/v1 \
-            -L 1 --output /tmp/official-bundle/
-          OFFICIAL="$(ls /tmp/official-bundle/sha256*.jsonl | head -1)"
+          # So: address the attestation by DIGEST over the REST API, take the
+          # one statement this workflow signed for THIS ref, and let cosign
+          # verify the signature and the DSSE statement. That checks the same
+          # thing — this repository's publish workflow signed this statement —
+          # against the artefact this run produced rather than against an
+          # unreachable file name.
+          #
+          # `gh attestation download` CANNOT be used here, and this is measured
+          # not assumed: its positional argument is a local FILE PATH (see
+          # `gh attestation download --help` -> "[<file-path> | oci://...]").
+          # There is no `name@sha256:<digest>` addressing; the whole string is
+          # treated as a filename and the 2.28.3 dispatch died with
+          #   failed to open local artifact:
+          #   open usa-release-2.28.3.tgz@sha256:71e5278c...: no such file
+          # Passing the real tarball instead fails too, from the other side: gh
+          # hashes the bytes it is handed and looks THAT digest up, so the
+          # 2.28.2 tarball's `attestations` block (npm rewrites package.json)
+          # 404s. The API route has no such coupling.
+          #
+          # Retry: the attestations endpoint intermittently returns 502/504
+          # (observed 3x while diagnosing this), and a release step must not
+          # die on a transient upstream error.
+          ATTEST_URL="repos/${GITHUB_REPOSITORY}/attestations/sha256:${TARBALL_SHA256}"
+          for attempt in 1 2 3 4 5; do
+            # Write to a scratch file and move it only on success: `gh api`
+            # can emit a JSON error body on the same stream, so a plain
+            # redirect would leave a "successful" file holding an error.
+            if gh api "$ATTEST_URL" > /tmp/attestations.try.json 2>/tmp/attest.err; then
+              mv /tmp/attestations.try.json /tmp/attestations.json
+              break
+            fi
+            if [ "$attempt" = 5 ]; then
+              echo "could not read attestations for sha256:${TARBALL_SHA256}"; cat /tmp/attest.err; exit 1
+            fi
+            echo "attestations API attempt ${attempt} failed, retrying"
+            sleep 5
+          done
+          # The API returns EVERY provenance for this digest — a release tarball
+          # accumulates one per publish run, so by the second dispatch for the
+          # same version there are two with the same subject. (-L 1 would have
+          # returned whichever the server listed first: nondeterministic
+          # selection of the thing we are about to sign a VSA over.) Select the
+          # statement built from the release TAG; anything else is another
+          # run's provenance and must not be filed as this version's.
+          # `export`, and this is not decoration: a bare shell assignment is
+          # NOT an environment entry, so `node -e` could not see it. Measured
+          # on the 2.28.3 dispatch (run 39943859454): the selector compared
+          # every statement's ref against `undefined` and the step died with
+          #   no provenance for 71e5278c… built from undefined (saw 3)
+          # while all three attestations — including the tag one — were
+          # present in the response. The digest was right; only the expected
+          # ref was invisible.
+          export EXPECTED_REF="refs/tags/@xenos1996/usa@${VERSION}"
           node -e '
             const fs = require("fs");
-            const doc = JSON.parse(fs.readFileSync(process.argv[1], "utf8").split("\n")[0]);
+            const want = process.env.EXPECTED_REF;
+            const digest = process.env.TARBALL_SHA256;
+            // Fail on the cause, not on its symptom: without this, an
+            // unexported ref surfaces as "no provenance … built from
+            // undefined", which reads like a missing attestation.
+            if (!want) {
+              console.error("EXPECTED_REF is not in the environment — it must be exported, not merely assigned");
+              process.exit(1);
+            }
+            if (!digest) {
+              console.error("TARBALL_SHA256 is not in the environment");
+              process.exit(1);
+            }
+            const doc = JSON.parse(fs.readFileSync("/tmp/attestations.json", "utf8"));
+            const all = doc.attestations || [];
+            const matches = [];
+            for (const a of all) {
+              const env = a.bundle && a.bundle.dsseEnvelope;
+              if (!env) continue;
+              const st = JSON.parse(Buffer.from(env.payload, "base64").toString("utf8"));
+              if (st.predicateType !== "https://slsa.dev/provenance/v1") continue;
+              if (st.subject?.[0]?.digest?.sha256 !== digest) continue;
+              if (st.predicate?.buildDefinition?.externalParameters?.workflow?.ref !== want) continue;
+              matches.push(a.bundle);
+            }
+            if (matches.length === 0) {
+              console.error(`no provenance for ${digest} built from ${want} (saw ${all.length})`);
+              process.exit(1);
+            }
+            // Deterministic even if two runs share the ref: sort by the DSSE
+            // payload so the choice does not depend on API ordering.
+            matches.sort((x, y) => (x.dsseEnvelope.payload < y.dsseEnvelope.payload ? -1 : 1));
+            fs.writeFileSync("/tmp/official.bundle.json", JSON.stringify(matches[0], null, "\t"));
+            console.log(`selected provenance for ${want} (${matches.length} match)`);
+          '
+          OFFICIAL=/tmp/official.bundle.json
+          node -e '
+            const fs = require("fs");
+            const doc = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
             fs.writeFileSync("/tmp/payload.intoto.json",
               Buffer.from(doc.dsseEnvelope.payload, "base64"));
           ' "$OFFICIAL"
+          # --digest, not a payload blob. `verify-blob-attestation` hashes the
+          # blob it is given and (with the default --check-claims=true) requires
+          # that digest to appear in the statement's subject — so passing the
+          # DSSE *payload* as the blob can never pass: measured on the 2.28.3
+          # bundle, it fails "provided artifact digests do not match digests in
+          # statement" (exit 1). --digest names the subject directly, which is
+          # the artefact the statement is actually about.
           cosign verify-blob-attestation \
             --bundle "$OFFICIAL" \
             --type slsaprovenance1 \
             --certificate-identity-regexp "https://github.com/${GITHUB_REPOSITORY}/.github/workflows/publish.yml@.*" \
             --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-            /tmp/payload.intoto.json
+            --digest "$TARBALL_SHA256" \
+            --digestAlg sha256
           # The statement must be about THIS run's tarball, or the signature is
           # over something else and the check above would still pass.
           node -e '
@@ -311,8 +432,13 @@ jobs:
               console.error("statement was not built from this release tag");
               process.exit(1);
             }
-            console.log(`verified: this run's tarball ${want.slice(0, 16)}… was built from the release tag`);
+            console.log(`verified: tarball ${want.slice(0, 16)}… was built from the release tag`);
           '
+          # Only now does the bundle become a file in the repo. Ordering is the
+          # point: a bundle exists on disk if and only if cosign accepted the
+          # signature and the statement named this run's tarball and tag.
+          cp /tmp/official.bundle.json "provenance/v${VERSION}.sigstore.json"
+          pnpm exec prettier --write "provenance/v${VERSION}.sigstore.json"
           # SUP-023: verification happened above, before anything is filed —
           # a nonzero exit there fails the job, so a VSA exists if and only if
           # it passed. Nothing below may weaken that ordering.
