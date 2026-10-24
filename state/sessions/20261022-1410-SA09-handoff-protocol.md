@@ -292,3 +292,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 05:08 — Commit
 
 `899890f` docs(state): the release PR had no checks, and that is systematic
+
+### 05:31 — Commit
+
+`061a672` docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect
