@@ -444,13 +444,17 @@ jobs:
           # it passed. Nothing below may weaken that ordering.
           # Every VSA field derives from this run (see scripts/make-vsa.mjs):
           # digests are computed, the policy digest pins this exact file.
-          VSA_OUT="provenance/v${VERSION}.vsa.json" \
           # The VSA summarises the attestation, so its subject must be the name
           # the attestation gives it — `subject-name` above — not `$TARBALL`,
           # which is `npm pack`'s own filename. They differ:
           # `xenos1996-usa-X.tgz` vs `usa-release-X.tgz`. Measured 2026-10-24 on
           # the 2.28.4 and 2.28.5 bundles, both of which named the npm pack file
           # while the statement named the release tarball.
+          # NOTE: this comment sits ABOVE the assignment block on purpose. A
+          # `#` line inside a `VAR=x \` continuation ends the command, which
+          # is how the first version of this change broke the run with
+          # `writeFileSync ... Received undefined` (make-vsa.mjs:98).
+          VSA_OUT="provenance/v${VERSION}.vsa.json" \
           VSA_TARBALL_NAME="usa-release-${VERSION}.tgz" \
           VSA_TARBALL_DIGEST="$TARBALL_SHA256" \
           VSA_BUNDLE_DIGEST="$(sha256sum "provenance/v${VERSION}.sigstore.json" | cut -d' ' -f1)" \

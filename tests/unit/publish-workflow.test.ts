@@ -210,4 +210,25 @@ describe('the provenance step has the tools it calls', () => {
       vsaName!.replace('${VERSION}', 'V'),
     );
   });
+
+  /**
+   * A `#` line inside a `VAR=x \` continuation ends the command. The first
+   * version of the VSA-name fix put its explanation between `VSA_OUT=` and
+   * `VSA_TARBALL_NAME=`, so the env prefix never reached the script and the run
+   * died with `writeFileSync ... Received undefined` at make-vsa.mjs:98 —
+   * after publishing had been skipped, so the failure looked like a code bug
+   * rather than a shell one.
+   */
+  it('keeps comments out of line-continued command blocks', () => {
+    const offenders: string[] = [];
+    let continued = false;
+    for (const line of WORKFLOW.split('\n')) {
+      const trimmed = line.trim();
+      if (continued && trimmed.startsWith('#')) {
+        offenders.push(trimmed.slice(0, 70));
+      }
+      continued = trimmed.endsWith('\\');
+    }
+    expect(offenders).toEqual([]);
+  });
 });
