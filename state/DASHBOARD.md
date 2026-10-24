@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T08:23:05.285+05:45
+**Last Reconciled:** 2026-10-24T12:14:11.979+05:45
 **Last Reconciled:** 2026-10-24T07:51:51.868+05:45
 **Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
@@ -66,16 +66,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `635cc6a docs: the resync docs asserted a property the code did not have`
-2. `686b493 docs(state): §13 and §14 to match reality — the phase is done (#263)`
-3. `a5644e7 docs: attach SLSA provenance bundle for v2.28.7 (#265)`
-4. `b995a0b chore(master): release (#260)`
-5. `06bc4cb fix(release): stop the release PR being born red (#264)`
-6. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
-7. `6bce418 docs(state): checkpoint to the true final state (#261)`
-8. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
-9. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
-10. `501cad7 chore(master): release (#257)`
+1. `f02d7f4 docs(session): close SA11 — the provenance chain, closed end to end`
+2. `0bb0144 docs: the resync docs asserted a property the code did not have (#266)`
+3. `686b493 docs(state): §13 and §14 to match reality — the phase is done (#263)`
+4. `a5644e7 docs: attach SLSA provenance bundle for v2.28.7 (#265)`
+5. `b995a0b chore(master): release (#260)`
+6. `06bc4cb fix(release): stop the release PR being born red (#264)`
+7. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
+8. `6bce418 docs(state): checkpoint to the true final state (#261)`
+9. `bf1a1bd fix(ci): the read-back job installed a cosign that cannot verify (#259)`
+10. `530b5ec docs: attach SLSA provenance bundle for v2.28.6 (#258)`
 
 ---
 
