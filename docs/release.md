@@ -114,6 +114,15 @@ Two CLI facts behind that, both measured rather than assumed:
   default `--check-claims=true` it hashes the blob it is handed and requires
   that digest to equal the statement's subject, so passing the DSSE payload
   fails for every bundle, valid or not.
+- **...and the installed `cosign` must be new enough to have that flag.**
+  `cosign-installer` defaults to **v2.5.2**, which does not, so a workflow that
+  pins the action but not `cosign-release` fails every bundle with
+  `unknown flag: --digest`. Both `publish.yml` and `provenance-check.yml` pin
+  **v2.6.5**, and a test asserts the two agree — a one-sided bump is the failure
+  mode. Note also that cosign **v3 cannot be installed at all** by this action:
+  v3 releases publish `.sigstore.json` and no `cosign-linux-amd64.sig`, which is
+  the asset the installer verifies against. Pick the newest v2.x, and check the
+  release's assets before pinning.
 
 The same digest addressing applies to `scripts/check-provenance.mjs`, which
 is why it verifies against the statement's own subject digest.
