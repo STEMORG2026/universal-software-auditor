@@ -2,7 +2,7 @@
   "_type": "https://in-toto.io/Statement/v1",
   "subject": [
     {
-      "name": "xenos1996-usa-2.28.4.tgz",
+      "name": "usa-release-2.28.4.tgz",
       "digest": {
         "sha256": "5e24c5200386ee6a8af527efd8b60cb9e6532b34ac8eee304135298742962378"
       }

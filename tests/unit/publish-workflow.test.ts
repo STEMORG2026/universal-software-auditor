@@ -190,4 +190,24 @@ describe('the provenance step has the tools it calls', () => {
     const body = next === -1 ? step : step.slice(0, next);
     expect(body).toMatch(/cosign-release:\s*'?v\d+\.\d+\.\d+'?/);
   });
+
+  /**
+   * The VSA summarises the attestation, so it must name the artefact the
+   * attestation names. It did not: `VSA_TARBALL_NAME` was `$TARBALL`, which is
+   * `npm pack`'s own filename, while `subject-name` above renames the subject.
+   * Measured 2026-10-24 — 2.28.4 and 2.28.5 both filed a VSA saying
+   * `xenos1996-usa-X.tgz` against a statement saying `usa-release-X.tgz`.
+   */
+  it('builds the VSA with the name the attestation gives the subject', () => {
+    const subjectName = WORKFLOW.match(/subject-name:\s*(.+)$/m)?.[1]?.trim();
+    const vsaName = WORKFLOW.match(/VSA_TARBALL_NAME="([^"]+)"/)?.[1];
+    expect(subjectName).toBeTruthy();
+    expect(vsaName).toBeTruthy();
+    // `$TARBALL` is npm pack's filename, and it is not what gets attested.
+    expect(vsaName).not.toContain('TARBALL');
+    // Same artefact, modulo the two placeholder syntaxes.
+    expect(subjectName!.replace('${{ env.VERSION }}', 'V')).toBe(
+      vsaName!.replace('${VERSION}', 'V'),
+    );
+  });
 });
