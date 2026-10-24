@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T04:23:46.178+05:45
+**Last Reconciled:** 2026-10-24T04:25:13.539+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
@@ -63,26 +63,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `00356f6 docs(state): #247 merged — and the re-dispatch I proposed was wrong`
-2. `10df739 chore(state): auto-update from post-commit hook`
-3. `73cb7d3 docs(state): #247's first run is rehearsed, not guessed`
-4. `18d3fdf chore(state): auto-update from post-commit hook`
-5. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
-6. `e2aee00 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-7. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
-8. `2b62ddd chore(state): auto-update from post-commit hook`
-9. `3ece011 docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back`
-10. `72a52e4 chore(state): auto-update from post-commit hook`
-11. `85e0629 Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
-12. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
-13. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
-14. `fef9a1a chore(state): auto-update from post-commit hook`
-15. `7a199d2 Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
-16. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
-17. `23c2f88 chore(state): auto-update from post-commit hook`
-18. `fece0aa Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
-19. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-20. `3ef58b4 chore(state): auto-update from post-commit hook`
+1. `4439030 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+2. `f795047 chore(state): auto-update from post-commit hook`
+3. `00356f6 docs(state): #247 merged — and the re-dispatch I proposed was wrong`
+4. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
+5. `10df739 chore(state): auto-update from post-commit hook`
+6. `73cb7d3 docs(state): #247's first run is rehearsed, not guessed`
+7. `18d3fdf chore(state): auto-update from post-commit hook`
+8. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
+9. `e2aee00 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+10. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
 
 ---
 
