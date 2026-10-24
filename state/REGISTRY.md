@@ -6,12 +6,16 @@
 
 ## Active Agents
 
-**None.** Every session in this repository is sealed.
+### SA12
 
-A session is opened by the owner, not by an agent. An agent that finds no open
-session asks the owner for one; it does not create one. See `docs/macp.md` §4C.
-
----
+| Field   | Value                                 |
+| ------- | ------------------------------------- |
+| Agent   | SA12 (WorkBuddy)                      |
+| Harness | WorkBuddy                             |
+| Branch  | `feat/macp-runtime-v2`                |
+| Task    | MACP runtime, pre-work gate, SSH seal |
+| Since   | 2026-10-24T18:43:22+05:45             |
+| Claims  | —                                     |
 
 ## File Ownership Rules
 
