@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T03:53:13.685+05:45
+**Last Reconciled:** 2026-10-24T04:23:46.178+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
 **Last Reconciled:** 2026-10-23T13:45:36.839+05:45
@@ -62,16 +62,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `73cb7d3 docs(state): #247's first run is rehearsed, not guessed`
-2. `18d3fdf chore(state): auto-update from post-commit hook`
-3. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
-4. `e2aee00 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-5. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
-6. `2b62ddd chore(state): auto-update from post-commit hook`
-7. `3ece011 docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back`
-8. `72a52e4 chore(state): auto-update from post-commit hook`
-9. `33fe893 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-10. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
+1. `00356f6 docs(state): #247 merged — and the re-dispatch I proposed was wrong`
+2. `10df739 chore(state): auto-update from post-commit hook`
+3. `73cb7d3 docs(state): #247's first run is rehearsed, not guessed`
+4. `18d3fdf chore(state): auto-update from post-commit hook`
+5. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
+6. `e2aee00 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+7. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
+8. `2b62ddd chore(state): auto-update from post-commit hook`
+9. `3ece011 docs(state): the backfill worked — provenance/v2.28.4 is filed and reads back`
+10. `72a52e4 chore(state): auto-update from post-commit hook`
 
 ---
 

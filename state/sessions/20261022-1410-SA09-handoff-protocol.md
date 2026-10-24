@@ -256,3 +256,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 03:53 — Commit
 
 `73cb7d3` docs(state): #247's first run is rehearsed, not guessed
+
+### 04:23 — Commit
+
+`00356f6` docs(state): #247 merged — and the re-dispatch I proposed was wrong
