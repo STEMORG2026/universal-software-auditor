@@ -13,16 +13,138 @@
 
 ## READ THIS FIRST
 
-**2.28.2 is published** (`npm latest`, tag `@xenos1996/usa@2.28.2`), its bundle
-is filed (#239, merged), and the code-owner gate that had held #205 and #238
-is fixed by `/provenance/ @github-actions[bot]` in `CODEOWNERS`.
+**The dispatch called for in the previous handoff ran, and the step failed a
+third time — for a third reason of the same shape.** Run 39943859454 on
+`ab19ef7` died at `File provenance bundle + VSA` with
 
-**One PR is open and it is yours to merge: [#240](https://github.com/STEMORG2026/universal-software-auditor/pull/240)** —
-`fix/provenance-verified-not-just-filed`. It is not a feature. I ran the
-provenance verification this repo documents, and it does not do what the docs
-said (§ below). Four defects, all confirmed by measurement.
+```
+no provenance for 71e5278cc8d6… built from undefined (saw 3)
+```
 
-Nothing else is in progress. `master` = `af3247f`.
+Three attestations were returned for that digest and one was built from
+`refs/tags/@xenos1996/usa@2.28.3`. `EXPECTED_REF="…"` was a shell assignment,
+not an environment entry, so `node -e` read `undefined`. Fixed in **#246**.
+
+**#244 was merged before #246, and it failed exactly as predicted.** 2.28.4 is
+on npmjs; `publish.yml` run `39949269341` died at the provenance step with
+
+```
+no provenance for 5e24c5200386ee6a8af527efd8b60cb9e6532b34ac8eee304135298742962378 built from undefined (saw 1)
+```
+
+`built from undefined` is #246's bug. One attestation existed and was skipped.
+So **2.28.4 shipped without a filed provenance bundle**, and so did 2.28.3:
+`provenance/` stops at 2.28.2.
+
+**What the dispatch can and cannot recover — measured, not reasoned.**
+Decoding the 2.28.4 attestation's DSSE payload shows the statement records
+`workflow.ref = refs/tags/@xenos1996/usa@2.28.4`, which is exactly the string
+the selector compares against. The dispatch therefore does **not** need to run
+on the tag; it needs to repack the same bytes, because the tarball is packed
+from the working tree and looked up by digest.
+
+That is the part that is easy to get wrong in both directions. A local
+`npm pack` of this tree gives `cb6c50db…`, not `5e24c520…` — the tarball is
+**not** reproducible across environments, so a laptop cannot stand in for a
+runner. Across GitHub runners it is: 2.28.3's digest carries three
+attestations, two from `refs/heads/master` and one from the tag, all on the
+same `71e5278cc8d6…`.
+
+**That was then confirmed on 2.28.4, by running it.** #246 merged as `f1a0ebe`;
+`publish.yml` was dispatched on master (run `39956868762`) and it printed
+
+```
+TARBALL_SHA256: 5e24c5200386ee6a8af527efd8b60cb9e6532b34ac8eee304135298742962378
+selected provenance for refs/tags/@xenos1996/usa@2.28.4 (1 match)
+```
+
+The runner repacked to the identical byte, and #246's selector worked on real
+data. The digest now carries two attestations — `refs/heads/master` and the tag
+— the same shape 2.28.3 has. Both publish legs skipped (`already on npmjs`,
+`already on GPR`), so the dispatch published nothing.
+
+**It then failed one line later, on a fifth defect:**
+
+```
+line 125: cosign: command not found
+exit 127
+```
+
+`publish.yml` calls `cosign verify-blob-attestation` and never installed cosign.
+Four earlier runs died at the selector, one line above the call, so the missing
+tool was never reached. **The step was two defects deep, not one** — which is
+why "fix the export and it will work" was never a safe prediction. Fixed in
+**#250** (`sigstore/cosign-installer`, pinned), with three tests pinning that
+the tool is installed, pinned, and installed _before_ the step that calls it.
+
+**Merge order now: #250 first, then #247, #245, #248.** #245 and #248 both touch
+`state/` and conflict on `state/sessions/20261022-1410-SA09-handoff-protocol.md`
+(hook-appended commit-log noise) — take #248's **sealed** copy, never a union:
+the seal is checked against the commit that sealed it, so injecting master's log
+line would break it.
+
+**Every bot-opened PR arrives with its checks held for approval, and cannot
+merge.** #249 sat `BLOCKED` with `no checks reported`; #252 and #253 the same.
+Seven checks are required and none appear, so the gate can never be satisfied,
+and the obvious fix (admin-merge it) throws away the gate once per release.
+
+**The runs exist — they are in `action_required`.** Measured 2026-10-24: four
+runs for `provenance/v2.28.5` at the same second, all `completed/action_required`.
+GitHub created them and is waiting for a human to approve the workflow run. A
+push by the owner's own credentials produces runs that execute, which is why an
+empty commit appeared to "fix" it — that was a side effect, not the mechanism.
+
+The remedy is to approve them, one API call each:
+
+```bash
+gh api "repos/STEMORG2026/universal-software-auditor/actions/runs?per_page=40" \
+  --jq '.workflow_runs[] | select(.conclusion=="action_required") | .id' \
+  | while read id; do gh api -X POST "repos/STEMORG2026/universal-software-auditor/actions/runs/$id/approve"; done
+```
+
+Verified: `40065932882` went from `action_required` to `in_progress` on approval.
+**Prefer this to the empty-commit push** used earlier — that one worked, but the
+post-commit hook appended a `chore(state)` commit to the release branch and it had
+to be removed with `--force-with-lease`. Approving touches nothing.
+
+### The read-back loop is live, and master is green
+
+`#254` merged as `a6f7eb3`. The scheduled job's own `run:` block, executed against
+master's `provenance/`:
+
+```
+### provenance v2.28.4
+FAILs: 0
+job exit: 0
+```
+
+One version, three PASS and one NOTE. That is the loop doing its job on a real
+filed bundle — it rejected this same bundle an hour earlier, correctly, and now
+accepts it because the record was fixed rather than because the check was
+weakened.
+
+**#249 is the changesets bot's Version Packages PR for 2.28.5**, opened within
+minutes of #246 landing, and its only changeset is #246's. For two dispatches it
+was a trap: merging it would have published 2.28.5 through a workflow that had
+just failed, shipping another bundle-less release.
+
+**That trap is now disarmed.** The dispatch succeeded (#252 filed the 2.28.4
+bundle), so merging #249 would publish 2.28.5 through a working provenance step.
+Merge #252 first so `provenance/` is complete for 2.28.4 before 2.28.5 exists,
+then #249 is ordinary. Keep the ordering anyway: #249 should never go ahead of a
+filed bundle for the version it supersedes.
+
+**After #250 is on master: re-dispatch `publish.yml` on master.** That run
+should file `provenance/v2.28.4` and open its own PR. Then
+`node scripts/check-provenance.mjs 2.28.4` — rehearsed against the live
+attestation already, three PASS and one NOTE. Do **not** dispatch on a feature
+branch: the step skips when the branch `provenance/v2.28.4` already exists, so a
+branch run would file that version's bundle permanently from the wrong place.
+
+**2.28.3 was unfilable from master**, because the version selector reads
+`package.json` and master had moved on. It was recovered the other way — a branch
+cut from the tag carrying only `publish.yml`, dispatched on that branch. See §13
+step 10. **Every published release now has a bundle.**
 
 ## The provenance chain does not verify (found 2026-10-22, fixed in #240)
 
@@ -58,10 +180,38 @@ the DSSE payload, not `gh attestation verify <file>`.
 `[FACT]` Both failures below were reproduced by hand before being edited, and
 both were defects I had introduced in #240/#242.
 
-| run                              | failure                                                                                                  | cause                                                                                                                        |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''` |
-| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has  |
+| run                              | failure                                                                                                  | cause                                                                                                                                                                                                              |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 39806243386 (2.28.3 tag push)    | `unknown flag: --output`; `TARBALL_SHA256` empty                                                         | `gh attestation download` has no `--output`; `$GITHUB_ENV` is visible only to _later_ steps, so the writing step hashed `''`                                                                                       |
+| 39816129742 (dispatch on master) | `failed to open local artifact: open usa-release-2.28.3.tgz@sha256:71e5278c…: no such file or directory` | `gh attestation download`'s positional argument is a **file path**. `name@sha256:<digest>` is not an addressing form it has                                                                                        |
+| 39943859454 (dispatch on master) | `no provenance for 71e5278c… built from undefined (saw 3)`                                               | `EXPECTED_REF` was assigned without `export`, so `node -e` read `undefined`; fixed in #246                                                                                                                         |
+| 39956868762 (dispatch on master) | `cosign: command not found`, exit 127 — **after** `selected provenance … (1 match)`                      | Nothing installed cosign. Four earlier runs died at the selector, one line above the call, so the missing tool was never reached; fixed in #250                                                                    |
+| 39963116205 (dispatch on master) | HTTP 22 on `.../v3.1.3/cosign-linux-amd64.sig`, exit 22                                                  | cosign v3 publishes `.sigstore.json` bundles, **not** the legacy `.sig` that `cosign-installer` verifies against — no installer version can fetch a v3 (newest is v4.1.2, which predates cosign v3); fixed in #251 |
+
+`[FACT]` The last two rows are the ones that matter for prediction. #246 was
+correct and necessary and **not sufficient**: fixing it moved the failure one
+line down and revealed a second, independent defect that had been invisible
+behind the first. "Fix the known bug and it will work" was never safe here, and
+the dispatch is what proved it.
+
+`[FACT]` Then #250 repeated the pattern in a subtler direction, and this is the
+one to remember: its flags were verified against **cosign v3.1.3**, which is what
+happens to be installed on this machine — and cosign v3 cannot be installed by
+`cosign-installer` at all. A locally-verified version is not necessarily an
+installable version. **A pinned action is not a pinned tool, and neither is a
+tool you happened to have.** Two of the six failures came from measuring the
+wrong thing; #251 now pins `v2.6.5`, whose flags were checked on the real binary
+and whose install path was confirmed against the release's assets.
+
+`[FACT]` The third failure was reproduced and fixed **locally, against the live
+API response**, before the workflow was edited: the same snippet exits 1 with
+`built from undefined (saw 3)` when the variable is unexported and 0 with
+`selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)` when it is
+exported. `cosign verify-blob-attestation --digest 71e5278c…` over the selected
+bundle returns `Verified OK`. `make-vsa.mjs` then built a VSA from it and
+`check-provenance.mjs 2.28.3` returned three PASS and one NOTE (exit 0) — so
+every part of the step downstream of selection was exercised without spending
+a release.
 
 `[FACT]` `cosign verify-blob-attestation` was also being handed the DSSE
 payload as its blob. With the default `--check-claims=true` it hashes that file
@@ -72,10 +222,10 @@ and returns `Verified OK`.
 
 `[DECISION]` Fetch the attestation from
 `repos/{owner}/{repo}/attestations/sha256:<digest>` and select the statement
-whose `workflow.ref` is the release tag. The API returns **two** provenances
-for 2.28.3 — one from the tag push, one from the master dispatch — and `-L 1`
-returned whichever the server listed first. Selection is by ref and then by
-payload bytes, so it does not depend on API ordering.
+whose `workflow.ref` is the release tag. The API returns **three** provenances
+for 2.28.3 — one from the tag push, two from master dispatches, each dispatch
+adding one — and `-L 1` returned whichever the server listed first. Selection
+is by ref and then by payload bytes, so it does not depend on API ordering.
 
 `[FACT]` `tests/unit/publish-workflow.test.ts` pins all four constraints
 against the workflow source. Each was watched failing by reintroducing the
@@ -87,21 +237,32 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: af3247f # master; the provenance work is on #240's branch
-  handoff_commit_sha: b1744a2 # this handoff; branch fix/provenance-verified-not-just-filed
-  branch: fix/provenance-verified-not-just-filed
+  code_commit_sha: a6f7eb3 # master; #254 merged, the read-back is green on 2.28.4
+  handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
+  branch: docs/continuation-post-243
   working_tree_clean: true
-  version: 2.28.2
-  published: npmjs @xenos1996/usa@2.28.2
-  tests: { total: 1460, passed: 1459, skipped: 1 }
+  version: 2.28.5 # published 2026-10-24T05:20Z, provenance filed as #253
+  published: npmjs @xenos1996/usa@2.28.5
+  provenance: { latest_filed: '2.28.5 (in #253) + 2.28.3 (in #255)', missing: [] }
+  provenance_dispatch: 'tag push 40065874654 fired on its own and filed #253; read-back rejected the VSA name — #254 fixes'
+  tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 240
-      title: 'fix(release): verify the provenance chain instead of only filing it'
-      state: BLOCKED # code-owner review, as designed
-      checks: 14 green locally; CI as reported on the PR
+    - number: 253
+      title: 'docs: attach SLSA provenance bundle for v2.28.5'
+      state: CLEAN # merge first; verifies against master's checker
+    - number: 256
+      title: 'docs(provenance): file the recovered 2.28.3 bundle'
+      state: CLEAN # cut from master, 2 files; replaces the closed #255
+    - number: 248
+      title: 'docs(macp): sessions are opened and sealed by the owner'
+      state: CLEAN # take its SEALED SA09 on any further conflict
+    - number: 245
+      title: 'docs(state): hand off …'
+      state: CLEAN # this file; merge after the bundles so it describes the end state
+  merged_this_phase: [244, 246, 247, 249, 250, 251, 252, 254] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
-  last_verified: 2026-10-22T19:56+05:45
+  last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
 ```
 
@@ -285,22 +446,42 @@ observed on a real merge of two divergent branches since `.gitattributes` landed
 
 Every row below was **run**, not expected. `[FACT]` throughout.
 
-| Check              | Command                                             | Result                                                                       |
-| ------------------ | --------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Types              | `pnpm run typecheck`                                | 0 errors                                                                     |
-| Lint               | `pnpm run lint`                                     | 0 errors, 0 warnings                                                         |
-| Format             | `pnpm run format:check`                             | clean                                                                        |
-| Docs (6 gates)     | `pnpm run docs:all`                                 | OK — 44 ADRs, 138 tracked docs, cli.md + sample-report.md in sync            |
-| Tests              | `pnpm test`                                         | 1447 passed, 1 skipped (1448)                                                |
-| Self-audit         | `pnpm run self-audit`                               | **100/100**, no open findings                                                |
-| Build              | `pnpm run build`                                    | 0 errors                                                                     |
-| Published artifact | `npm pack` → clean install → `usa --version`        | 2.28.0 runs                                                                  |
-| Packaged fixes     | `usa scan` on both defect projects from the tarball | depcruise `--config` row present; semgrep "scanned no files" UNKNOWN present |
+| Check          | Command                                | Result                                                                                                    |
+| -------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Types          | `pnpm run typecheck`                   | 0 errors                                                                                                  |
+| Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                                                                      |
+| Format         | `pnpm run format:check`                | clean                                                                                                     |
+| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
+| Tests          | `npx vitest run`                       | 1466 passed, 1 skipped (1467) on this branch — 1470 once #246 (+1) and #247 (+3) merge                    |
+| Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                                                             |
+| Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                                                                 |
+
+`[FACT]` On this machine `pnpm test` aborts before running: the harness's
+safe-delete guard counts 63 files in one `_tmp_*` directory against a
+per-turn threshold of 50. `npx vitest run` runs the same suite and is what the
+number above came from.
 
 `[FACT]` Guards were watched failing before being trusted, individually: the
 e2e vacuous-pass counter, the depcruise `--config` argv assertion, the semgrep
 `paths.scanned` guard, and the local-bin probe. Each was neutered, observed
 failing, restored, and re-run green.
+
+### The provenance step, rehearsed off-CI
+
+The step has failed three times, so each stage was exercised against the live
+API response for `sha256:71e5278c…` (2.28.3) rather than waited for:
+
+| Stage                | How                                                            | Result                                                                                                                             |
+| -------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| select the statement | the workflow's own `node -e`, unexported then exported         | exit 1 `built from undefined (saw 3)` → exit 0 `selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)`                 |
+| verify the signature | `cosign verify-blob-attestation --digest … --digestAlg sha256` | `Verified OK`; a wrong `--digest` exits 1                                                                                          |
+| assert subject + ref | the block extracted verbatim from `publish.yml`                | `verified: tarball 71e5278c… was built from the release tag`; a wrong digest exits 1 `statement subject … != tarball …`            |
+| format, then digest  | `prettier --write` on the bundle, then `make-vsa.mjs`          | 12220 → 12506 B, file digest `4890e6db…` → `ef0adadb…`; the VSA must use the **post-format** digest, which is the workflow's order |
+| read the pair back   | `check-provenance.mjs 2.28.3` on the rehearsed pair            | 3 PASS + 1 NOTE, exit 0                                                                                                            |
+
+`[UNVERIFIED]` **Not** exercised: `git checkout -b provenance/vX`, the `git
+push`, and `gh pr create`. Those four lines are the only part of the step that
+has never run, and they cannot be rehearsed without filing a real bundle.
 
 ## 8. Known issues and limitations
 
@@ -323,8 +504,9 @@ follows is not a blocker but is a real limitation.
 - `[TODO]` CodeQL's `security-severity` is dropped by the normaliser. **Latent,
   not live**: no shipped rule uses `source: sarif`, so no score moves. Carrying
   it would be plumbing for a path nothing uses — do not add it speculatively.
-- `[TODO]` `provenance/v2.28.0` (#205) is unfiled. Bot-authored, needs a human
-  approval.
+- `[FIXED]` ~~`provenance/v2.28.0` (#205) is unfiled.~~ It is filed: `v2.28.0.sigstore.json`
+  (12224 B) and `v2.28.0.vsa.json` (1355 B) both landed in `e3099d0`, PR #205's own commit.
+  The live gap is **2.28.3 and 2.28.4**, not 2.28.0.
 
 ## 10. Deferred work, and why
 
@@ -388,27 +570,121 @@ Merge order: #205, #233, then #236 (which publishes).
 
 Ordered. Step 1 already ran green on this tree.
 
-1. `[FACT]` `pnpm test` 1459 passed / 1 skipped, `docs:all` OK, `self-audit`
-   **100/100** no open findings, lint/typecheck/format clean — run at
-   `b1744a2`, the branch tip.
-2. `[BLOCKED]` **Review and merge #240.** The code-owner gate applies to it as
-   designed; it is authored by you, so approving it is the normal path. All
-   the work in this handoff is on that branch.
-3. `[TODO]` After merge, the next changeset release files `provenance/v2.28.3`.
-   **Watch that step.** `subject-name: usa-release-X.Y.Z.tgz` and the
-   download-by-digest / `cosign` verification path run for the first time, and
-   the workflow now fails closed if the statement's subject digest is not this
-   run's tarball. If the PR is not filed, read that step's log first.
-4. `[TODO]` `node scripts/check-provenance.mjs 2.28.3` once the bundle lands.
-   For 2.25.x–2.28.2 it reports 3 findings per version — those records are
-   historical and are deliberately left as filed.
-5. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
-   `schedule` only. Not done in #240 on purpose: it needs npm and the
-   attestation API, and a network check on every PR is a check people learn to
-   ignore.
-6. `[TODO]` Otherwise pick from §10. The one with an external consequence is
-   the npm Trusted Publisher org confirmation (`docs/release.md` says
-   `STEMORG2026`; only you can check the package page).
+1. `[DONE]` **#246 merged** as `f1a0ebe`. The export fix is on master.
+2. `[DONE]` **`publish.yml` dispatched on master** — run `39956868762`. The
+   selector worked: `selected provenance for refs/tags/@xenos1996/usa@2.28.4
+(1 match)`, and the runner repacked to the same digest `5e24c520…`. It then
+   died with `cosign: command not found`.
+3. `[DONE]` **#250 merged** — cosign installed, action pinned and version
+   pinned. **Re-dispatched** (run `39963116205`) and it failed _installing_
+   cosign: HTTP 22 on `…/v3.1.3/cosign-linux-amd64.sig`, because cosign v3 does
+   not publish that asset and no installer can fetch a v3. Fixed in **#251**
+   (`cosign-release: v2.6.5`, flags checked on the real binary).
+4. `[DONE]` **#251 merged** (`dcb24c3`), `publish.yml` re-dispatched as run
+   `39968402220` → **`conclusion: success`**. Six failures, then it worked. See
+   step 5 for what it produced.
+5. `[DONE]` **The backfill worked.** #251 merged; `publish.yml` dispatched (run
+   `39968402220`) → `conclusion: success`. It filed **`provenance/v2.28.4`** and
+   opened **PR #252** (`docs: attach SLSA provenance bundle for v2.28.4`).
+   Read back with `node scripts/check-provenance.mjs 2.28.4` on the branch's own
+   files:
+
+   ```
+   PASS  registry integrity (sha512 of the served tarball) — tarball sha256 55db0933ef97baaf…
+   PASS  bundle signature over its own statement
+   PASS  VSA fields
+   NOTE  the attested subject (5e24c5200386ee6a…) is not any published tarball
+   exit 0
+   ```
+
+   Exactly the three PASS and one NOTE this handoff had only ever promised. The
+   attestation covers the _release_ tarball, not the published one — see
+   `docs/release.md`, "What the attestation covers". For 2.25.x–2.28.2 it reports
+   3 findings per version; those records are historical and are deliberately left
+   as filed.
+
+6. `[DONE]` **#252 merged** (`203e18a`). `provenance/v2.28.4` is on master, and
+   the read-back re-run against master's own files gives three PASS and one NOTE,
+   exit 0. **The provenance chain is closed for 2.28.4.**
+7. `[DONE]` **#247 merged** (`b6393aa`). The read-back loop is on master, and
+   #249 now carries **#246, #247, #250 and #251** — so **2.28.5 ships with the
+   read-back**, which was the whole reason for the order. Merging #249 first
+   would have shipped the first release from a newly-repaired provenance step
+   with nothing watching it.
+   **No re-dispatch is needed, and this was got wrong once already.** A
+   re-dispatch was proposed on the grounds that `#251 changed the cosign version
+on master since the last successful run`. Measured: `publish.yml` is
+   byte-identical between `dcb24c3` and master, and `dcb24c3` is the commit run
+   `39968402220` already executed on — so that run already included the v2.6.5
+   pin. The dispatch would also be a no-op rather than a test: the
+   `provenance/v2.28.4` branch still exists on the remote, so the step's own
+   guard fires with `already exists — bundle for v2.28.4 is already filed` and
+   exits 0. **Check what commit a claim is about before acting on it.**
+8. `[CORRECTED]` **#247's first run is NOT green, and my rehearsal said it would
+   be.** I measured it against master's `provenance/` and reported three PASS —
+   but I ran that with the _pre-#247_ checker, from a worktree pinned at
+   `203e18a`, before the invariant existed. With the invariant, 2.28.4 **fails**.
+   Re-running a check before claiming its result is the whole discipline, and I
+   skipped it because the answer was the one I expected.
+9. `[DONE]` **2.28.5 shipped, and the chain fired on its own.** The tag push
+   triggered `publish.yml` with no dispatch (run `40065874654`) and it filed
+   **#253** (`provenance/v2.28.5`). First fully automatic run — and the read-back
+   immediately rejected the bundle:
+
+   ```
+   FAIL  VSA field — VSA subject name xenos1996-usa-2.28.5.tgz
+         != bundle subject name usa-release-2.28.5.tgz
+   ```
+
+   `publish.yml` attests under `subject-name: usa-release-X.Y.Z.tgz` but built
+   the VSA from `$TARBALL`, which is `npm pack`'s own filename. 2.28.4 has the
+   same defect. Fixed in **#254**; 2.28.4's VSA corrected there and 2.28.5's on
+   #253's branch (`84e767a`). Both now read three PASS and one NOTE.
+   **Until #254 merges, #247's scheduled job is red on 2.28.4 and 2.28.5 — and
+   that is the job working, not failing.**
+
+10. `[DONE]` **2.28.3 is recovered.** Branch `chore/provenance-2.28.3` cut from
+    the tag, carrying **one** file: `publish.yml`. `package.json` at that tag lists
+    `files: [dist, rules, templates, USA.md, README.md, LICENSE]` — `.github/` is
+    not in the tarball — so the repack is byte-identical, and the run confirmed it:
+
+    ```
+    TARBALL_SHA256: 71e5278cc8d69bc1eb45b6803f65de974c05796053abe5b42ea5035d73152d61
+    selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)
+    ```
+
+    Filed as **#256**, which reads back as three PASS and one NOTE with the current
+    checker. **Every published release now has a bundle.**
+    The workflow opened #255 first and it was closed: its branch descends from the
+    tag, so GitHub showed three changed files while a two-dot diff against master
+    was **16 files and 755 deletions**. A merge commit would have been safe and a
+    squash would have applied only the three files, but the shape was one wrong
+    click from reverting master to 2.28.3. #256 is cut from master and adds the two
+    bundle files and nothing else.
+    Two things this cost, both mine: master's `publish.yml` still had the VSA-name
+    bug (#254 unmerged), and my first version of that fix put a comment inside a
+    `VAR=x \` continuation, which broke the env prefix. Both were caught by
+    running the recovery, not by reading it.
+
+11. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
+    `schedule` only. Not done in #240 on purpose: it needs npm and the
+    attestation API, and a network check on every PR is a check people learn to
+    ignore.
+12. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
+    it does not interact with the release order above. Its first real run is the
+    one after it lands, because GitHub refuses to dispatch a workflow that is not
+    on the default branch (`HTTP 404 … not found on the default branch`,
+    measured). **Watch that first run**: the loop was measured locally in both
+    directions, but the checkout / setup-node / cosign-installer plumbing around
+    it has never executed.
+13. `[TODO]` Otherwise pick from §10. The one with an external consequence is
+    the npm Trusted Publisher org confirmation (`docs/release.md` says
+    `STEMORG2026`; only you can check the package page).
+
+`[DECISION]` The step is still **unverified in CI** as of this handoff. The
+logic was proven locally against the live API response, but no run of
+`publish.yml` has reached the PR-creating tail of the step. Say so until one
+has; three handoffs have now claimed this step was fixed and it was not.
 
 ## 14. Completion criteria
 

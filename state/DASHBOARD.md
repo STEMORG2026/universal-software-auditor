@@ -4,6 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
+**Last Reconciled:** 2026-10-24T06:49:21.577+05:45
 **Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-24T05:45:52.564+05:45
@@ -64,16 +65,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `e5a7a41 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
-2. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
-3. `ff109fd Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
-4. `830a6c5 chore(master): release (#249)`
-5. `5fc06cd chore(state): auto-update from post-commit hook`
-6. `dafb68a Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
-7. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
-8. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
-9. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
-10. `9d24b1e chore(state): auto-update from post-commit hook`
+1. `52767c7 docs(state): drop the CONTINUATION.md manifest entry`
+2. `db49df0 chore(state): auto-update from post-commit hook`
+3. `2373925 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+4. `e20d585 docs(macp): sessions are opened and sealed by the owner (#248)`
+5. `d160196 docs(provenance): file the recovered 2.28.3 bundle (#256)`
+6. `abd0056 docs: attach SLSA provenance bundle for v2.28.5 (#253)`
+7. `68e41a0 chore(state): auto-update from post-commit hook`
+8. `3199d57 docs(state): #254 merged — the read-back loop is live and master is green`
+9. `065b79c docs(state): #254 merged — the read-back loop is live and master is green`
+10. `460a5ed chore(state): auto-update from post-commit hook`
 
 ---
 
