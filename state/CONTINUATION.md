@@ -219,20 +219,23 @@ defect, then the file was restored and confirmed byte-identical (`4e0893cb…`).
 checkpoint:
   repository: STEMORG2026/universal-software-auditor
   canonical_handoff: state/CONTINUATION.md
-  code_commit_sha: b6393aa # master; #246, #247, #250, #251, #252 all merged
+  code_commit_sha: 830a6c5 # master; released 2.28.5; #254 (VSA name) is not
   handoff_commit_sha: c9e919c # the checkpoint rewrite; a commit cannot name itself
   branch: docs/continuation-post-243
   working_tree_clean: true
-  version: 2.28.4 # master; published without a provenance bundle
-  published: npmjs @xenos1996/usa@2.28.4
-  provenance: { latest_filed: 2.28.4, missing: [2.28.3] }
-  provenance_dispatch: '39968402220 SUCCESS — filed provenance/v2.28.4 as PR #252; check-provenance 2.28.4 = 3 PASS + 1 NOTE'
+  version: 2.28.5 # published 2026-10-24T05:20Z, provenance filed as #253
+  published: npmjs @xenos1996/usa@2.28.5
+  provenance: { latest_filed: '2.28.5 (in #253)', missing: [2.28.3] }
+  provenance_dispatch: 'tag push 40065874654 fired on its own and filed #253; read-back rejected the VSA name — #254 fixes'
   tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
   open_prs:
-    - number: 249
-      title: 'chore(master): release' # changesets bot; would publish 2.28.5
-      state: CLEAN # carries #246 #247 #250 #251 — ships WITH the read-back
+    - number: 254
+      title: 'fix(release): the VSA named the npm pack file, not the attested subject'
+      state: CLEAN # merge this first — without it #247's job is red on 2.28.4/2.28.5
+    - number: 253
+      title: 'docs: attach SLSA provenance bundle for v2.28.5'
+      state: CLEAN # VSA name corrected on the branch (84e767a)
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
       state: BLOCKED # DO NOT merge before #251 — it would publish another bundle-less release
@@ -245,7 +248,7 @@ checkpoint:
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
       state: CLEAN # merge last; take its SEALED SA09 on any further conflict
-  merged_this_phase: [244, 246, 247, 250, 251, 252] # 244 out of order; it published 2.28.4 and broke its provenance step
+  merged_this_phase: [244, 246, 247, 249, 250, 251, 252] # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
   last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
@@ -605,33 +608,52 @@ on master since the last successful run`. Measured: `publish.yml` is
    `provenance/v2.28.4` branch still exists on the remote, so the step's own
    guard fires with `already exists — bundle for v2.28.4 is already filed` and
    exits 0. **Check what commit a claim is about before acting on it.**
-8. `[DONE]` **#247's first scheduled run is rehearsed.** The enumeration against
-   master's own `provenance/` with the real floor (2.28.3) returns exactly
-   `2.28.4`, and `check-provenance.mjs 2.28.4` on those files gives three PASS
-   and one NOTE, exit 0. The read-back loop starts green and reads real evidence.
-9. `[OPEN]` **2.28.3 stays unfiled.** It cannot be produced from master —
-   `VERSION` comes from `package.json`, which is now 2.28.4. Recovering it needs a
-   branch cut from the 2.28.3 tag carrying the workflow fix; a deliberate
-   decision, not a side effect. The honest default is to leave it and say so.
-   The rehearsal also found that `checkVsa` required the subject name to be
-   `xenos1996-usa-<version>.tgz` while the workflow attests
-   `usa-release-X.Y.Z.tgz`, so the backfill would have filed a bundle the weekly
-   job rejects. Fixed in #247, which is now the PR that makes step 5 pass.
-   5b. `[OPEN]` **2.28.3 has no bundle and this route cannot produce one.**
-   Recovering it needs a branch cut from the 2.28.3 tag carrying only #246's
-   workflow change. Decide separately; do not let it ride on step 4.
-10. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
+8. `[CORRECTED]` **#247's first run is NOT green, and my rehearsal said it would
+   be.** I measured it against master's `provenance/` and reported three PASS —
+   but I ran that with the _pre-#247_ checker, from a worktree pinned at
+   `203e18a`, before the invariant existed. With the invariant, 2.28.4 **fails**.
+   Re-running a check before claiming its result is the whole discipline, and I
+   skipped it because the answer was the one I expected.
+9. `[DONE]` **2.28.5 shipped, and the chain fired on its own.** The tag push
+   triggered `publish.yml` with no dispatch (run `40065874654`) and it filed
+   **#253** (`provenance/v2.28.5`). First fully automatic run — and the read-back
+   immediately rejected the bundle:
+
+   ```
+   FAIL  VSA field — VSA subject name xenos1996-usa-2.28.5.tgz
+         != bundle subject name usa-release-2.28.5.tgz
+   ```
+
+   `publish.yml` attests under `subject-name: usa-release-X.Y.Z.tgz` but built
+   the VSA from `$TARBALL`, which is `npm pack`'s own filename. 2.28.4 has the
+   same defect. Fixed in **#254**; 2.28.4's VSA corrected there and 2.28.5's on
+   #253's branch (`84e767a`). Both now read three PASS and one NOTE.
+   **Until #254 merges, #247's scheduled job is red on 2.28.4 and 2.28.5 — and
+   that is the job working, not failing.**
+
+10. `[OPEN]` **2.28.3 stays unfiled.** It cannot be produced from master —
+    `VERSION` comes from `package.json`, which is now 2.28.4. Recovering it needs a
+    branch cut from the 2.28.3 tag carrying the workflow fix; a deliberate
+    decision, not a side effect. The honest default is to leave it and say so.
+    The rehearsal also found that `checkVsa` required the subject name to be
+    `xenos1996-usa-<version>.tgz` while the workflow attests
+    `usa-release-X.Y.Z.tgz`, so the backfill would have filed a bundle the weekly
+    job rejects. Fixed in #247, which is now the PR that makes step 5 pass.
+    5b. `[OPEN]` **2.28.3 has no bundle and this route cannot produce one.**
+    Recovering it needs a branch cut from the 2.28.3 tag carrying only #246's
+    workflow change. Decide separately; do not let it ride on step 4.
+11. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
     `schedule` only. Not done in #240 on purpose: it needs npm and the
     attestation API, and a network check on every PR is a check people learn to
     ignore.
-11. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
+12. `[BLOCKED]` **#247 is that wiring, as its own workflow** — merge it whenever;
     it does not interact with the release order above. Its first real run is the
     one after it lands, because GitHub refuses to dispatch a workflow that is not
     on the default branch (`HTTP 404 … not found on the default branch`,
     measured). **Watch that first run**: the loop was measured locally in both
     directions, but the checkout / setup-node / cosign-installer plumbing around
     it has never executed.
-12. `[TODO]` Otherwise pick from §10. The one with an external consequence is
+13. `[TODO]` Otherwise pick from §10. The one with an external consequence is
     the npm Trusted Publisher org confirmation (`docs/release.md` says
     `STEMORG2026`; only you can check the package page).
 
