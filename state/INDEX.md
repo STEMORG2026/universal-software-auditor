@@ -25,6 +25,7 @@ COMPLETED.
 | `SA08` | 2026-10-22 | SA08  | WorkBuddy | `ci/trivy-in-ci`                                             | The second scanner in CI                     | CLOSED | `sessions/20261022-1345-SA08-trivy-ci.md`            |
 | `SA09` | 2026-10-22 | SA09  | WorkBuddy | `docs/handoff-protocol`                                      | Handoff to the completion protocol           | CLOSED | `sessions/20261022-1410-SA09-handoff-protocol.md`    |
 | `SA10` | 2026-10-23 | SA10  | WorkBuddy | `docs/macp-session-seal`, `docs/continuation-post-243`       | Owner-sealed session lifecycle               | CLOSED | `sessions/20261023-1800-SA10-macp-session-seal.md`   |
+| `SA11` | 2026-10-24 | SA11  | WorkBuddy | `fix/release-pr-born-red`, `docs/resync-token-correction`    | The provenance chain, closed end to end      | CLOSED | `sessions/20261024-0918-SA11-provenance-chain.md`    |
 
 ---
 
