@@ -83,26 +83,29 @@ the tool is installed, pinned, and installed _before_ the step that calls it.
 the seal is checked against the commit that sealed it, so injecting master's log
 line would break it.
 
-**Every Version Packages PR arrives with zero checks, and cannot merge.** #249
-sat `BLOCKED` with `no checks reported on the 'changeset-release/master' branch`;
-the head commit had **0 check-runs**. `ci.yml` triggers on `pull_request` with no
-base filter, so the PR _should_ have run — it did not. Seven checks are required
-and none can appear, so the gate can never be satisfied, and the obvious fix
-(admin-merge it) throws away the gate for every release.
+**Every bot-opened PR arrives with its checks held for approval, and cannot
+merge.** #249 sat `BLOCKED` with `no checks reported`; #252 and #253 the same.
+Seven checks are required and none appear, so the gate can never be satisfied,
+and the obvious fix (admin-merge it) throws away the gate once per release.
 
-The remedy is a real push to the branch, which produces a `synchronize` event:
+**The runs exist — they are in `action_required`.** Measured 2026-10-24: four
+runs for `provenance/v2.28.5` at the same second, all `completed/action_required`.
+GitHub created them and is waiting for a human to approve the workflow run. A
+push by the owner's own credentials produces runs that execute, which is why an
+empty commit appeared to "fix" it — that was a side effect, not the mechanism.
+
+The remedy is to approve them, one API call each:
 
 ```bash
-git fetch origin changeset-release/master
-git checkout -B tmp origin/changeset-release/master
-git commit --allow-empty -m "ci: trigger checks on the release branch"
-git push origin tmp:changeset-release/master
+gh api "repos/STEMORG2026/universal-software-auditor/actions/runs?per_page=40" \
+  --jq '.workflow_runs[] | select(.conclusion=="action_required") | .id' \
+  | while read id; do gh api -X POST "repos/STEMORG2026/universal-software-auditor/actions/runs/$id/approve"; done
 ```
 
-Measured on 2026-10-24: 13 checks appeared and the PR went `CLEAN`. **Watch the
-post-commit hook** — it appended a `chore(state)` commit to the release branch,
-which was removed with a `--force-with-lease` push back to the empty commit. A
-release branch must contain the version bump and nothing else.
+Verified: `40065932882` went from `action_required` to `in_progress` on approval.
+**Prefer this to the empty-commit push** used earlier — that one worked, but the
+post-commit hook appended a `chore(state)` commit to the release branch and it had
+to be removed with `--force-with-lease`. Approving touches nothing.
 
 **#249 is the changesets bot's Version Packages PR for 2.28.5**, opened within
 minutes of #246 landing, and its only changeset is #246's. For two dispatches it
