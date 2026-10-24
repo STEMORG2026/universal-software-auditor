@@ -252,3 +252,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 03:51 — Commit
 
 `5446d89` docs(state): #252 merged — the provenance chain is closed for 2.28.4
+
+### 03:53 — Commit
+
+`73cb7d3` docs(state): #247's first run is rehearsed, not guessed
