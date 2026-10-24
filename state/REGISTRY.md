@@ -6,7 +6,16 @@
 
 ## Active Agents
 
-**None.** No session is open on this repository.
+### SA12
+
+| Field   | Value                                                              |
+| ------- | ------------------------------------------------------------------ |
+| Agent   | SA12 (Sathi / WorkBuddy)                                           |
+| Harness | WorkBuddy                                                          |
+| Branch  | `feat/macp-runtime-v2`                                             |
+| Task    | reopened: work discovered by the close is finished in this session |
+| Since   | 2026-10-24T20:33:14+05:45                                          |
+| Claims  | —                                                                  |
 
 ## File Ownership Rules
 

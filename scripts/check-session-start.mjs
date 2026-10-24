@@ -83,8 +83,16 @@ function currentBranch() {
 }
 
 /** `**Field:** value` from a session file. */
+/**
+ * Read one `**Name:** value` field.
+ *
+ * The header block writes them flush left; the `## Close` block written by
+ * `macp seal` writes them as a bullet list. Both are the same field, so the
+ * leading bullet is optional here — reading only the flush-left form made
+ * `Code commit` invisible and the sealing commit unreadable to this gate.
+ */
 function field(text, name) {
-  const match = text.match(new RegExp(`^\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'm'));
+  const match = text.match(new RegExp(`^[-*]?[ \\t]*\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'm'));
   return match ? match[1].trim() : null;
 }
 
@@ -253,6 +261,62 @@ function checkLease(session, branch) {
   }
 }
 
+/**
+ * The commit that records a close is not new work.
+ *
+ * `macp close` writes the handoff, the status and the index; `macp seal` adds
+ * the signature. All of it lives under `state/`, all of it happens after the
+ * code commit the session froze at. Without this allowance the gate refuses the
+ * very commit that closes the session — "a finished session does not authorise
+ * more work on the same branch" — which is how this was found: the seal commit
+ * was rejected by the gate it was closing against.
+ *
+ * Two doors:
+ *
+ *   1. state-only — what may be committed forever on a sealed branch. The
+ *      hook keeps regenerating `DASHBOARD.md` after every commit, so a branch
+ *      that could never record state again would be wedged by its own
+ *      bookkeeping. `state/sessions/` is excluded even here: a sealed session
+ *      file is evidence, and the seal gate (`check-sessions.mjs`) pins it.
+ *   2. the one-commit window — nothing has been committed since the code commit,
+ *      so this is the commit that records the close. It exists because the
+ *      runtime cannot yet commit its own bookkeeping, and a defect found *by*
+ *      the close (this gate, or the hook that mangled the session prose) has to
+ *      be fixable somewhere. The window closes after one commit; any further
+ *      source work needs a new session.
+ *
+ * The first version of door 1 also required everything *already* committed since
+ * the seal to be state-only, which wedged the branch the moment door 2 was used
+ * to carry a fix. Committed history is already reviewed; this gate judges the
+ * change about to be recorded.
+ *
+ * A future ADR should move the bookkeeping commit into `macp seal` and delete
+ * door 2. It is recorded here as a debt, not as a design.
+ */
+function isSealingCommit(sessions, branch) {
+  const owned = sessions.filter((session) => session.branches.includes(branch));
+  const session = owned[owned.length - 1];
+  if (!session || !TERMINAL.has(session.status)) return false;
+
+  const codeCommit = field(session.text, 'Code commit');
+  if (!codeCommit) return false;
+
+  const sinceSeal = git(['rev-list', '--count', `${codeCommit}..HEAD`]);
+  if (Number.parseInt(sinceSeal, 10) === 0) return true; // door 2: the close commit
+
+  // Porcelain's leading space is data: ` M path` is an unstaged change and
+  // `M  path` is a staged one. The `git()` helper trims, so slicing by a fixed
+  // offset cut into the filename — `state/…` became `tate/…` and every check
+  // against it silently failed. Match the status codes instead.
+  const pending = git(['status', '--porcelain'])
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => line.replace(/^[ MADRCU?!]{1,2}\s+/, '').trim());
+  if (pending.length === 0) return true; // nothing to record; the push is already made
+  // Door 1: bookkeeping only, never a sealed record.
+  return pending.every((rel) => rel.startsWith('state/') && !rel.startsWith('state/sessions/'));
+}
+
 /* -------------------------------------------------------------------- run -- */
 
 const branch = currentBranch();
@@ -282,6 +346,8 @@ if (!branch || branch === 'HEAD') {
   }
 } else if (!hasWork()) {
   console.log(`session start: ${branch} carries no staged change and no commit ahead of master.`);
+} else if (isSealingCommit(sessions, branch)) {
+  console.log(`session start: OK (${branch}) — recording a finished session, state-only change`);
 } else {
   const session = checkActiveSession(sessions, branch);
   checkLease(session, branch);

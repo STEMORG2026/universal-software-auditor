@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -324,5 +324,85 @@ describe('check-session-start gate — CI', () => {
     const r = run(f, { GITHUB_ACTIONS: 'true', GITHUB_HEAD_REF: 'feat/x' });
     expect(r.code).toBe(0);
     expect(r.out).toMatch(/OK \(feat\/x\)/);
+  });
+});
+
+/**
+ * The close has to be recordable, or the protocol cannot close.
+ *
+ * `macp seal` runs after the session is already CLOSED, so the commit that
+ * records it lands on a branch with no live session and no lease — and the gate
+ * refused exactly that commit while this feature was being built. The allowance
+ * is what these tests pin: bookkeeping forever, the close commit once, and
+ * nothing else.
+ */
+describe('check-session-start gate — recording a closed session', () => {
+  /** A branch whose newest session is CLOSED, sealed at the given commit. */
+  function sealed({ branch = 'feat/x', at }: { branch?: string; at?: string } = {}) {
+    const f = fixture({ branch });
+    session(f.dir, { name: '20261024-0000-TEST-x.md', branch, status: 'IN-PROGRESS' });
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore: register the session']);
+    const code = git(f.dir, ['rev-parse', 'HEAD']);
+    writeFileSync(
+      path.join(f.dir, 'state/sessions', '20261024-0000-TEST-x.md'),
+      `**Agent:** TEST (tester)\n**Harness:** vitest\n**History:** not exported\n` +
+        `**Branch:** ${branch}\n**Started:** 2026-10-24T00:00:00+05:45\n` +
+        `**Status:** CLOSED\n**Base commit:** abc1234\n\n## Close\n\n` +
+        `- **Closed by:** owner — instruction: "test"\n- **Closed at:** 2026-10-24T00:00:00+05:45\n` +
+        `- **Status at close:** COMPLETED\n- **Code commit:** ${at ?? code}\n`,
+    );
+    return f;
+  }
+
+  it('allows the one commit that records the close, whatever it must carry', () => {
+    const f = sealed();
+    writeFileSync(path.join(f.dir, 'state/INDEX.md'), '# IDX\n');
+    writeFileSync(path.join(f.dir, 'file.txt'), 'the fix the close found\n');
+    const r = run(f);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/recording a finished session/);
+  });
+
+  it('allows state bookkeeping forever, because the hook keeps regenerating it', () => {
+    const f = sealed();
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore(state): auto-update from post-commit hook']);
+    writeFileSync(path.join(f.dir, 'state/DASHBOARD.md'), '# DASHBOARD\n\nregenerated\n');
+    const r = run(f);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/state-only change/);
+  });
+
+  it('refuses a sealed session file, which is evidence rather than a workspace', () => {
+    const f = sealed();
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore(state): auto-update from post-commit hook']);
+    const file = path.join(f.dir, 'state/sessions', '20261024-0000-TEST-x.md');
+    writeFileSync(file, `${readFileSync(file, 'utf8')}\none more thing\n`);
+    const r = run(f);
+    expect(r.code).toBe(1);
+  });
+
+  it('refuses source work after the seal — that is a new session', () => {
+    const f = sealed();
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore(state): auto-update from post-commit hook']);
+    writeFileSync(path.join(f.dir, 'file.txt'), 'new work, no session\n');
+    const r = run(f);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/none is IN-PROGRESS or REOPENED/);
+  });
+
+  it('allows the push, where nothing is pending but the branch is ahead', () => {
+    // The pre-push hook runs this gate after the close commit exists. Nothing is
+    // pending then, and the branch is ahead of master — which `hasWork()` counts
+    // as work, so without this door the close could be committed and never pushed.
+    const f = sealed();
+    git(f.dir, ['add', '-A']);
+    git(f.dir, ['commit', '-qm', 'chore(state): auto-update from post-commit hook']);
+    const r = run(f);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/state-only change/);
   });
 });

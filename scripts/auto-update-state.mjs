@@ -229,8 +229,13 @@ function updateSessionFile() {
 
   const timestamp = new Date().toISOString().slice(11, 16);
   const entry = `\n### ${timestamp} — Commit\n\n\`${commitSha}\` ${commitMsg}\n`;
-  const text = session.text.includes('## Outcome')
-    ? session.text.replace('## Outcome', `${entry}\n---\n\n## Outcome`)
+  // `## Outcome` is a heading, not a string. The first version searched for the
+  // text, so a session whose prose merely mentioned it got the commit entry
+  // spliced into the middle of a sentence — which is exactly what happened to
+  // SA12's objective, and it was sealed that way before anyone noticed.
+  const heading = /^## Outcome$/m;
+  const text = heading.test(session.text)
+    ? session.text.replace(heading, () => `${entry}\n---\n\n## Outcome`)
     : `${session.text}${entry}`;
   writeFileSync(session.file, text);
   console.log('  session file updated');

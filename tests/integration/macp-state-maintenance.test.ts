@@ -198,3 +198,31 @@ describe('auto-update-state — the bookkeeping commit', () => {
     expect(git(dir, ['rev-parse', 'HEAD'])).toBe(first);
   });
 });
+
+describe('auto-update-state — appending to a session file', () => {
+  it('treats "## Outcome" as a heading, not as text inside a sentence', () => {
+    // The hook used to call `text.replace('## Outcome', …)`, so a session whose
+    // prose merely mentioned the heading got the commit entry spliced into the
+    // middle of the sentence. SA12's objective was mangled that way and sealed
+    // before anyone noticed: the record is the thing this hook exists to keep.
+    const dir = fixture({ status: 'IN-PROGRESS' });
+    const file = path.join(dir, 'state/sessions/20260101-0000-T01-x.md');
+    const prose = 'A session that mentions `## Outcome` mid-sentence stays intact.';
+    writeFileSync(file, `${readFileSync(file, 'utf8')}\n## Objective\n\n${prose}\n`);
+    git(dir, ['add', '-A']);
+    git(dir, ['commit', '-qm', 'docs: add an objective']);
+
+    writeFileSync(path.join(dir, 'src.js'), 'x\n');
+    git(dir, ['add', '-A']);
+    git(dir, ['commit', '-qm', 'feat: more work']);
+    run(dir);
+
+    const text = readFileSync(file, 'utf8');
+    // The prose must survive whole, and the entry must land after it. With the
+    // old code the entry was spliced into the sentence, so the first assertion
+    // is the one that fails — the fixture needs no heading for that to show.
+    expect(text).toContain(prose);
+    expect(text.indexOf('— Commit')).toBeGreaterThan(text.indexOf(prose));
+    expect(text.match(/^## Outcome$/gm) ?? []).toHaveLength(0);
+  });
+});
