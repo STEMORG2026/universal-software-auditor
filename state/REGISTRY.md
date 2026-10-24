@@ -6,16 +6,7 @@
 
 ## Active Agents
 
-### SA12
-
-| Field   | Value                                 |
-| ------- | ------------------------------------- |
-| Agent   | SA12 (WorkBuddy)                      |
-| Harness | WorkBuddy                             |
-| Branch  | `feat/macp-runtime-v2`                |
-| Task    | MACP runtime, pre-work gate, SSH seal |
-| Since   | 2026-10-24T18:43:22+05:45             |
-| Claims  | —                                     |
+**None.** No session is open on this repository.
 
 ## File Ownership Rules
 

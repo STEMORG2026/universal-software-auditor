@@ -1,5 +1,76 @@
 # Continuation — where the scanner/evidence work stopped
 
+<!-- macp:handoff:begin -->
+
+## Handoff — SA12 (COMPLETED)
+
+Machine-stamped by `macp close` at 2026-10-24T19:34:46+05:45. The table and the gate
+results below were measured; the prose below them was written by the agent and
+is a claim, not a measurement.
+
+| Fact               | Value                                                                      |
+| ------------------ | -------------------------------------------------------------------------- |
+| Session            | `SA12` (SA12 (Sathi / WorkBuddy) on WorkBuddy)                             |
+| Branch             | `feat/macp-runtime-v2`                                                     |
+| Base commit        | `4a4a63b (master, after #269)`                                             |
+| Code commit        | `18852a6fbc418bf7d578ca426b8521338b1ef9c0`                                 |
+| Working tree clean | yes                                                                        |
+| Commits            | 12                                                                         |
+| Open PRs           | #270 feat(macp): the runtime, the pre-work gate and the ssh seal (BLOCKED) |
+
+### Gates (exit code, measured)
+
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 3s   |
+| format     | 0    | 8s   |
+| test       | 0    | 98s  |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 2s   |
+
+### Completed
+
+- scripts/macp: state machine, lease store, split handoff, gate runner, SSH seal, backend boundary, init-repo, install-hooks
+- hooks/pretool.mjs plus adapters for claude, opencode, hermes and dsh; no lease means read-only allowed and writes blocked
+- check-session-start.mjs rewritten: a branch with work and no session now fails, and the branch is read from GITHUB_HEAD_REF in CI
+- auto-update-state.mjs: bookkeeping commit scoped to state/, never records its own commits
+- docs sync and claim scanner skip state/sessions (IMMUTABLE_RECORDS); sealed records are no longer rewritten
+- ADR-0045, docs/macp.md section 4D, ADR index, DECISIONS, STARTUP, DASHBOARD, manifest, changeset
+- integration tests driven as real processes; mutations planted and killed, every file restored byte-identical
+- gates resolve a step to a repo script, then a local tool, then the package-manager script
+
+### Remaining
+
+_none_
+
+### Discovered, not fixed
+
+- validateHandoff demanded a tail from every gate, so quiet green gates blocked a valid PARTIAL close
+- sync-docs rewrote the ADR count inside four sealed sessions and check-sessions then failed them as edited after seal
+- the post-commit hook swept twenty unrelated files into a chore(state) commit during this session
+- hardcoding this repo's script paths into the portable gate runner broke the fixtures' docs_all; the seal tests caught it
+
+### Deferred work
+
+- Q003 SA01-SA11 seals carry no SSH signature; retro-signing would edit records sealed before the runtime existed
+- Q004 root _tmp_* scratch directories are logged, not deleted
+
+### Traps learned
+
+- the runtime shims rm through PATH with a per-turn bulk-delete guard; after ~50 commands in a turn any deleting command is refused, so a gate must not route through a package manager
+- shell-driven file mutation is unreliable here: a scripted write appeared after an ABORT and another reverted itself between commands, so mutations are now done in the editor and read back
+
+### Next recommended task
+
+owner reviews and merges PR #270; then decide whether SA01-SA11 are grandfathered or re-sealed
+
+### Required context for the next session
+
+- state/CONTINUATION.md, docs/adr/0045-macp-runtime-and-ssh-seal.md, docs/macp.md section 4D
+
+<!-- macp:handoff:end -->
+
 > **This file is the canonical handoff for this repository.**
 > MACP (`docs/macp.md`) owns the protocol; this document is where its state
 > lives. It is read at session startup by `AGENTS.md` step 2 and is classified

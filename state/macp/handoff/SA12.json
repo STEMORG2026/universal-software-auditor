@@ -1,0 +1,94 @@
+{
+  "schema": "macp-handoff-v1",
+  "session": "SA12",
+  "agent": "SA12 (Sathi / WorkBuddy)",
+  "harness": "WorkBuddy",
+  "branch": "feat/macp-runtime-v2",
+  "base_commit_sha": "4a4a63b (master, after #269)",
+  "code_commit_sha": "18852a6fbc418bf7d578ca426b8521338b1ef9c0",
+  "working_tree_clean": true,
+  "commits": [
+    "18852a6 chore(state): auto-update from post-commit hook",
+    "d1b9bf1 fix(macp): resolve gate steps per repository, with a script fallback per gate",
+    "d005a29 chore(state): auto-update from post-commit hook",
+    "baabf7a fix(macp): express docs_all and self_audit as steps, not a package-manager call",
+    "80ce3a7 chore(state): auto-update from post-commit hook",
+    "ac2028b fix(macp): run each gate's tool directly, and fall back to the script",
+    "678fd55 chore(state): auto-update from post-commit hook",
+    "d55a39c docs(macp): record adr-0045 and point the state files at the runtime",
+    "c5792c0 chore(state): auto-update from post-commit hook",
+    "87c48cd fix(gates): make the start gate, the state hook and the docs sync agree",
+    "1090ac0 chore(state): auto-update from post-commit hook",
+    "913e204 feat(macp): add the runtime, the pre-work guard and the ssh seal"
+  ],
+  "open_prs": ["#270 feat(macp): the runtime, the pre-work gate and the ssh seal (BLOCKED)"],
+  "gates": {
+    "typecheck": {
+      "name": "typecheck",
+      "exit": 0,
+      "ms": 1458,
+      "tail": ""
+    },
+    "lint": {
+      "name": "lint",
+      "exit": 0,
+      "ms": 2966,
+      "tail": ""
+    },
+    "format": {
+      "name": "format",
+      "exit": 0,
+      "ms": 7575,
+      "tail": "Checking formatting...\nAll matched files use Prettier code style!"
+    },
+    "test": {
+      "name": "test",
+      "exit": 0,
+      "ms": 98081,
+      "tail": "     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-010: gutting the check flips a fixture outcome\u001b[33m 417\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-011: gutting the check flips a fixture outcome\u001b[33m 394\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-013: gutting the check flips a fixture outcome\u001b[33m 412\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-014: gutting the check flips a fixture outcome\u001b[33m 391\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-016: gutting the check flips a fixture outcome\u001b[33m 400\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-022: gutting the check flips a fixture outcome\u001b[33m 423\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-023: gutting the check flips a fixture outcome\u001b[33m 386\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-024: gutting the check flips a fixture outcome\u001b[33m 418\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-001: gutting the check flips a fixture outcome\u001b[33m 411\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-002: gutting the check flips a fixture outcome\u001b[33m 400\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-003: gutting the check flips a fixture outcome\u001b[33m 388\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-005: gutting the check flips a fixture outcome\u001b[33m 414\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-006: gutting the check flips a fixture outcome\u001b[33m 399\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-001: gutting the check flips a fixture outcome\u001b[33m 401\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-002: gutting the check flips a fixture outcome\u001b[33m 400\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-003: gutting the check flips a fixture outcome\u001b[33m 412\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-004: gutting the check flips a fixture outcome\u001b[33m 395\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-005: gutting the check flips a fixture outcome\u001b[33m 398\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-007: gutting the check flips a fixture outcome\u001b[33m 417\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-008: gutting the check flips a fixture outcome\u001b[33m 397\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-009: gutting the check flips a fixture outcome\u001b[33m 386\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-010: gutting the check flips a fixture outcome\u001b[33m 398\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-011: gutting the check flips a fixture outcome\u001b[33m 397\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-001: gutting the check flips a fixture outcome\u001b[33m 384\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-002: gutting the check flips a fixture outcome\u001b[33m 384\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-004: gutting the check flips a fixture outcome\u001b[33m 413\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-005: gutting the check flips a fixture outcome\u001b[33m 395\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-007: gutting the check flips a fixture outcome\u001b[33m 390\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-012: gutting the check flips a fixture outcome\u001b[33m 399\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-001: gutting the check flips a fixture outcome\u001b[33m 411\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-002: gutting the check flips a fixture outcome\u001b[33m 394\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-003: gutting the check flips a fixture outcome\u001b[33m 410\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-005: gutting the check flips a fixture outcome\u001b[33m 404\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-006: gutting the check flips a fixture outcome\u001b[33m 394\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-007: gutting the check flips a fixture outcome\u001b[33m 401\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m79 passed\u001b[39m\u001b[22m\u001b[90m (79)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1548 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m1 skipped\u001b[39m\u001b[90m (1549)\u001b[39m\n\u001b[2m   Start at \u001b[22m 19:33:03\n\u001b[2m   Duration \u001b[22m 97.72s\u001b[2m (tests 89%, import 8%, transform 3%)\u001b[22m"
+    },
+    "docs_all": {
+      "name": "docs_all",
+      "exit": 0,
+      "ms": 2025,
+      "tail": "ADR hygiene: OK (45 records, index complete)\ndocs governance: OK (143 docs · facts 2.28.7/315 rules · sections · flags · links · index · pins)\nwrote docs/reference/cli.md\nwrote examples/sample-report.md\nwrote /home/sajan/Projects/Universal_Software_Auditor/docs/reference/asvs-coverage.md (345 controls, 29 covered)\nwrote /home/sajan/Projects/Universal_Software_Auditor/tests/fixtures/asvs-coverage-snapshot.json\ndoc manifest: OK (145 tracked docs · 75 standalone · 180-day review window)"
+    },
+    "self_audit": {
+      "name": "self_audit",
+      "exit": 0,
+      "ms": 2438,
+      "tail": "usa 100/100 (beta) — 99 passed, no open findings, 35 to review (66.9% verified automatically)\n  report → AUDIT.md"
+    }
+  },
+  "outcome": "COMPLETED",
+  "completed": [
+    "scripts/macp: state machine, lease store, split handoff, gate runner, SSH seal, backend boundary, init-repo, install-hooks",
+    "hooks/pretool.mjs plus adapters for claude, opencode, hermes and dsh; no lease means read-only allowed and writes blocked",
+    "check-session-start.mjs rewritten: a branch with work and no session now fails, and the branch is read from GITHUB_HEAD_REF in CI",
+    "auto-update-state.mjs: bookkeeping commit scoped to state/, never records its own commits",
+    "docs sync and claim scanner skip state/sessions (IMMUTABLE_RECORDS); sealed records are no longer rewritten",
+    "ADR-0045, docs/macp.md section 4D, ADR index, DECISIONS, STARTUP, DASHBOARD, manifest, changeset",
+    "integration tests driven as real processes; mutations planted and killed, every file restored byte-identical",
+    "gates resolve a step to a repo script, then a local tool, then the package-manager script"
+  ],
+  "remaining": [],
+  "discovered_bugs": [
+    "validateHandoff demanded a tail from every gate, so quiet green gates blocked a valid PARTIAL close",
+    "sync-docs rewrote the ADR count inside four sealed sessions and check-sessions then failed them as edited after seal",
+    "the post-commit hook swept twenty unrelated files into a chore(state) commit during this session",
+    "hardcoding this repo's script paths into the portable gate runner broke the fixtures' docs_all; the seal tests caught it"
+  ],
+  "deferred_work": [
+    "Q003 SA01-SA11 seals carry no SSH signature; retro-signing would edit records sealed before the runtime existed",
+    "Q004 root _tmp_* scratch directories are logged, not deleted"
+  ],
+  "traps_learned": [
+    "the runtime shims rm through PATH with a per-turn bulk-delete guard; after ~50 commands in a turn any deleting command is refused, so a gate must not route through a package manager",
+    "shell-driven file mutation is unreliable here: a scripted write appeared after an ABORT and another reverted itself between commands, so mutations are now done in the editor and read back"
+  ],
+  "next_recommended_task": "owner reviews and merges PR #270; then decide whether SA01-SA11 are grandfathered or re-sealed",
+  "required_context": [
+    "state/CONTINUATION.md, docs/adr/0045-macp-runtime-and-ssh-seal.md, docs/macp.md section 4D"
+  ],
+  "closed_at": "2026-10-24T19:34:46+05:45"
+}
