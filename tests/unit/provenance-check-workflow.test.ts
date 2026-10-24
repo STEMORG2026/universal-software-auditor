@@ -42,4 +42,26 @@ describe('provenance-check.yml reads the chain back without becoming a PR check'
   it('installs cosign, pinned to a commit sha', () => {
     expect(WORKFLOW).toMatch(/uses: sigstore\/cosign-installer@[0-9a-f]{40} # v\d/);
   });
+
+  /**
+   * A pinned action is not a pinned tool. Without `cosign-release` the installer
+   * defaults to v2.5.2, whose `verify-blob-attestation` has no `--digest` flag,
+   * so every bundle failed with `unknown flag: --digest` (run 40073426157) while
+   * the identical call passed in publish.yml under v2.6.5.
+   *
+   * The two workflows verify the same bundles, so they must agree on the
+   * verifier. Asserting equality rather than a literal keeps them free to move
+   * together and catches the one-sided bump.
+   */
+  it('pins the same cosign version as publish.yml', () => {
+    const publish = fs.readFileSync(
+      path.join(process.cwd(), '.github', 'workflows', 'publish.yml'),
+      'utf8',
+    );
+    const here = WORKFLOW.match(/cosign-release:\s*'([^']+)'/)?.[1];
+    const there = publish.match(/cosign-release:\s*'([^']+)'/)?.[1];
+    expect(here, 'provenance-check.yml must set cosign-release').toBeTruthy();
+    expect(there, 'publish.yml must set cosign-release').toBeTruthy();
+    expect(here).toBe(there);
+  });
 });
