@@ -1,48 +1,21 @@
-# state.md — Primary Entry Point
+# state.md — pointer
 
-**Last updated:** 2026-10-01T16:30:00+05:45
-**Agent:** HERMES (bootstrap)
-**Repo:** Universal_Software_Auditor
-**Branch:** docs/0042-continuous-ingestion
+This file exists because older instructions told agents to read it. It holds no
+facts of its own: every state claim it used to carry — a version, a branch, a
+status line — was a second copy of something in `state/`, and the copies drifted
+apart. It sat frozen at 2026-10-01 while the repository shipped three releases.
 
----
+Read, in this order:
 
-## Quick Start
+1. `state/CONTINUATION.md` — the handoff. What the last session finished, what
+   it left, what to do next. **This is the primary startup read.**
+2. `state/DASHBOARD.md` — the summary, with a machine-generated facts block.
+3. `state/REGISTRY.md` — who is working, and on what.
+4. `state/STARTUP.md` — the startup sequence, in full.
+5. `docs/macp.md` — the protocol itself.
 
-1. Read `state/DASHBOARD.md` — executive summary (<60 seconds)
-2. Read `state/REGISTRY.md` — who's active, file ownership
-3. Read `state/BLOCKERS.md` — active blockers
-4. Read `state/INDEX.md` — searchable session log
-5. Read `state/ARCHITECTURE.md` — system architecture
-6. Read `state/DECISIONS.md` — architecture decision records
-7. Read `state/DEBT.md` — technical debt tracker
+Or run `pnpm run macp -- start …`, which prints 1 and 2 into the transcript
+before any work begins.
 
-## Directory Structure
-
-```
-state/
-├── DASHBOARD.md          # Executive summary — ALWAYS read first
-├── REGISTRY.md           # Who's actively working and what files they own
-├── INDEX.md              # Searchable log of all past sessions
-├── ARCHITECTURE.md       # Current system architecture (living document)
-├── DECISIONS.md          # Architecture Decision Records
-├── DEBT.md               # Technical debt tracker
-├── BLOCKERS.md           # Active blockers and dependencies
-├── sessions/             # One file per agent session
-├── plans/                # Active plans (deleted when done)
-├── conflicts/            # Documented conflicts needing coordination
-└── archive/              # Old sessions compressed by month
-```
-
-## Current Status (one-liner)
-
-USA v2.26.2 — self-auditing TypeScript CLI. Self-audit **100/100, no open
-findings** (2026-10-21). Branch `fix/verdict-correctness` is open as a PR and
-awaiting owner review; `master` is clean. One pending changeset
-(`verdict-correctness`). No blockers.
-
-## MACP Protocol
-
-This repository operates under **MACP (Multi-Agent Coordination Protocol)**.
-All agents must follow the startup sequence defined in AGENTS.md.
-See `state/DASHBOARD.md` for the full protocol summary.
+Do not add state claims to this file. If a fact belongs here, it belongs in
+`state/DASHBOARD.md`'s generated block, where it is measured rather than typed.
