@@ -196,3 +196,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:45 — Commit
 
 `210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
+
+### 03:54 — Commit
+
+`85e0629` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
