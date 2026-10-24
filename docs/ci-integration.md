@@ -203,7 +203,14 @@ against the real engine on every PR, so any CLI/engine change (or version bump)
 would turn the next PR red until someone runs the generators. The `resync` job
 in `ci.yml` runs them instead: on same-repo PRs it regenerates both files and
 pushes the result back to the PR branch as a `docs:` commit, and the
-re-triggered run validates it green. Expect a red-then-green cycle on PRs that
+re-triggered run validates it green — provided the push uses a token that can
+trigger workflows. It uses `CHANGESET_TOKEN`, not `GITHUB_TOKEN`: a push by the
+latter produces a run in `action_required`, so the repair is never validated and
+the PR keeps showing the failure it just fixed.
+
+Release PRs no longer depend on this at all: `version-packages` regenerates the
+same files immediately after `changeset version`, so a Version Packages PR is
+green when it is created. Expect a red-then-green cycle on PRs that
 touch the CLI or the report renderer — no action needed. It never pushes to
 forks, never pushes to `master`, and refuses a second consecutive push (a
 still-dirty tree after a regen means a nondeterministic generator, which is a
