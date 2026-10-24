@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T12:15:49.053+05:45
+**Last Reconciled:** 2026-10-24T12:26:00.272+05:45
 **Last Reconciled:** 2026-10-24T07:51:51.868+05:45
 **Last Reconciled:** 2026-10-24T06:27:36.650+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
@@ -66,16 +66,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `af39dd4 chore(docs): classify the SA11 session file`
-2. `ef4eaf7 chore(state): auto-update from post-commit hook`
-3. `f02d7f4 docs(session): close SA11 — the provenance chain, closed end to end`
-4. `0bb0144 docs: the resync docs asserted a property the code did not have (#266)`
-5. `686b493 docs(state): §13 and §14 to match reality — the phase is done (#263)`
-6. `a5644e7 docs: attach SLSA provenance bundle for v2.28.7 (#265)`
-7. `b995a0b chore(master): release (#260)`
-8. `06bc4cb fix(release): stop the release PR being born red (#264)`
-9. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
-10. `6bce418 docs(state): checkpoint to the true final state (#261)`
+1. `f82fb5d docs(session): re-close SA11 with the mistakes on record`
+2. `36187e9 chore(state): auto-update from post-commit hook`
+3. `3fc7da5 docs(session): reopen SA11 to record what was got wrong`
+4. `8b8703b docs(session): close SA11 — the provenance chain, closed end to end (#267)`
+5. `0bb0144 docs: the resync docs asserted a property the code did not have (#266)`
+6. `686b493 docs(state): §13 and §14 to match reality — the phase is done (#263)`
+7. `a5644e7 docs: attach SLSA provenance bundle for v2.28.7 (#265)`
+8. `b995a0b chore(master): release (#260)`
+9. `06bc4cb fix(release): stop the release PR being born red (#264)`
+10. `c421316 docs(release): the cosign version is now a load-bearing constraint (#262)`
 
 ---
 
