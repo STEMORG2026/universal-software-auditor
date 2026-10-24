@@ -83,6 +83,27 @@ the tool is installed, pinned, and installed _before_ the step that calls it.
 the seal is checked against the commit that sealed it, so injecting master's log
 line would break it.
 
+**Every Version Packages PR arrives with zero checks, and cannot merge.** #249
+sat `BLOCKED` with `no checks reported on the 'changeset-release/master' branch`;
+the head commit had **0 check-runs**. `ci.yml` triggers on `pull_request` with no
+base filter, so the PR _should_ have run — it did not. Seven checks are required
+and none can appear, so the gate can never be satisfied, and the obvious fix
+(admin-merge it) throws away the gate for every release.
+
+The remedy is a real push to the branch, which produces a `synchronize` event:
+
+```bash
+git fetch origin changeset-release/master
+git checkout -B tmp origin/changeset-release/master
+git commit --allow-empty -m "ci: trigger checks on the release branch"
+git push origin tmp:changeset-release/master
+```
+
+Measured on 2026-10-24: 13 checks appeared and the PR went `CLEAN`. **Watch the
+post-commit hook** — it appended a `chore(state)` commit to the release branch,
+which was removed with a `--force-with-lease` push back to the empty commit. A
+release branch must contain the version bump and nothing else.
+
 **#249 is the changesets bot's Version Packages PR for 2.28.5**, opened within
 minutes of #246 landing, and its only changeset is #246's. For two dispatches it
 was a trap: merging it would have published 2.28.5 through a workflow that had
@@ -211,7 +232,7 @@ checkpoint:
   open_prs:
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
-      state: BLOCKED # carries #246 #247 #250 #251 — ships WITH the read-back
+      state: CLEAN # carries #246 #247 #250 #251 — ships WITH the read-back
     - number: 249
       title: 'chore(master): release' # changesets bot; would publish 2.28.5
       state: BLOCKED # DO NOT merge before #251 — it would publish another bundle-less release
