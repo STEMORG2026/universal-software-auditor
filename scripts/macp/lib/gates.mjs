@@ -14,33 +14,47 @@ const MAX_BUFFER = 32 * 1024 * 1024;
 const TAIL_LINES = 40;
 
 /**
- * Ordered by cost. `self_audit` builds first and is the slowest by far.
+ * A gate is a sequence of steps, and it passes only when every step exits 0.
  *
- * `tool` means "the binary in this repository's own `node_modules/.bin`, if it
- * is installed"; `command` means "whatever is on PATH". The first four prefer
- * the tool over `pnpm run <script>` because the script indirection adds a
- * process layer that can fail for reasons unrelated to the check — measured
- * here: `pnpm run typecheck` exited 1 with an environment delete-guard error
- * while the same `tsc` invocation nested inside `node -e` exited 0. A gate that
- * reports the package manager's mood is not measuring the code.
+ * Each step names either a `tool` (the binary in this repository's own
+ * `node_modules/.bin`, if installed) or a `command` (whatever is on `PATH`).
+ * Both may carry a `script` name, which is the fallback when the tool is not
+ * installed — a repository onboarded with `macp init-repo` has no
+ * `node_modules/.bin`, and `pnpm run <script>` is what its CI would run.
  *
- * The `script` fallback keeps the runtime portable: a repository onboarded with
- * `macp init-repo` has no `node_modules/.bin`, and `pnpm run <script>` is what
- * its own CI would run. `docs_all` and `self_audit` are script chains, not
- * binaries, so they always go through the package manager.
+ * Why steps and not `pnpm run <gate>`: the package manager adds a process layer
+ * that can fail for reasons unrelated to the check. Measured here — `pnpm run
+ * docs:all` exited 1 with an environment delete-guard error while the six
+ * scripts it chains all exited 0 when run directly. A gate that records the
+ * package manager's mood is not measuring the code, and the recorded tail then
+ * names the wrong failure.
  */
 export const GATES = Object.freeze([
   {
     name: 'typecheck',
-    tool: 'tsc',
-    script: 'typecheck',
-    args: ['-p', 'tsconfig.json', '--noEmit'],
+    steps: [{ tool: 'tsc', script: 'typecheck', args: ['-p', 'tsconfig.json', '--noEmit'] }],
   },
-  { name: 'lint', tool: 'eslint', script: 'lint', args: ['.'] },
-  { name: 'format', tool: 'prettier', script: 'format:check', args: ['--check', '.'] },
-  { name: 'test', tool: 'vitest', script: 'test', args: ['run'] },
-  { name: 'docs_all', command: 'pnpm', args: ['run', 'docs:all'] },
-  { name: 'self_audit', command: 'pnpm', args: ['run', 'self-audit'] },
+  { name: 'lint', steps: [{ tool: 'eslint', script: 'lint', args: ['.'] }] },
+  { name: 'format', steps: [{ tool: 'prettier', script: 'format:check', args: ['--check', '.'] }] },
+  { name: 'test', steps: [{ tool: 'vitest', script: 'test', args: ['run'] }] },
+  {
+    name: 'docs_all',
+    steps: [
+      { node: 'scripts/check-adrs.mjs' },
+      { node: 'scripts/check-docs.mjs' },
+      { node: 'scripts/gen-cli-docs.mjs', args: ['--check'] },
+      { node: 'scripts/gen-sample-report.mjs', args: ['--check'] },
+      { node: 'scripts/gen-asvs-coverage.mjs', args: ['--check'] },
+      { node: 'scripts/check-manifest.mjs' },
+    ],
+  },
+  {
+    name: 'self_audit',
+    steps: [
+      { tool: 'tsc', script: 'build', args: [] },
+      { node: 'dist/cli.js', args: ['audit', '.', '--out', 'AUDIT.md'] },
+    ],
+  },
 ]);
 
 export const DEFAULT_GATES = Object.freeze([
@@ -57,41 +71,56 @@ function tail(text) {
   return lines.slice(-TAIL_LINES).join('\n');
 }
 
+/** Resolve one step to `{command, args}`, preferring an installed local tool. */
+function resolveStep(root, step) {
+  if (step.node) {
+    return { command: process.execPath, args: [path.join(root, step.node), ...(step.args ?? [])] };
+  }
+  const local = step.tool ? path.join(root, 'node_modules', '.bin', step.tool) : null;
+  if (local !== null && existsSync(local)) return { command: local, args: step.args };
+  return { command: step.command ?? 'pnpm', args: ['run', step.script, ...(step.args ?? [])] };
+}
+
 /**
  * Run one gate. Never throws: a failing gate is a result, not an exception.
  *
- * The timeout is generous because `pnpm test` on this repository is minutes,
- * and a gate that reports a timeout as a failure would be lying about which
- * thing failed.
+ * The first failing step stops the gate — the remaining steps would be measured
+ * against a tree the failing step already invalidated — and its exit code and
+ * output are what the handoff records.
+ *
+ * The timeout is generous because `test` on this repository is minutes, and a
+ * gate that reports a timeout as a failure would be lying about which thing
+ * failed.
  */
 export function runGate(root, name, { timeoutMs = 20 * 60 * 1000 } = {}) {
   const gate = GATES.find((entry) => entry.name === name);
   if (!gate) throw new Error(`unknown gate "${name}"`);
-  const local = gate.tool ? path.join(root, 'node_modules', '.bin', gate.tool) : null;
-  const useLocal = local !== null && existsSync(local);
-  const command = useLocal ? local : (gate.command ?? 'pnpm');
-  const args = useLocal ? gate.args : gate.command ? gate.args : ['run', gate.script];
+
   const started = Date.now();
-  try {
-    const stdout = execFileSync(command, args, {
-      cwd: root,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-      maxBuffer: MAX_BUFFER,
-      timeout: timeoutMs,
-      env: { ...process.env, CI: process.env.CI ?? '1', FORCE_COLOR: '0' },
-    });
-    return { name, exit: 0, ms: Date.now() - started, tail: tail(stdout) };
-  } catch (error) {
-    const stdout = typeof error.stdout === 'string' ? error.stdout : '';
-    const stderr = typeof error.stderr === 'string' ? error.stderr : '';
-    return {
-      name,
-      exit: typeof error.status === 'number' ? error.status : 1,
-      ms: Date.now() - started,
-      tail: tail(`${stdout}\n${stderr}`),
-    };
+  let out = '';
+  for (const step of gate.steps) {
+    const { command, args } = resolveStep(root, step);
+    try {
+      out += execFileSync(command, args, {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+        maxBuffer: MAX_BUFFER,
+        timeout: timeoutMs,
+        env: { ...process.env, CI: process.env.CI ?? '1', FORCE_COLOR: '0' },
+      });
+    } catch (error) {
+      const stdout = typeof error.stdout === 'string' ? error.stdout : '';
+      const stderr = typeof error.stderr === 'string' ? error.stderr : '';
+      return {
+        name,
+        exit: typeof error.status === 'number' ? error.status : 1,
+        ms: Date.now() - started,
+        tail: tail(`${out}${stdout}\n${stderr}`),
+      };
+    }
   }
+  return { name, exit: 0, ms: Date.now() - started, tail: tail(out) };
 }
 
 /** Run the named gates in order, stopping at nothing — every result is recorded. */

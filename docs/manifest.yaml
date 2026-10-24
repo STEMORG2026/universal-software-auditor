@@ -197,9 +197,6 @@ standalone:
   - file: state/sessions/20261024-1840-SA12-macp-runtime-v2.md
     reviewed: 2026-10-24
     reason: 'MACP state — SA12 session file (MACP runtime, pre-work gate, SSH seal)'
-  - file: state/DASHBOARD.md
-    reviewed: 2026-10-24
-    reason: 'MACP state — one screen of measured facts; the generated region is machine-written, the prose is not'
   - file: state/macp/queue.md
     reviewed: 2026-10-24
     reason: 'MACP state — discovered/deferred queue, appended by `macp queue`'

@@ -448,7 +448,7 @@ THE SEAL
 with the commit that sealed it; any later edit is a finding.
 • No tool may rewrite one either. `scripts/lib/docs-sync.mjs` exports
 `IMMUTABLE_RECORDS` (`state/sessions/**`), which excludes session files from
-both the `usa:fact` sync and the numeric-claim scanner. Without that boundary
+both the fact-marker sync and the numeric-claim scanner. Without that boundary
 adding one ADR breaks four old sessions: the sync rewrites their ADR count, and
 the seal gate then fails them as edited. Counts stay current in
 `CONTINUATION.md` and `DASHBOARD.md`; a session file keeps the number it
