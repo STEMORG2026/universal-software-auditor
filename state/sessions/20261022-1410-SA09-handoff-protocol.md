@@ -284,3 +284,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 04:25 — Commit
 
 `4439030` Merge remote-tracking branch 'origin/master' into docs/continuation-post-243
+
+### 04:28 — Commit
+
+`6a5d25b` fix(state): remove conflict markers I committed into SA09

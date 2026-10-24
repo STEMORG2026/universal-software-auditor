@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T04:25:13.539+05:45
+**Last Reconciled:** 2026-10-24T04:28:43.364+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
@@ -63,16 +63,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `4439030 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-2. `f795047 chore(state): auto-update from post-commit hook`
-3. `00356f6 docs(state): #247 merged — and the re-dispatch I proposed was wrong`
-4. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
-5. `10df739 chore(state): auto-update from post-commit hook`
-6. `73cb7d3 docs(state): #247's first run is rehearsed, not guessed`
-7. `18d3fdf chore(state): auto-update from post-commit hook`
-8. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
-9. `e2aee00 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-10. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
+1. `6a5d25b fix(state): remove conflict markers I committed into SA09`
+2. `5edcc00 chore(state): auto-update from post-commit hook`
+3. `4439030 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+4. `f795047 chore(state): auto-update from post-commit hook`
+5. `00356f6 docs(state): #247 merged — and the re-dispatch I proposed was wrong`
+6. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
+7. `10df739 chore(state): auto-update from post-commit hook`
+8. `73cb7d3 docs(state): #247's first run is rehearsed, not guessed`
+9. `18d3fdf chore(state): auto-update from post-commit hook`
+10. `5446d89 docs(state): #252 merged — the provenance chain is closed for 2.28.4`
 
 ---
 
