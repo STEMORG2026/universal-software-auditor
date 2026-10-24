@@ -5,8 +5,10 @@
 > Do not skip it. Do not summarize state without following it.
 
 **Last Reconciled:** 2026-10-23T13:57:11.304+05:45
+**Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
+**Last Reconciled:** 2026-10-23T13:45:36.839+05:45
 **Reconciled by:** auto-update (post-commit)
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
@@ -71,6 +73,16 @@ See `state/REGISTRY.md` for details.
 8. `42d8d76 chore(state): auto-update from post-commit hook`
 9. `91e1959 Merge remote-tracking branch 'origin/master' into docs/macp-session-seal`
 10. `958b668 chore(state): auto-update from post-commit hook`
+11. `85e0629 Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
+12. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
+13. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
+14. `fef9a1a chore(state): auto-update from post-commit hook`
+15. `7a199d2 Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
+16. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
+17. `23c2f88 chore(state): auto-update from post-commit hook`
+18. `fece0aa Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
+19. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
+20. `3ef58b4 chore(state): auto-update from post-commit hook`
 
 ---
 

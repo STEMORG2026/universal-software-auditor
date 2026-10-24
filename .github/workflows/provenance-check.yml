@@ -1,0 +1,79 @@
+name: Provenance check
+
+# Reads the filed evidence back.
+#
+# The reason this repo's provenance chain stayed broken for four releases is not
+# that the files were wrong — it is that nothing ever opened them. `publish.yml`
+# verifies before filing, which is necessary and not sufficient: verification
+# that happens once, in the run that produced the artefact, cannot notice that
+# the artefact has since been withdrawn, that the signature no longer resolves,
+# or that a VSA field was edited by hand. Those are exactly the failures a filed
+# bundle exists to make detectable, so something has to read it afterwards.
+#
+# Schedule + manual dispatch only. Deliberately NOT on pull requests: it needs
+# the npm registry and the cosign trust root, and a network check on every PR is
+# a check people learn to ignore.
+on:
+  schedule:
+    - cron: '30 6 * * 1' # Mondays 06:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Read the filed bundles back
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+
+      # cosign is the verifier, not an optional extra: `check-provenance.mjs`
+      # treats its absence as a FAIL, because SKIP is not PASS.
+      - uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Verify every bundle at or above the floor
+        run: |
+          set -euo pipefail
+          # The floor is 2.28.3: the first version filed by the verified path.
+          # Every bundle at or below 2.28.2 predates it and carries three known
+          # findings (see docs/release.md, "What the attestation covers"); they
+          # are left exactly as filed on purpose. A floor is how this job stays
+          # honest without rewriting history to look better than it was.
+          FLOOR="2.28.3"
+          VERSIONS="$(node -e '
+            const fs = require("fs");
+            const parse = (v) => v.split(".").map(Number);
+            const cmp = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+            const floor = parse(process.argv[1]);
+            const versions = fs
+              .readdirSync("provenance")
+              .filter((f) => /^v\d+\.\d+\.\d+\.vsa\.json$/.test(f))
+              .map((f) => f.slice(1, -".vsa.json".length))
+              .filter((v) => cmp(parse(v), floor) >= 0)
+              .sort((a, b) => cmp(parse(a), parse(b)));
+            console.log(versions.join("\n"));
+          ' "$FLOOR")"
+
+          if [ -z "$VERSIONS" ]; then
+            # Honest, and loud about WHY it is empty: this is not a pass, it is
+            # the statement that the verified path has produced no evidence yet.
+            echo "no filed bundle at or above ${FLOOR} — nothing to read yet" \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          status=0
+          for v in $VERSIONS; do
+            echo "### provenance v${v}" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            if ! node scripts/check-provenance.mjs "$v" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"; then
+              status=1
+            fi
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          done
+          exit "$status"
