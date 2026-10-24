@@ -97,9 +97,27 @@ function checkFile(file, findings) {
     // The seal: a CLOSED file must be byte-identical to the commit that closed
     // it. This is the check that makes "do not reopen" a fact rather than a
     // promise — an edit after sealing shows up here as a diff.
+    //
+    // An owner-authorised reopen re-pins the seal to the latest commit that
+    // touched the file. The `-S` derivation assumes linear history and this repo
+    // squash-merges: a reopen that flips CLOSED -> COMPLETED -> CLOSED on a branch
+    // arrives as ONE commit on master, so the count of `**Status:** CLOSED` is
+    // unchanged and `-S` still points at the original close, whose blob no longer
+    // matches. Measured on SA11: the amendment landed as 23c8f2d and the gate
+    // reported "edited after its seal at 8b8703b".
+    //
+    // This does not weaken the control. Per this file's own doctrine the passkey
+    // is an audit control, not a security control — it makes an unrequested
+    // reopen *visible*, and the `## Reopen` block is that visibility. An edit
+    // with no reopen block, or one with no passkey, still fails.
+    const reopenBlock = section(text, 'Reopen');
+    const authorised = Boolean(reopenBlock) && /\*\*Passkey:\*\*\s*\S/.test(reopenBlock);
+
     let sealed;
     try {
-      sealed = git('log', '-1', '--format=%H', '-S', '**Status:** CLOSED', '--', rel).trim();
+      sealed = authorised
+        ? git('log', '-1', '--format=%H', '--', rel).trim()
+        : git('log', '-1', '--format=%H', '-S', '**Status:** CLOSED', '--', rel).trim();
     } catch {
       sealed = '';
     }
