@@ -33,6 +33,12 @@ validates green. Boundaries:
   regen means a nondeterministic generator — fail loudly, don't push-spam).
 - **No payload text in shell** (SUP-008): refs travel as action inputs, the PR
   number is numeric, the push is `git push origin HEAD`.
+- **The push uses a token that triggers workflows.** `GITHUB_TOKEN` is not one:
+  a push by it produces a run in `action_required`, so "the re-triggered run
+  validates green" was not true — measured on the 2.28.7 release PR, where the
+  resync commit fixed the staleness and the PR still showed the failure it had
+  just repaired. `resync` now checks out with `CHANGESET_TOKEN`, the same reason
+  `release.yml` uses it.
 - **Marker sync stays manual** (`sync-docs` encodes author intent).
 
 ## Rationale
