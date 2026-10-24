@@ -235,9 +235,9 @@ checkpoint:
     - number: 254
       title: 'fix(release): the VSA named the npm pack file, not the attested subject'
       state: CLEAN # merge this first — without it #247's job is red on 2.28.4/2.28.5
-    - number: 255
-      title: 'docs: attach SLSA provenance bundle for v2.28.3'
-      state: CLEAN # the recovered 2.28.3 bundle; every release now has one
+    - number: 256
+      title: 'docs(provenance): file the recovered 2.28.3 bundle'
+      state: BLOCKED # cut from master, 2 files; replaces the closed #255
     - number: 253
       title: 'docs: attach SLSA provenance bundle for v2.28.5'
       state: CLEAN # VSA name corrected on the branch (84e767a)
@@ -646,8 +646,14 @@ on master since the last successful run`. Measured: `publish.yml` is
     selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)
     ```
 
-    Filed **#255** (`provenance/v2.28.3`), which reads back as three PASS and one
-    NOTE with the current checker. **Every published release now has a bundle.**
+    Filed as **#256**, which reads back as three PASS and one NOTE with the current
+    checker. **Every published release now has a bundle.**
+    The workflow opened #255 first and it was closed: its branch descends from the
+    tag, so GitHub showed three changed files while a two-dot diff against master
+    was **16 files and 755 deletions**. A merge commit would have been safe and a
+    squash would have applied only the three files, but the shape was one wrong
+    click from reverting master to 2.28.3. #256 is cut from master and adds the two
+    bundle files and nothing else.
     Two things this cost, both mine: master's `publish.yml` still had the VSA-name
     bug (#254 unmerged), and my first version of that fix put a comment inside a
     `VAR=x \` continuation, which broke the env prefix. Both were caught by
