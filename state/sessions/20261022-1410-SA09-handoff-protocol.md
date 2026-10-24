@@ -221,6 +221,18 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 
 `12c77b4` docs(state): #249 would publish 2.28.5 through the broken step
 
+### 11:24 — Commit
+
+`07fc125` ci: read the filed provenance bundles back on a schedule
+
+### 12:36 — Commit
+
+`f6f2c89` fix(provenance): check agreement, not a spelling
+
+### 12:54 — Commit
+
+`fece0aa` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
 ### 13:00 — Commit
 
 `5476f96` fix(release): install cosign, which the provenance step calls
@@ -229,6 +241,8 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 
 `4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
 
+<<<<<<< HEAD
+
 ### 13:46 — Commit
 
 `b7c55a7` Merge remote-tracking branch 'origin/master' into docs/continuation-post-243
@@ -236,10 +250,19 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 13:51 — Commit
 
 `4224394` docs(state): the sixth failure, and it was caused by my own pre-flight
+=======
+
+### 13:56 — Commit
+
+`7a199d2` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
+> > > > > > > origin/master
 
 ### 13:45 — Commit
 
 `210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
+
+<<<<<<< HEAD
 
 ### 14:24 — Commit
 
@@ -260,3 +283,10 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 04:23 — Commit
 
 `00356f6` docs(state): #247 merged — and the re-dispatch I proposed was wrong
+=======
+
+### 03:54 — Commit
+
+`85e0629` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
+> > > > > > > origin/master

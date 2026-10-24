@@ -84,6 +84,41 @@ describe('check-provenance reads the VSA back (the gap that let all of this ship
     expect(checkVsa(vsa, bundle, { version: '9.9.9' })).toEqual([]);
   });
 
+  // The subject name is set by `subject-name` in publish.yml, and it has
+  // changed once: 2.28.0–2.28.2 carry `xenos1996-usa-X.Y.Z.tgz` (npm pack's own
+  // name), the 2.28.4 attestation carries `usa-release-2.28.4.tgz`. A checker
+  // that hardcoded one spelling rejected a bundle the producer was about to
+  // file. These two tests pin what actually matters instead.
+  it('accepts the spelling the current workflow attests (regression: hardcoded name)', () => {
+    const renamed = structuredClone(vsa);
+    renamed.subject[0].name = 'usa-release-9.9.9.tgz';
+    const sameStatement = structuredClone(bundle);
+    sameStatement.dsseEnvelope.payload = Buffer.from(
+      JSON.stringify({
+        _type: 'https://in-toto.io/Statement/v1',
+        subject: [{ name: 'usa-release-9.9.9.tgz', digest: { sha256: env.VSA_TARBALL_DIGEST } }],
+        predicateType: 'https://slsa.dev/provenance/v1',
+      }),
+    ).toString('base64');
+    expect(checkVsa(renamed, sameStatement, { version: '9.9.9' })).toEqual([]);
+  });
+
+  it('catches a VSA whose name disagrees with the statement it summarises', () => {
+    const bad = structuredClone(vsa);
+    bad.subject[0].name = 'usa-release-9.9.9.tgz';
+    expect(checkVsa(bad, bundle, { version: '9.9.9' })).toContainEqual(
+      expect.stringContaining('!= bundle subject name'),
+    );
+  });
+
+  it('catches a VSA that names a different version', () => {
+    const bad = structuredClone(vsa);
+    bad.subject[0].name = 'xenos1996-usa-8.8.8.tgz';
+    expect(checkVsa(bad, bundle, { version: '9.9.9' })).toContainEqual(
+      expect.stringContaining('expected a name ending -9.9.9.tgz'),
+    );
+  });
+
   it('catches a VSA that names release.yml as the verifier', () => {
     const bad = structuredClone(vsa);
     bad.predicate.verifier.id = bad.predicate.verifier.id.replace('publish.yml', 'release.yml');
@@ -119,11 +154,14 @@ describe('check-provenance reads the VSA back (the gap that let all of this ship
     );
   });
 
-  it('reports the wrong release tarball name', () => {
+  it('reports a subject name that disagrees with the statement', () => {
+    // Was: "reports the wrong release tarball name", asserting a hardcoded
+    // `xenos1996-usa-` spelling. That spelling is the producer's choice and has
+    // already changed once, so the finding now names the disagreement instead.
     const bad = structuredClone(vsa);
     bad.subject[0].name = 'usa-9.9.9.tgz';
     expect(checkVsa(bad, bundle, { version: '9.9.9' }).join('\n')).toMatch(
-      /expected xenos1996-usa/,
+      /!= bundle subject name xenos1996-usa-9\.9\.9\.tgz/,
     );
   });
 });

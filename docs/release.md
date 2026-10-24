@@ -47,10 +47,10 @@ Two different tarballs exist for every release, and saying "the tarball is
 attested" without naming which one is how four releases' worth of provenance
 went unread.
 
-| artefact              | digest (2.28.2)                                                           | what it is                                                                                                                                                                   |
-| --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **release tarball**   | `sha256:ffc84fd7a7dd3c7795d434e26682b0229fbf478104441fd7eef186b3e076f1f5` | `npm pack` in the publish run. **This** is the SLSA subject. Also the `.sigstore.json` payload's own hash, which is why that file's subject line is `usa-release-2.28.2.tgz` |
-| **published tarball** | `sha256:10274573be0fc65dac1d394b0e6dd96fbd54cbc81f04d47144cb5132373989e1` | what the registry serves and npm installs. Registry-signed (`npm audit signatures`). **Not** the attested file                                                               |
+| artefact              | digest (2.28.2)                                                           | what it is                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **release tarball**   | `sha256:ffc84fd7a7dd3c7795d434e26682b0229fbf478104441fd7eef186b3e076f1f5` | `npm pack` in the publish run. **This** is the SLSA subject, and it is also the `.sigstore.json` payload's own hash. Its subject line reads `xenos1996-usa-2.28.2.tgz` — `npm pack`'s own name. From 2.28.4 the workflow overrides it to `usa-release-X.Y.Z.tgz`, so **no checker may hardcode either spelling**; the VSA and the statement only have to agree with each other. |
+| **published tarball** | `sha256:10274573be0fc65dac1d394b0e6dd96fbd54cbc81f04d47144cb5132373989e1` | what the registry serves and npm installs. Registry-signed (`npm audit signatures`). **Not** the attested file                                                                                                                                                                                                                                                                  |
 
 They differ for a mundane reason: npm adds an `attestations` block to
 `package.json` inside the published tarball, and `package.json` is the first
@@ -71,8 +71,17 @@ node scripts/check-provenance.mjs 2.28.2  # our own bundle and VSA, read back
 `scripts/check-provenance.mjs <version>` is the read-back. It checks the
 registry's `sha512` against the served bytes, verifies the bundle's signature
 over its DSSE payload with `cosign`, and asserts every VSA field against the
-bundle and against `publish.yml`. It is not wired into CI yet — see the
-`[TODO]` in `state/CONTINUATION.md`.
+bundle and against `publish.yml`.
+
+It runs in CI in `.github/workflows/provenance-check.yml` — weekly, and on
+manual dispatch, never on a pull request. Reading the files back is the point:
+a verification that happens only in the run that produced the artefact cannot
+notice that the artefact has since been withdrawn or that a VSA field was
+edited. The job checks every bundle at or above **2.28.3**, the first version
+filed by the verified path; older bundles carry the three known findings
+described above and are left exactly as filed. If no bundle at or above the
+floor exists, the job says so in its summary and passes — an empty result is
+reported, not hidden.
 
 ### Why the verification is `cosign`, not `gh attestation verify`
 
