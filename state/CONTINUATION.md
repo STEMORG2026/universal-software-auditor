@@ -125,11 +125,10 @@ attestation already, three PASS and one NOTE. Do **not** dispatch on a feature
 branch: the step skips when the branch `provenance/v2.28.4` already exists, so a
 branch run would file that version's bundle permanently from the wrong place.
 
-**2.28.3 is now unfilable by this route**, because the version selector reads
-`package.json` and master has moved to 2.28.4. Recovering it would mean a
-branch cut from the 2.28.3 tag carrying only the workflow fix — a deliberate,
-separate decision, not a side effect of the 2.28.4 backfill. The honest default
-is to leave it unfiled and say so.
+**2.28.3 was unfilable from master**, because the version selector reads
+`package.json` and master had moved on. It was recovered the other way — a branch
+cut from the tag carrying only `publish.yml`, dispatched on that branch. See §13
+step 10. **Every published release now has a bundle.**
 
 ## The provenance chain does not verify (found 2026-10-22, fixed in #240)
 
@@ -228,7 +227,7 @@ checkpoint:
   working_tree_clean: true
   version: 2.28.5 # published 2026-10-24T05:20Z, provenance filed as #253
   published: npmjs @xenos1996/usa@2.28.5
-  provenance: { latest_filed: '2.28.5 (in #253)', missing: [2.28.3] }
+  provenance: { latest_filed: '2.28.5 (in #253) + 2.28.3 (in #255)', missing: [] }
   provenance_dispatch: 'tag push 40065874654 fired on its own and filed #253; read-back rejected the VSA name — #254 fixes'
   tests: { total: 1471, passed: 1470, skipped: 1 } # on this branch, after merging #246
   gates: { lint: clean, typecheck: clean, format: clean, docs_all: OK, self_audit: '100/100' }
@@ -236,6 +235,9 @@ checkpoint:
     - number: 254
       title: 'fix(release): the VSA named the npm pack file, not the attested subject'
       state: CLEAN # merge this first — without it #247's job is red on 2.28.4/2.28.5
+    - number: 255
+      title: 'docs: attach SLSA provenance bundle for v2.28.3'
+      state: CLEAN # the recovered 2.28.3 bundle; every release now has one
     - number: 253
       title: 'docs: attach SLSA provenance bundle for v2.28.5'
       state: CLEAN # VSA name corrected on the branch (84e767a)
@@ -251,7 +253,7 @@ checkpoint:
     - number: 248
       title: 'docs(macp): sessions are opened and sealed by the owner'
       state: CLEAN # merge last; take its SEALED SA09 on any further conflict
-  merged_this_phase: [244, 246, 247, 249, 250, 251, 252] # 244 out of order; it published 2.28.4 and broke its provenance step
+  merged_this_phase: [244, 246, 247, 249, 250, 251, 252] # #253/#254/#255 open # 244 out of order; it published 2.28.4 and broke its provenance step
   open_findings: 0
   last_verified: 2026-10-23T19:05+05:45
   last_verified_by: Sathi (WorkBuddy)
@@ -634,17 +636,23 @@ on master since the last successful run`. Measured: `publish.yml` is
    **Until #254 merges, #247's scheduled job is red on 2.28.4 and 2.28.5 — and
    that is the job working, not failing.**
 
-10. `[OPEN]` **2.28.3 stays unfiled.** It cannot be produced from master —
-    `VERSION` comes from `package.json`, which is now 2.28.4. Recovering it needs a
-    branch cut from the 2.28.3 tag carrying the workflow fix; a deliberate
-    decision, not a side effect. The honest default is to leave it and say so.
-    The rehearsal also found that `checkVsa` required the subject name to be
-    `xenos1996-usa-<version>.tgz` while the workflow attests
-    `usa-release-X.Y.Z.tgz`, so the backfill would have filed a bundle the weekly
-    job rejects. Fixed in #247, which is now the PR that makes step 5 pass.
-    5b. `[OPEN]` **2.28.3 has no bundle and this route cannot produce one.**
-    Recovering it needs a branch cut from the 2.28.3 tag carrying only #246's
-    workflow change. Decide separately; do not let it ride on step 4.
+10. `[DONE]` **2.28.3 is recovered.** Branch `chore/provenance-2.28.3` cut from
+    the tag, carrying **one** file: `publish.yml`. `package.json` at that tag lists
+    `files: [dist, rules, templates, USA.md, README.md, LICENSE]` — `.github/` is
+    not in the tarball — so the repack is byte-identical, and the run confirmed it:
+
+    ```
+    TARBALL_SHA256: 71e5278cc8d69bc1eb45b6803f65de974c05796053abe5b42ea5035d73152d61
+    selected provenance for refs/tags/@xenos1996/usa@2.28.3 (1 match)
+    ```
+
+    Filed **#255** (`provenance/v2.28.3`), which reads back as three PASS and one
+    NOTE with the current checker. **Every published release now has a bundle.**
+    Two things this cost, both mine: master's `publish.yml` still had the VSA-name
+    bug (#254 unmerged), and my first version of that fix put a comment inside a
+    `VAR=x \` continuation, which broke the env prefix. Both were caught by
+    running the recovery, not by reading it.
+
 11. `[TODO]` Consider wiring `check-provenance.mjs` into `self-audit.yml` on
     `schedule` only. Not done in #240 on purpose: it needs npm and the
     attestation API, and a network check on every PR is a check people learn to
