@@ -576,9 +576,11 @@ Ordered. Step 1 already ran green on this tree.
    rather than without. The ordering advice still stands as a rule: never let a
    Version Packages PR merge ahead of a filed bundle for the version it
    supersedes.
-8. `[TODO]` Once #247 lands, its first scheduled run reads **2.28.4** (the floor
-   is 2.28.3, and 2.28.4 is now the only bundle at or above it). That is the
-   first live exercise of the read-back loop.
+8. `[TODO]` Once #247 lands, its first scheduled run reads **2.28.4** — the floor
+   is 2.28.3 and 2.28.4 is now the only bundle at or above it. Rehearsed against
+   master's own `provenance/`: the enumeration returns exactly `2.28.4`, and
+   `check-provenance.mjs 2.28.4` on those files gives three PASS and one NOTE.
+   That is the first live exercise of the read-back loop, and it is green.
 9. `[OPEN]` **2.28.3 stays unfiled.** It cannot be produced from master —
    `VERSION` comes from `package.json`, which is now 2.28.4. Recovering it needs a
    branch cut from the 2.28.3 tag carrying the workflow fix; a deliberate
