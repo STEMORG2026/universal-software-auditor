@@ -1,6 +1,6 @@
 {
   "name": "@xenos1996/usa",
-  "version": "2.28.6",
+  "version": "2.28.7",
   "description": "Universal Software Auditor — an open-source, self-adapting audit framework for any project, any stack, any stage",
   "license": "MIT",
   "type": "module",
@@ -84,7 +84,7 @@
     "protocol:auto-update": "node scripts/auto-update-state.mjs",
     "docs:all": "npm run docs:adrs && npm run docs:check && npm run docs:cli && npm run docs:sample && npm run docs:asvs && npm run docs:manifest",
     "changeset": "changeset",
-    "version-packages": "changeset version && pnpm run format",
+    "version-packages": "changeset version && node scripts/gen-cli-docs.mjs && node scripts/gen-sample-report.mjs && node scripts/gen-asvs-coverage.mjs && pnpm run format",
     "release": "pnpm run build && changeset publish",
     "prepublishOnly": "pnpm run build"
   },
