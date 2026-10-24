@@ -300,3 +300,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 05:37 — Commit
 
 `84664f4` docs(state): the release PRs were never un-triggered — they are awaiting approval
+
+### 06:12 — Commit
+
+`27fe64d` docs(state): 2.28.3 recovered — every published release now has a bundle

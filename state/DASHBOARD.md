@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T05:37:54.475+05:45
+**Last Reconciled:** 2026-10-24T06:12:21.906+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
@@ -63,16 +63,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `84664f4 docs(state): the release PRs were never un-triggered — they are awaiting approval`
-2. `39fbd2f chore(state): auto-update from post-commit hook`
-3. `061a672 docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect`
-4. `2e6cb0b Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-5. `830a6c5 chore(master): release (#249)`
-6. `56f2282 chore(state): auto-update from post-commit hook`
-7. `899890f docs(state): the release PR had no checks, and that is systematic`
-8. `78af7d7 chore(state): auto-update from post-commit hook`
-9. `6a5d25b fix(state): remove conflict markers I committed into SA09`
-10. `5edcc00 chore(state): auto-update from post-commit hook`
+1. `27fe64d docs(state): 2.28.3 recovered — every published release now has a bundle`
+2. `2351848 chore(state): auto-update from post-commit hook`
+3. `84664f4 docs(state): the release PRs were never un-triggered — they are awaiting approval`
+4. `39fbd2f chore(state): auto-update from post-commit hook`
+5. `061a672 docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect`
+6. `2e6cb0b Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+7. `830a6c5 chore(master): release (#249)`
+8. `56f2282 chore(state): auto-update from post-commit hook`
+9. `899890f docs(state): the release PR had no checks, and that is systematic`
+10. `78af7d7 chore(state): auto-update from post-commit hook`
 
 ---
 
