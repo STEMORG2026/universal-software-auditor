@@ -200,3 +200,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 03:54 — Commit
 
 `85e0629` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
+### 05:24 — Commit
+
+`55c385a` fix(release): the VSA named the npm pack file, not the attested subject
