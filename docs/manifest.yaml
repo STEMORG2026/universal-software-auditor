@@ -191,6 +191,9 @@ standalone:
   - file: state/sessions/20261022-1410-SA09-handoff-protocol.md
     reviewed: 2026-10-22
     reason: MACP state — SA09 session file (handoff raised to the completion protocol)
+  - file: state/sessions/20261024-0918-SA11-provenance-chain.md
+    reviewed: 2026-10-24
+    reason: 'MACP state — SA11 session file (provenance chain closed end to end)'
   - file: docs/scanners.md
     reviewed: 2026-10-22
     reason: Living doc — scanner adapter model, the analysed-nothing invariant, and the child-env boundary
