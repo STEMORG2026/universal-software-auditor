@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T03:54:47.068+05:45
+**Last Reconciled:** 2026-10-24T05:45:52.564+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
 **Last Reconciled:** 2026-10-23T13:12:31.447+05:45
 **Last Reconciled:** 2026-10-23T13:45:36.839+05:45
@@ -62,16 +62,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `85e0629 Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
-2. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
-3. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
-4. `fef9a1a chore(state): auto-update from post-commit hook`
-5. `7a199d2 Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
-6. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
-7. `23c2f88 chore(state): auto-update from post-commit hook`
-8. `fece0aa Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule`
+1. `a1bcfa2 fix(release): a comment inside a line-continued block broke the VSA step`
+2. `b2a53db chore(state): auto-update from post-commit hook`
+3. `55c385a fix(release): the VSA named the npm pack file, not the attested subject`
+4. `830a6c5 chore(master): release (#249)`
+5. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
+6. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
+7. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
+8. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
 9. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-10. `3ef58b4 chore(state): auto-update from post-commit hook`
+10. `902871f chore(master): release (#244)`
 
 ---
 
