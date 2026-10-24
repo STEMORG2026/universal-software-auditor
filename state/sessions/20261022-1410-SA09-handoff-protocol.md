@@ -314,3 +314,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 05:45 — Commit
 
 `a1bcfa2` fix(release): a comment inside a line-continued block broke the VSA step
+
+### 06:28 — Commit
+
+`9f2b722` Merge remote-tracking branch 'origin/master' into docs/continuation-post-243

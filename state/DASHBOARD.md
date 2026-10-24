@@ -4,7 +4,7 @@
 > The mandatory MACP startup sequence is in AGENTS.md.
 > Do not skip it. Do not summarize state without following it.
 
-**Last Reconciled:** 2026-10-24T06:17:43.216+05:45
+**Last Reconciled:** 2026-10-24T06:28:04.772+05:45
 **Last Reconciled:** 2026-10-24T03:54:47.068+05:45
 **Last Reconciled:** 2026-10-24T05:45:52.564+05:45
 **Last Reconciled:** 2026-10-23T11:12:17.101+05:45
@@ -64,26 +64,16 @@ See `state/REGISTRY.md` for details.
 
 ## Recently Completed (last 10 commits)
 
-1. `caea295 docs(state): the 2.28.3 bundle comes in as #256, not #255`
-2. `e127483 chore(state): auto-update from post-commit hook`
-3. `27fe64d docs(state): 2.28.3 recovered — every published release now has a bundle`
-4. `2351848 chore(state): auto-update from post-commit hook`
-5. `84664f4 docs(state): the release PRs were never un-triggered — they are awaiting approval`
-6. `39fbd2f chore(state): auto-update from post-commit hook`
-7. `061a672 docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect`
-8. `2e6cb0b Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
-9. `830a6c5 chore(master): release (#249)`
-10. `56f2282 chore(state): auto-update from post-commit hook`
-11. `a1bcfa2 fix(release): a comment inside a line-continued block broke the VSA step`
-12. `b2a53db chore(state): auto-update from post-commit hook`
-13. `55c385a fix(release): the VSA named the npm pack file, not the attested subject`
-14. `830a6c5 chore(master): release (#249)`
-15. `b6393aa ci: read the filed provenance bundles back on a schedule (#247)`
-16. `203e18a docs: attach SLSA provenance bundle for v2.28.4 (#252)`
-17. `dcb24c3 fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3 (#251)`
-18. `1363676 fix(release): install cosign, which the provenance step calls (#250)`
-19. `f1a0ebe fix(release): export the expected ref so the provenance selector can read it (#246)`
-20. `902871f chore(master): release (#244)`
+1. `9f2b722 Merge remote-tracking branch 'origin/master' into docs/continuation-post-243`
+2. `a6f7eb3 fix(release): the VSA named the npm pack file, not the attested subject (#254)`
+3. `c4e1390 chore(state): auto-update from post-commit hook`
+4. `caea295 docs(state): the 2.28.3 bundle comes in as #256, not #255`
+5. `e127483 chore(state): auto-update from post-commit hook`
+6. `27fe64d docs(state): 2.28.3 recovered — every published release now has a bundle`
+7. `2351848 chore(state): auto-update from post-commit hook`
+8. `84664f4 docs(state): the release PRs were never un-triggered — they are awaiting approval`
+9. `39fbd2f chore(state): auto-update from post-commit hook`
+10. `061a672 docs(state): 2.28.5 shipped, the chain fired alone, and it caught a real defect`
 
 ---
 
