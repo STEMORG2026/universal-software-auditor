@@ -169,6 +169,18 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 
 `8f3942c` fix(release): export the expected ref so the provenance selector can read it
 
+### 11:24 — Commit
+
+`07fc125` ci: read the filed provenance bundles back on a schedule
+
+### 12:36 — Commit
+
+`f6f2c89` fix(provenance): check agreement, not a spelling
+
+### 12:54 — Commit
+
+`fece0aa` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
 ### 13:00 — Commit
 
 `5476f96` fix(release): install cosign, which the provenance step calls
@@ -177,6 +189,14 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 
 `4c2b1dc` fix(release): pin the cosign version, and verify the call it makes
 
+### 13:56 — Commit
+
+`7a199d2` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
+
 ### 13:45 — Commit
 
 `210b780` fix(release): pin cosign to a v2.x, because the installer cannot fetch a v3
+
+### 03:54 — Commit
+
+`85e0629` Merge remote-tracking branch 'origin/master' into ci/provenance-check-schedule
