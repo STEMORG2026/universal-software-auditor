@@ -304,3 +304,7 @@ the real value. Both are docs-only; neither changes `code_commit_sha`.
 ### 06:12 — Commit
 
 `27fe64d` docs(state): 2.28.3 recovered — every published release now has a bundle
+
+### 06:17 — Commit
+
+`caea295` docs(state): the 2.28.3 bundle comes in as #256, not #255
