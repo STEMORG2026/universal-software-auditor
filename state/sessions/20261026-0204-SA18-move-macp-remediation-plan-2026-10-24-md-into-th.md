@@ -79,3 +79,7 @@ recorded verbatim in `## Objective` and in `## Authorized scope`.
 - 02:08 [DISCOVERY] the first parser adopted the D1-D8 decisions table as plan items, because a decision id has the same shape as a phase id; the Status column is what excludes them
 
 - 02:08 [BUG_FOUND] check-manifest enforces classification in both directions: a tracked doc must be listed, and a listed doc must be tracked — so the session and plan files must be committed before the manifest check can pass
+
+### 20:23 — Commit
+
+`df367e5` feat(macp): `start --plan` takes the session's scope from the plan item
