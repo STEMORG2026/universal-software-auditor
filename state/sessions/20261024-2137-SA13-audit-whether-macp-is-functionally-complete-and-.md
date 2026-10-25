@@ -92,6 +92,12 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 
 - 23:04 [DECISION] Owner's authority model recorded (plan section 12, objective updated): close, seal, reopen and destroy each gated by the owner's key, one passphrase each, so four principals. Key-gated close forces AWAITING_USER first, which reorders P4 ahead of P3.
 
+- 21:12 [DISCOVERY] F-27: a stacked PR's delivery conflicts with itself once the base merges — files: state/INDEX.md, state/REGISTRY.md, docs/manifest.yaml
+
+- 21:12 [BUG_FOUND] F-28: renaming a PR branch orphans the session that names it, and the gate refuses
+
+- 21:12 [DISCOVERY] F-29: the Reopen and Resume blocks recorded no Code commit, so verify could not rebuild the signed payload
+
 ## Mistakes in this session
 
 Recorded before the seal, so that they are part of the immutable record rather than a story told
