@@ -34,20 +34,26 @@ Confirm:
 - IF state/ DOES NOT EXIST → Jump to Bootstrap Protocol (AGENTS.md Section 7)
 - IF state/ EXISTS → Continue to Step 3
 
-### STEP 3 — Read DASHBOARD.md
+### STEP 3 — Read CONTINUATION.md, then DASHBOARD.md
 
-This gives you the full picture in <60 seconds:
+**`state/CONTINUATION.md` is the first read.** It is the handoff: what the last
+session finished, what it left undone, the traps it learned, and the next
+recommended task. `macp start` prints it into the transcript for exactly this
+reason. A missing file is a finding — the previous close failed to write it.
+
+Then read `state/DASHBOARD.md`:
 
 - What's the current state of the project?
 - Which agents are active right now?
-- What are the critical alerts and blockers?
-- What was recently completed?
+- Where does the truth live?
 
-Check the "Last Reconciled" timestamp at the top:
-
-- <24h old → Trust it, proceed
-- 24-48h old → Verify against git log before trusting
-- > 48h old → STALE. You must reconcile DASHBOARD.md before working
+`DASHBOARD.md` has a `<!-- macp:generated -->` block that
+`scripts/auto-update-state.mjs` rebuilds from `package.json`, `git` and the ADR
+directory. `**Machine Reconciled:**` inside it is current by construction.
+The prose outside it is not: `**Owner Reconciled:**` is the field a human sets
+after reading, and the hook never writes it. Treat absent or old prose as
+unverified rather than stale — the distinction matters, because the old rule
+("<24h → trust it") trusted a timestamp the hook itself had minted.
 
 ### STEP 4 — Read REGISTRY.md
 
@@ -106,12 +112,18 @@ Example: `state/sessions/20250614-1530-C7A2-fix-login-bug.md`
 
 ```
 **Agent:** <AGENT-ID> (<agent name>)
-**Model:** <model/type>
+**Harness:** <the physical harness that ran this session>
+**History:** <pointer to that harness's transcript, or "not exported">
 **Branch:** <branch>
 **Started:** <ISO 8601 timestamp>
 **Status:** IN-PROGRESS
 **Base commit:** <git commit SHA at session start>
 ```
+
+`**Harness:**` and `**History:**` exist because several agents on different
+harnesses work this repository, and "which transcript is this" is not answerable
+from git. If the harness exports nothing, write `not exported` — never invent an
+id.
 
 Add yourself to REGISTRY.md with:
 
@@ -141,16 +153,40 @@ Add `state/plans/agent-<YOUR-ID>-<slug>.md` with:
 
 ## Session Close Checklist (MANDATORY)
 
-Before marking a session COMPLETED, verify ALL of the following:
+`pnpm run macp -- close --outcome COMPLETED|PARTIAL|BLOCKED …` performs steps 1-4
+and refuses the close when they are not true. The checklist is below because a
+refusal is easier to act on when you know what it is checking.
 
-1. **Working tree clean** — `git status --porcelain` returns empty
-2. **All PRs merged** — `gh pr list --state open` returns nothing, OR all open PRs are not yet mergeable (CI red, conflicts, etc.)
-3. **Session file marked COMPLETED** — `**Status:** COMPLETED` in session file
-4. **REGISTRY.md has no active agents** — "None — no active sessions"
-5. **State files updated** — DASHBOARD.md reconciliation timestamp is current
+1. **Working tree clean** — no uncommitted source change. `state/` churn is
+   allowed; a source file is not.
+2. **Gates run and recorded** — `typecheck`, `lint`, `format`, `test`,
+   `docs:all`, `self-audit`, each with an exit code. `COMPLETED` requires all
+   green. `PARTIAL` and `BLOCKED` may close red, but only with the failing
+   gate's output recorded and `remaining[]` + `next_recommended_task` filled in.
+3. **Handoff written** — `state/macp/handoff/<session>.json` plus the rendered
+   block at the top of `state/CONTINUATION.md`. The facts in it are measured by
+   `macp close`, not typed by the agent.
+4. **Session marked COMPLETED** — never CLOSED. Sealing is the owner's act:
+   `pnpm run macp -- seal --session <ID> --instruction "<verbatim>" --ssh-key …`
+5. **REGISTRY has no active agents** and `INDEX.md` agrees with the session file.
 
-Run `node scripts/check-protocol.mjs` — it checks all of the above mechanically.
+Run `node scripts/check-protocol.mjs` and `node scripts/check-sessions.mjs` — the
+first checks the close, the second checks every session record against git.
 If any check fails → fix it before closing the session.
+
+## The runtime, in one table
+
+| You want to…               | Run                                                                   |
+| -------------------------- | --------------------------------------------------------------------- |
+| start a session            | `macp start --agent … --harness … --task … --authorized-by …`         |
+| record a discovery         | `macp log --type DISCOVERY --summary "…"`                             |
+| park a bug for later       | `macp log --type BUG_FOUND --summary "…" --files a,b`                 |
+| see the parked queue       | `macp queue` · `macp queue --done Q001`                               |
+| freeze and close           | `macp close --prepare`, then `macp close --outcome …`                 |
+| seal (owner only)          | `macp seal --session … --instruction "…" --ssh-key ~/.ssh/id_ed25519` |
+| reopen (owner only)        | `macp reopen --session … --ssh-key … --reason … --delta …`            |
+| check every seal offline   | `macp verify`                                                         |
+| onboard another repository | `macp init-repo` · `macp install-hooks --harness …`                   |
 
 ## Session Close is FINAL
 
@@ -165,17 +201,21 @@ If the owner says "close the session" and then later says "continue" or "reopen"
 
 ## Quick Reference: State File Map
 
-| File              | Purpose                          |
-| ----------------- | -------------------------------- |
-| `DASHBOARD.md`    | Executive summary — read first   |
-| `REGISTRY.md`     | Who's active and what they own   |
-| `INDEX.md`        | Searchable session log           |
-| `ARCHITECTURE.md` | System architecture              |
-| `DECISIONS.md`    | ADR index                        |
-| `DEBT.md`         | Technical debt tracker           |
-| `BLOCKERS.md`     | Active blockers                  |
-| `STARTUP.md`      | This file — the 10-step sequence |
-| `sessions/`       | One file per agent session       |
-| `plans/`          | Active plans                     |
-| `conflicts/`      | Documented conflicts             |
-| `archive/`        | Old sessions                     |
+| File              | Purpose                                                 |
+| ----------------- | ------------------------------------------------------- |
+| `CONTINUATION.md` | The handoff — **read this first**                       |
+| `DASHBOARD.md`    | Executive summary, machine facts block                  |
+| `REGISTRY.md`     | Who's active and what they own                          |
+| `INDEX.md`        | Searchable session log                                  |
+| `ARCHITECTURE.md` | System architecture                                     |
+| `DECISIONS.md`    | ADR index                                               |
+| `DEBT.md`         | Technical debt tracker                                  |
+| `BLOCKERS.md`     | Active blockers                                         |
+| `STARTUP.md`      | This file — the 10-step sequence                        |
+| `sessions/`       | One file per agent session                              |
+| `plans/`          | Active plans                                            |
+| `macp/queue.md`   | Discoveries and deferred work, surfaced at `macp start` |
+| `macp/handoff/`   | Machine-stamped handoff records per session             |
+| `macp/owner.pub`  | The public key seals and reopens verify against         |
+| `conflicts/`      | Documented conflicts                                    |
+| `archive/`        | Old sessions                                            |

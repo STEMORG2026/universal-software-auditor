@@ -3,8 +3,8 @@ name: Self audit
 # USA audits itself on every PR. If this workflow fails, the tool regressed or
 # the repo picked up a finding at or above the threshold.
 on:
+  # No base-branch filter: a stacked PR otherwise gets no self-audit at all.
   pull_request:
-    branches: [master]
   push:
     branches: [master]
   schedule:

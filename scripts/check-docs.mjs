@@ -25,6 +25,7 @@ import {
   docFiles,
   claimScannedFiles,
   findUnmarkedClaims,
+  IMMUTABLE_RECORDS,
   readDoc,
   regenerate,
   ROOT,
@@ -55,9 +56,10 @@ const KNOWN_FACT_KEYS = new Set([
   'taxonomy-categories',
 ]);
 for (const rel of docFiles()) {
-  // ADRs are immutable records; meta-docs quote the machinery. Both are exempt
-  // from marker sync, but still link- and index-checked elsewhere.
-  if (rel.startsWith('docs/adr/') || META_DOCS.has(rel)) continue;
+  // ADRs are immutable records; meta-docs quote the machinery; session files
+  // are sealed records whose markers must not be rewritten (IMMUTABLE_RECORDS).
+  // All three are still link- and index-checked elsewhere.
+  if (rel.startsWith('docs/adr/') || META_DOCS.has(rel) || IMMUTABLE_RECORDS.test(rel)) continue;
   const text = readDoc(rel);
   if (!/usa:(fact|begin)/.test(text)) continue;
   if (regenerate(text, facts) !== text) {

@@ -6,12 +6,16 @@
 
 ## Active Agents
 
-**None.** Every session in this repository is sealed.
+### SA15
 
-A session is opened by the owner, not by an agent. An agent that finds no open
-session asks the owner for one; it does not create one. See `docs/macp.md` §4C.
-
----
+| Field   | Value                                                               |
+| ------- | ------------------------------------------------------------------- |
+| Agent   | SA15 (WorkBuddy)                                                    |
+| Harness | WorkBuddy                                                           |
+| Branch  | `feat/macp-runtime-v2`                                              |
+| Task    | Unblock PR 270: unfilter the CI triggers so stacked PRs are checked |
+| Since   | 2026-10-25T15:10:36+05:45                                           |
+| Claims  | —                                                                   |
 
 ## File Ownership Rules
 

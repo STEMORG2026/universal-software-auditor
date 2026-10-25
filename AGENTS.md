@@ -386,15 +386,47 @@ find yourself explaining the same thing twice, it belongs in this file.
 ## MACP — Multi-Agent Coordination Protocol
 
 **Full protocol → [docs/macp.md](docs/macp.md)** — read it at session start.
+**Runtime → `pnpm run macp -- <command>`** (`scripts/macp/`, ADR-0045).
 
 Mandatory startup (always, before any work):
 
+0. `pnpm run macp -- start --agent <ID> --harness <name> --branch <current> --task "<the one piece of work>" --authorized-by "<the owner's instruction, verbatim>"`
+   This runs the recon, prints the handoff, registers the session and plan, and
+   writes the local lease. Everything below is what it does for you, in order,
+   and it is the version that cannot be skipped.
 1. `state/` exists? If not → Bootstrap Protocol (Section 7 in macp.md).
-2. Read `state/DASHBOARD.md` — check "Last Reconciled" (<24h trust, >48h stale).
-3. Read `state/REGISTRY.md` — confirm no active-agent conflicts.
-4. Register yourself: create `state/sessions/YYYYMMDD-HHMM-<ID>-<slug>.md` with Agent/Model/Branch/Started/Status/Base commit, add entry to `REGISTRY.md`.
-5. Create `state/plans/agent-<ID>-<slug>.md` (objective, scope, approach, risks, rollback, success criteria).
-6. Verify: `gh pr list`, `gh pr checks`, `pnpm test`, `pnpm run typecheck`, spot-check DASHBOARD claims.
-7. Only then begin work.
+2. **Read `state/CONTINUATION.md` — the handoff, first.** What the last session
+   finished, what it left, the traps it learned, the next recommended task.
+3. Read `state/DASHBOARD.md`. The `<!-- macp:generated -->` block is measured
+   and current; the prose around it is not, and says so via `**Owner Reconciled:**`.
+4. Read `state/REGISTRY.md` — confirm no active-agent conflict on this branch.
+5. Register yourself: `state/sessions/YYYYMMDD-HHMM-<ID>-<slug>.md` with
+   Agent/Harness/History/Branch/Started/Status/Base commit, plus a REGISTRY entry.
+6. Create `state/plans/agent-<ID>-<slug>.md` (objective, scope, approach, risks,
+   rollback, success criteria).
+7. Verify: `gh pr list`, `gh pr checks`, `pnpm test`, `pnpm run typecheck`,
+   spot-check a DASHBOARD claim.
+8. Only then begin work.
 
-Full protocol: `docs/macp.md` — 8 sections covering startup, live logging, validation, shutdown, session lifecycle (owner-opened, owner-sealed), conflict handling, anti-patterns, bootstrap. <!-- usa:allow-claim: macp.md's own section count, not the engine's -->
+What is enforced, and where:
+
+| Layer            | Tool                                        | Refuses                                                  |
+| ---------------- | ------------------------------------------- | -------------------------------------------------------- |
+| Harness pre-tool | `macp install-hooks --harness <name>`       | edits while the repo is `UNBOUND`                        |
+| Commit           | `scripts/check-session-start.mjs`           | a branch with work and no live session + lease           |
+| Push (to master) | `scripts/check-protocol.mjs`                | a close that is not clean and finished                   |
+| CI (master push) | `scripts/check-sessions.mjs`, `macp verify` | an edited seal, an unverifiable reopen, a drifting INDEX |
+
+Mid-session, log what you found instead of fixing it:
+
+```bash
+pnpm run macp -- log --type BUG_FOUND --summary "…" --files a,b
+pnpm run macp -- log --type DEFERRED  --summary "…"
+```
+
+Those two types land in `state/macp/queue.md`, and the next `macp start` prints
+them. That is the difference between "logged for later" and "forgotten".
+
+Full protocol: `docs/macp.md` — startup, live logging, validation, shutdown,
+session lifecycle (§4C owner-opened/owner-sealed), the runtime and the SSH seal
+(§4D), conflict handling, anti-patterns, bootstrap. <!-- usa:allow-claim: macp.md's own section count, not the engine's -->

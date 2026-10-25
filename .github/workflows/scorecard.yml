@@ -6,6 +6,8 @@ name: Scorecard
 # from the *platform* side — the API-verified view USA's file-text rules
 # approximate. Results publish to the Security tab and the public dataset.
 on:
+  # No base-branch filter: a stacked PR otherwise gets no scorecard at all.
+  pull_request:
   push:
     branches: [master]
   schedule:

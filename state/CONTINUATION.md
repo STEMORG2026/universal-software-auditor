@@ -1,5 +1,77 @@
 # Continuation — where the scanner/evidence work stopped
 
+<!-- macp:handoff:begin -->
+
+## Handoff — SA12 (COMPLETED)
+
+Machine-stamped by `macp close` at 2026-10-24T20:49:42+05:45. The table and the gate
+results below were measured; the prose below them was written by the agent and
+is a claim, not a measurement.
+
+| Fact               | Value                                                                      |
+| ------------------ | -------------------------------------------------------------------------- |
+| Session            | `SA12` (SA12 (Sathi / WorkBuddy) on WorkBuddy)                             |
+| Branch             | `feat/macp-runtime-v2`                                                     |
+| Base commit        | `4a4a63b (master, after #269)`                                             |
+| Code commit        | `c4b7f6b270321eac118dcea64b002bb4976a668f`                                 |
+| Working tree clean | yes                                                                        |
+| Commits            | 15                                                                         |
+| Open PRs           | #270 feat(macp): the runtime, the pre-work gate and the ssh seal (BLOCKED) |
+
+### Gates (exit code, measured)
+
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 3s   |
+| format     | 0    | 8s   |
+| test       | 0    | 100s |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 3s   |
+
+### Completed
+
+- scripts/macp runtime: state machine, lease store, split handoff, gate runner, SSH seal, backend boundary, init-repo, install-hooks
+- hooks/pretool.mjs plus adapters for claude, opencode, hermes and dsh; no lease means read-only allowed and writes blocked
+- check-session-start.mjs: a branch with work and no session now fails; the branch is read from GITHUB_HEAD_REF in CI
+- sealed sessions are readable: field() tolerates the bullet form macp seal writes
+- three doors so a close can be recorded and pushed: state-only bookkeeping, the one-commit window, and the push
+- auto-update-state.mjs: bookkeeping commit scoped to state/, never records its own commits, matches the ## Outcome heading instead of the text
+- docs sync and claim scanner skip state/sessions (IMMUTABLE_RECORDS); sealed records are no longer rewritten
+- ADR-0045, docs/macp.md section 4D, ADR index, DECISIONS, STARTUP, DASHBOARD, manifest, changeset
+- SA12's mangled objective repaired and the reopen's added scope documented in this file
+
+### Remaining
+
+_none_
+
+### Discovered, not fixed
+
+- validateHandoff demanded a tail from every gate, so quiet green gates blocked a valid PARTIAL close
+- sync-docs rewrote the ADR count inside four sealed sessions and check-sessions then failed them as edited after seal
+- the post-commit hook swept twenty unrelated files into a chore(state) commit during this session
+- the start gate could not read a sealed session at all, so no commit or push after a seal was possible
+
+### Deferred work
+
+- Q003 SA01-SA11 seals carry no SSH signature; retro-signing would edit records sealed before the runtime existed
+- Q004 root _tmp_* scratch directories are logged, not deleted
+
+### Traps learned
+
+- the runtime shims rm through PATH with a per-turn bulk-delete guard; after ~50 commands in a turn any deleting command is refused, so a gate must not route through a package manager
+- shell-driven file mutation and long editor edits are unreliable here; verify by reading back
+
+### Next recommended task
+
+owner re-seals with the dedicated macp_owner key, which swaps state/macp/owner.pub off the GitHub key
+
+### Required context for the next session
+
+- state/CONTINUATION.md, docs/adr/0045-macp-runtime-and-ssh-seal.md, docs/macp.md section 4D
+
+<!-- macp:handoff:end -->
+
 > **This file is the canonical handoff for this repository.**
 > MACP (`docs/macp.md`) owns the protocol; this document is where its state
 > lives. It is read at session startup by `AGENTS.md` step 2 and is classified
@@ -288,8 +360,7 @@ ship it"**. It ran across eleven merged PRs:
 Latest, tag `@xenos1996/usa@2.28.0`, `provenance/v2.28.0` filed by `publish.yml`.
 
 `[FACT]` Gates at close: **1448 tests** (1447 passed, 1 skipped), lint 0 warnings,
-`docs:all` clean (44 ADRs, 138 tracked docs), self-audit **100/100, no open
-findings**.
+`docs:all` clean (44 ADRs, 138 tracked docs), self-audit **100/100, no open findings**. <!-- usa:allow-claim: measured at the 2.28.0 close; a dated record, not a current claim -->
 
 `[FACT]` Two changesets are pending, both patch, so the next release is 2.28.1.
 
@@ -443,7 +514,7 @@ Every row below was **run**, not expected. `[FACT]` throughout.
 | Types          | `pnpm run typecheck`                   | 0 errors                                                                                                  |
 | Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                                                                      |
 | Format         | `pnpm run format:check`                | clean                                                                                                     |
-| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->44<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
+| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->45<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
 | Tests          | `npx vitest run`                       | 1466 passed, 1 skipped (1467) on this branch — 1470 once #246 (+1) and #247 (+3) merge                    |
 | Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                                                             |
 | Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                                                                 |

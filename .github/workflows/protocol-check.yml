@@ -3,8 +3,11 @@ name: Protocol enforcement
 on:
   push:
     branches: [master]
+  # No base-branch filter on purpose. `pull_request` workflows are read from the
+  # base branch, so filtering to master meant a stacked PR — one targeting a
+  # feature branch — got no protocol check at all. A check that never runs is
+  # worse than one that fails: it looks green.
   pull_request:
-    branches: [master]
 
 permissions:
   contents: read
@@ -75,3 +78,12 @@ jobs:
       # push only: on a PR, an active session is the correct state.
       - name: Session lifecycle check
         run: node scripts/check-sessions.mjs
+
+      # The signatures. `check-sessions.mjs` compares a sealed file byte-for-byte
+      # with the commit that sealed it, which catches an edit to the FILE. This
+      # catches an edit to the FACTS: every `**Seal signature:**` and
+      # `**Reopen signature:**` is re-verified against the committed
+      # `state/macp/owner.pub`, so a reopen that was not signed by the owner's
+      # key fails here even if the file diff looked plausible.
+      - name: Seal signature check
+        run: node scripts/macp/cli.mjs verify
