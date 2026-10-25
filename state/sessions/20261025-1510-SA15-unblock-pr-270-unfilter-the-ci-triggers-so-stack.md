@@ -29,3 +29,7 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 ### 15:22 — Commit
 
 `75589e2` feat(macp): authority per act, resume, abandon, and the CLOSING freeze
+
+### 15:28 — Commit
+
+`d61f701` docs(queue): record the stacked-PR delivery conflict and its two siblings
