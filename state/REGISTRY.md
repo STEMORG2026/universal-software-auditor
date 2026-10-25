@@ -6,7 +6,16 @@
 
 ## Active Agents
 
-**None.** No session is open on this repository.
+### SA15
+
+| Field   | Value                                                               |
+| ------- | ------------------------------------------------------------------- |
+| Agent   | SA15 (WorkBuddy)                                                    |
+| Harness | WorkBuddy                                                           |
+| Branch  | `feat/macp-runtime-v2`                                              |
+| Task    | Unblock PR 270: unfilter the CI triggers so stacked PRs are checked |
+| Since   | 2026-10-25T15:10:36+05:45                                           |
+| Claims  | —                                                                   |
 
 ## File Ownership Rules
 

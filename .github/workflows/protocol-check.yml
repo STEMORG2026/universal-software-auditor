@@ -3,8 +3,11 @@ name: Protocol enforcement
 on:
   push:
     branches: [master]
+  # No base-branch filter on purpose. `pull_request` workflows are read from the
+  # base branch, so filtering to master meant a stacked PR — one targeting a
+  # feature branch — got no protocol check at all. A check that never runs is
+  # worse than one that fails: it looks green.
   pull_request:
-    branches: [master]
 
 permissions:
   contents: read
