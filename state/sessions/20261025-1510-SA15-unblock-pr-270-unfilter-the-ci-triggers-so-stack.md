@@ -25,3 +25,7 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 ### 10:15 — Commit
 
 `a7463e5` fix(macp): freeze the source while a session is CLOSING
+
+### 15:22 — Commit
+
+`75589e2` feat(macp): authority per act, resume, abandon, and the CLOSING freeze
