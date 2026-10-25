@@ -17,8 +17,8 @@ import { writeText } from './repo.mjs';
 
 export const OUTCOMES = Object.freeze(['COMPLETED', 'PARTIAL', 'BLOCKED']);
 
-const REGION_BEGIN = '<!-- macp:handoff:begin -->';
-const REGION_END = '<!-- macp:handoff:end -->';
+export const REGION_BEGIN = '<!-- macp:handoff:begin -->';
+export const REGION_END = '<!-- macp:handoff:end -->';
 
 /**
  * Validate the agent-authored half against the measured half.
@@ -107,6 +107,14 @@ export function renderHandoff(handoff) {
       ? `| Gate | Exit | Time |\n| ---- | ---- | ---- |\n${gateRows}`
       : '_none run_',
     '',
+    '### Objective',
+
+    `${handoff.objective || '_not stated_'}`,
+
+    '### Files changed',
+
+    `${(handoff.files_changed ?? []).length === 0 ? '_none_' : handoff.files_changed.map((f) => `- \`${f}\``).join('\n')}`,
+
     '### Completed',
     '',
     bullets(handoff.completed),

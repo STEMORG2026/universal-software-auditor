@@ -500,20 +500,29 @@ backwards.
 
 THE STATES
 
-    UNBOUND ──start──▶ ACTIVE ──close──▶ COMPLETED ──seal──▶ CLOSED
-                          ▲  │                                  │
-                          │  └──close --prepare──▶ CLOSING      │
-                          │                                  reopen
-                          └──────────── REOPENED ◀─────────────┘
+    UNBOUND ──start──▶ ACTIVE ──submit──▶ AWAITING-USER ──close──▶ COMPLETED ──seal──▶ CLOSED
+                          ▲  │                                        │                    │
+                          │  └──submit --prepare──▶ CLOSING          │                    │
+                          │                                           │                 reopen
+                          └───────────── REOPENED ◀───────────────────┴────────────────────┘
 
-| State       | How you get there                     | What it permits                                               |
-| ----------- | ------------------------------------- | ------------------------------------------------------------- |
-| `UNBOUND`   | the default on launching any harness  | read-only recon. No edit, no commit, no session file.         |
-| `ACTIVE`    | `macp start …`                        | edits on the session's branch, `macp log`                     |
-| `CLOSING`   | `macp close --prepare`                | nothing. Source is frozen; run the gates, then close.         |
-| `COMPLETED` | `macp close --outcome …`              | nothing. The agent's claim; the owner has not sealed it.      |
-| `CLOSED`    | `macp seal --session … --ssh-key …`   | nothing. Immutable, byte-compared against its sealing commit. |
-| `REOPENED`  | `macp reopen --session … --ssh-key …` | edits again, on the same objective, until re-closed.          |
+| State           | How you get there                     | What it permits                                               |
+| --------------- | ------------------------------------- | ------------------------------------------------------------- |
+| `UNBOUND`       | the default on launching any harness  | read-only recon. No edit, no commit, no session file.         |
+| `ACTIVE`        | `macp start …`                        | edits on the session's branch, `macp log`                     |
+| `CLOSING`       | `macp submit --prepare`               | nothing. Source is frozen; run the gates, then submit.        |
+| `AWAITING-USER` | `macp submit --outcome …`             | nothing. The agent's report; the owner has not acted.         |
+| `COMPLETED`     | `macp close` (owner)                  | nothing. Closed by the owner; not yet sealed.                 |
+| `CLOSED`        | `macp seal --session … --ssh-key …`   | nothing. Immutable, byte-compared against its sealing commit. |
+| `REOPENED`      | `macp reopen --session … --ssh-key …` | edits again, on the same objective, until re-submitted.       |
+
+**Why `submit` and `close` are separate.** They were one command, and that command
+wrote `COMPLETED` with no key — so the agent could reach a terminal state alone and
+the owner's key gated only the optional `seal`. `submit` is the agent saying "I am
+finished": it freezes the tree, runs the gates, writes the report, and stops.
+`close` is the owner acting on that report, and it refuses if any non-`state/` file
+changed after the commit the gates measured — so the tree being closed is the tree
+that was verified. See ADR-0046 for the authority model this is the first half of.
 
 `UNBOUND` is the important one. Asking a question in a repository should not
 create a session file, a plan, a registry entry and a branch; that is how a
@@ -598,6 +607,23 @@ Measured behaviour: a one-character edit to any signed field exits 255 and
 `macp verify` reports "seal signature does not verify". The edit is detected
 because the payload is derived from the file — there is no second copy to keep
 in sync.
+
+**One key per act.** Since ADR-0046 the seal is not the only signed act, and no two
+acts share a key:
+
+| Act     | Transition                  | Principal      | Key                   |
+| ------- | --------------------------- | -------------- | --------------------- |
+| close   | `AWAITING-USER → COMPLETED` | `macp-close`   | `~/.ssh/macp_close`   |
+| seal    | `COMPLETED → CLOSED`        | `macp-seal`    | `~/.ssh/macp_seal`    |
+| reopen  | `CLOSED → REOPENED`         | `macp-reopen`  | `~/.ssh/macp_reopen`  |
+| destroy | `CLOSED → DESTROYED`        | `macp-destroy` | `~/.ssh/macp_destroy` |
+
+They are listed in `state/macp/allowed_signers`, written once by
+`macp init-authority`. A signature is checked against the principal that is
+allowed to make _that_ transition, **before** it happens — a close signed with the
+seal key is refused even though both keys are the owner's. `macp seal` never
+rewrites the authority file; rotating keys is a separate, deliberate act
+(`init-authority --force`).
 
 **What this buys.** A reopen cannot be produced without the private key. The
 old flow let anyone write `**Passkey:** whatever` and the gate accepted it; the

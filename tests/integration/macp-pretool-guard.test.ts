@@ -136,11 +136,20 @@ describe('pre-tool guard', () => {
     expect(guard(dir, home, { tool: 'Bash', args: { command: 'git commit -m x' } }).code).toBe(0);
   });
 
-  it('still allows edits while CLOSING, and blocks once the lease is terminal', () => {
+  it('freezes the source while CLOSING', () => {
     const { dir, home } = repo();
     lease(dir, home, 'feat/x', 'CLOSING');
-    expect(guard(dir, home, { tool: 'Edit', args: {} }).code).toBe(0);
+    const r = guard(dir, home, { tool: 'Edit', args: {} });
+    expect(r.code).toBe(2);
+    expect(r.err).toMatch(/CLOSING/);
+    expect(r.err).toMatch(/frozen/);
 
+    // The freeze covers shell mutation too, not just the file tools.
+    expect(guard(dir, home, { tool: 'Bash', args: { command: 'echo x > f' } }).code).toBe(2);
+  });
+
+  it('blocks once the lease is terminal', () => {
+    const { dir, home } = repo();
     lease(dir, home, 'feat/x', 'COMPLETED');
     expect(guard(dir, home, { tool: 'Edit', args: {} }).code).toBe(2);
   });

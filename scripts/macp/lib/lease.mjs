@@ -90,7 +90,16 @@ export function conflictingLease(repoIdValue, candidate) {
   return others[0] ?? null;
 }
 
-export function makeLease({ repoId: id, repoRoot, branch, session, agent, harness, baseCommit }) {
+export function makeLease({
+  repoId: id,
+  repoRoot,
+  branch,
+  session,
+  agent,
+  harness,
+  baseCommit,
+  startHeadSha,
+}) {
   const now = new Date().toISOString();
   return {
     schema: SCHEMA,
@@ -102,6 +111,10 @@ export function makeLease({ repoId: id, repoRoot, branch, session, agent, harnes
     harness,
     state: 'ACTIVE',
     baseCommit,
+    // The commit the work actually began from, as opposed to the merge-base. The
+    // audit's F-14: attributing commits from `master..HEAD` gave a stacked
+    // session credit for the session below it.
+    startHeadSha: startHeadSha ?? null,
     startedAt: now,
     heartbeatAt: now,
   };

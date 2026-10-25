@@ -10,6 +10,18 @@ import path from 'node:path';
 
 export const STATUS = Object.freeze({
   IN_PROGRESS: 'IN-PROGRESS',
+  /**
+   * The agent has finished and reported. Work is over, verification is recorded,
+   * and the session now waits for the owner. It is deliberately NOT an active
+   * status: the agent may not mutate the tree from here, and it may not leave
+   * this state either — only the owner's `macp close` does.
+   *
+   * Hyphenated to match the vocabulary the files already use (`IN-PROGRESS`),
+   * while the prose name is `AWAITING_USER`.
+   */
+  AWAITING_USER: 'AWAITING-USER',
+  /** Abandoned by the owner: the work stopped, and the record says so. */
+  ABANDONED: 'ABANDONED',
   COMPLETED: 'COMPLETED',
   CLOSED: 'CLOSED',
   REOPENED: 'REOPENED',
@@ -18,8 +30,18 @@ export const STATUS = Object.freeze({
 /** Statuses in which a session may legally mutate the tree. */
 export const ACTIVE_STATUSES = Object.freeze([STATUS.IN_PROGRESS, STATUS.REOPENED]);
 
-/** Statuses from which no further work may be recorded. */
-export const TERMINAL_STATUSES = Object.freeze([STATUS.COMPLETED, STATUS.CLOSED]);
+/**
+ * Statuses from which the agent may not record further work.
+ *
+ * `AWAITING_USER` is here because the agent has stopped; `COMPLETED` and
+ * `CLOSED` because the owner has acted on it.
+ */
+export const TERMINAL_STATUSES = Object.freeze([
+  STATUS.AWAITING_USER,
+  STATUS.ABANDONED,
+  STATUS.COMPLETED,
+  STATUS.CLOSED,
+]);
 
 export const REQUIRED_FIELDS = Object.freeze([
   'Agent',

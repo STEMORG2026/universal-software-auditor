@@ -2,21 +2,21 @@
 
 <!-- macp:handoff:begin -->
 
-## Handoff — SA12 (COMPLETED)
+## Handoff — SA13 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-24T20:49:42+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-25T10:19:28+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
-| Fact               | Value                                                                      |
-| ------------------ | -------------------------------------------------------------------------- |
-| Session            | `SA12` (SA12 (Sathi / WorkBuddy) on WorkBuddy)                             |
-| Branch             | `feat/macp-runtime-v2`                                                     |
-| Base commit        | `4a4a63b (master, after #269)`                                             |
-| Code commit        | `c4b7f6b270321eac118dcea64b002bb4976a668f`                                 |
-| Working tree clean | yes                                                                        |
-| Commits            | 15                                                                         |
-| Open PRs           | #270 feat(macp): the runtime, the pre-work gate and the ssh seal (BLOCKED) |
+| Fact               | Value                                                                |
+| ------------------ | -------------------------------------------------------------------- |
+| Session            | `SA13` (SA13 (WorkBuddy) on WorkBuddy)                               |
+| Branch             | `audit/macp-enforcement`                                             |
+| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                           |
+| Code commit        | `a5009e905828f7bfbce24c92a3ff201f88815309`                           |
+| Working tree clean | yes                                                                  |
+| Commits            | 45                                                                   |
+| Open PRs           | #271 docs(macp): enforcement audit + remediation plan (SA13) (CLEAN) |
 
 ### Gates (exit code, measured)
 
@@ -25,21 +25,117 @@ is a claim, not a measurement.
 | typecheck  | 0    | 1s   |
 | lint       | 0    | 3s   |
 | format     | 0    | 8s   |
-| test       | 0    | 100s |
-| docs_all   | 0    | 2s   |
-| self_audit | 0    | 3s   |
+| test       | 0    | 110s |
+| docs_all   | 0    | 3s   |
+| self_audit | 0    | 2s   |
+
+### Objective
+
+Determine whether the existing MACP implementation is fully functional as designed,
+and whether it actually **enforces** the MACP protocol rather than merely instructing
+an agent to follow it — covering session startup, objective creation, planning,
+execution, testing, gates, reporting, human-controlled closure, reopening
+authorization, deletion/destruction protection, session persistence and recovery,
+and agent/tool enforcement.
+
+The deliverable is a classification, per requirement, of IMPLEMENTED / EXECUTED /
+ENFORCED, with reproducible evidence for every claim, and a final verdict that does
+not treat the existence of a file, a script, a prompt or a test as proof of
+enforcement.
+
+**Second deliverable (added 2026-10-24T21:56, owner instruction).** Using that
+audit as the basis, produce a dependency-ordered remediation plan that makes MACP
+_enforce_ the lifecycle rather than document it. The plan is design only: no MACP
+source change, no commit, no push, no close, and no weakening or reinterpretation
+of the audit's findings. The audit verdict (completeness 45 %, enforcement 14 %)
+is the frozen pre-remediation baseline and must not be edited to suit the plan.
+
+**Third deliverable (added 2026-10-24T23:03, owner instruction: "resume sa13").**
+Implement the owner's authority model. In his words: "closing must be done by me with
+key so do sealing as well and reopen as well … It also needs my passkey and it is not
+same for close, sealing, its a different passkey."
+
+Concretely: **every lifecycle act is gated by the owner's key, and no two acts share a
+passphrase** — which, because a passphrase belongs to a key file, means a distinct key
+and principal per act:
+
+| Act         | Transition                  | Principal       |
+| ----------- | --------------------------- | --------------- |
+| report done | `ACTIVE → AWAITING_USER`    | agent, unsigned |
+| close       | `AWAITING_USER → COMPLETED` | `macp-close`    |
+| seal        | `COMPLETED → CLOSED`        | `macp-seal`     |
+| reopen      | `CLOSED → REOPENED`         | `macp-reopen`   |
+| destroy     | `CLOSED → DESTROYED`        | `macp-destroy`  |
+
+Consequence: `macp close` today writes `COMPLETED` with no key, so gating it forces an
+`AWAITING_USER` state and an unprivileged `submit` first — P4 precedes P3 in the plan,
+and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
+
+### Files changed
+
+- `A	.changeset/macp-runtime-v2.md`
+- `M	.github/workflows/protocol-check.yml`
+- `M	.usa.yaml`
+- `M	AGENTS.md`
+- `M	DOCS_AUDIT_REPORT.md`
+- `A	docs/adr/0045-macp-runtime-and-ssh-seal.md`
+- `A	docs/adr/0046-authority-per-lifecycle-act.md`
+- `M	docs/adr/README.md`
+- `M	docs/macp.md`
+- `M	docs/manifest.yaml`
+- `M	eslint.config.mjs`
+- `M	package.json`
+- `M	scripts/auto-update-state.mjs`
+- `M	scripts/check-docs.mjs`
+- `M	scripts/check-session-start.mjs`
+- `M	scripts/check-sessions.mjs`
+- `M	scripts/lib/docs-sync.mjs`
+- `A	scripts/macp/cli.mjs`
+- `A	scripts/macp/hooks/adapters/hermes_plugin.py`
+- `A	scripts/macp/hooks/adapters/opencode-plugin.ts`
+- `A	scripts/macp/hooks/pretool.mjs`
+- `A	scripts/macp/lib/backend.mjs`
+- `A	scripts/macp/lib/brief.mjs`
+- `A	scripts/macp/lib/gates.mjs`
+- `A	scripts/macp/lib/handoff.mjs`
+- `A	scripts/macp/lib/install.mjs`
+- `A	scripts/macp/lib/lease.mjs`
+- `A	scripts/macp/lib/lifecycle.mjs`
+- `A	scripts/macp/lib/record.mjs`
+- `A	scripts/macp/lib/repo.mjs`
+- `A	scripts/macp/lib/seal.mjs`
+- `A	scripts/macp/lib/session.mjs`
+- `A	scripts/macp/lib/statefiles.mjs`
+- `A	scripts/macp/lib/verify.mjs`
+- `M	scripts/sync-docs.mjs`
+- `M	state.md`
+- `M	state/CONTINUATION.md`
+- `M	state/DASHBOARD.md`
+- `M	state/DECISIONS.md`
+- `M	state/INDEX.md`
+- `M	state/REGISTRY.md`
+- `M	state/STARTUP.md`
+- `A	state/macp/allowed_signers`
+- `A	state/macp/handoff/SA12.json`
+- `A	state/macp/handoff/SA13.json`
+- `A	state/macp/owner.pub`
+- `A	state/macp/queue.md`
+- `A	state/plans/agent-SA12-macp-runtime-v2.md`
+- `A	state/plans/agent-SA13-audit-whether-macp-is-functionally-complete-and-.md`
+- `A	state/sessions/20261024-1840-SA12-macp-runtime-v2.md`
+- `A	state/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md`
+- `A	tests/integration/macp-pretool-guard.test.ts`
+- `A	tests/integration/macp-runtime.test.ts`
+- `A	tests/integration/macp-sessions-gate.test.ts`
+- `A	tests/integration/macp-state-maintenance.test.ts`
+- `M	tests/integration/session-start-gate.test.ts`
+- `A	tests/unit/docs-sync-records.test.ts`
+- `A	tests/unit/macp-handoff.test.ts`
+- `A	tests/unit/macp-queue-format.test.ts`
 
 ### Completed
 
-- scripts/macp runtime: state machine, lease store, split handoff, gate runner, SSH seal, backend boundary, init-repo, install-hooks
-- hooks/pretool.mjs plus adapters for claude, opencode, hermes and dsh; no lease means read-only allowed and writes blocked
-- check-session-start.mjs: a branch with work and no session now fails; the branch is read from GITHUB_HEAD_REF in CI
-- sealed sessions are readable: field() tolerates the bullet form macp seal writes
-- three doors so a close can be recorded and pushed: state-only bookkeeping, the one-commit window, and the push
-- auto-update-state.mjs: bookkeeping commit scoped to state/, never records its own commits, matches the ## Outcome heading instead of the text
-- docs sync and claim scanner skip state/sessions (IMMUTABLE_RECORDS); sealed records are no longer rewritten
-- ADR-0045, docs/macp.md section 4D, ADR index, DECISIONS, STARTUP, DASHBOARD, manifest, changeset
-- SA12's mangled objective repaired and the reopen's added scope documented in this file
+- x
 
 ### Remaining
 
@@ -47,28 +143,23 @@ _none_
 
 ### Discovered, not fixed
 
-- validateHandoff demanded a tail from every gate, so quiet green gates blocked a valid PARTIAL close
-- sync-docs rewrote the ADR count inside four sealed sessions and check-sessions then failed them as edited after seal
-- the post-commit hook swept twenty unrelated files into a chore(state) commit during this session
-- the start gate could not read a sealed session at all, so no commit or push after a seal was possible
+_none_
 
 ### Deferred work
 
-- Q003 SA01-SA11 seals carry no SSH signature; retro-signing would edit records sealed before the runtime existed
-- Q004 root _tmp_* scratch directories are logged, not deleted
+_none_
 
 ### Traps learned
 
-- the runtime shims rm through PATH with a per-turn bulk-delete guard; after ~50 commands in a turn any deleting command is refused, so a gate must not route through a package manager
-- shell-driven file mutation and long editor edits are unreliable here; verify by reading back
+_none_
 
 ### Next recommended task
 
-owner re-seals with the dedicated macp_owner key, which swaps state/macp/owner.pub off the GitHub key
+_not stated_
 
 ### Required context for the next session
 
-- state/CONTINUATION.md, docs/adr/0045-macp-runtime-and-ssh-seal.md, docs/macp.md section 4D
+_none_
 
 <!-- macp:handoff:end -->
 
@@ -514,7 +605,7 @@ Every row below was **run**, not expected. `[FACT]` throughout.
 | Types          | `pnpm run typecheck`                   | 0 errors                                                                                                  |
 | Lint           | `pnpm run lint`                        | 0 errors, 0 warnings                                                                                      |
 | Format         | `pnpm run format:check`                | clean                                                                                                     |
-| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->45<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
+| Docs (6 gates) | `pnpm run docs:all`                    | OK — <!-- usa:fact adrs -->46<!-- /usa:fact --> ADRs, 138 tracked docs, cli.md + sample-report.md in sync |
 | Tests          | `npx vitest run`                       | 1466 passed, 1 skipped (1467) on this branch — 1470 once #246 (+1) and #247 (+3) merge                    |
 | Self-audit     | `pnpm run self-audit`                  | **100/100**, no open findings                                                                             |
 | Action pins    | `node scripts/pin-actions.mjs --check` | all pinned to commit SHAs                                                                                 |
