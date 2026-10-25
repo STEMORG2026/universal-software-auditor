@@ -185,6 +185,8 @@ If any check fails → fix it before closing the session.
 | freeze and submit          | `macp submit --prepare`, then `macp submit --outcome …`                                       |
 | close (owner only)         | `macp close --ssh-key ~/.ssh/macp_close` — only on `AWAITING-USER`, only if no source changed |
 | write the authority        | `macp init-authority --dir ~/.ssh` — once, from the four public keys                          |
+| resume (owner only)        | `macp resume --ssh-key ~/.ssh/macp_close --reason "…"` — lets a submitted session continue    |
+| abandon (owner only)       | `macp abandon --ssh-key ~/.ssh/macp_close --reason "…"` — stops an unfinished session         |
 | seal (owner only)          | `macp seal --session … --instruction "…" --ssh-key ~/.ssh/macp_seal`                          |
 | reopen (owner only)        | `macp reopen --session … --ssh-key ~/.ssh/macp_reopen --reason … --delta …`                   |
 | check every seal offline   | `macp verify`                                                                                 |

@@ -501,20 +501,29 @@ backwards.
 THE STATES
 
     UNBOUND ──start──▶ ACTIVE ──submit──▶ AWAITING-USER ──close──▶ COMPLETED ──seal──▶ CLOSED
-                          ▲  │                                        │                    │
-                          │  └──submit --prepare──▶ CLOSING          │                    │
-                          │                                           │                 reopen
-                          └───────────── REOPENED ◀───────────────────┴────────────────────┘
+                          ▲  │            │      ▲                      │                    │
+                          │  └──submit ──prepare──▶ CLOSING            │                    │
+                          │              └──────resume─────┘           │                 reopen
+                          │                                           │                    │
+                          └──abandon──▶ ABANDONED                     └──── REOPENED ◀──────┘
 
-| State           | How you get there                     | What it permits                                               |
-| --------------- | ------------------------------------- | ------------------------------------------------------------- |
-| `UNBOUND`       | the default on launching any harness  | read-only recon. No edit, no commit, no session file.         |
-| `ACTIVE`        | `macp start …`                        | edits on the session's branch, `macp log`                     |
-| `CLOSING`       | `macp submit --prepare`               | nothing. Source is frozen; run the gates, then submit.        |
-| `AWAITING-USER` | `macp submit --outcome …`             | nothing. The agent's report; the owner has not acted.         |
-| `COMPLETED`     | `macp close` (owner)                  | nothing. Closed by the owner; not yet sealed.                 |
-| `CLOSED`        | `macp seal --session … --ssh-key …`   | nothing. Immutable, byte-compared against its sealing commit. |
-| `REOPENED`      | `macp reopen --session … --ssh-key …` | edits again, on the same objective, until re-submitted.       |
+| State           | How you get there                     | What it permits                                                 |
+| --------------- | ------------------------------------- | --------------------------------------------------------------- |
+| `UNBOUND`       | the default on launching any harness  | read-only recon. No edit, no commit, no session file.           |
+| `ACTIVE`        | `macp start …`                        | edits on the session's branch, `macp log`                       |
+| `CLOSING`       | `macp submit --prepare`               | nothing. Source is frozen; run the gates, then submit.          |
+| `AWAITING-USER` | `macp submit --outcome …`             | nothing. The agent's report; the owner has not acted.           |
+| `COMPLETED`     | `macp close` (owner)                  | nothing. Closed by the owner; not yet sealed.                   |
+| `CLOSED`        | `macp seal --session … --ssh-key …`   | nothing. Immutable, byte-compared against its sealing commit.   |
+| `REOPENED`      | `macp reopen --session … --ssh-key …` | edits again, on the same objective, until re-submitted.         |
+| `ABANDONED`     | `macp abandon --ssh-key …`            | nothing. The owner stopped unfinished work; the branch is free. |
+
+**The two transitions that were missing.** `AWAITING-USER → ACTIVE` and `ACTIVE → ABANDONED`
+did not exist, and the first absence is what locked SA13: the agent had submitted with work
+outstanding, and the only ways back were the owner's key through close/seal/reopen or a hand edit
+of the status line. `macp resume` is the signed door back, and `macp abandon` is the signed exit
+for a session that should never have started. Both use the `macp-close` principal, because handing
+control to the agent and stopping work are both the owner's decisions.
 
 **Why `submit` and `close` are separate.** They were one command, and that command
 wrote `COMPLETED` with no key — so the agent could reach a terminal state alone and

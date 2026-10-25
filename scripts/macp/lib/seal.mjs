@@ -198,9 +198,16 @@ export function canonicalPayload(fields) {
  * passphrase was right.
  */
 function run(command, args, { interactive = false, ...options } = {}) {
+  // `interactive` must hand ssh-keygen the real stdin, not /dev/null.
+  //
+  // With stdin ignored it cannot read a passphrase, so it falls back to
+  // SSH_ASKPASS — and on this machine DISPLAY is set but no askpass binary is
+  // installed, so a passphrase-protected key failed with "incorrect passphrase".
+  // Every seal that ever worked used an agent-loaded key, which is the one case
+  // that needs no prompt. Measured on `macp resume` with ~/.ssh/macp_close.
   return execFileSync(command, args, {
     encoding: 'utf8',
-    stdio: interactive ? ['ignore', 'inherit', 'inherit'] : ['pipe', 'pipe', 'pipe'],
+    stdio: interactive ? ['inherit', 'inherit', 'inherit'] : ['pipe', 'pipe', 'pipe'],
     ...options,
   });
 }

@@ -28,6 +28,17 @@
 | Since   | 2026-10-25T15:10:36+05:45                                           |
 | Claims  | —                                                                   |
 
+### undefined
+
+| Field   | Value       |
+| ------- | ----------- |
+| Agent   | undefined   |
+| Harness | undefined   |
+| Branch  | `undefined` |
+| Task    | undefined   |
+| Since   | undefined   |
+| Claims  | undefined   |
+
 ## File Ownership Rules
 
 1. If another **ACTIVE** agent owns files you need → STOP, coordinate via its session file

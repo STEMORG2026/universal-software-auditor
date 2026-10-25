@@ -3,7 +3,7 @@
 **History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** audit/macp-enforcement
 **Started:** 2026-10-24T21:37:03+05:45
-**Status:** AWAITING-USER
+**Status:** IN-PROGRESS
 **Re-opened (3):** 2026-10-25T13:53+05:45 — owner instruction: "go", given in reply to "Say go and
 I'll start with step 1", where step 1 was stated as _"You say I may edit the status back to
 IN-PROGRESS, and I log it as a hand transition with your instruction quoted."_ Reason: the objective
@@ -99,6 +99,8 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 - 21:12 [DISCOVERY] F-29: the Reopen and Resume blocks recorded no Code commit, so verify could not rebuild the signed payload
 
 - 22:27 [BUG_FOUND] F-30: extracting a branch's unique diff silently reverted a fix already on the base, and the resulting CodeQL thread blocked the merge via required_conversation_resolution
+
+- 00:39 [BUG_FOUND] F-31: signPayload gave ssh-keygen /dev/null as stdin, so a passphrase could never be typed; every seal that ever worked used an agent-loaded key, the one path ADR-0046 forbids
 
 ## Mistakes in this session
 
@@ -324,3 +326,11 @@ Machine-stamped at 2026-10-25T22:44:40+05:45 from `macp submit`. Code commit `79
 Remaining: none
 
 Next: Owner closes and seals SA13
+
+## Resume
+
+- **Resumed by:** owner — principal `macp-close`
+- **Resumed at:** 2026-10-26T00:38:13+05:45
+- **Code commit:** 4cfd8d7dafbea78d87640064d48a4e88794ff14c
+- **Reason:** the docs lagged the code
+- **Resume signature:** LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWdBZlZvZ2dRYVg5K0JYWmhReE5LWVVGbXFVWAo1OEdoRkxyKzUrRmIrRjZKOEFBQUFFYldGamNBQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUJRaHVlZ3E3aHBPb0w5b2pFTUZxdVdWQW1vTUttbTZ6YVBYa3FyYUx6VG93aUVIcEJ0OEhYamd3dDBDQTBBOXMKMmdsalBudXFnVzgySmJBeVAySEpNUAotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K
