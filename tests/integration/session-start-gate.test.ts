@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -278,30 +278,11 @@ describe('check-session-start gate — the skipped-startup defect', () => {
     plan(f.dir);
     registry(f.dir, '### TEST\n');
     lease(f.home, f.dir, 'feat/x');
-    const leases = JSON.parse(
-      execFileSync(
-        'cat',
-        [
-          path.join(
-            f.home,
-            'leases',
-            execFileSync('ls', [path.join(f.home, 'leases')], { encoding: 'utf8' }).trim(),
-          ),
-        ],
-        {
-          encoding: 'utf8',
-        },
-      ),
-    );
+    const leaseDir = path.join(f.home, 'leases');
+    const leaseFile = path.join(leaseDir, readdirSync(leaseDir)[0]!);
+    const leases = JSON.parse(readFileSync(leaseFile, 'utf8'));
     leases.leases['feat/x'].session = 'OTHER9';
-    writeFileSync(
-      path.join(
-        f.home,
-        'leases',
-        execFileSync('ls', [path.join(f.home, 'leases')], { encoding: 'utf8' }).trim(),
-      ),
-      JSON.stringify(leases),
-    );
+    writeFileSync(leaseFile, JSON.stringify(leases));
     const r = run(f);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/belongs to OTHER9/);
