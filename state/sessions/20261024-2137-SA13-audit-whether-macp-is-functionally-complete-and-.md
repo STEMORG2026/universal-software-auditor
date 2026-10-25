@@ -98,6 +98,8 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 
 - 21:12 [DISCOVERY] F-29: the Reopen and Resume blocks recorded no Code commit, so verify could not rebuild the signed payload
 
+- 22:27 [BUG_FOUND] F-30: extracting a branch's unique diff silently reverted a fix already on the base, and the resulting CodeQL thread blocked the merge via required_conversation_resolution
+
 ## Mistakes in this session
 
 Recorded before the seal, so that they are part of the immutable record rather than a story told
