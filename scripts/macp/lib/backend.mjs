@@ -11,7 +11,7 @@
  * worker calls `backend.start(request)`; whether that runs in-process or over
  * HTTP is not the worker's business, and must not become the worker's problem.
  */
-import { close, reopen, seal, start } from './lifecycle.mjs';
+import { abandon, close, reopen, resume, seal, start, submit } from './lifecycle.mjs';
 import { log, queue, status } from './record.mjs';
 import { verify } from './verify.mjs';
 
@@ -32,6 +32,10 @@ export class MacpBackend {
   }
 
   async queue(_request) {
+    throw new Error('not implemented');
+  }
+
+  async submit(_request) {
     throw new Error('not implemented');
   }
 
@@ -70,6 +74,18 @@ export class LocalBackend extends MacpBackend {
     return queue(request);
   }
 
+  async submit(request) {
+    return submit(request);
+  }
+
+  async resume(request) {
+    return resume(request);
+  }
+
+  async abandon(request) {
+    return abandon(request);
+  }
+
   async close(request) {
     return close(request);
   }
@@ -103,6 +119,9 @@ export class LocalBackend extends MacpBackend {
 export const JARVIS_ROUTES = Object.freeze({
   start: 'POST /macp/v1/sessions',
   log: 'POST /macp/v1/sessions/:id/events',
+  submit: 'POST /macp/v1/sessions/:id/submit',
+  resume: 'POST /macp/v1/sessions/:id/resume',
+  abandon: 'POST /macp/v1/sessions/:id/abandon',
   close: 'POST /macp/v1/sessions/:id/close',
   seal: 'POST /macp/v1/sessions/:id/seal',
   reopen: 'POST /macp/v1/sessions/:id/reopen',
@@ -138,6 +157,18 @@ export class JarvisBackend extends MacpBackend {
 
   async log(request) {
     return this.#call('log', request);
+  }
+
+  async submit(request) {
+    return this.#call('submit', request);
+  }
+
+  async resume(request) {
+    return this.#call('resume', request);
+  }
+
+  async abandon(request) {
+    return this.#call('abandon', request);
   }
 
   async close(request) {

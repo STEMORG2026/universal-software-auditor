@@ -1,6 +1,14 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -15,15 +23,19 @@ import path from 'node:path';
 
 const ROOT = path.resolve(__dirname, '../..');
 const CLI = path.join(ROOT, 'scripts/macp/cli.mjs');
-const KEY = path.join(process.env.HOME ?? '', '.ssh/id_ed25519');
-const HAS_KEY = existsSync(KEY);
 
 const cleanups: (() => void)[] = [];
 afterEach(() => {
   while (cleanups.length) cleanups.pop()!();
 });
 
-type Repo = { dir: string; home: string; run: (args: string[]) => { code: number; out: string } };
+type Repo = {
+  dir: string;
+  home: string;
+  run: (args: string[]) => { code: number; out: string };
+  /** One key per act (ADR-0046), created in the fixture home. */
+  keys: Record<'close' | 'seal' | 'reopen' | 'destroy', string>;
+};
 
 /** A throwaway repository with no-op gates, so `close` can run for real. */
 function makeRepo(): Repo {
@@ -69,9 +81,47 @@ function makeRepo(): Repo {
   };
 
   run(['init-repo']);
+
+  // One key per lifecycle act, and the authority file that lists them. The
+  // fixture must model the real shape: a single key cannot stand in for four
+  // principals, and the whole point of the change is that it cannot.
+  const names = {
+    close: 'macp_close',
+    seal: 'macp_seal',
+    reopen: 'macp_reopen',
+    destroy: 'macp_destroy',
+  } as const;
+  const principals = {
+    close: 'macp-close',
+    seal: 'macp-seal',
+    reopen: 'macp-reopen',
+    destroy: 'macp-destroy',
+  } as const;
+  const keys = {} as Repo['keys'];
+  const signerLines: string[] = [];
+  for (const act of ['close', 'seal', 'reopen', 'destroy'] as const) {
+    const keyPath = path.join(home, names[act]);
+    execFileSync('ssh-keygen', [
+      '-q',
+      '-t',
+      'ed25519',
+      '-N',
+      '',
+      '-f',
+      keyPath,
+      '-C',
+      principals[act],
+    ]);
+    keys[act] = keyPath;
+    const blob = readFileSync(`${keyPath}.pub`, 'utf8').trim().split(/\s+/).slice(0, 2).join(' ');
+    signerLines.push(`${principals[act]} ${blob}`);
+  }
+  mkdirSync(path.join(dir, 'state/macp'), { recursive: true });
+  writeFileSync(path.join(dir, 'state/macp/allowed_signers'), `${signerLines.join('\n')}\n`);
+
   sh(['add', '-A']);
   sh(['commit', '-qm', 'chore: init']);
-  return { dir, home, run };
+  return { dir, home, run, keys };
 }
 
 function branch(repo: Repo, name: string) {
@@ -184,13 +234,20 @@ describe('macp runtime — log and queue', () => {
   });
 });
 
-describe('macp runtime — close', () => {
+/** The two-step finish: the agent submits, the owner closes. */
+const finish = (repo: Repo, args: string[]) => {
+  const submitted = repo.run(['submit', ...args]);
+  if (submitted.code !== 0) return submitted;
+  return repo.run(['close', '--ssh-key', repo.keys.close]);
+};
+
+describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
   it('refuses a dirty source tree', () => {
     const repo = makeRepo();
     branch(repo, 'feat/one');
     repo.run(START);
     writeFileSync(path.join(repo.dir, 'src.js'), 'x\n');
-    const r = repo.run(['close', '--outcome', 'COMPLETED', '--completed', 'nothing']);
+    const r = repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'nothing']);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/not clean/);
   });
@@ -204,7 +261,7 @@ describe('macp runtime — close', () => {
     writeFileSync(path.join(repo.dir, 'package.json'), `${JSON.stringify(pkg, null, 2)}\n`);
     commit(repo, 'test: make one gate red');
 
-    const r = repo.run(['close', '--outcome', 'COMPLETED', '--completed', 'x']);
+    const r = repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/test/);
     expect(r.out).toMatch(/PARTIAL or BLOCKED/);
@@ -220,7 +277,7 @@ describe('macp runtime — close', () => {
     commit(repo, 'test: make one gate red');
 
     const r = repo.run([
-      'close',
+      'submit',
       '--outcome',
       'PARTIAL',
       '--completed',
@@ -246,7 +303,7 @@ describe('macp runtime — close', () => {
     const repo = makeRepo();
     branch(repo, 'feat/one');
     repo.run(START);
-    const r = repo.run(['close', '--outcome', 'PARTIAL', '--completed', 'x']);
+    const r = repo.run(['submit', '--outcome', 'PARTIAL', '--completed', 'x']);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/remaining/);
     expect(r.out).toMatch(/next_recommended_task/);
@@ -268,7 +325,7 @@ describe('macp runtime — close', () => {
     commit(repo, 'test: fail silently');
 
     const r = repo.run([
-      'close',
+      'submit',
       '--outcome',
       'PARTIAL',
       '--completed',
@@ -293,7 +350,7 @@ describe('macp runtime — close', () => {
     branch(repo, 'feat/one');
     repo.run(START);
     commit(repo, 'feat: do the thing');
-    expect(repo.run(['close', '--outcome', 'COMPLETED', '--completed', 'did it']).code).toBe(0);
+    expect(finish(repo, ['--outcome', 'COMPLETED', '--completed', 'did it']).code).toBe(0);
 
     const continuation = readFileSync(path.join(repo.dir, 'state/CONTINUATION.md'), 'utf8');
     expect(continuation).toContain('<!-- macp:handoff:begin -->');
@@ -306,34 +363,183 @@ describe('macp runtime — close', () => {
     branch(repo, 'feat/one');
     repo.run(START);
     commit(repo, 'feat: one');
-    expect(repo.run(['close', '--prepare']).code).toBe(0);
+    expect(repo.run(['submit', '--prepare']).code).toBe(0);
 
     writeFileSync(path.join(repo.dir, 'src.js'), 'late change\n');
     commit(repo, 'feat: two, after the freeze');
-    const r = repo.run(['close', '--outcome', 'COMPLETED', '--completed', 'x']);
+    const r = repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/HEAD moved/);
   });
+  it('refuses to close when the key is loaded in ssh-agent', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
+
+    // A key in the agent signs with no prompt — the path by which an agent can
+    // perform the owner's act without the owner typing anything.
+    const bin = path.join(repo.home, 'bin');
+    mkdirSync(bin, { recursive: true });
+    const fingerprint = execFileSync('ssh-keygen', ['-lf', `${repo.keys.close}.pub`], {
+      encoding: 'utf8',
+    }).split(' ')[1];
+    writeFileSync(path.join(bin, 'ssh-add'), `#!/bin/sh\necho "256 ${fingerprint} k (ED25519)"\n`, {
+      mode: 0o755,
+    });
+
+    const r = spawnSync('node', [CLI, 'close', '--ssh-key', repo.keys.close], {
+      cwd: repo.dir,
+      encoding: 'utf8',
+      env: { ...process.env, MACP_HOME: repo.home, PATH: `${bin}:${process.env.PATH}` },
+    });
+    expect(r.status).toBe(1);
+    expect(`${r.stdout ?? ''}${r.stderr ?? ''}`).toMatch(/loaded in ssh-agent/);
+  });
+
+  it('refuses to close when the key is loaded in ssh-agent', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
+
+    // A key in the agent signs with no prompt — the path by which an agent can
+    // perform the owner's act without the owner typing anything.
+    const bin = path.join(repo.home, 'bin');
+    mkdirSync(bin, { recursive: true });
+    const fingerprint = execFileSync('ssh-keygen', ['-lf', `${repo.keys.close}.pub`], {
+      encoding: 'utf8',
+    }).split(' ')[1];
+    writeFileSync(path.join(bin, 'ssh-add'), `#!/bin/sh\necho "256 ${fingerprint} k (ED25519)"\n`, {
+      mode: 0o755,
+    });
+
+    const r = spawnSync('node', [CLI, 'close', '--ssh-key', repo.keys.close], {
+      cwd: repo.dir,
+      encoding: 'utf8',
+      env: { ...process.env, MACP_HOME: repo.home, PATH: `${bin}:${process.env.PATH}` },
+    });
+    expect(r.status).toBe(1);
+    expect(`${r.stdout ?? ''}${r.stderr ?? ''}`).toMatch(/loaded in ssh-agent/);
+  });
+
+  it('records the objective and the files this session changed', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    writeFileSync(path.join(repo.dir, 'src.js'), 'x\n');
+    commit(repo, 'feat: add src');
+    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+
+    const handoff = JSON.parse(
+      readFileSync(path.join(repo.dir, 'state/macp/handoff/T01.json'), 'utf8'),
+    );
+    expect(handoff.objective).toMatch(/prove the machine/i);
+    expect(handoff.files_changed.some((line: string) => line.includes('src.js'))).toBe(true);
+    expect(handoff.start_head_sha).toMatch(/^[0-9a-f]{40}$/);
+  });
+
+  it('prints the previous handoff when the next session starts', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+    commit(repo, 'chore(state): record the report');
+    branch(repo, 'feat/two');
+
+    const r = repo.run([
+      'start',
+      '--agent',
+      'T02',
+      '--harness',
+      'vitest',
+      '--task',
+      'the next thing',
+      '--authorized-by',
+      'owner',
+    ]);
+    expect(r.code).toBe(0);
+    // The brief used to read a heading nothing wrote, so the handoff never
+    // reached the transcript and a fresh repo printed "Nothing yet" (F-12).
+    expect(r.out).toMatch(/previous handoff \(machine-stamped\)/);
+    expect(r.out).toMatch(/Handoff — T01/);
+  });
+
+  it('refuses to close a session the agent has not submitted', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+
+    const r = repo.run(['close']);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/macp submit/);
+  });
+
+  it('submit parks the session in AWAITING-USER and status names it', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+
+    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+
+    const dir = path.join(repo.dir, 'state/sessions');
+    const file = path.join(dir, readdirSync(dir)[0]!);
+    expect(readFileSync(file, 'utf8')).toMatch(/\*\*Status:\*\* AWAITING-USER/);
+
+    // Not "none": the branch is not free, it is waiting for the owner.
+    const status = repo.run(['status']);
+    expect(status.out).toMatch(/AWAITING-USER/);
+  });
+
+  it('refuses to close when source changed after the gates ran', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+
+    // The tree the gates measured is gone; the report describes a tree that no
+    // longer exists. This is the audit's F-08 closed at the other end.
+    writeFileSync(path.join(repo.dir, 'src.js'), 'late\n');
+    commit(repo, 'feat: late source change');
+
+    const r = repo.run(['close']);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/source changed after the gates ran/);
+  });
 });
 
-describe('macp runtime — seal and reopen', () => {
+describe('macp runtime — seal and reopen', { timeout: 60_000 }, () => {
   const sealed = (repo: Repo) => {
     branch(repo, 'feat/one');
     repo.run(START);
     commit(repo, 'feat: do the thing');
-    expect(repo.run(['close', '--outcome', 'COMPLETED', '--completed', 'did it']).code).toBe(0);
-    const r = repo.run(['seal', '--session', 'T01', '--instruction', 'close it', '--ssh-key', KEY]);
+    expect(finish(repo, ['--outcome', 'COMPLETED', '--completed', 'did it']).code).toBe(0);
+    const r = repo.run([
+      'seal',
+      '--session',
+      'T01',
+      '--instruction',
+      'close it',
+      '--ssh-key',
+      repo.keys.seal,
+    ]);
     expect(r.code).toBe(0);
     commit(repo, 'docs(session): seal T01');
     return r;
   };
 
-  it.skipIf(!HAS_KEY)('refuses to seal without a private key', () => {
+  it('refuses to seal without a private key', () => {
     const repo = makeRepo();
     branch(repo, 'feat/one');
     repo.run(START);
     commit(repo, 'feat: x');
-    repo.run(['close', '--outcome', 'COMPLETED', '--completed', 'x']);
+    finish(repo, ['--outcome', 'COMPLETED', '--completed', 'x']);
     const r = repo.run([
       'seal',
       '--session',
@@ -347,7 +553,7 @@ describe('macp runtime — seal and reopen', () => {
     expect(r.out).toMatch(/no SSH private key/);
   });
 
-  it.skipIf(!HAS_KEY)('seals, verifies, and refuses a reopen without the key', () => {
+  it('seals, verifies, and refuses a reopen without the key', () => {
     const repo = makeRepo();
     sealed(repo);
 
@@ -357,8 +563,10 @@ describe('macp runtime — seal and reopen', () => {
       readdirSync(path.join(repo.dir, 'state/sessions'))[0]!,
     );
     expect(readFileSync(sessionFile, 'utf8')).toContain('**Seal signature:**');
-    expect(readFileSync(path.join(repo.dir, 'state/macp/owner.pub'), 'utf8')).toContain(
-      'ssh-ed25519',
+    // The seal must not rewrite the authority: it is written once, by
+    // `init-authority`, and a seal that replaced it is the audit's F-20.
+    expect(readFileSync(path.join(repo.dir, 'state/macp/allowed_signers'), 'utf8')).toMatch(
+      /macp-seal ssh-ed25519/,
     );
 
     expect(repo.run(['verify']).code).toBe(0);
@@ -378,7 +586,7 @@ describe('macp runtime — seal and reopen', () => {
     expect(noKey.out).toMatch(/no SSH private key/);
   });
 
-  it.skipIf(!HAS_KEY)('detects a tampered close block', () => {
+  it('detects a tampered close block', () => {
     const repo = makeRepo();
     sealed(repo);
 
@@ -392,7 +600,7 @@ describe('macp runtime — seal and reopen', () => {
     expect(r.out).toMatch(/does not verify/);
   });
 
-  it.skipIf(!HAS_KEY)('reopens with the key and re-verifies', () => {
+  it('reopens with the key and re-verifies', () => {
     const repo = makeRepo();
     sealed(repo);
 
@@ -401,7 +609,7 @@ describe('macp runtime — seal and reopen', () => {
       '--session',
       'T01',
       '--ssh-key',
-      KEY,
+      repo.keys.reopen,
       '--reason',
       'one more line',
       '--delta',
@@ -412,9 +620,211 @@ describe('macp runtime — seal and reopen', () => {
     expect(repo.run(['verify']).code).toBe(0);
     expect(repo.run(['status']).out).toMatch(/REOPENED/);
   });
+  it('still verifies a seal made before the principal file existed', () => {
+    const repo = makeRepo();
+    sealed(repo);
+
+    // Model the migration: the record was signed by the legacy key, and the
+    // principal file arrived afterwards. Adding it must not invalidate history.
+    const signers = readFileSync(path.join(repo.dir, 'state/macp/allowed_signers'), 'utf8')
+      .split('\n')
+      .filter((line) => line && !line.startsWith('macp-seal'))
+      .join('\n');
+    writeFileSync(path.join(repo.dir, 'state/macp/allowed_signers'), `${signers}\n`);
+    writeFileSync(
+      path.join(repo.dir, 'state/macp/owner.pub'),
+      `${readFileSync(`${repo.keys.seal}.pub`, 'utf8').trim()}\n`,
+    );
+
+    const r = repo.run(['verify']);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/2 signature\(s\) checked/);
+  });
+
+  it('resumes a submitted session with the close key', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+
+    const r = repo.run([
+      'resume',
+      '--ssh-key',
+      repo.keys.close,
+      '--reason',
+      'the objective is not finished',
+    ]);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/RESUMED T01/);
+    expect(repo.run(['status']).out).toMatch(/IN-PROGRESS/);
+    // The door the owner opened must be recorded and signed, not just flipped.
+    const dir = path.join(repo.dir, 'state/sessions');
+    const text = readFileSync(path.join(dir, readdirSync(dir)[0]!), 'utf8');
+    expect(text).toMatch(/\*\*Resumed by:\*\* owner — principal `macp-close`/);
+    expect(text).toMatch(/\*\*Resume signature:\*\*/);
+  });
+
+  it('refuses to resume with the seal key', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
+
+    const r = repo.run(['resume', '--ssh-key', repo.keys.seal, '--reason', 'r']);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/resuming requires `macp-close`/);
+  });
+
+  it('refuses to resume a session that was never submitted', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+
+    const r = repo.run(['resume', '--ssh-key', repo.keys.close, '--reason', 'r']);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/nothing to resume/);
+  });
+
+  it('abandons an active session with the close key', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: half done');
+
+    const r = repo.run(['abandon', '--ssh-key', repo.keys.close, '--reason', '"wrong branch"']);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/ABANDONED T01/);
+    expect(repo.run(['status']).out).toMatch(/ABANDONED/);
+
+    // The branch is free: a new session may start on it.
+    const again = repo.run([
+      'start',
+      '--agent',
+      'T02',
+      '--harness',
+      'vitest',
+      '--task',
+      'the real work',
+      '--authorized-by',
+      'owner',
+    ]);
+    expect(again.code).toBe(0);
+  });
+
+  it('refuses to abandon with the seal key', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+
+    const r = repo.run(['abandon', '--ssh-key', repo.keys.seal, '--reason', '"r"']);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/abandoning requires `macp-close`/);
+  });
+
+  it('refuses to close with the seal key — a signature is not enough', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+
+    const r = repo.run(['close', '--ssh-key', repo.keys.seal]);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/closing requires `macp-close`/);
+  });
+
+  it('refuses to seal with the close key', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    commit(repo, 'feat: work');
+    finish(repo, ['--outcome', 'COMPLETED', '--completed', 'x']);
+
+    const r = repo.run([
+      'seal',
+      '--session',
+      'T01',
+      '--instruction',
+      'x',
+      '--ssh-key',
+      repo.keys.close,
+    ]);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/sealing requires `macp-seal`/);
+  });
+
+  it('refuses to reopen with the seal key', () => {
+    const repo = makeRepo();
+    sealed(repo);
+
+    const r = repo.run([
+      'reopen',
+      '--session',
+      'T01',
+      '--ssh-key',
+      repo.keys.seal,
+      '--reason',
+      'r',
+      '--delta',
+      'd',
+    ]);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/reopening requires `macp-reopen`/);
+  });
 });
 
 describe('macp runtime — onboarding', () => {
+  it('refuses an authority made of keys that have no passphrase', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'macp-authority-'));
+    const keys = mkdtempSync(path.join(tmpdir(), 'macp-keys-'));
+    cleanups.push(() => rmSync(dir, { recursive: true, force: true }));
+    cleanups.push(() => rmSync(keys, { recursive: true, force: true }));
+    execFileSync('git', ['init', '-q', '-b', 'master', dir], { encoding: 'utf8' });
+    spawnSync('node', [CLI, 'init-repo'], { cwd: dir, encoding: 'utf8' });
+    for (const name of ['macp_close', 'macp_seal', 'macp_reopen', 'macp_destroy']) {
+      execFileSync('ssh-keygen', ['-q', '-t', 'ed25519', '-N', '', '-f', path.join(keys, name)]);
+    }
+
+    const r = spawnSync('node', [CLI, 'init-authority', '--dir', keys], {
+      cwd: dir,
+      encoding: 'utf8',
+    });
+    expect(r.status).toBe(1);
+    expect(`${r.stdout ?? ''}${r.stderr ?? ''}`).toMatch(/no passphrase/);
+  });
+
+  it('refuses an authority made of keys that have no passphrase', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'macp-authority-'));
+    const keys = mkdtempSync(path.join(tmpdir(), 'macp-keys-'));
+    cleanups.push(() => rmSync(dir, { recursive: true, force: true }));
+    cleanups.push(() => rmSync(keys, { recursive: true, force: true }));
+    execFileSync('git', ['init', '-q', '-b', 'master', dir], { encoding: 'utf8' });
+    spawnSync('node', [CLI, 'init-repo'], { cwd: dir, encoding: 'utf8' });
+    for (const name of ['macp_close', 'macp_seal', 'macp_reopen', 'macp_destroy']) {
+      execFileSync('ssh-keygen', ['-q', '-t', 'ed25519', '-N', '', '-f', path.join(keys, name)]);
+    }
+
+    const r = spawnSync('node', [CLI, 'init-authority', '--dir', keys], {
+      cwd: dir,
+      encoding: 'utf8',
+    });
+    expect(r.status).toBe(1);
+    expect(`${r.stdout ?? ''}${r.stderr ?? ''}`).toMatch(/no passphrase/);
+  });
+
+  it('accepts the `--` separator that pnpm forwards', () => {
+    const repo = makeRepo();
+    // `pnpm run macp -- status` used to fail with `unknown command "--"`.
+    const r = spawnSync('node', [CLI, '--', 'status'], {
+      cwd: repo.dir,
+      encoding: 'utf8',
+      env: { ...process.env, MACP_HOME: repo.home },
+    });
+    expect(r.status).toBe(0);
+  });
+
   it('init-repo scaffolds state/ and installs the guard', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'macp-init-'));
     const home = mkdtempSync(path.join(tmpdir(), 'macp-init-home-'));

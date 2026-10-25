@@ -15,6 +15,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { section } from './session.mjs';
+import { REGION_BEGIN, REGION_END } from './handoff.mjs';
 
 const DEFAULT_SECTION_LINES = 60;
 
@@ -35,6 +36,27 @@ export function continuationSection(root, title, limit = DEFAULT_SECTION_LINES) 
   if (!text) return null;
   const body = section(text, title);
   return body ? bounded(body.replace(/^## .*\n?/, ''), limit) : null;
+}
+
+/**
+ * The machine-written handoff region at the top of CONTINUATION.md.
+ *
+ * `macp close` writes `## Handoff — <id>`, while this brief used to read
+ * `## READ THIS FIRST` — a heading nothing writes. The audit's F-12: the handoff
+ * existed, was never printed, and a fresh repository showed "Nothing yet"
+ * forever. READ THIS FIRST is now the fallback, not the source.
+ */
+export function handoffRegion(root, limit = DEFAULT_SECTION_LINES) {
+  const text = readState(root, 'CONTINUATION.md');
+  if (!text) return null;
+  const begin = text.indexOf(REGION_BEGIN);
+  if (begin === -1) return null;
+  const end = text.indexOf(REGION_END, begin);
+  const body = end === -1 ? text.slice(begin) : text.slice(begin, end + REGION_END.length);
+  const stripped = body
+    .replace(new RegExp(`^${REGION_BEGIN}\\s*`), '')
+    .replace(new RegExp(`\\s*${REGION_END}$`), '');
+  return bounded(stripped, limit);
 }
 
 /** Unchecked queue entries — the `BUG_FOUND` / `DEFERRED` backlog. */
@@ -88,6 +110,13 @@ export function buildBrief({
   out.push(`- task: ${task}`);
   out.push(`- authorized by: ${authorizedBy}`);
   out.push('');
+
+  const handoff = handoffRegion(root, Math.max(limit, 90));
+  if (handoff) {
+    out.push('## state/CONTINUATION.md — the previous handoff (machine-stamped)');
+    out.push(handoff);
+    out.push('');
+  }
 
   const readFirst = continuationSection(root, 'READ THIS FIRST', limit);
   if (readFirst) {

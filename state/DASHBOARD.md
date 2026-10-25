@@ -6,15 +6,15 @@
 
 <!-- macp:generated:begin -->
 
-**Machine Reconciled:** 2026-10-25T09:01:03.663+05:45
+**Machine Reconciled:** 2026-10-25T10:15:27.542+05:45
 **Reconciled by:** `scripts/auto-update-state.mjs` (post-commit) — every value below is measured
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
 
 - **Version:** 2.28.7
-- **Branch:** `feat/macp-runtime-v2`
-- **Tracked markdown:** 151
-- **ADRs:** <!-- usa:fact adrs -->45<!-- /usa:fact -->
+- **Branch:** `audit/macp-enforcement`
+- **Tracked markdown:** 156
+- **ADRs:** <!-- usa:fact adrs -->46<!-- /usa:fact -->
 
 > This block is generated. Edit anything outside it, never inside it: the next
 > commit overwrites the block, and `**Owner Reconciled:**` above is the field a

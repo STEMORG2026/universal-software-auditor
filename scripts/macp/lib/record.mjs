@@ -17,6 +17,7 @@ import {
   field,
   listSessions,
   section,
+  sessionsForBranch,
 } from './session.mjs';
 import { getLease } from './lease.mjs';
 import { appendQueue, ensureQueue, resolveQueue } from './statefiles.mjs';
@@ -124,14 +125,32 @@ export function status() {
   const root = repoRoot();
   if (!root) return { code: 2, out: 'not inside a git repository' };
   const branch = currentBranch(root);
-  const session = activeSessionForBranch(root, branch);
+  // A submitted session is not active, but it is not absent either: it is the
+  // state the owner has to act on, so `status` must name it rather than print
+  // "none" and let the reader conclude the branch is free.
+  // A finished session is not absent: it is finished. `status` must name the
+  // state rather than print "none" and let the reader conclude the branch is free.
+  const session =
+    activeSessionForBranch(root, branch) ??
+    sessionsForBranch(root, branch).find(
+      (s) => s.status === STATUS.AWAITING_USER || s.status === STATUS.ABANDONED,
+    ) ??
+    null;
   const lease = getLease(root, repoId(root), branch);
 
   const lines = [
     `branch:  ${branch}`,
     `session: ${session ? `${session.id} (${session.status})` : 'none'}`,
     `lease:   ${lease ? `${lease.state} since ${lease.startedAt}` : 'none'}`,
-    `mode:    ${session && lease ? 'ACTIVE' : 'UNBOUND'}`,
+    `mode:    ${
+      session?.status === STATUS.AWAITING_USER
+        ? 'AWAITING-USER'
+        : session?.status === STATUS.ABANDONED
+          ? 'ABANDONED'
+          : session && lease
+            ? 'ACTIVE'
+            : 'UNBOUND'
+    }`,
   ];
   if (session) {
     lines.push(

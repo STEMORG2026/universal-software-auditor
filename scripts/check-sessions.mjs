@@ -37,7 +37,7 @@ const SESSIONS = path.join(ROOT, 'state', 'sessions');
 const INDEX = path.join(ROOT, 'state', 'INDEX.md');
 const REGISTRY = path.join(ROOT, 'state', 'REGISTRY.md');
 
-const STATUSES = new Set(['IN-PROGRESS', 'COMPLETED', 'CLOSED', 'REOPENED']);
+const STATUSES = new Set(['IN-PROGRESS', 'AWAITING-USER', 'COMPLETED', 'CLOSED', 'REOPENED']);
 const REQUIRED = ['Agent', 'Harness', 'History', 'Branch', 'Started', 'Status', 'Base commit'];
 
 const git = (...args) =>
@@ -157,6 +157,22 @@ function checkFile(file, findings) {
   return { id, status: status?.split(/[ (]/)[0] ?? null, rel };
 }
 
+/** A row in INDEX.md whose session file no longer exists. */
+function checkOrphanRows(rows, findings) {
+  if (!fs.existsSync(INDEX)) return;
+  const known = new Set(rows.map((row) => row.id));
+  for (const line of fs.readFileSync(INDEX, 'utf8').split('\n')) {
+    if (!line.startsWith('|')) continue;
+    const id = line.split('|')[1]?.replace(/`/g, '').trim();
+    if (!/^[A-Z]{1,4}\d{1,3}$/.test(id ?? '')) continue;
+    if (!known.has(id)) {
+      findings.push(
+        `INDEX.md has a row for ${id} but state/sessions/ holds no such file — the record was deleted, not closed`,
+      );
+    }
+  }
+}
+
 /** Every session must appear in INDEX.md with the status its own file claims. */
 function checkIndex(rows, findings) {
   if (!fs.existsSync(INDEX)) {
@@ -206,6 +222,7 @@ const findings = [];
 const rows = sessionFiles().map((f) => checkFile(f, findings));
 if (rows.length === 0) findings.push('state/sessions/ holds no session files');
 checkIndex(rows, findings);
+checkOrphanRows(rows, findings);
 checkRegistry(rows, findings);
 
 if (findings.length === 0) {

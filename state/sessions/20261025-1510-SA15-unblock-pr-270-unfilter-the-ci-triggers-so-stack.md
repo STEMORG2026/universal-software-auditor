@@ -17,3 +17,11 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 > set up a second worktree
 
 ## Log
+
+### 09:57 — Commit
+
+`cdfd8b5` Merge remote-tracking branch 'origin/feat/macp-runtime-v2' into audit/macp-enforcement
+
+### 10:15 — Commit
+
+`a7463e5` fix(macp): freeze the source while a session is CLOSING

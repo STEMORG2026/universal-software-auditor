@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -278,11 +278,30 @@ describe('check-session-start gate — the skipped-startup defect', () => {
     plan(f.dir);
     registry(f.dir, '### TEST\n');
     lease(f.home, f.dir, 'feat/x');
-    const leaseDir = path.join(f.home, 'leases');
-    const leaseFile = path.join(leaseDir, readdirSync(leaseDir)[0]!);
-    const leases = JSON.parse(readFileSync(leaseFile, 'utf8'));
+    const leases = JSON.parse(
+      execFileSync(
+        'cat',
+        [
+          path.join(
+            f.home,
+            'leases',
+            execFileSync('ls', [path.join(f.home, 'leases')], { encoding: 'utf8' }).trim(),
+          ),
+        ],
+        {
+          encoding: 'utf8',
+        },
+      ),
+    );
     leases.leases['feat/x'].session = 'OTHER9';
-    writeFileSync(leaseFile, JSON.stringify(leases));
+    writeFileSync(
+      path.join(
+        f.home,
+        'leases',
+        execFileSync('ls', [path.join(f.home, 'leases')], { encoding: 'utf8' }).trim(),
+      ),
+      JSON.stringify(leases),
+    );
     const r = run(f);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/belongs to OTHER9/);
@@ -468,5 +487,55 @@ describe('check-session-start gate — a reopened session', () => {
     const r = run(f);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/none is IN-PROGRESS or REOPENED/);
+  });
+});
+
+describe('check-session-start gate — a submitted session', () => {
+  /**
+   * A session the agent has submitted: work is over, the report is written, and
+   * the owner has not closed it. `AWAITING-USER` is terminal for the agent, so
+   * the commit that records the report must be allowed — and only that.
+   */
+  function submitted(dir: string, codeCommit: string) {
+    mkdirSync(path.join(dir, 'state/sessions'), { recursive: true });
+    writeFileSync(
+      path.join(dir, 'state/sessions/20261002-0000-TEST-submitted.md'),
+      `**Agent:** TEST (tester)\n**Harness:** vitest\n**History:** not exported\n` +
+        `**Branch:** feat/x\n**Started:** 2026-10-02T00:00:00+05:45\n` +
+        `**Status:** AWAITING-USER\n**Base commit:** abc1234\n\n` +
+        `## Submit report\n\nMachine-stamped from \`macp submit\`. Code commit \`${codeCommit}\`.\n`,
+    );
+  }
+
+  it('allows the commit that records the report', () => {
+    const f = fixture({ branch: 'feat/x', work: false });
+    submitted(f.dir, git(f.dir, ['rev-parse', 'HEAD']));
+    git(f.dir, ['add', 'state']);
+
+    const r = run(f);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/submitted session, state-only change/);
+  });
+
+  it('refuses a source change after the report was submitted', () => {
+    const f = fixture({ branch: 'feat/x', work: false });
+    submitted(f.dir, git(f.dir, ['rev-parse', 'HEAD']));
+    writeFileSync(path.join(f.dir, 'src.js'), 'late\n');
+    git(f.dir, ['add', '-A']);
+
+    const r = run(f);
+    expect(r.code).toBe(1);
+  });
+
+  it('refuses a source file that was committed after the report', () => {
+    const f = fixture({ branch: 'feat/x', work: false });
+    const code = git(f.dir, ['rev-parse', 'HEAD']);
+    submitted(f.dir, code);
+    writeFileSync(path.join(f.dir, 'src.js'), 'late\n');
+    git(f.dir, ['add', 'src.js']);
+    git(f.dir, ['commit', '-qm', 'feat: late']);
+
+    const r = run(f);
+    expect(r.code).toBe(1);
   });
 });

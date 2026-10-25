@@ -51,6 +51,7 @@ const PLANS_DIR = path.join(stateDir, 'plans');
 const REGISTRY = path.join(stateDir, 'REGISTRY.md');
 
 const ACTIVE = new Set(['IN-PROGRESS', 'REOPENED']);
+const SUBMITTED = new Set(['AWAITING-USER']);
 const TERMINAL = new Set(['COMPLETED', 'CLOSED']);
 const BOT_BRANCH = /^(dependabot\/|changeset-release\/|provenance\/|renovate\/)/;
 
@@ -348,6 +349,31 @@ function isSealingCommit(sessions, branch) {
   );
 }
 
+/**
+ * The commit that records a submit, on a session the agent has already reported.
+ *
+ * `AWAITING-USER` is terminal for the agent but not for the owner, so the report
+ * has to be committable. It is a narrower door than the close path: the whole
+ * diff since the code commit the gates measured must be `state/`, which is what
+ * stops a source change riding in on the commit that records the report.
+ */
+function isSubmitCommit(sessions, branch) {
+  const owned = sessions.filter((session) => session.branches.includes(branch));
+  const session = owned[owned.length - 1];
+  if (!session || !SUBMITTED.has(session.status)) return false;
+
+  const codeCommit = [...session.text.matchAll(/Code commit `([0-9a-f]{7,40})`/g)].pop()?.[1];
+  if (!codeCommit) return false;
+
+  const committed = git(['diff', '--name-only', codeCommit, 'HEAD']).split('\n').filter(Boolean);
+  const pending = git(['status', '--porcelain'])
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => line.replace(/^[ MADRCU?!]{1,2}\s+/, '').trim());
+
+  return [...committed, ...pending].every((rel) => rel.startsWith('state/'));
+}
+
 /* -------------------------------------------------------------------- run -- */
 
 const branch = currentBranch();
@@ -379,6 +405,8 @@ if (!branch || branch === 'HEAD') {
   console.log(`session start: ${branch} carries no staged change and no commit ahead of master.`);
 } else if (isSealingCommit(sessions, branch)) {
   console.log(`session start: OK (${branch}) — recording a finished session, state-only change`);
+} else if (isSubmitCommit(sessions, branch)) {
+  console.log(`session start: OK (${branch}) — recording a submitted session, state-only change`);
 } else {
   const session = checkActiveSession(sessions, branch);
   checkLease(session, branch);

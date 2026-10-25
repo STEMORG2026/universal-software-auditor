@@ -197,6 +197,12 @@ standalone:
   - file: state/sessions/20261024-1840-SA12-macp-runtime-v2.md
     reviewed: 2026-10-24
     reason: 'MACP state — SA12 session file (MACP runtime, pre-work gate, SSH seal)'
+  - file: state/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md
+    reviewed: 2026-10-24
+    reason: 'MACP state — SA13 session file (MACP enforcement audit, 22 findings, remediation plan)'
+  - file: state/plans/agent-SA13-audit-whether-macp-is-functionally-complete-and-.md
+    reviewed: 2026-10-24
+    reason: 'MACP state — SA13 plan (the 16-point audit approach, retained as evidence)'
   - file: state/sessions/20261025-1510-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md
     reviewed: 2026-10-25
     reason: 'MACP state — SA15 session file (unblock PR 270: test isolation, unfiltered CI triggers)'

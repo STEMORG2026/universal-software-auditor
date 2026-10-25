@@ -10,7 +10,7 @@
  * second implementation of any rule.
  */
 import { createBackend, JARVIS_ROUTES } from './lib/backend.mjs';
-import { initRepo, installHooks } from './lib/install.mjs';
+import { initAuthority, initRepo, installHooks } from './lib/install.mjs';
 
 const COMMANDS = {
   start: {
@@ -39,8 +39,8 @@ const COMMANDS = {
     values: ['done'],
     flags: [],
   },
-  close: {
-    summary: 'freeze, run the gates, and write the handoff',
+  submit: {
+    summary: 'agent: freeze, run the gates, record the report, wait for the owner',
     values: [
       'outcome',
       'completed',
@@ -55,6 +55,21 @@ const COMMANDS = {
     flags: ['prepare', 'no-gates'],
     multi: ['completed', 'remaining', 'discovered', 'deferred', 'traps', 'required-context'],
   },
+  close: {
+    summary: 'owner: close a submitted session (AWAITING-USER -> COMPLETED)',
+    values: ['ssh-key'],
+    flags: [],
+  },
+  resume: {
+    summary: 'owner: let a submitted session continue (AWAITING-USER -> ACTIVE)',
+    values: ['ssh-key', 'reason'],
+    flags: [],
+  },
+  abandon: {
+    summary: 'owner: stop an unfinished session (ACTIVE -> ABANDONED)',
+    values: ['ssh-key', 'reason'],
+    flags: [],
+  },
   seal: {
     summary: 'owner-seal a COMPLETED session with an SSH signature',
     values: ['session', 'instruction', 'ssh-key', 'outcome', 'summary'],
@@ -67,6 +82,11 @@ const COMMANDS = {
   },
   status: { summary: 'what the state machine thinks right now', values: [], flags: [] },
   verify: { summary: 'verify every seal and reopen offline', values: [], flags: [] },
+  'init-authority': {
+    summary: 'write state/macp/allowed_signers from four public keys (owner, once)',
+    values: ['dir', 'cwd'],
+    flags: ['force'],
+  },
   'init-repo': {
     summary: 'scaffold state/ and install the guard',
     values: ['cwd'],
@@ -146,7 +166,7 @@ function request(name, args) {
       };
     case 'queue':
       return { done: args.done };
-    case 'close':
+    case 'submit':
       return {
         prepare: args.prepare === true,
         runGates: args.noGates !== true,
@@ -160,6 +180,12 @@ function request(name, args) {
         next: args.next,
         requiredContext: args.requiredContext ?? [],
       };
+    case 'close':
+      return { sshKey: args.sshKey };
+    case 'resume':
+      return { sshKey: args.sshKey, reason: args.reason };
+    case 'abandon':
+      return { sshKey: args.sshKey, reason: args.reason };
     case 'seal':
       return {
         session: args.session,
@@ -175,6 +201,8 @@ function request(name, args) {
         reason: args.reason,
         delta: args.delta,
       };
+    case 'init-authority':
+      return { dir: args.dir, cwd: args.cwd, force: args.force === true };
     case 'init-repo':
       return { cwd: args.cwd, force: args.force === true };
     case 'install-hooks':
@@ -188,6 +216,8 @@ function validate(name, args) {
   const required = {
     start: ['agent', 'harness', 'task', 'authorizedBy'],
     log: ['type', 'summary'],
+    resume: ['sshKey', 'reason'],
+    abandon: ['sshKey', 'reason'],
     seal: ['session', 'instruction'],
     reopen: ['session', 'reason', 'delta'],
     'install-hooks': ['harness'],
@@ -199,7 +229,11 @@ function validate(name, args) {
     : `missing required flag(s): ${missing.map((key) => `--${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`).join(', ')}`;
 }
 
-async function main(argv) {
+async function main(rawArgv) {
+  // `pnpm run macp -- start …` forwards the separator as an argument, and the
+  // documented invocation is exactly that. Drop leading `--` tokens rather than
+  // reporting `unknown command "--"`.
+  const argv = rawArgv[0] === '--' ? rawArgv.slice(1) : rawArgv;
   const [name, ...rest] = argv;
   if (!name || name === '--help' || name === '-h' || name === 'help') {
     console.log(usage());
@@ -218,6 +252,11 @@ async function main(argv) {
     return 2;
   }
 
+  if (name === 'init-authority') {
+    const result = initAuthority(request(name, args));
+    console.log(result.out);
+    return result.code;
+  }
   if (name === 'init-repo') {
     const result = initRepo(request(name, args));
     console.log(result.out);

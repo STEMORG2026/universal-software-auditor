@@ -18,6 +18,7 @@ import {
   headSha,
   repoId,
   repoRoot,
+  readJson,
   shortSha,
   writeJson,
   writeText,
@@ -31,6 +32,7 @@ import {
   looksLikeId,
   nextSessionId,
   renderSession,
+  section,
   sessionFileName,
   sessionsDir,
   sessionsForBranch,
@@ -57,9 +59,19 @@ import { buildBrief } from './brief.mjs';
 import { DEFAULT_GATES, failedGates, runGates } from './gates.mjs';
 import { handoffPath, renderHandoff, validateHandoff, writeHandoffRegion } from './handoff.mjs';
 import {
+  ACTS,
+  abandonPayload,
+  agentLoadedRefusal,
+  allowedSignersPath,
+  closePayload,
   keyFingerprint,
+  keyFingerprintOfKey,
+  keyLoadedInAgent,
   normaliseInstruction,
+  principalFor,
+  readSigners,
   reopenPayload,
+  resumePayload,
   sealPayload,
   signPayload,
   verifyPayload,
@@ -151,6 +163,7 @@ export function start(options) {
     harness: options.harness,
     baseCommit:
       options.baseCommit || git(['merge-base', 'HEAD', 'master'], { cwd: root, allowFail: true }),
+    startHeadSha: headSha(root),
   });
 
   const conflict = conflictingLease(id, lease);
@@ -278,7 +291,16 @@ function closeAbort(out) {
   return { code: 1, out };
 }
 
-export function close(options) {
+/**
+ * The agent's terminal act: freeze, run the gates, record the report, and stop.
+ *
+ * This used to be `close`, and `close` wrote `COMPLETED` with no key at all.
+ * That conflated two different claims — "I am finished" (the agent's, unsigned)
+ * and "this session is closed" (the owner's) — and let an agent reach a terminal
+ * state alone. `submit` produces `AWAITING-USER`: work over, report written, and
+ * nothing further permitted until the owner acts.
+ */
+export function submit(options) {
   const context = requireRepo();
   if (context.error) return { code: 2, out: context.error };
   const { root, id } = context;
@@ -332,9 +354,18 @@ export function close(options) {
   const results = options.runGates ? runGates(root, gateNames) : [];
   const gateRecord = Object.fromEntries(results.map((result) => [result.name, result]));
 
-  const commits = git(['log', '--format=%h %s', `master..HEAD`], { cwd: root, allowFail: true })
+  // Attribute only what this session did. `master..HEAD` credited a stacked
+  // session with the commits of the session it was cut from (F-14).
+  const startHead = lease.startHeadSha ?? field(session.text, 'Base commit') ?? '';
+  const range = startHead ? `${startHead}..HEAD` : 'master..HEAD';
+  const commits = git(['log', '--format=%h %s', range], { cwd: root, allowFail: true })
     .split('\n')
     .filter(Boolean);
+  const filesChanged = startHead
+    ? git(['diff', '--name-status', startHead, 'HEAD'], { cwd: root, allowFail: true })
+        .split('\n')
+        .filter(Boolean)
+    : [];
 
   const handoff = {
     schema: 'macp-handoff-v1',
@@ -343,9 +374,12 @@ export function close(options) {
     harness: field(session.text, 'Harness'),
     branch,
     base_commit_sha: field(session.text, 'Base commit') ?? '',
+    start_head_sha: startHead,
     code_commit_sha: headSha(root),
     working_tree_clean: dirtySource(root).length === 0,
     commits,
+    files_changed: filesChanged,
+    objective: (section(session.text, 'Objective') ?? '').replace(/^## Objective\s*/, '').trim(),
     open_prs: openPrsFor(root, branch),
     gates: gateRecord,
     outcome: options.outcome,
@@ -386,11 +420,11 @@ export function close(options) {
   let text = readFileSync(session.file, 'utf8');
   text = appendToSection(
     text,
-    'Close report',
+    'Submit report',
     [
       `**Outcome:** ${handoff.outcome}`,
       '',
-      `Machine-stamped at ${handoff.closed_at} from \`macp close\`. Code commit \`${handoff.code_commit_sha.slice(0, 7)}\`.`,
+      `Machine-stamped at ${handoff.closed_at} from \`macp submit\`. Code commit \`${handoff.code_commit_sha.slice(0, 7)}\`.`,
       '',
       '| Gate | Exit | Time |',
       '| ---- | ---- | ---- |',
@@ -399,6 +433,150 @@ export function close(options) {
       `Remaining: ${handoff.remaining.length === 0 ? 'none' : `${handoff.remaining.length} item(s)`}`,
       '',
       `Next: ${handoff.next_recommended_task || '—'}`,
+    ].join('\n'),
+  );
+  text = withStatus(text, STATUS.AWAITING_USER);
+  writeText(session.file, text);
+
+  // The agent keeps its REGISTRY entry and the lease: it still owns the branch
+  // until the owner closes, but the lease state is AWAITING-USER, which the
+  // pre-tool guard treats as "no mutations" — the same refusal as UNBOUND.
+  putLease(id, {
+    ...lease,
+    state: 'AWAITING-USER',
+    codeCommitSha: handoff.code_commit_sha,
+    submittedAt: handoff.closed_at,
+  });
+  setIndexStatus(root, session.id, STATUS.AWAITING_USER);
+
+  return {
+    code: 0,
+    out:
+      `AWAITING-USER ${session.id} — ${handoff.outcome}\n` +
+      `  report:  state/macp/handoff/${session.id}.json + the region at the top of state/CONTINUATION.md\n` +
+      `  gates:   ${results.length === 0 ? 'none run' : results.map((r) => `${r.name}=${r.exit}`).join(' ')}\n` +
+      `  tree:    ${handoff.code_commit_sha.slice(0, 7)} — the owner closes this exact tree\n` +
+      '  next:    the owner runs `macp close`, then `macp seal`',
+  };
+}
+
+/* ------------------------------------------------------------------- close -- */
+
+/**
+ * The owner's act: `AWAITING-USER → COMPLETED`.
+ *
+ * It runs no gates — they ran at submit — but it refuses when any non-`state/`
+ * file changed after the commit those gates measured. That is what makes a gate
+ * result evidence rather than a claim: the tree being closed is the tree that
+ * was verified. It is also the check that closes the audit's F-08, where a
+ * source change could ride in on the commit that recorded the close.
+ */
+export function close(options) {
+  const context = requireRepo();
+  if (context.error) return { code: 2, out: context.error };
+  const { root, id } = context;
+  const branch = currentBranch(root);
+
+  const session = sessionsForBranch(root, branch).find(
+    (candidate) => candidate.status === STATUS.AWAITING_USER,
+  );
+  if (!session) {
+    const active = activeSessionForBranch(root, branch);
+    return closeAbort(
+      active
+        ? `${active.id} is ${active.status}. The agent reports with \`macp submit\` first — a close ` +
+            'acts on a submitted session, not on work in progress.'
+        : `no submitted session on ${branch} — nothing to close.`,
+    );
+  }
+
+  const handoff = readJson(handoffPath(root, session.id));
+  if (!handoff) {
+    return closeAbort(
+      `${session.id} is ${session.status} but state/macp/handoff/${session.id}.json is missing — ` +
+        'there is no report to close on.',
+    );
+  }
+
+  const changed = git(['diff', '--name-only', handoff.code_commit_sha, 'HEAD'], {
+    cwd: root,
+    allowFail: true,
+  })
+    .split('\n')
+    .filter(Boolean);
+  const source = changed.filter((rel) => !rel.startsWith('state/'));
+  if (source.length > 0) {
+    return closeAbort(
+      `source changed after the gates ran at ${String(handoff.code_commit_sha).slice(0, 7)}:\n` +
+        `${source.map((rel) => `  ${rel}`).join('\n')}\n` +
+        'The report describes a tree that no longer exists. Return to work and submit again.',
+    );
+  }
+
+  const dirty = dirtySource(root);
+  if (dirty.length > 0) {
+    return closeAbort(
+      `the tree is not clean:\n${dirty.map((rel) => `  ${rel}`).join('\n')}\n` +
+        'Commit or revert before closing.',
+    );
+  }
+
+  // The owner's act, so it needs the owner's key — the close principal, not the
+  // seal key and not the reopen key (ADR-0046).
+  const signers = readSigners(allowedSignersPath(root));
+  if (signers.size === 0) {
+    return closeAbort(
+      "no authority file at state/macp/allowed_signers. A close is the owner's act and needs " +
+        `the \`${ACTS.close}\` key. Run \`macp init-authority\` once with the four public keys.`,
+    );
+  }
+  if (!options.sshKey || !existsSync(options.sshKey)) {
+    return closeAbort(
+      `no SSH private key at ${options.sshKey ?? '(none given)'}. Closing requires the ` +
+        `\`${ACTS.close}\` key: pass --ssh-key <path>.`,
+    );
+  }
+  const principal = principalFor(options.sshKey, signers);
+  if (principal !== ACTS.close) {
+    return closeAbort(
+      `the key at ${options.sshKey} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; ` +
+        `closing requires \`${ACTS.close}\`. A valid signature is not enough — it must be the ` +
+        'principal this act is reserved for.',
+    );
+  }
+
+  if (keyLoadedInAgent(options.sshKey)) {
+    return closeAbort(agentLoadedRefusal(options.sshKey, ACTS.close));
+  }
+
+  if (keyLoadedInAgent(options.sshKey)) {
+    return closeAbort(agentLoadedRefusal(options.sshKey, ACTS.close));
+  }
+
+  const closedAt = isoLocal();
+  const signed = signPayload(
+    closePayload({
+      repo: id,
+      session: session.id,
+      agent: field(session.text, 'Agent') ?? '',
+      branch,
+      codeCommit: handoff.code_commit_sha,
+      outcome: handoff.outcome,
+      closedAt,
+    }),
+    options.sshKey,
+  );
+
+  let text = readFileSync(session.file, 'utf8');
+  text = appendToSection(
+    text,
+    'Close authorization',
+    [
+      `- **Closed by:** owner — principal \`${ACTS.close}\``,
+      `- **Closed at:** ${closedAt}`,
+      `- **Outcome:** ${handoff.outcome}`,
+      `- **Code commit:** ${handoff.code_commit_sha}`,
+      `- **Close signature:** ${signed.signature}`,
     ].join('\n'),
   );
   text = withStatus(text, STATUS.COMPLETED);
@@ -412,9 +590,198 @@ export function close(options) {
     code: 0,
     out:
       `COMPLETED ${session.id} — ${handoff.outcome}\n` +
-      `  handoff: state/macp/handoff/${session.id}.json + the region at the top of state/CONTINUATION.md\n` +
-      `  gates:   ${results.length === 0 ? 'none run' : results.map((r) => `${r.name}=${r.exit}`).join(' ')}\n` +
+      `  verified tree: ${String(handoff.code_commit_sha).slice(0, 7)} (unchanged since submit)\n` +
       '  next:    the owner seals it with `macp seal`',
+  };
+}
+
+/* ------------------------------------------------------------------ resume -- */
+
+/**
+ * The owner letting a submitted session continue: `AWAITING-USER → ACTIVE`.
+ *
+ * This door did not exist, and its absence is what locked SA13. I submitted when
+ * the gates were green rather than when the objective was complete, and the only
+ * ways back were the owner's key through close/seal/reopen — three acts — or a
+ * hand edit of the status line (F-23). The owner's rule is that new work is done
+ * in the same session, and that rule needed a lawful path.
+ *
+ * It is signed, because handing control back to the agent is exactly the kind of
+ * transition that must not be self-service.
+ */
+export function resume(options) {
+  const context = requireRepo();
+  if (context.error) return { code: 2, out: context.error };
+  const { root, id } = context;
+  const branch = currentBranch(root);
+
+  const session = sessionsForBranch(root, branch).find(
+    (candidate) => candidate.status === STATUS.AWAITING_USER,
+  );
+  if (!session) {
+    return {
+      code: 1,
+      out: `no submitted session on ${branch} — nothing to resume. Only an AWAITING-USER session can be resumed.`,
+    };
+  }
+
+  const signers = readSigners(allowedSignersPath(root));
+  if (signers.size === 0) {
+    return {
+      code: 1,
+      out: 'no authority file at state/macp/allowed_signers — a resume is an owner act.',
+    };
+  }
+  if (!options.sshKey || !existsSync(options.sshKey)) {
+    return { code: 1, out: 'resuming requires the owner key: pass --ssh-key <path>.' };
+  }
+  const principal = principalFor(options.sshKey, signers);
+  if (principal !== ACTS.close) {
+    return {
+      code: 1,
+      out:
+        `the key at ${options.sshKey} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; ` +
+        `resuming requires \`${ACTS.close}\`.`,
+    };
+  }
+  if (keyLoadedInAgent(options.sshKey)) {
+    return { code: 1, out: agentLoadedRefusal(options.sshKey, ACTS.close) };
+  }
+
+  const resumedAt = isoLocal();
+  const reason = normaliseInstruction(options.reason);
+  const signed = signPayload(
+    resumePayload({
+      repo: id,
+      session: session.id,
+      agent: field(session.text, 'Agent') ?? '',
+      branch,
+      codeCommit: headSha(root),
+      reason,
+      resumedAt,
+    }),
+    options.sshKey,
+  );
+
+  let text = readFileSync(session.file, 'utf8');
+  text = appendToSection(
+    text,
+    'Resume',
+    [
+      `- **Resumed by:** owner — principal \`${ACTS.close}\``,
+      `- **Resumed at:** ${resumedAt}`,
+      `- **Code commit:** ${headSha(root)}`,
+      `- **Reason:** ${reason}`,
+      `- **Resume signature:** ${signed.signature}`,
+    ].join('\n'),
+  );
+  text = withStatus(text, STATUS.IN_PROGRESS);
+  writeText(session.file, text);
+
+  const store = readLeases(id);
+  const existing = store.leases[branch];
+  putLease(id, {
+    ...(existing ?? {}),
+    branch,
+    session: session.id,
+    state: 'ACTIVE',
+    startedAt: existing?.startedAt ?? resumedAt,
+    heartbeatAt: resumedAt,
+    codeCommitSha: undefined,
+    closingAt: undefined,
+  });
+  upsertActiveAgent(root, session.id, session.text);
+  setIndexStatus(root, session.id, STATUS.IN_PROGRESS);
+
+  return {
+    code: 0,
+    out:
+      `RESUMED ${session.id} — ${reason}\n` +
+      '  the session is ACTIVE again; work may continue in the same session',
+  };
+}
+
+/* ----------------------------------------------------------------- abandon -- */
+
+/**
+ * The owner stopping work that was never finished.
+ *
+ * A mistaken or mis-scoped session had no lawful exit: it could be closed, which
+ * asserts the work is done, or hand-edited back to `IN-PROGRESS` (F-23). Abandon
+ * is the third path, and it is signed like every other owner act.
+ */
+export function abandon(options) {
+  const context = requireRepo();
+  if (context.error) return { code: 2, out: context.error };
+  const { root, id } = context;
+  const branch = currentBranch(root);
+
+  const session = activeSessionForBranch(root, branch);
+  if (!session) {
+    return { code: 1, out: `no active session on ${branch} — nothing to abandon.` };
+  }
+
+  const signers = readSigners(allowedSignersPath(root));
+  if (signers.size === 0) {
+    return {
+      code: 1,
+      out: 'no authority file at state/macp/allowed_signers — an abandon is an owner act.',
+    };
+  }
+  if (!options.sshKey || !existsSync(options.sshKey)) {
+    return { code: 1, out: 'abandoning requires the owner key: pass --ssh-key <path>.' };
+  }
+  const principal = principalFor(options.sshKey, signers);
+  if (principal !== ACTS.close) {
+    return {
+      code: 1,
+      out:
+        `the key at ${options.sshKey} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; ` +
+        `abandoning requires \`${ACTS.close}\`.`,
+    };
+  }
+  if (keyLoadedInAgent(options.sshKey)) {
+    return { code: 1, out: agentLoadedRefusal(options.sshKey, ACTS.close) };
+  }
+
+  const abandonedAt = isoLocal();
+  const reason = normaliseInstruction(options.reason);
+  const signed = signPayload(
+    abandonPayload({
+      repo: id,
+      session: session.id,
+      agent: field(session.text, 'Agent') ?? '',
+      branch,
+      codeCommit: headSha(root),
+      reason,
+      abandonedAt,
+    }),
+    options.sshKey,
+  );
+
+  let text = readFileSync(session.file, 'utf8');
+  text = appendToSection(
+    text,
+    'Abandon',
+    [
+      `- **Abandoned by:** owner — principal \`${ACTS.close}\``,
+      `- **Abandoned at:** ${abandonedAt}`,
+      `- **Reason:** ${reason}`,
+      `- **Abandon signature:** ${signed.signature}`,
+    ].join('\n'),
+  );
+  text = withStatus(text, STATUS.ABANDONED);
+  writeText(session.file, text);
+
+  removeActiveAgent(root, session.id);
+  setIndexStatus(root, session.id, STATUS.ABANDONED);
+  dropLease(id, branch);
+
+  return {
+    code: 0,
+    out:
+      `ABANDONED ${session.id} — ${reason}\n` +
+      '  the branch is free again; new work is a new session on a new branch',
   };
 }
 
@@ -499,8 +866,39 @@ export function seal(options) {
       code: 1,
       out:
         `no SSH private key at ${keyPath}. The seal is an SSH signature; without the key there is ` +
-        'nothing to seal with. Pass --ssh-key <path> (default ~/.ssh/id_ed25519).',
+        'nothing to seal with. Pass --ssh-key <path>.',
     };
+  }
+
+  // A seal is the `macp-seal` principal's act. Checking identity here is what
+  // stops the audit's F-20: this command used to sign with whatever key it was
+  // given and then overwrite owner.pub with it, so one wrong key invalidated
+  // every prior seal.
+  const signers = readSigners(allowedSignersPath(root));
+  if (signers.size === 0) {
+    return {
+      code: 1,
+      out:
+        'no authority file at state/macp/allowed_signers. Run `macp init-authority` once with ' +
+        `the four public keys; a seal needs the \`${ACTS.seal}\` principal.`,
+    };
+  }
+  const principal = principalFor(keyPath, signers);
+  if (principal !== ACTS.seal) {
+    return {
+      code: 1,
+      out:
+        `the key at ${keyPath} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; ` +
+        `sealing requires \`${ACTS.seal}\`.`,
+    };
+  }
+
+  if (keyLoadedInAgent(keyPath)) {
+    return { code: 1, out: agentLoadedRefusal(keyPath, ACTS.seal) };
+  }
+
+  if (keyLoadedInAgent(keyPath)) {
+    return { code: 1, out: agentLoadedRefusal(keyPath, ACTS.seal) };
   }
 
   const codeCommit = headSha(root);
@@ -552,7 +950,6 @@ export function seal(options) {
     signature: signed.signature,
     sealedAt: closedAt,
   });
-  writeText(path.join(root, 'state', 'macp', 'owner.pub'), `${signed.publicKey}\n`);
   setIndexStatus(root, session.id, STATUS.CLOSED);
 
   return {
@@ -561,7 +958,7 @@ export function seal(options) {
       `SEALED ${session.id} at ${closedAt}\n` +
       `  key:       ${signed.fingerprint}\n` +
       `  record:    ~/.macp/seals/${id}/${session.id}.json (outside the tree)\n` +
-      `  public:    state/macp/owner.pub (committed — it is public, and CI verifies with it)\n` +
+      `  authority: state/macp/allowed_signers (unchanged — a seal never rewrites it)\n` +
       '  reopen:    impossible without the private key',
   };
 }
@@ -624,20 +1021,42 @@ export function reopen(options) {
     };
   }
 
-  const publicKeyPath = path.join(root, 'state', 'macp', 'owner.pub');
-  if (!existsSync(publicKeyPath)) {
-    return {
-      code: 1,
-      out: 'state/macp/owner.pub is missing — cannot verify the seal before reopening',
-    };
-  }
-  const publicKey = readFileSync(publicKeyPath, 'utf8').trim();
-  if (keyFingerprint(publicKeyPath) !== fingerprint) {
+  const reopenSigners = readSigners(allowedSignersPath(root));
+  const reopening = principalFor(keyPath, reopenSigners);
+  if (reopening !== ACTS.reopen) {
     return {
       code: 1,
       out:
-        `the committed owner key (${keyFingerprint(publicKeyPath)}) is not the key that sealed ` +
-        `${session.id} (${fingerprint}). Refusing: the seal has been tampered with.`,
+        `the key at ${keyPath} is ${reopening ? `\`${reopening}\`` : 'not in allowed_signers'}; ` +
+        `reopening requires \`${ACTS.reopen}\`. This is checked before the transition, not after.`,
+    };
+  }
+
+  // The seal is verified against the *seal* principal, and the reopen is signed
+  // by the *reopen* principal. They are different keys on purpose (ADR-0046): a
+  // key leaked for one act must not be able to perform another.
+  const signers = readSigners(allowedSignersPath(root));
+  const sealKeyLine = signers.get(ACTS.seal);
+  const legacyPath = path.join(root, 'state', 'macp', 'owner.pub');
+  const publicKey =
+    sealKeyLine ?? (existsSync(legacyPath) ? readFileSync(legacyPath, 'utf8').trim() : null);
+  if (!publicKey) {
+    return {
+      code: 1,
+      out:
+        'no seal authority: state/macp/allowed_signers has no `macp-seal` principal and ' +
+        'state/macp/owner.pub is missing. Nothing can verify this seal.',
+    };
+  }
+  const sealedFingerprint = sealKeyLine
+    ? keyFingerprintOfKey(sealKeyLine)
+    : keyFingerprint(legacyPath);
+  if (sealedFingerprint !== fingerprint) {
+    return {
+      code: 1,
+      out:
+        `the committed seal key (${sealedFingerprint}) is not the key that sealed ${session.id} ` +
+        `(${fingerprint}). Refusing: the seal has been tampered with.`,
     };
   }
 
@@ -656,6 +1075,14 @@ export function reopen(options) {
     };
   }
 
+  if (keyLoadedInAgent(keyPath)) {
+    return { code: 1, out: agentLoadedRefusal(keyPath, ACTS.reopen) };
+  }
+
+  if (keyLoadedInAgent(keyPath)) {
+    return { code: 1, out: agentLoadedRefusal(keyPath, ACTS.reopen) };
+  }
+
   const reopenedAt = isoLocal();
   const payload = reopenPayload({
     repo: id,
@@ -671,6 +1098,7 @@ export function reopen(options) {
     '## Reopen',
     '',
     `- **Reopened at:** ${reopenedAt}`,
+    `- **Code commit:** ${headSha(root)}`,
     `- **Passkey:** ssh-ed25519 ${signed.fingerprint}`,
     `- **Reopen signature:** ${signed.signature}`,
     `- **Reason:** ${options.reason}`,

@@ -5,6 +5,7 @@
  * by hand into every repository. Copies diverge, and a protocol whose copies
  * diverge is a protocol that means different things in different places.
  */
+import { execFileSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
@@ -186,4 +187,90 @@ export function installHooks(options) {
   }
 
   return { code: 0, out: lines.join('\n') };
+}
+
+/** The four principals, and the public-key file each one is read from. */
+const AUTHORITY_KEYS = Object.freeze([
+  ['macp-close', 'macp_close.pub'],
+  ['macp-seal', 'macp_seal.pub'],
+  ['macp-reopen', 'macp_reopen.pub'],
+  ['macp-destroy', 'macp_destroy.pub'],
+]);
+
+/**
+ * Write `state/macp/allowed_signers` from four public keys.
+ *
+ * This is the only way the authority is created, and it refuses to overwrite an
+ * existing file without `--force`. The audit's F-20 was a `seal` that silently
+ * rewrote the anchor; making rotation an explicit, separate command is the fix.
+ */
+export function initAuthority(options) {
+  const root = options.cwd ? path.resolve(options.cwd) : repoRoot();
+  if (!root) return { code: 2, out: 'not inside a git repository' };
+  const dir = options.dir ? path.resolve(options.dir) : path.join(homedir(), '.ssh');
+  const target = path.join(root, 'state', 'macp', 'allowed_signers');
+
+  if (existsSync(target) && !options.force) {
+    return {
+      code: 1,
+      out:
+        'state/macp/allowed_signers already exists — refusing to rewrite the authority. ' +
+        'Rotating keys is a deliberate act: re-run with --force, and expect every existing ' +
+        'signature made by the old principals to stop verifying.',
+    };
+  }
+
+  const lines = [];
+  const missing = [];
+  for (const [principal, file] of AUTHORITY_KEYS) {
+    const pub = path.join(dir, file);
+    if (!existsSync(pub)) {
+      missing.push(file);
+      continue;
+    }
+    const key = readFileSync(pub, 'utf8').trim().split(/\s+/).slice(0, 2).join(' ');
+    lines.push(`${principal} ${key}`);
+  }
+  if (missing.length > 0) {
+    return {
+      code: 1,
+      out:
+        `missing public key(s) in ${dir}: ${missing.join(', ')}\n` +
+        'Create one per act with ssh-keygen, then re-run. Each must have its own passphrase.',
+    };
+  }
+
+  // Each act must require the owner's passphrase. A key with no passphrase is a
+  // key any process on this account can use, which defeats the whole model.
+  const unprotected = [];
+  for (const [, file] of AUTHORITY_KEYS) {
+    const priv = path.join(dir, file.replace(/\.pub$/, ''));
+    if (!existsSync(priv)) continue;
+    try {
+      execFileSync('ssh-keygen', ['-y', '-P', '', '-f', priv], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      unprotected.push(file.replace(/\.pub$/, ''));
+    } catch {
+      // A non-zero exit here means the key is encrypted. That is the good case.
+    }
+  }
+  if (unprotected.length > 0) {
+    return {
+      code: 1,
+      out:
+        `these keys have no passphrase: ${unprotected.join(', ')}\n` +
+        'Each act must require you to type a passphrase, so an unprotected key is refused. ' +
+        'Set one with `ssh-keygen -p -f <key>`, then re-run.',
+    };
+  }
+
+  writeText(target, `${lines.join('\n')}\n`);
+  return {
+    code: 0,
+    out:
+      `authority written: ${path.relative(root, target)}\n` +
+      `  principals: ${AUTHORITY_KEYS.map(([principal]) => principal).join(', ')}\n` +
+      '  commit it — this file is the list of keys allowed to act, and it is public.',
+  };
 }

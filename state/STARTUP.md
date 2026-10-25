@@ -176,17 +176,19 @@ If any check fails → fix it before closing the session.
 
 ## The runtime, in one table
 
-| You want to…               | Run                                                                   |
-| -------------------------- | --------------------------------------------------------------------- |
-| start a session            | `macp start --agent … --harness … --task … --authorized-by …`         |
-| record a discovery         | `macp log --type DISCOVERY --summary "…"`                             |
-| park a bug for later       | `macp log --type BUG_FOUND --summary "…" --files a,b`                 |
-| see the parked queue       | `macp queue` · `macp queue --done Q001`                               |
-| freeze and close           | `macp close --prepare`, then `macp close --outcome …`                 |
-| seal (owner only)          | `macp seal --session … --instruction "…" --ssh-key ~/.ssh/id_ed25519` |
-| reopen (owner only)        | `macp reopen --session … --ssh-key … --reason … --delta …`            |
-| check every seal offline   | `macp verify`                                                         |
-| onboard another repository | `macp init-repo` · `macp install-hooks --harness …`                   |
+| You want to…               | Run                                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------------------- |
+| start a session            | `macp start --agent … --harness … --task … --authorized-by …`                                 |
+| record a discovery         | `macp log --type DISCOVERY --summary "…"`                                                     |
+| park a bug for later       | `macp log --type BUG_FOUND --summary "…" --files a,b`                                         |
+| see the parked queue       | `macp queue` · `macp queue --done Q001`                                                       |
+| freeze and submit          | `macp submit --prepare`, then `macp submit --outcome …`                                       |
+| close (owner only)         | `macp close --ssh-key ~/.ssh/macp_close` — only on `AWAITING-USER`, only if no source changed |
+| write the authority        | `macp init-authority --dir ~/.ssh` — once, from the four public keys                          |
+| seal (owner only)          | `macp seal --session … --instruction "…" --ssh-key ~/.ssh/macp_seal`                          |
+| reopen (owner only)        | `macp reopen --session … --ssh-key ~/.ssh/macp_reopen --reason … --delta …`                   |
+| check every seal offline   | `macp verify`                                                                                 |
+| onboard another repository | `macp init-repo` · `macp install-hooks --harness …`                                           |
 
 ## Session Close is FINAL
 

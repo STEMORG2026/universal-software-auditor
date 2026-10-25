@@ -28,6 +28,154 @@ export const SIGN_NAMESPACE = 'macp';
 export const SIGN_PRINCIPAL = 'macp-owner';
 
 /**
+ * The principals, one per lifecycle act (ADR-0046).
+ *
+ * A passphrase belongs to a key file, so "a different passphrase for close and
+ * seal" means a different key — and therefore a different principal. `legacy` is
+ * the single principal that sealed SA01–SA12 and stays verifiable; it is not a
+ * principal any new act may use.
+ */
+export const ACTS = Object.freeze({
+  close: 'macp-close',
+  seal: 'macp-seal',
+  reopen: 'macp-reopen',
+  destroy: 'macp-destroy',
+  legacy: 'macp-owner',
+});
+
+/** The committed authority file: one `principal keytype base64` line per act. */
+export function allowedSignersPath(root) {
+  return path.join(root, 'state', 'macp', 'allowed_signers');
+}
+
+/** `principal → "keytype base64"` for every line in the file. */
+export function readSigners(file) {
+  if (!existsSync(file)) return new Map();
+  const signers = new Map();
+  for (const raw of readFileSync(file, 'utf8').split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#')) continue;
+    const [principal, ...key] = line.split(/\s+/);
+    if (principal && key.length >= 2) signers.set(principal, key.slice(0, 2).join(' '));
+  }
+  return signers;
+}
+
+/**
+ * The base64 key blob from `<keyPath>.pub`.
+ *
+ * The public half is read from disk rather than derived with `ssh-keygen -y`,
+ * because that command needs the passphrase — and asking for it just to identify
+ * a key would prompt twice per command.
+ */
+export function pubBlobOf(keyPath) {
+  const file = `${keyPath}.pub`;
+  if (!existsSync(file)) return null;
+  return readFileSync(file, 'utf8').trim().split(/\s+/)[1] ?? null;
+}
+
+/**
+ * Which principal this key belongs to, or null when it belongs to none.
+ *
+ * This is the check `seal` was missing: it signed with whatever key it was
+ * given, then made that key the anchor. Identity is compared here, before the
+ * transition, not inferred afterwards from a valid signature.
+ */
+export function principalFor(keyPath, signers) {
+  const blob = pubBlobOf(keyPath);
+  if (!blob) return null;
+  for (const [principal, key] of signers) {
+    if (key.split(/\s+/)[1] === blob) return principal;
+  }
+  return null;
+}
+
+/** `SHA256:…` for a key given as a string, rather than as a file path. */
+export function keyFingerprintOfKey(keyLine) {
+  return withTempDir((dir) => {
+    const file = path.join(dir, 'k.pub');
+    writeFileSync(file, `${String(keyLine).trim()}\n`, 'utf8');
+    return keyFingerprint(file);
+  });
+}
+
+/**
+ * Fingerprints currently loaded in `ssh-agent`.
+ *
+ * An agent-loaded key signs with **no passphrase prompt** — measured: the first
+ * seal of the audit was produced by the agent itself because the key happened to
+ * be in the agent. That is the one path by which a privileged act can happen
+ * without the owner typing anything, so every act refuses when its key is there.
+ */
+export function agentFingerprints() {
+  try {
+    const out = run('ssh-add', ['-l']);
+    return [...out.matchAll(/SHA256:[A-Za-z0-9+/=]+/g)].map((match) => match[0]);
+  } catch {
+    return [];
+  }
+}
+
+/** True when `keyPath`'s public half is loaded in the agent. */
+export function keyLoadedInAgent(keyPath) {
+  const fingerprint = keyFingerprint(`${keyPath}.pub`);
+  return fingerprint ? agentFingerprints().includes(fingerprint) : false;
+}
+
+/** The refusal every privileged act returns when its key is agent-loaded. */
+export function agentLoadedRefusal(keyPath, act) {
+  return (
+    `the ${act} key at ${keyPath} is loaded in ssh-agent, so it would sign without asking you ` +
+    'for the passphrase. Remove it first — `ssh-add -d ' +
+    keyPath +
+    '` — then run the command again and type the passphrase. ' +
+    'A key in the agent is a key any process on this account can use.'
+  );
+}
+
+/** The bytes a resume signs: the owner letting an unfinished session continue. */
+export function resumePayload({ repo, session, agent, branch, codeCommit, reason, resumedAt }) {
+  return canonicalPayload({
+    kind: 'macp-resume-v1',
+    repo,
+    session,
+    agent,
+    branch,
+    codeCommit,
+    reason,
+    resumedAt,
+  });
+}
+
+/** The bytes an abandon signs: the owner stopping work that was never finished. */
+export function abandonPayload({ repo, session, agent, branch, codeCommit, reason, abandonedAt }) {
+  return canonicalPayload({
+    kind: 'macp-abandon-v1',
+    repo,
+    session,
+    agent,
+    branch,
+    codeCommit,
+    reason,
+    abandonedAt,
+  });
+}
+
+/** The bytes a `close` signs: the owner authorising COMPLETED on a measured tree. */
+export function closePayload({ repo, session, agent, branch, codeCommit, outcome, closedAt }) {
+  return canonicalPayload({
+    kind: 'macp-close-v1',
+    repo,
+    session,
+    agent,
+    branch,
+    codeCommit,
+    outcome,
+    closedAt,
+  });
+}
+
+/**
  * Deterministic bytes for signing: sorted `key=value` lines.
  *
  * Sorted because a signature over a JSON object that reordered its keys would

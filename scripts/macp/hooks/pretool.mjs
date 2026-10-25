@@ -146,8 +146,34 @@ export function decide(input, { home } = {}) {
 
   const branch = git(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
   const { file, lease } = leaseFor(root, branch, home);
-  if (lease && (lease.state === 'ACTIVE' || lease.state === 'CLOSING')) {
+  if (lease && lease.state === 'ACTIVE') {
     return { allow: true, reason: `session ${lease.session} holds the lease` };
+  }
+
+  // CLOSING is a freeze, not a licence. The runtime notices a moved HEAD at the
+  // next close, but by then the edit has already happened; refusing here is what
+  // makes "source is frozen" true rather than merely checked afterwards (F-16).
+  if (lease && lease.state === 'CLOSING') {
+    return {
+      allow: false,
+      reason:
+        `${lease.session} is CLOSING on ${branch}: the source is frozen at ` +
+        `${String(lease.codeCommitSha).slice(0, 7)} while the gates run. No edits until the close ` +
+        'completes, or HEAD moves and the close is voided.',
+    };
+  }
+
+  // A submitted session is not UNBOUND — it is finished and waiting. The
+  // distinction matters to the agent: there is nothing to start, and the way
+  // forward is the owner's `macp close`, not another edit.
+  if (lease && lease.state === 'AWAITING-USER') {
+    return {
+      allow: false,
+      reason:
+        `${lease.session} is AWAITING-USER on ${branch}: the report is written and the agent's ` +
+        'work is over. No edits are permitted while the owner decides. The owner closes with ' +
+        '`macp close`, then seals with `macp seal`.',
+    };
   }
 
   return {
