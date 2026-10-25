@@ -99,6 +99,7 @@ export function makeLease({
   harness,
   baseCommit,
   startHeadSha,
+  plan,
 }) {
   const now = new Date().toISOString();
   return {
@@ -115,6 +116,10 @@ export function makeLease({
     // audit's F-14: attributing commits from `master..HEAD` gave a stacked
     // session credit for the session below it.
     startHeadSha: startHeadSha ?? null,
+    // The plan item this session was scoped to, and the plan's sha at the
+    // moment it was scoped. `null` for a `--task` session, which is the honest
+    // record: that scope came from prose and has no document behind it.
+    plan: plan ?? null,
     startedAt: now,
     heartbeatAt: now,
   };
