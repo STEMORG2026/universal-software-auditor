@@ -6,17 +6,6 @@
 
 ## Active Agents
 
-### SA13
-
-| Field   | Value                                                         |
-| ------- | ------------------------------------------------------------- |
-| Agent   | SA13 (WorkBuddy)                                              |
-| Harness | WorkBuddy                                                     |
-| Branch  | `audit/macp-enforcement`                                      |
-| Task    | Task 1: macp resume — the signed AWAITING-USER to ACTIVE door |
-| Since   | 2026-10-25T13:53:59+05:45                                     |
-| Claims  | —                                                             |
-
 ### SA15
 
 | Field   | Value                                                               |

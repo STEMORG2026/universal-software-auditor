@@ -3,7 +3,8 @@
 **History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** audit/macp-enforcement
 **Started:** 2026-10-24T21:37:03+05:45
-**Status:** AWAITING-USER
+**Closed:** 2026-10-26T00:44:47+05:45 by owner
+**Status:** CLOSED
 **Re-opened (3):** 2026-10-25T13:53+05:45 — owner instruction: "go", given in reply to "Say go and
 I'll start with step 1", where step 1 was stated as _"You say I may edit the status back to
 IN-PROGRESS, and I log it as a hand transition with your instruction quoted."_ Reason: the objective
@@ -351,3 +352,21 @@ Next: Owner closes and seals SA13 with ~/.ssh/macp_close and ~/.ssh/macp_seal
 - **Code commit:** 4cfd8d7dafbea78d87640064d48a4e88794ff14c
 - **Reason:** the docs lagged the code
 - **Resume signature:** LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWdBZlZvZ2dRYVg5K0JYWmhReE5LWVVGbXFVWAo1OEdoRkxyKzUrRmIrRjZKOEFBQUFFYldGamNBQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUJRaHVlZ3E3aHBPb0w5b2pFTUZxdVdWQW1vTUttbTZ6YVBYa3FyYUx6VG93aUVIcEJ0OEhYamd3dDBDQTBBOXMKMmdsalBudXFnVzgySmJBeVAySEpNUAotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K
+
+## Close authorization
+
+- **Closed by:** owner — principal `macp-close`
+- **Closed at:** 2026-10-26T00:44:42+05:45
+- **Outcome:** COMPLETED
+- **Code commit:** 6a1c276847f8ec27f703053a4e9f28cd40be756d
+- **Close signature:** LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWdBZlZvZ2dRYVg5K0JYWmhReE5LWVVGbXFVWAo1OEdoRkxyKzUrRmIrRjZKOEFBQUFFYldGamNBQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUJCOEp4Z0FEakJETTA5aG1ZWWIrdWtaVSs5RitWdHgyZ2dQN01tcDR2QlBpbXVtOWJpcVpRN3FlRWMxUHlHa04KN3E3djhkNlBxbHlwbTRFVlRDNVE4RQotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K
+
+## Close
+
+- **Closed by:** owner — instruction: "audit delivered and merged"
+- **Closed at:** 2026-10-26T00:44:47+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** COMPLETED
+- **Code commit:** c0badeafbc76a49ce7cb6df27d0afc3d214fa47b
+- **Passkey:** ssh-ed25519 SHA256:p8X4Z5Hods8ccRm5LcGFGuZDkVGqBwVH5JNpcbNMu30
+- **Seal signature:** LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWdxb0U0eDM3VE5TaFJjQUFiR2k3VjhFTnBKSgptRUYycVBSRXRDTW84NVB6WUFBQUFFYldGamNBQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRURrTmVuWjFjMXYrMElsUkFtbWtXQnNvcWVRcVZGcGFGQVp3QU50Ty9jaWhBc1dtYzVOWEIxazlrQURnZ1lySEcKcWFraWFocUZ0MFhkL1A1cktZenBJQwotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K
