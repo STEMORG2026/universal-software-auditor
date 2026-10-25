@@ -3,7 +3,7 @@
 **History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** feat/plan-item-scope
 **Started:** 2026-10-26T02:04:56+05:45
-**Status:** IN-PROGRESS
+**Status:** AWAITING-USER
 **Base commit:** 4a4a63b89e00d4a99100048812fbc4aac72c6ec2
 
 # Session SA18 — move MACP-REMEDIATION-PLAN-2026-10-24.md into the repo as docs/remediation-plan.md with a Status column (P3-P6 delivered in #271, P7-P9 pending), and add macp start --plan <id> so a session's scope comes from the plan item rather than from my prose. Stop after that.
@@ -83,3 +83,22 @@ recorded verbatim in `## Objective` and in `## Authorized scope`.
 ### 20:23 — Commit
 
 `df367e5` feat(macp): `start --plan` takes the session's scope from the plan item
+
+## Submit report
+
+**Outcome:** COMPLETED
+
+Machine-stamped at 2026-10-26T02:10:43+05:45 from `macp submit`. Code commit `38ee0e2`.
+
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 3s   |
+| format     | 0    | 6s   |
+| test       | 0    | 104s |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 2s   |
+
+Remaining: 1 item(s)
+
+Next: P1 — record required_gates at start, and let close add but never remove
