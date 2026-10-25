@@ -33,3 +33,7 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 ### 15:28 — Commit
 
 `d61f701` docs(queue): record the stacked-PR delivery conflict and its two siblings
+
+### 16:37 — Commit
+
+`348e2f5` fix(test): keep the lease-file read free of cat and ls on this branch too
