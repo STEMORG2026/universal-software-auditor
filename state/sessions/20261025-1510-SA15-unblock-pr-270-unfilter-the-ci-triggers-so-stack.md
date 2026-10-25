@@ -37,3 +37,7 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 ### 16:37 — Commit
 
 `348e2f5` fix(test): keep the lease-file read free of cat and ls on this branch too
+
+### 16:42 — Commit
+
+`b66b775` docs(queue): record the reverted fix and the conversation-resolution block
