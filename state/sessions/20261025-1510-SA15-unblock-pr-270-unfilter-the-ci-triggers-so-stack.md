@@ -41,3 +41,7 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 ### 16:42 — Commit
 
 `b66b775` docs(queue): record the reverted fix and the conversation-resolution block
+
+### 18:56 — Commit
+
+`11f3ba3` fix(macp): let ssh-keygen reach the terminal so a passphrase can be typed
