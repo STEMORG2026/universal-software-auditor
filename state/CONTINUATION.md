@@ -4,29 +4,29 @@
 
 ## Handoff — SA13 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-25T10:19:28+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-25T22:44:40+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
-| Fact               | Value                                                                |
-| ------------------ | -------------------------------------------------------------------- |
-| Session            | `SA13` (SA13 (WorkBuddy) on WorkBuddy)                               |
-| Branch             | `audit/macp-enforcement`                                             |
-| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                           |
-| Code commit        | `a5009e905828f7bfbce24c92a3ff201f88815309`                           |
-| Working tree clean | yes                                                                  |
-| Commits            | 45                                                                   |
-| Open PRs           | #271 docs(macp): enforcement audit + remediation plan (SA13) (CLEAN) |
+| Fact               | Value                                      |
+| ------------------ | ------------------------------------------ |
+| Session            | `SA13` (SA13 (WorkBuddy) on WorkBuddy)     |
+| Branch             | `audit/macp-enforcement`                   |
+| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
+| Code commit        | `79623cbdd9af2fa4230606a66650c6110b5271e1` |
+| Working tree clean | yes                                        |
+| Commits            | 9                                          |
+| Open PRs           | none                                       |
 
 ### Gates (exit code, measured)
 
 | Gate       | Exit | Time |
 | ---------- | ---- | ---- |
 | typecheck  | 0    | 1s   |
-| lint       | 0    | 3s   |
-| format     | 0    | 8s   |
-| test       | 0    | 110s |
-| docs_all   | 0    | 3s   |
+| lint       | 0    | 2s   |
+| format     | 0    | 7s   |
+| test       | 0    | 105s |
+| docs_all   | 0    | 2s   |
 | self_audit | 0    | 2s   |
 
 ### Objective
@@ -73,69 +73,38 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 
 ### Files changed
 
-- `A	.changeset/macp-runtime-v2.md`
+- `M	.github/workflows/codeql.yml`
 - `M	.github/workflows/protocol-check.yml`
-- `M	.usa.yaml`
-- `M	AGENTS.md`
-- `M	DOCS_AUDIT_REPORT.md`
-- `A	docs/adr/0045-macp-runtime-and-ssh-seal.md`
-- `A	docs/adr/0046-authority-per-lifecycle-act.md`
-- `M	docs/adr/README.md`
-- `M	docs/macp.md`
+- `M	.github/workflows/scorecard.yml`
+- `M	.github/workflows/self-audit.yml`
 - `M	docs/manifest.yaml`
-- `M	eslint.config.mjs`
-- `M	package.json`
-- `M	scripts/auto-update-state.mjs`
-- `M	scripts/check-docs.mjs`
-- `M	scripts/check-session-start.mjs`
-- `M	scripts/check-sessions.mjs`
-- `M	scripts/lib/docs-sync.mjs`
-- `A	scripts/macp/cli.mjs`
-- `A	scripts/macp/hooks/adapters/hermes_plugin.py`
-- `A	scripts/macp/hooks/adapters/opencode-plugin.ts`
-- `A	scripts/macp/hooks/pretool.mjs`
-- `A	scripts/macp/lib/backend.mjs`
-- `A	scripts/macp/lib/brief.mjs`
-- `A	scripts/macp/lib/gates.mjs`
-- `A	scripts/macp/lib/handoff.mjs`
-- `A	scripts/macp/lib/install.mjs`
-- `A	scripts/macp/lib/lease.mjs`
-- `A	scripts/macp/lib/lifecycle.mjs`
-- `A	scripts/macp/lib/record.mjs`
-- `A	scripts/macp/lib/repo.mjs`
-- `A	scripts/macp/lib/seal.mjs`
-- `A	scripts/macp/lib/session.mjs`
-- `A	scripts/macp/lib/statefiles.mjs`
-- `A	scripts/macp/lib/verify.mjs`
-- `M	scripts/sync-docs.mjs`
-- `M	state.md`
-- `M	state/CONTINUATION.md`
+- `M	scripts/macp/cli.mjs`
+- `M	scripts/macp/hooks/pretool.mjs`
+- `M	scripts/macp/lib/backend.mjs`
+- `M	scripts/macp/lib/lifecycle.mjs`
+- `M	scripts/macp/lib/record.mjs`
+- `M	scripts/macp/lib/seal.mjs`
+- `M	scripts/macp/lib/session.mjs`
 - `M	state/DASHBOARD.md`
-- `M	state/DECISIONS.md`
 - `M	state/INDEX.md`
 - `M	state/REGISTRY.md`
-- `M	state/STARTUP.md`
-- `A	state/macp/allowed_signers`
-- `A	state/macp/handoff/SA12.json`
-- `A	state/macp/handoff/SA13.json`
-- `A	state/macp/owner.pub`
-- `A	state/macp/queue.md`
-- `A	state/plans/agent-SA12-macp-runtime-v2.md`
-- `A	state/plans/agent-SA13-audit-whether-macp-is-functionally-complete-and-.md`
-- `A	state/sessions/20261024-1840-SA12-macp-runtime-v2.md`
-- `A	state/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md`
-- `A	tests/integration/macp-pretool-guard.test.ts`
-- `A	tests/integration/macp-runtime.test.ts`
-- `A	tests/integration/macp-sessions-gate.test.ts`
-- `A	tests/integration/macp-state-maintenance.test.ts`
+- `M	state/macp/queue.md`
+- `A	state/plans/agent-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md`
+- `M	state/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md`
+- `A	state/sessions/20261025-1510-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md`
+- `M	tests/integration/macp-pretool-guard.test.ts`
+- `M	tests/integration/macp-runtime.test.ts`
 - `M	tests/integration/session-start-gate.test.ts`
-- `A	tests/unit/docs-sync-records.test.ts`
-- `A	tests/unit/macp-handoff.test.ts`
-- `A	tests/unit/macp-queue-format.test.ts`
 
 ### Completed
 
-- x
+- One key per lifecycle act (ADR-0046): close, seal, reopen, destroy each verified before the transition; seal no longer rewrites the anchor
+- macp resume: the signed AWAITING-USER to ACTIVE door that did not exist and had locked SA13
+- macp abandon: the signed ACTIVE to ABANDONED exit for a session that should never have started
+- CLOSING freeze: the guard now refuses mutations while the gates run
+- Commit attribution from the session's own start commit; handoff carries objective, start_head_sha and files_changed; the brief prints the machine handoff; a deleted session record is a finding
+- CI trigger gap fixed: protocol, CodeQL, self-audit and scorecard now run on every pull request, not only those based on master
+- Delivered: PR 270 (runtime to master) and PR 271 (the audit) both merged
 
 ### Remaining
 
@@ -143,19 +112,23 @@ _none_
 
 ### Discovered, not fixed
 
-_none_
+- F-27: a stacked PR conflicts with itself once its base merges through a different commit
+- F-28: renaming a PR branch orphans the session that names it, and the gate refuses
+- F-29: the Reopen and Resume blocks recorded no Code commit, so verify could not rebuild the signed payload
+- F-30: extracting a branch's unique diff silently reverted a fix already on the base, and required_conversation_resolution then blocked the merge
 
 ### Deferred work
 
-_none_
+- P7 guard install verification, P8 destroy command, P9 objective/plan binding
 
 ### Traps learned
 
-_none_
+- Deliver a stacked branch's delta, not its history: git diff <base-tip>..<branch> then git apply --3way
+- required_conversation_resolution is on for master: an unresolved CodeQL thread blocks the merge even with every check green
 
 ### Next recommended task
 
-_not stated_
+Owner closes and seals SA13
 
 ### Required context for the next session
 

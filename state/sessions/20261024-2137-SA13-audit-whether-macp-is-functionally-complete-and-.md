@@ -3,7 +3,7 @@
 **History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** audit/macp-enforcement
 **Started:** 2026-10-24T21:37:03+05:45
-**Status:** IN-PROGRESS
+**Status:** AWAITING-USER
 **Re-opened (3):** 2026-10-25T13:53+05:45 — owner instruction: "go", given in reply to "Say go and
 I'll start with step 1", where step 1 was stated as _"You say I may edit the status back to
 IN-PROGRESS, and I log it as a hand transition with your instruction quoted."_ Reason: the objective
@@ -307,3 +307,20 @@ Next: —
 ### 08:42 — Commit
 
 `30094e4` feat(macp): resume and abandon — the two transitions the state machine lacked
+
+**Outcome:** COMPLETED
+
+Machine-stamped at 2026-10-25T22:44:40+05:45 from `macp submit`. Code commit `79623cb`.
+
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 2s   |
+| format     | 0    | 7s   |
+| test       | 0    | 105s |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 2s   |
+
+Remaining: none
+
+Next: Owner closes and seals SA13
