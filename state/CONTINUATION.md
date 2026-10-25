@@ -4,7 +4,7 @@
 
 ## Handoff — SA13 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-25T22:44:40+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T00:43:50+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
@@ -13,9 +13,9 @@ is a claim, not a measurement.
 | Session            | `SA13` (SA13 (WorkBuddy) on WorkBuddy)     |
 | Branch             | `audit/macp-enforcement`                   |
 | Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
-| Code commit        | `79623cbdd9af2fa4230606a66650c6110b5271e1` |
+| Code commit        | `6a1c276847f8ec27f703053a4e9f28cd40be756d` |
 | Working tree clean | yes                                        |
-| Commits            | 9                                          |
+| Commits            | 13                                         |
 | Open PRs           | none                                       |
 
 ### Gates (exit code, measured)
@@ -24,8 +24,8 @@ is a claim, not a measurement.
 | ---------- | ---- | ---- |
 | typecheck  | 0    | 1s   |
 | lint       | 0    | 2s   |
-| format     | 0    | 7s   |
-| test       | 0    | 105s |
+| format     | 0    | 6s   |
+| test       | 0    | 102s |
 | docs_all   | 0    | 2s   |
 | self_audit | 0    | 2s   |
 
@@ -77,6 +77,7 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 - `M	.github/workflows/protocol-check.yml`
 - `M	.github/workflows/scorecard.yml`
 - `M	.github/workflows/self-audit.yml`
+- `M	docs/macp.md`
 - `M	docs/manifest.yaml`
 - `M	scripts/macp/cli.mjs`
 - `M	scripts/macp/hooks/pretool.mjs`
@@ -85,9 +86,12 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 - `M	scripts/macp/lib/record.mjs`
 - `M	scripts/macp/lib/seal.mjs`
 - `M	scripts/macp/lib/session.mjs`
+- `M	state/CONTINUATION.md`
 - `M	state/DASHBOARD.md`
 - `M	state/INDEX.md`
 - `M	state/REGISTRY.md`
+- `M	state/STARTUP.md`
+- `M	state/macp/handoff/SA13.json`
 - `M	state/macp/queue.md`
 - `A	state/plans/agent-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md`
 - `M	state/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md`
@@ -98,13 +102,12 @@ and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
 
 ### Completed
 
-- One key per lifecycle act (ADR-0046): close, seal, reopen, destroy each verified before the transition; seal no longer rewrites the anchor
-- macp resume: the signed AWAITING-USER to ACTIVE door that did not exist and had locked SA13
-- macp abandon: the signed ACTIVE to ABANDONED exit for a session that should never have started
-- CLOSING freeze: the guard now refuses mutations while the gates run
-- Commit attribution from the session's own start commit; handoff carries objective, start_head_sha and files_changed; the brief prints the machine handoff; a deleted session record is a finding
-- CI trigger gap fixed: protocol, CodeQL, self-audit and scorecard now run on every pull request, not only those based on master
-- Delivered: PR 270 (runtime to master) and PR 271 (the audit) both merged
+- One key per lifecycle act (ADR-0046), each verified before the transition; seal no longer rewrites the anchor
+- macp resume and macp abandon: the two transitions the state machine lacked
+- CLOSING freeze; commit attribution from the session's own start commit; handoff carries objective, start_head_sha, files_changed; the brief prints the machine handoff; a deleted session record is a finding
+- CI trigger gap fixed: protocol, CodeQL, self-audit and scorecard now run on every pull request
+- signPayload now hands ssh-keygen a real stdin, so a passphrase can actually be typed (F-31) - verified end to end
+- Docs cover resume and abandon; delivered in PR 270 (runtime) and PR 271 (audit), both merged
 
 ### Remaining
 
@@ -112,10 +115,7 @@ _none_
 
 ### Discovered, not fixed
 
-- F-27: a stacked PR conflicts with itself once its base merges through a different commit
-- F-28: renaming a PR branch orphans the session that names it, and the gate refuses
-- F-29: the Reopen and Resume blocks recorded no Code commit, so verify could not rebuild the signed payload
-- F-30: extracting a branch's unique diff silently reverted a fix already on the base, and required_conversation_resolution then blocked the merge
+- F-31: signPayload gave ssh-keygen /dev/null as stdin; every seal that ever worked used an agent-loaded key, the one path ADR-0046 forbids
 
 ### Deferred work
 
@@ -123,12 +123,11 @@ _none_
 
 ### Traps learned
 
-- Deliver a stacked branch's delta, not its history: git diff <base-tip>..<branch> then git apply --3way
-- required_conversation_resolution is on for master: an unresolved CodeQL thread blocks the merge even with every check green
+- A passphrase-protected key needs a terminal on stdin; ssh-keygen falls back to ssh-askpass, which is not installed here
 
 ### Next recommended task
 
-Owner closes and seals SA13
+Owner closes and seals SA13 with ~/.ssh/macp_close and ~/.ssh/macp_seal
 
 ### Required context for the next session
 

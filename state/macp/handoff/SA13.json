@@ -6,9 +6,13 @@
   "branch": "audit/macp-enforcement",
   "base_commit_sha": "4a4a63b89e00d4a99100048812fbc4aac72c6ec2",
   "start_head_sha": "50e2de2033f4b44c463f2b7a3b19d41303ccaa37",
-  "code_commit_sha": "79623cbdd9af2fa4230606a66650c6110b5271e1",
+  "code_commit_sha": "6a1c276847f8ec27f703053a4e9f28cd40be756d",
   "working_tree_clean": true,
   "commits": [
+    "6a1c276 chore(state): auto-update from post-commit hook",
+    "11f3ba3 fix(macp): let ssh-keygen reach the terminal so a passphrase can be typed",
+    "4cfd8d7 chore(state): auto-update from post-commit hook",
+    "5f884d6 chore(state): submit SA13 — delivered and merged",
     "79623cb chore(state): auto-update from post-commit hook",
     "b66b775 docs(queue): record the reverted fix and the conversation-resolution block",
     "176c35a chore(state): auto-update from post-commit hook",
@@ -24,6 +28,7 @@
     "M\t.github/workflows/protocol-check.yml",
     "M\t.github/workflows/scorecard.yml",
     "M\t.github/workflows/self-audit.yml",
+    "M\tdocs/macp.md",
     "M\tdocs/manifest.yaml",
     "M\tscripts/macp/cli.mjs",
     "M\tscripts/macp/hooks/pretool.mjs",
@@ -32,9 +37,12 @@
     "M\tscripts/macp/lib/record.mjs",
     "M\tscripts/macp/lib/seal.mjs",
     "M\tscripts/macp/lib/session.mjs",
+    "M\tstate/CONTINUATION.md",
     "M\tstate/DASHBOARD.md",
     "M\tstate/INDEX.md",
     "M\tstate/REGISTRY.md",
+    "M\tstate/STARTUP.md",
+    "M\tstate/macp/handoff/SA13.json",
     "M\tstate/macp/queue.md",
     "A\tstate/plans/agent-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md",
     "M\tstate/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md",
@@ -49,63 +57,58 @@
     "typecheck": {
       "name": "typecheck",
       "exit": 0,
-      "ms": 1153,
+      "ms": 1108,
       "tail": ""
     },
     "lint": {
       "name": "lint",
       "exit": 0,
-      "ms": 2313,
+      "ms": 2264,
       "tail": ""
     },
     "format": {
       "name": "format",
       "exit": 0,
-      "ms": 6629,
+      "ms": 6200,
       "tail": "Checking formatting...\nAll matched files use Prettier code style!"
     },
     "test": {
       "name": "test",
       "exit": 0,
-      "ms": 105344,
-      "tail": "     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-007: gutting the check flips a fixture outcome\u001b[33m 405\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/macp-runtime.test.ts \u001b[2m(\u001b[22m\u001b[2m41 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 104767\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — start \u001b[2m(5)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m is idempotent: a second start resumes rather than conflicting\u001b[33m 382\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a second agent on the same branch\u001b[33m 505\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a session while another branch holds the lease in the same tree\u001b[33m 484\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — log and queue \u001b[2m(2)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to log without a lease, even when a session file exists\u001b[33m 425\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m queues BUG_FOUND and DEFERRED, and resolves them\u001b[33m 919\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — submit and close \u001b[2m(14)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a dirty source tree\u001b[33m 427\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses COMPLETED when a gate is red, and names it\u001b[33m 8782\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m allows PARTIAL to close red when the remainder is named\u001b[33m 4757\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses PARTIAL without a next task, and without a remainder\u001b[33m 4722\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m records a tail even when the failing gate itself printed nothing\u001b[33m 4405\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m writes the handoff region into CONTINUATION.md\u001b[33m 4878\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m aborts the close when HEAD moves after the freeze\u001b[33m 350\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when the key is loaded in ssh-agent\u001b[33m 4850\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when the key is loaded in ssh-agent\u001b[33m 4493\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m records the objective and the files this session changed\u001b[33m 4381\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m prints the previous handoff when the next session starts\u001b[33m 4627\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m submit parks the session in AWAITING-USER and status names it\u001b[33m 4200\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when source changed after the gates ran\u001b[33m 4183\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — seal and reopen \u001b[2m(13)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to seal without a private key\u001b[33m 4211\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m seals, verifies, and refuses a reopen without the key\u001b[33m 4431\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m detects a tampered close block\u001b[33m 4411\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m reopens with the key and re-verifies\u001b[33m 4636\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m still verifies a seal made before the principal file existed\u001b[33m 4486\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m resumes a submitted session with the close key\u001b[33m 4252\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to resume with the seal key\u001b[33m 4359\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m abandons an active session with the close key\u001b[33m 543\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close with the seal key — a signature is not enough\u001b[33m 4489\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to seal with the close key\u001b[33m 4475\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to reopen with the seal key\u001b[33m 4569\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m80 passed\u001b[39m\u001b[22m\u001b[90m (80)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1581 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m1 skipped\u001b[39m\u001b[90m (1582)\u001b[39m\n\u001b[2m   Start at \u001b[22m 22:42:50\n\u001b[2m   Duration \u001b[22m 105.02s\u001b[2m (tests 91%, import 7%, transform 2%)\u001b[22m"
+      "ms": 101537,
+      "tail": "     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-006: gutting the check flips a fixture outcome\u001b[33m 387\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-007: gutting the check flips a fixture outcome\u001b[33m 388\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/macp-runtime.test.ts \u001b[2m(\u001b[22m\u001b[2m41 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 100959\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — start \u001b[2m(5)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m is idempotent: a second start resumes rather than conflicting\u001b[33m 460\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a second agent on the same branch\u001b[33m 465\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a session while another branch holds the lease in the same tree\u001b[33m 533\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — log and queue \u001b[2m(2)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to log without a lease, even when a session file exists\u001b[33m 434\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m queues BUG_FOUND and DEFERRED, and resolves them\u001b[33m 918\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — submit and close \u001b[2m(14)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a dirty source tree\u001b[33m 398\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses COMPLETED when a gate is red, and names it\u001b[33m 8513\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m allows PARTIAL to close red when the remainder is named\u001b[33m 4710\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses PARTIAL without a next task, and without a remainder\u001b[33m 4542\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m records a tail even when the failing gate itself printed nothing\u001b[33m 4348\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m writes the handoff region into CONTINUATION.md\u001b[33m 4442\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when the key is loaded in ssh-agent\u001b[33m 4341\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when the key is loaded in ssh-agent\u001b[33m 4438\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m records the objective and the files this session changed\u001b[33m 4420\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m prints the previous handoff when the next session starts\u001b[33m 4481\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m submit parks the session in AWAITING-USER and status names it\u001b[33m 4113\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when source changed after the gates ran\u001b[33m 4141\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — seal and reopen \u001b[2m(13)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to seal without a private key\u001b[33m 4268\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m seals, verifies, and refuses a reopen without the key\u001b[33m 4472\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m detects a tampered close block\u001b[33m 4342\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m reopens with the key and re-verifies\u001b[33m 4636\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m still verifies a seal made before the principal file existed\u001b[33m 4333\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m resumes a submitted session with the close key\u001b[33m 4145\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to resume with the seal key\u001b[33m 3960\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m abandons an active session with the close key\u001b[33m 490\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close with the seal key — a signature is not enough\u001b[33m 3971\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to seal with the close key\u001b[33m 4119\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to reopen with the seal key\u001b[33m 4198\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m80 passed\u001b[39m\u001b[22m\u001b[90m (80)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1581 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m1 skipped\u001b[39m\u001b[90m (1582)\u001b[39m\n\u001b[2m   Start at \u001b[22m 00:42:04\n\u001b[2m   Duration \u001b[22m 101.22s\u001b[2m (tests 91%, import 7%, transform 2%)\u001b[22m"
     },
     "docs_all": {
       "name": "docs_all",
       "exit": 0,
-      "ms": 1891,
+      "ms": 1761,
       "tail": "ADR hygiene: OK (46 records, index complete)\ndocs governance: OK (148 docs · facts 2.28.7/315 rules · sections · flags · links · index · pins)\nwrote docs/reference/cli.md\nwrote examples/sample-report.md\nwrote /home/sajan/Projects/Universal_Software_Auditor/docs/reference/asvs-coverage.md (345 controls, 29 covered)\nwrote /home/sajan/Projects/Universal_Software_Auditor/tests/fixtures/asvs-coverage-snapshot.json\ndoc manifest: OK (150 tracked docs · 79 standalone · 180-day review window)"
     },
     "self_audit": {
       "name": "self_audit",
       "exit": 0,
-      "ms": 2328,
+      "ms": 2075,
       "tail": "usa 100/100 (beta) — 99 passed, no open findings, 35 to review (66.9% verified automatically)\n  report → AUDIT.md"
     }
   },
   "outcome": "COMPLETED",
   "completed": [
-    "One key per lifecycle act (ADR-0046): close, seal, reopen, destroy each verified before the transition; seal no longer rewrites the anchor",
-    "macp resume: the signed AWAITING-USER to ACTIVE door that did not exist and had locked SA13",
-    "macp abandon: the signed ACTIVE to ABANDONED exit for a session that should never have started",
-    "CLOSING freeze: the guard now refuses mutations while the gates run",
-    "Commit attribution from the session's own start commit; handoff carries objective, start_head_sha and files_changed; the brief prints the machine handoff; a deleted session record is a finding",
-    "CI trigger gap fixed: protocol, CodeQL, self-audit and scorecard now run on every pull request, not only those based on master",
-    "Delivered: PR 270 (runtime to master) and PR 271 (the audit) both merged"
+    "One key per lifecycle act (ADR-0046), each verified before the transition; seal no longer rewrites the anchor",
+    "macp resume and macp abandon: the two transitions the state machine lacked",
+    "CLOSING freeze; commit attribution from the session's own start commit; handoff carries objective, start_head_sha, files_changed; the brief prints the machine handoff; a deleted session record is a finding",
+    "CI trigger gap fixed: protocol, CodeQL, self-audit and scorecard now run on every pull request",
+    "signPayload now hands ssh-keygen a real stdin, so a passphrase can actually be typed (F-31) - verified end to end",
+    "Docs cover resume and abandon; delivered in PR 270 (runtime) and PR 271 (audit), both merged"
   ],
   "remaining": [],
   "discovered_bugs": [
-    "F-27: a stacked PR conflicts with itself once its base merges through a different commit",
-    "F-28: renaming a PR branch orphans the session that names it, and the gate refuses",
-    "F-29: the Reopen and Resume blocks recorded no Code commit, so verify could not rebuild the signed payload",
-    "F-30: extracting a branch's unique diff silently reverted a fix already on the base, and required_conversation_resolution then blocked the merge"
+    "F-31: signPayload gave ssh-keygen /dev/null as stdin; every seal that ever worked used an agent-loaded key, the one path ADR-0046 forbids"
   ],
   "deferred_work": ["P7 guard install verification, P8 destroy command, P9 objective/plan binding"],
   "traps_learned": [
-    "Deliver a stacked branch's delta, not its history: git diff <base-tip>..<branch> then git apply --3way",
-    "required_conversation_resolution is on for master: an unresolved CodeQL thread blocks the merge even with every check green"
+    "A passphrase-protected key needs a terminal on stdin; ssh-keygen falls back to ssh-askpass, which is not installed here"
   ],
-  "next_recommended_task": "Owner closes and seals SA13",
+  "next_recommended_task": "Owner closes and seals SA13 with ~/.ssh/macp_close and ~/.ssh/macp_seal",
   "required_context": [],
-  "closed_at": "2026-10-25T22:44:40+05:45"
+  "closed_at": "2026-10-26T00:43:50+05:45"
 }
