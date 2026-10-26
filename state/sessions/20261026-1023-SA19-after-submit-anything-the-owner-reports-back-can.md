@@ -54,3 +54,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 14:01 — Commit
 
 `112f7b3` revert(macp): drop the ssh-agent signing fallback — the runtime refuses agent keys
+
+### 14:02 — Commit
+
+`ac1f319` chore: untrack the local CI run evidence committed with the close
