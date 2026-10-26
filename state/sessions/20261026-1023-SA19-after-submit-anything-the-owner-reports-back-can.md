@@ -31,18 +31,17 @@ session outlive its first report, and the gate is what stops a second one being 
 
 **Outcome:** COMPLETED
 
-Machine-stamped at 2026-10-26T12:05:04+05:45 from `macp submit`. Code commit `3d53670`.
+Machine-stamped at 2026-10-26T12:07:52+05:45 from `macp submit`. Code commit `eb76144`.
 
-| Gate      | Exit | Time |
-| --------- | ---- | ---- |
-| test      | 0    | 90s  |
-| lint      | 0    | 3s   |
-| typecheck | 0    | 1s   |
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 3s   |
+| format     | 0    | 7s   |
+| test       | 0    | 106s |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 2s   |
 
 Remaining: 1 item(s)
 
 Next: P1 — record required_gates at start and let close add but never remove
-
-### 06:20 — Commit
-
-`60bffff` fix(macp): declare this repository's six gates instead of letting detection guess three

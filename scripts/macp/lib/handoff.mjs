@@ -40,9 +40,24 @@ export function validateHandoff(handoff) {
   const gateEntries = Object.entries(handoff.gates ?? {});
   const failed = gateEntries.filter(([, gate]) => gate.exit !== 0).map(([name]) => name);
 
+  // What the repository declared, as opposed to what this run chose to run.
+  // Without it a report can name one gate and close COMPLETED, and nothing in
+  // the record says a second one existed — the audit's F-04, and the reason a
+  // ported runtime could record three gates for a repository that enforces six.
+  const required = Array.isArray(handoff.required_gates) ? handoff.required_gates : [];
+  const recorded = new Set(gateEntries.map(([name]) => name));
+  const notRun = required.filter((name) => !recorded.has(name));
+
   if (handoff.outcome === 'COMPLETED') {
     if (gateEntries.length === 0) {
       problems.push('COMPLETED requires at least one gate to have been run and recorded');
+    }
+    if (notRun.length > 0) {
+      problems.push(
+        `COMPLETED requires every gate this repository declares; ${notRun.join(', ')} ` +
+          'was not run. The declared set is recorded at submit so it cannot be narrowed after ' +
+          'the work — run them, or close as PARTIAL and name the omission in remaining[].',
+      );
     }
     if (failed.length > 0) {
       problems.push(
@@ -82,6 +97,8 @@ export function renderHandoff(handoff) {
   const gateRows = gates
     .map(([name, gate]) => `| ${name} | ${gate.exit} | ${Math.round(gate.ms / 1000)}s |`)
     .join('\n');
+  const required = Array.isArray(handoff.required_gates) ? handoff.required_gates : [];
+  const notRun = required.filter((name) => !(name in (handoff.gates ?? {})));
 
   const lines = [
     REGION_BEGIN,
@@ -111,7 +128,11 @@ export function renderHandoff(handoff) {
     '### Gates (exit code, measured)',
     '',
     gateRows.length > 0
-      ? `| Gate | Exit | Time |\n| ---- | ---- | ---- |\n${gateRows}`
+      ? `| Gate | Exit | Time |\n| ---- | ---- | ---- |\n${gateRows}` +
+        (required.length > 0
+          ? `\n\nDeclared by this repository: **${required.length}** · run: **${gates.length}**` +
+            (notRun.length > 0 ? ` · **not run: ${notRun.join(', ')}**` : ' · all run')
+          : '')
       : '_none run_',
     '',
     '### Objective',

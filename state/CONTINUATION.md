@@ -4,7 +4,7 @@
 
 ## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T12:05:04+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T12:07:52+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
@@ -13,18 +13,21 @@ is a claim, not a measurement.
 | Session            | `SA19` (SA19 (workbuddy) on workbuddy)     |
 | Branch             | `feat/submit-not-terminal`                 |
 | Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
-| Code commit        | `3d5367058057d4edc41007b1aa4c1694a9396d27` |
+| Code commit        | `eb76144f59b2de39950d08d37077f919e8d4f76c` |
 | Working tree clean | yes                                        |
-| Commits            | 8                                          |
+| Commits            | 10                                         |
 | Open PRs           | none                                       |
 
 ### Gates (exit code, measured)
 
-| Gate      | Exit | Time |
-| --------- | ---- | ---- |
-| test      | 0    | 90s  |
-| lint      | 0    | 3s   |
-| typecheck | 0    | 1s   |
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 3s   |
+| format     | 0    | 7s   |
+| test       | 0    | 106s |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 2s   |
 
 ### Objective
 
@@ -37,6 +40,7 @@ session outlive its first report, and the gate is what stops a second one being 
 
 ### Files changed
 
+- `A	.macp/gates.json`
 - `M	docs/macp.md`
 - `M	docs/manifest.yaml`
 - `M	scripts/macp/cli.mjs`
@@ -69,18 +73,18 @@ session outlive its first report, and the gate is what stops a second one being 
 
 ### Completed
 
-- the vendored runtime takes the standalone as its base: checkpoints, the configurable gate model, resume removed
-- re-applied on top: start --plan <id>, and the session boundary (submit stays live, close acts on the report, the live-lease gate)
-- fixed a ported defect: macpHome's writability probe passed the constants object, so the store silently relocated and every existing lease became invisible
-- five unit tests for the store resolution; two go red when the argument is reverted
+- the vendored runtime takes the standalone as its base; start --plan and the session boundary re-applied on top
+- fixed the ported lease-store defect: the writability probe passed the constants object, so every lease silently relocated
+- declared the six gates in .macp/gates.json — detection had been recording three
+- seven unit tests for the store and the gate set; the store tests go red when the argument is reverted
 
 ### Remaining
 
-- P1 (required_gates) and P2 (evidence) of the remediation plan are still open
+- P1 proper: required_gates still unrecorded at start, so a later submit can still pass --gates with a subset
 
 ### Discovered, not fixed
 
-- the standalone's macpHome has the same defect, so every lease it wrote on this machine went to the fallback store; two stores now exist and disagree
+- detection silently shrank this repo's gate set from six to three, and the first submit on it reported COMPLETED anyway
 
 ### Deferred work
 

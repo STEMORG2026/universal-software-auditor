@@ -432,6 +432,10 @@ export function submit(options) {
     objective: (section(session.text, 'Objective') ?? '').replace(/^## Objective\s*/, '').trim(),
     open_prs: openPrsFor(root, branch),
     gates: gateRecord,
+    // What the repository declares, recorded next to what this run chose to run.
+    // The pair is the point: a report that names one gate while six exist is now
+    // visible as an omission instead of reading as a complete run.
+    required_gates: resolveGateNames(root),
     outcome: options.outcome,
     completed: options.completed,
     remaining: options.remaining,
