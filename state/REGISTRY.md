@@ -28,6 +28,17 @@
 | Since   | 2026-10-25T15:10:36+05:45                                           |
 | Claims  | —                                                                   |
 
+### SA18
+
+| Field   | Value                                                                                                                                                                                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | SA18 (workbuddy)                                                                                                                                                                                                                                                           |
+| Harness | workbuddy                                                                                                                                                                                                                                                                  |
+| Branch  | `feat/plan-item-scope`                                                                                                                                                                                                                                                     |
+| Task    | move MACP-REMEDIATION-PLAN-2026-10-24.md into the repo as docs/remediation-plan.md with a Status column (P3-P6 delivered in #271, P7-P9 pending), and add macp start --plan <id> so a session's scope comes from the plan item rather than from my prose. Stop after that. |
+| Since   | 2026-10-26T02:04:56+05:45                                                                                                                                                                                                                                                  |
+| Claims  | —                                                                                                                                                                                                                                                                          |
+
 ## File Ownership Rules
 
 1. If another **ACTIVE** agent owns files you need → STOP, coordinate via its session file

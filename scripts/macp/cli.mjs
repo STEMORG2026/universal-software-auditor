@@ -14,12 +14,14 @@ import { initAuthority, initRepo, installHooks } from './lib/install.mjs';
 
 const COMMANDS = {
   start: {
-    summary: 'open a session: recon, brief, register, lease',
+    summary: 'open a session: recon, brief, register, lease (scope from --plan or --task)',
     values: [
       'agent',
       'harness',
       'branch',
       'task',
+      'plan',
+      'plan-file',
       'authorized-by',
       'id',
       'history',
@@ -131,6 +133,9 @@ function usage() {
   lines.push(
     '',
     'The state machine: UNBOUND → ACTIVE → CLOSING → COMPLETED → CLOSED → REOPENED',
+    '',
+    'Scope: `start --task "…"` takes it from the flag; `start --plan <id>` takes it from an',
+    'item in docs/remediation-plan.md and refuses any item whose status is not `pending`.',
     'Read docs/macp.md §4D before the first use.',
     '',
     `Backends: MACP_BACKEND=local (default) | jarvis (+ MACP_JARVIS_URL).`,
@@ -150,6 +155,8 @@ function request(name, args) {
         harness: args.harness,
         branch: args.branch,
         task: args.task,
+        plan: args.plan,
+        planFile: args.planFile,
         authorizedBy: args.authorizedBy,
         id: args.id,
         history: args.history,
@@ -213,8 +220,26 @@ function request(name, args) {
 }
 
 function validate(name, args) {
+  // `start` is the one command whose required set depends on a flag: the scope
+  // arrives either as prose (`--task`) or as a plan item (`--plan`), never both.
+  // Passing both is refused rather than silently preferring one — the whole
+  // point of `--plan` is that the scope stops being retyped, and a second copy
+  // is how the two drift apart.
+  if (name === 'start') {
+    if (args.plan && args.task) {
+      return (
+        'pass --task or --plan, not both — with --plan the item in the plan document is the ' +
+        'scope, and a --task alongside it is a second version of the same claim'
+      );
+    }
+    const missing = ['agent', 'harness', 'authorizedBy'].filter((key) => !args[key]);
+    if (!args.plan && !args.task) missing.push('task (or --plan <id>)');
+    return missing.length === 0
+      ? null
+      : `missing required flag(s): ${missing.map((key) => `--${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`).join(', ')}`;
+  }
+
   const required = {
-    start: ['agent', 'harness', 'task', 'authorizedBy'],
     log: ['type', 'summary'],
     resume: ['sshKey', 'reason'],
     abandon: ['sshKey', 'reason'],
