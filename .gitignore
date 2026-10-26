@@ -70,3 +70,7 @@ credentials/
 # sources: a project that wants a rule to cite one copies it somewhere stable
 # (reports/, provenance/) or commits it deliberately with `git add -f`.
 .usa/evidence/
+
+# ci-fabric local state (never commit)
+.ci/
+.localci/
