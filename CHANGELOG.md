@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.28.9
+
+### Patch Changes
+
+- [#275](https://github.com/STEMORG2026/universal-software-auditor/pull/275) [`3767c7d`](https://github.com/STEMORG2026/universal-software-auditor/commit/3767c7df5638253431c489f2750fe1c1e7a25321) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - A SARIF run that analysed nothing is no longer recorded as a clean scan.
+  
+  The shared SARIF parser returned an empty evidence list for a run with an empty
+  `results` array, and for a run with no `results` key at all. Both read as
+  "scanned, found nothing" — the failure the semgrep adapter already guards against
+  in its own code, where a scan that touched no files becomes `UNKNOWN`. Three of
+  the four Tier-1 tools produce SARIF, so the rule existed in one adapter and was
+  missing from the parser they share; CodeQL, wired but never verified end to end,
+  is the case that matters.
+  
+  - A run with no `results` array is `UNKNOWN` — malformed, not clean.
+  - An empty `results` array is `UNKNOWN` when the run says it did not analyse:
+    `invocations[].executionSuccessful: false`, or `artifacts: []`.
+  - Otherwise it stays clean. The evidence of non-analysis must be positive — most
+    producers omit `artifacts`, and treating an absent field as an accusation would
+    turn every clean scan into `UNKNOWN`.
+
 ## 2.28.8
 
 ### Patch Changes
