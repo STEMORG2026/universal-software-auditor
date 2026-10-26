@@ -45,3 +45,7 @@ Machine-stamped at 2026-10-26T12:16:10+05:45 from `macp submit`. Code commit `9d
 Remaining: 1 item(s)
 
 Next: P2 — evidence: make close compare a tree hash, not just the commit it was reported at
+
+### 06:43 — Commit
+
+`887af1a` feat(macp): a gate has three outcomes, not two
