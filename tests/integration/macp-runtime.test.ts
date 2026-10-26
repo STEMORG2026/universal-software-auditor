@@ -133,6 +133,28 @@ function commit(repo: Repo, message: string) {
   execFileSync('git', ['commit', '-qm', message], { cwd: repo.dir, encoding: 'utf8' });
 }
 
+/**
+ * A session as the previous release left it: reported, and parked at
+ * `AWAITING-USER`. `submit` no longer produces this state — it reports and
+ * leaves the session live — so the legacy door `macp resume` guards has to be
+ * constructed rather than reached. It must keep working: a session written by
+ * the old code is still a session the owner can reopen.
+ */
+function legacyAwaitingUser(repo: Repo) {
+  const dir = path.join(repo.dir, 'state/sessions');
+  const file = path.join(dir, readdirSync(dir)[0]!);
+  writeFileSync(
+    file,
+    readFileSync(file, 'utf8').replace(/^\*\*Status:\*\*.*$/m, '**Status:** AWAITING-USER'),
+  );
+  const leases = path.join(repo.home, 'leases');
+  const store = JSON.parse(readFileSync(path.join(leases, readdirSync(leases)[0]!), 'utf8'));
+  for (const lease of Object.values(store.leases) as Record<string, unknown>[]) {
+    lease.state = 'AWAITING-USER';
+  }
+  writeFileSync(path.join(leases, readdirSync(leases)[0]!), `${JSON.stringify(store, null, 2)}\n`);
+}
+
 const START = [
   'start',
   '--agent',
@@ -447,7 +469,11 @@ describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
     repo.run(START);
     commit(repo, 'feat: work');
     expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
-    commit(repo, 'chore(state): record the report');
+    // A reported session still owns the repository: the next session may only
+    // open once the owner has closed this one. That is the boundary the gate
+    // enforces, so the fixture has to walk through it rather than around it.
+    expect(repo.run(['close', '--ssh-key', repo.keys.close]).code).toBe(0);
+    commit(repo, 'chore(state): close');
     branch(repo, 'feat/two');
 
     const r = repo.run([
@@ -479,7 +505,7 @@ describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
     expect(r.out).toMatch(/macp submit/);
   });
 
-  it('submit parks the session in AWAITING-USER and status names it', () => {
+  it('submit reports without ending the session — status stays IN-PROGRESS', () => {
     const repo = makeRepo();
     branch(repo, 'feat/one');
     repo.run(START);
@@ -489,11 +515,12 @@ describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
 
     const dir = path.join(repo.dir, 'state/sessions');
     const file = path.join(dir, readdirSync(dir)[0]!);
-    expect(readFileSync(file, 'utf8')).toMatch(/\*\*Status:\*\* AWAITING-USER/);
+    expect(readFileSync(file, 'utf8')).toMatch(/\*\*Status:\*\* IN-PROGRESS/);
 
-    // Not "none": the branch is not free, it is waiting for the owner.
+    // The owner may answer the report, so the branch is not parked: it is live,
+    // and the guard still permits the agent to act on what he says.
     const status = repo.run(['status']);
-    expect(status.out).toMatch(/AWAITING-USER/);
+    expect(status.out).toMatch(/IN-PROGRESS/);
   });
 
   it('refuses to close when source changed after the gates ran', () => {
@@ -647,6 +674,7 @@ describe('macp runtime — seal and reopen', { timeout: 60_000 }, () => {
     repo.run(START);
     commit(repo, 'feat: work');
     expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
+    legacyAwaitingUser(repo);
 
     const r = repo.run([
       'resume',
@@ -671,6 +699,7 @@ describe('macp runtime — seal and reopen', { timeout: 60_000 }, () => {
     repo.run(START);
     commit(repo, 'feat: work');
     repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
+    legacyAwaitingUser(repo);
 
     const r = repo.run(['resume', '--ssh-key', repo.keys.seal, '--reason', 'r']);
     expect(r.code).toBe(1);

@@ -171,8 +171,9 @@ export function start(options) {
     return {
       code: 1,
       out:
-        `conflict: session ${conflict.session} holds an active lease on ${conflict.branch} ` +
-        `(${conflict.repoRoot}). Close it with \`macp close\` before starting another.`,
+        `conflict: session ${conflict.session} holds a ${conflict.state} lease on ` +
+        `${conflict.branch} (${conflict.repoRoot}). One physical harness session, one MACP ` +
+        'session: continue that one, or have the owner close it, before starting another.',
     };
   }
 
@@ -418,10 +419,15 @@ export function submit(options) {
           .join('\n');
 
   let text = readFileSync(session.file, 'utf8');
-  text = appendToSection(
+  // Replaced, not appended: a session may now be submitted several times as the
+  // owner answers each report, and a pile of stale reports is a record that
+  // argues with itself about which tree the gates measured.
+  text = replaceSection(
     text,
     'Submit report',
     [
+      '## Submit report',
+      '',
       `**Outcome:** ${handoff.outcome}`,
       '',
       `Machine-stamped at ${handoff.closed_at} from \`macp submit\`. Code commit \`${handoff.code_commit_sha.slice(0, 7)}\`.`,
@@ -435,28 +441,32 @@ export function submit(options) {
       `Next: ${handoff.next_recommended_task || '—'}`,
     ].join('\n'),
   );
-  text = withStatus(text, STATUS.AWAITING_USER);
+  // A report is not an ending. The session returns to IN-PROGRESS so the owner
+  // can answer it — "also do X" — and the agent can act on that without a signed
+  // resume between every round. Closing is the owner's decision, made when he is
+  // satisfied, not a state the agent's report forces him into.
+  text = withStatus(text, STATUS.IN_PROGRESS);
   writeText(session.file, text);
 
-  // The agent keeps its REGISTRY entry and the lease: it still owns the branch
-  // until the owner closes, but the lease state is AWAITING-USER, which the
-  // pre-tool guard treats as "no mutations" — the same refusal as UNBOUND.
+  // The lease records that a report exists at this commit; it stays live, so the
+  // second-session guard still sees a session owning the branch. `submittedAt`
+  // is what `close` acts on: the owner closes the tree this report measured.
   putLease(id, {
     ...lease,
-    state: 'AWAITING-USER',
+    state: 'ACTIVE',
     codeCommitSha: handoff.code_commit_sha,
     submittedAt: handoff.closed_at,
   });
-  setIndexStatus(root, session.id, STATUS.AWAITING_USER);
+  setIndexStatus(root, session.id, STATUS.IN_PROGRESS);
 
   return {
     code: 0,
     out:
-      `AWAITING-USER ${session.id} — ${handoff.outcome}\n` +
+      `reported ${session.id} — ${handoff.outcome} (session still IN-PROGRESS)\n` +
       `  report:  state/macp/handoff/${session.id}.json + the region at the top of state/CONTINUATION.md\n` +
       `  gates:   ${results.length === 0 ? 'none run' : results.map((r) => `${r.name}=${r.exit}`).join(' ')}\n` +
       `  tree:    ${handoff.code_commit_sha.slice(0, 7)} — the owner closes this exact tree\n` +
-      '  next:    the owner runs `macp close`, then `macp seal`',
+      '  next:    the owner answers, or `macp close` when satisfied, then `macp seal`',
   };
 }
 
@@ -477,16 +487,24 @@ export function close(options) {
   const { root, id } = context;
   const branch = currentBranch(root);
 
+  // A submitted session, not a state: `submit` now returns the session to
+  // IN-PROGRESS so the owner can answer it, so the proof that this session was
+  // reported is the handoff it left, not the word AWAITING-USER. Sessions
+  // written by the old code are still AWAITING-USER and still carry a handoff,
+  // so they close the same way — no record is stranded by the change.
   const session = sessionsForBranch(root, branch).find(
-    (candidate) => candidate.status === STATUS.AWAITING_USER,
+    (candidate) =>
+      candidate.status !== STATUS.COMPLETED &&
+      candidate.status !== STATUS.CLOSED &&
+      existsSync(handoffPath(root, candidate.id)),
   );
   if (!session) {
     const active = activeSessionForBranch(root, branch);
     return closeAbort(
       active
-        ? `${active.id} is ${active.status}. The agent reports with \`macp submit\` first — a close ` +
-            'acts on a submitted session, not on work in progress.'
-        : `no submitted session on ${branch} — nothing to close.`,
+        ? `${active.id} is ${active.status} and has no report. The agent reports with ` +
+            '`macp submit` first — a close acts on a reported session, not on work in progress.'
+        : `no reported session on ${branch} — nothing to close.`,
     );
   }
 

@@ -209,6 +209,12 @@ standalone:
   - file: state/plans/agent-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md
     reviewed: 2026-10-25
     reason: 'MACP state — SA15 plan (the two changes that unblock PR 270)'
+  - file: state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md
+    reviewed: 2026-10-26
+    reason: 'MACP state — SA19 session file (a report is not an ending; one live session per repo)'
+  - file: state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md
+    reviewed: 2026-10-26
+    reason: 'MACP state — SA19 plan (the session boundary, its costs, and the nine success criteria)'
   - file: state/macp/queue.md
     reviewed: 2026-10-24
     reason: 'MACP state — discovered/deferred queue, appended by `macp queue`'

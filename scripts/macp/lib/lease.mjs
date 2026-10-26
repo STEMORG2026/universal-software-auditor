@@ -69,6 +69,26 @@ export function activeLease(root, repoIdValue, branch) {
 }
 
 /**
+ * States in which a lease still owns its branch.
+ *
+ * `AWAITING-USER` is here, and that is the whole point of this list. It used to
+ * be excluded — the session was "finished", so a second one could open beside
+ * it. But a submitted session is not a closed one: it still owns the branch,
+ * the owner has not acted, and the agent may be asked to continue. `SA18` was
+ * `AWAITING-USER` when `SA19` opened in the same checkout, and the guard that
+ * exists to prevent exactly that saw nothing live.
+ *
+ * A lease that has been closed, dropped or abandoned is not live, and a new
+ * session on that branch is legitimate.
+ */
+export const LIVE_STATES = Object.freeze([
+  'ACTIVE',
+  'CLOSING',
+  'AWAITING-USER',
+  'AWAITING-CHECKPOINT',
+]);
+
+/**
  * Another live lease that this one would collide with.
  *
  * Two collisions matter, and they are different:
@@ -83,7 +103,7 @@ export function activeLease(root, repoIdValue, branch) {
 export function conflictingLease(repoIdValue, candidate) {
   const others = Object.values(readLeases(repoIdValue).leases).filter(
     (lease) =>
-      lease.state === 'ACTIVE' &&
+      LIVE_STATES.includes(lease.state) &&
       ((lease.branch === candidate.branch && lease.session !== candidate.session) ||
         (lease.repoRoot === candidate.repoRoot && lease.branch !== candidate.branch)),
   );

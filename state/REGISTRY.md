@@ -28,6 +28,17 @@
 | Since   | 2026-10-25T15:10:36+05:45                                           |
 | Claims  | —                                                                   |
 
+### SA19
+
+| Field   | Value                                                                                                                                                                       |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agent   | SA19 (workbuddy)                                                                                                                                                            |
+| Harness | workbuddy                                                                                                                                                                   |
+| Branch  | `feat/submit-not-terminal`                                                                                                                                                  |
+| Task    | after submit, anything the owner reports back can be acted on because the session stays active, and the agent submits again — close begins only when the owner is satisfied |
+| Since   | 2026-10-26T10:23:21+05:45                                                                                                                                                   |
+| Claims  | —                                                                                                                                                                           |
+
 ## File Ownership Rules
 
 1. If another **ACTIVE** agent owns files you need → STOP, coordinate via its session file
