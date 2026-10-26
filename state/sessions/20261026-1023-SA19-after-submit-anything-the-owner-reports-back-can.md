@@ -45,3 +45,7 @@ Machine-stamped at 2026-10-26T12:52:54+05:45 from `macp submit`. Code commit `17
 Remaining: 1 item(s)
 
 Next: add today's three findings to docs/remediation-plan.md §5 as a new row, then P0
+
+### 08:12 — Commit
+
+`476ccc6` fix(macp): restore the scope line the port dropped, merging #273
