@@ -49,3 +49,7 @@ Next: P2 — evidence: close should compare a tree hash, not just the commit the
 ### 06:45 — Commit
 
 `65b45e3` docs(macp): the gate table's heading says what it now contains
+
+### 06:57 — Commit
+
+`a0e68ec` fix(macp): a rewritten history could close a tree that was never measured
