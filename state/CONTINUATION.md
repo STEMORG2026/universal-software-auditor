@@ -4,7 +4,7 @@
 
 ## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T11:22:18+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T12:05:04+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
@@ -13,21 +13,18 @@ is a claim, not a measurement.
 | Session            | `SA19` (SA19 (workbuddy) on workbuddy)     |
 | Branch             | `feat/submit-not-terminal`                 |
 | Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
-| Code commit        | `9ce65744a1db12dd33e3b1674651b901af989cc7` |
+| Code commit        | `3d5367058057d4edc41007b1aa4c1694a9396d27` |
 | Working tree clean | yes                                        |
-| Commits            | 2                                          |
+| Commits            | 8                                          |
 | Open PRs           | none                                       |
 
 ### Gates (exit code, measured)
 
-| Gate       | Exit | Time |
-| ---------- | ---- | ---- |
-| typecheck  | 0    | 1s   |
-| lint       | 0    | 2s   |
-| format     | 0    | 7s   |
-| test       | 0    | 113s |
-| docs_all   | 0    | 2s   |
-| self_audit | 0    | 2s   |
+| Gate      | Exit | Time |
+| --------- | ---- | ---- |
+| test      | 0    | 90s  |
+| lint      | 0    | 3s   |
+| typecheck | 0    | 1s   |
 
 ### Objective
 
@@ -42,31 +39,48 @@ session outlive its first report, and the gate is what stops a second one being 
 
 - `M	docs/macp.md`
 - `M	docs/manifest.yaml`
+- `M	scripts/macp/cli.mjs`
+- `M	scripts/macp/hooks/pretool.mjs`
+- `M	scripts/macp/lib/backend.mjs`
+- `M	scripts/macp/lib/brief.mjs`
+- `A	scripts/macp/lib/checkpoint.mjs`
+- `M	scripts/macp/lib/gates.mjs`
+- `M	scripts/macp/lib/handoff.mjs`
+- `M	scripts/macp/lib/install.mjs`
 - `M	scripts/macp/lib/lease.mjs`
 - `M	scripts/macp/lib/lifecycle.mjs`
+- `A	scripts/macp/lib/plan.mjs`
+- `M	scripts/macp/lib/record.mjs`
+- `M	scripts/macp/lib/repo.mjs`
+- `M	scripts/macp/lib/seal.mjs`
+- `M	scripts/macp/lib/session.mjs`
+- `M	scripts/macp/lib/verify.mjs`
+- `M	state/CONTINUATION.md`
 - `M	state/DASHBOARD.md`
 - `M	state/INDEX.md`
 - `M	state/REGISTRY.md`
+- `A	state/macp/handoff/SA19.json`
 - `A	state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md`
 - `A	state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md`
+- `M	tests/integration/macp-pretool-guard.test.ts`
 - `M	tests/integration/macp-runtime.test.ts`
 - `A	tests/integration/macp-session-boundary.test.ts`
+- `A	tests/unit/macp-lease-home.test.ts`
 
 ### Completed
 
-- submit returns the session to IN-PROGRESS and the lease to ACTIVE, so the owner's answer can be acted on without a signed resume
-- close acts on the handoff rather than on a status, and still closes legacy AWAITING-USER sessions
-- conflictingLease widened to every live state; a second session is refused while one holds the repo
-- docs/macp.md: state diagram, state table, authority table, and the cost of losing the parked state
-- ten boundary tests, five planted defects watched red, five old tests rewritten to the new contract
+- the vendored runtime takes the standalone as its base: checkpoints, the configurable gate model, resume removed
+- re-applied on top: start --plan <id>, and the session boundary (submit stays live, close acts on the report, the live-lease gate)
+- fixed a ported defect: macpHome's writability probe passed the constants object, so the store silently relocated and every existing lease became invisible
+- five unit tests for the store resolution; two go red when the argument is reverted
 
 ### Remaining
 
-- P1 and P2 of the remediation plan are still open; this change is not yet a row in its §5 table
+- P1 (required_gates) and P2 (evidence) of the remediation plan are still open
 
 ### Discovered, not fixed
 
-- the gate only sees leases this machine wrote — a session started with a different MACP_HOME is invisible to it
+- the standalone's macpHome has the same defect, so every lease it wrote on this machine went to the fallback store; two stores now exist and disagree
 
 ### Deferred work
 
@@ -78,7 +92,7 @@ _none_
 
 ### Next recommended task
 
-add the session-boundary change to docs/remediation-plan.md §5, then P1
+P1 — record required_gates at start and let close add but never remove
 
 ### Required context for the next session
 

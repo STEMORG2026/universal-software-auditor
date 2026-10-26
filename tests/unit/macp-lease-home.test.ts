@@ -1,8 +1,9 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { macpHome } from '../../scripts/macp/lib/repo.mjs';
+import { resolveGateNames } from '../../scripts/macp/lib/gates.mjs';
 
 /**
  * The lease store must not move on its own.
@@ -105,5 +106,48 @@ describe('macpHome', () => {
         expect(macpHome().startsWith(path.resolve(__dirname, '../..'))).toBe(false);
       },
     );
+  });
+});
+
+/**
+ * The gate set must not shrink silently.
+ *
+ * This repository declares its gates in `.macp/gates.json` because detection is
+ * a guess: `detectGates` recognises `test`, `lint` and `typecheck` by script
+ * name and nothing else, so a repo with six gates was recorded as having three —
+ * and `submit` reported COMPLETED on that third of the evidence. It happened on
+ * 2026-10-26, in the very commit that ported the runtime.
+ *
+ * The list below is the contract. Adding a gate to CI means adding it here, and
+ * removing one means saying so in a diff a reviewer can see.
+ */
+describe('the declared gate set', () => {
+  const ROOT = path.resolve(__dirname, '../..');
+
+  it('declares exactly the gates this repository enforces', () => {
+    expect(resolveGateNames(ROOT)).toEqual([
+      'typecheck',
+      'lint',
+      'format',
+      'test',
+      'docs_all',
+      'self_audit',
+    ]);
+  });
+
+  it('names only package scripts that exist', () => {
+    const pkg = JSON.parse(readFileSync(path.join(ROOT, 'package.json'), 'utf8')) as {
+      scripts?: Record<string, string>;
+    };
+    const scripts = pkg.scripts ?? {};
+    const referenced = readFileSync(path.join(ROOT, '.macp', 'gates.json'), 'utf8').match(
+      /npm", "(?:run", )?"([^"]+)"/g,
+    );
+    expect(referenced).not.toBeNull();
+    for (const match of referenced!) {
+      const name = /"([^"]+)"$/.exec(match)?.[1];
+      expect(name, match).toBeTruthy();
+      expect(Object.keys(scripts)).toContain(name);
+    }
   });
 });

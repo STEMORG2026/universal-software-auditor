@@ -31,25 +31,14 @@ session outlive its first report, and the gate is what stops a second one being 
 
 **Outcome:** COMPLETED
 
-Machine-stamped at 2026-10-26T11:22:18+05:45 from `macp submit`. Code commit `9ce6574`.
+Machine-stamped at 2026-10-26T12:05:04+05:45 from `macp submit`. Code commit `3d53670`.
 
-| Gate       | Exit | Time |
-| ---------- | ---- | ---- |
-| typecheck  | 0    | 1s   |
-| lint       | 0    | 2s   |
-| format     | 0    | 7s   |
-| test       | 0    | 113s |
-| docs_all   | 0    | 2s   |
-| self_audit | 0    | 2s   |
+| Gate      | Exit | Time |
+| --------- | ---- | ---- |
+| test      | 0    | 90s  |
+| lint      | 0    | 3s   |
+| typecheck | 0    | 1s   |
 
 Remaining: 1 item(s)
 
-Next: add the session-boundary change to docs/remediation-plan.md §5, then P1
-
-### 06:11 — Commit
-
-`b2f51fb` feat(macp): take the standalone runtime as the source of truth, then re-apply our two changes
-
-### 06:18 — Commit
-
-`7f708ab` fix(macp): the lease store stopped resolving to ~/.macp, silently
+Next: P1 — record required_gates at start and let close add but never remove
