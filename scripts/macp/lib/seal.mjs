@@ -264,9 +264,28 @@ export function signPayload(payload, keyPath) {
   return withTempDir((dir) => {
     const messageFile = path.join(dir, 'payload.txt');
     writeFileSync(messageFile, payload, 'utf8');
-    run('ssh-keygen', ['-Y', 'sign', '-f', keyPath, '-n', SIGN_NAMESPACE, messageFile], {
-      interactive: true,
-    });
+    // Sign with the private key when it can be used, and fall back to the public
+    // key so `ssh-agent` can sign instead. `ssh-keygen -Y sign -f <key>.pub` uses
+    // the agent for the private half — which is the only way a *passphrase-
+    // protected* key can sign without a terminal to prompt in.
+    //
+    // Without this, an owner who protects his keys (the right thing to do) can
+    // only close a session by typing a passphrase into an interactive shell, so
+    // an agent can never perform a close he has authorised — and the alternative
+    // owners reach for is a key with no passphrase at all.
+    try {
+      run('ssh-keygen', ['-Y', 'sign', '-f', keyPath, '-n', SIGN_NAMESPACE, messageFile], {
+        interactive: true,
+      });
+    } catch (error) {
+      try {
+        run('ssh-keygen', ['-Y', 'sign', '-f', publicKeyPath, '-n', SIGN_NAMESPACE, messageFile], {
+          interactive: false,
+        });
+      } catch {
+        throw error;
+      }
+    }
     const signature = readFileSync(`${messageFile}.sig`);
     return {
       signature: signature.toString('base64'),
