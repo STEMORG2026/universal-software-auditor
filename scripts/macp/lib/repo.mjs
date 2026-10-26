@@ -92,7 +92,13 @@ export function macpHome() {
   // machine: ~/.macp exists read-only; mkdirSync succeeded; putLease died.
   try {
     mkdirSync(primary, { recursive: true });
-    accessSync(primary, constants);
+    // `accessSync` takes a *mode*, not the `constants` object. Passing the
+    // object threw ERR_INVALID_ARG_TYPE on every call, so the catch below always
+    // fired and every lease went to the fallback — a silent relocation that made
+    // the whole `~/.macp` store invisible. Found by a `submit` refusing with
+    // "no lease ... this machine never ran start", while the lease sat in the
+    // store the runtime had stopped reading.
+    accessSync(primary, constants.W_OK);
     return primary;
   } catch {
     return path.join(homedir(), 'Projects', '.macp-home');
