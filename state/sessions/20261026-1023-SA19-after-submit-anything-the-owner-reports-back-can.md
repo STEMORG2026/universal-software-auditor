@@ -65,3 +65,7 @@ Next: add today's three findings to docs/remediation-plan.md §5 as a new row, t
 ### 12:48 — Commit
 
 `4011e19` docs(state): record what SA19 actually did, and where it left the plan
+
+### 12:51 — Commit
+
+`d3757bd` fix(state): restore SA18's index row, and gate the protocol checks
