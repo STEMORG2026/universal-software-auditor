@@ -300,6 +300,7 @@ export function start(options) {
     out:
       `${existing ? 'resumed' : 'started'} ${id_} on ${branch}\n` +
       `  session: ${path.relative(root, filePath)}\n  plan:    ${path.relative(root, planPath)}\n` +
+      `  scope:   ${planItem ? `plan item ${planItem.id} (${planItem.status}) from ${planItem.file}` : 'from --task'}\n` +
       `  lease:   ${leasePath(id)} (untracked, local)\n` +
       (brief ? `\n${brief}` : ''),
   };

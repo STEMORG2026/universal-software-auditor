@@ -16,6 +16,7 @@ Written by `macp log --type BUG_FOUND|DEFERRED`; closed by `macp queue --done <i
 - [ ] `Q008` macp start writes state/INDEX.md and state/REGISTRY.md in a form prettier --check rejects, so the format gate fails on the runtime's own bookkeeping and a COMPLETED close is refused until a human reformats them — files: scripts/macp/lib/statefiles.mjs (BUG_FOUND, SA13, 2026-10-24)
 - [ ] `Q009` F-28: renaming a PR branch orphans the session that names it, and the gate refuses (BUG_FOUND, SA13, 2026-10-25)
 - [ ] `Q010` F-30: extracting a branch's unique diff silently reverted a fix already on the base, and the resulting CodeQL thread blocked the merge via required_conversation_resolution (BUG_FOUND, SA13, 2026-10-25)
+- [ ] `Q011` check-manifest enforces classification in both directions: a tracked doc must be listed, and a listed doc must be tracked — so the session and plan files must be committed before the manifest check can pass (BUG_FOUND, SA18, 2026-10-26)
 
 ## Done
 

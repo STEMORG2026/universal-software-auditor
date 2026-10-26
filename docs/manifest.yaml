@@ -68,6 +68,9 @@ standalone:
   - file: docs/macp.md
     reviewed: 2026-10-09
     reason: baseline classification — multi-agent coordination protocol
+  - file: docs/remediation-plan.md
+    reviewed: 2026-10-26
+    reason: MACP remediation programme — the phase status table `start --plan` reads
   - file: docs/MIGRATION-pnpm-changesets.md
     reviewed: 2026-09-26
     reason: baseline classification — migration history note
@@ -209,6 +212,12 @@ standalone:
   - file: state/plans/agent-SA15-unblock-pr-270-unfilter-the-ci-triggers-so-stack.md
     reviewed: 2026-10-25
     reason: 'MACP state — SA15 plan (the two changes that unblock PR 270)'
+  - file: state/sessions/20261026-0204-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md
+    reviewed: 2026-10-26
+    reason: 'MACP state — SA18 session file (plan document into the repo, `start --plan`, breach record)'
+  - file: state/plans/agent-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md
+    reviewed: 2026-10-26
+    reason: 'MACP state — SA18 plan (the plan-item binding, its refusals, rollback and success criteria)'
   - file: state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md
     reviewed: 2026-10-26
     reason: 'MACP state — SA19 session file (a report is not an ending; one live session per repo)'
