@@ -2,148 +2,71 @@
 
 <!-- macp:handoff:begin -->
 
-## Handoff — SA13 (COMPLETED)
+## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-25T10:19:28+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T11:22:18+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
-| Fact               | Value                                                                |
-| ------------------ | -------------------------------------------------------------------- |
-| Session            | `SA13` (SA13 (WorkBuddy) on WorkBuddy)                               |
-| Branch             | `audit/macp-enforcement`                                             |
-| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                           |
-| Code commit        | `a5009e905828f7bfbce24c92a3ff201f88815309`                           |
-| Working tree clean | yes                                                                  |
-| Commits            | 45                                                                   |
-| Open PRs           | #271 docs(macp): enforcement audit + remediation plan (SA13) (CLEAN) |
+| Fact               | Value                                      |
+| ------------------ | ------------------------------------------ |
+| Session            | `SA19` (SA19 (workbuddy) on workbuddy)     |
+| Branch             | `feat/submit-not-terminal`                 |
+| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
+| Code commit        | `9ce65744a1db12dd33e3b1674651b901af989cc7` |
+| Working tree clean | yes                                        |
+| Commits            | 2                                          |
+| Open PRs           | none                                       |
 
 ### Gates (exit code, measured)
 
 | Gate       | Exit | Time |
 | ---------- | ---- | ---- |
 | typecheck  | 0    | 1s   |
-| lint       | 0    | 3s   |
-| format     | 0    | 8s   |
-| test       | 0    | 110s |
-| docs_all   | 0    | 3s   |
+| lint       | 0    | 2s   |
+| format     | 0    | 7s   |
+| test       | 0    | 113s |
+| docs_all   | 0    | 2s   |
 | self_audit | 0    | 2s   |
 
 ### Objective
 
-Determine whether the existing MACP implementation is fully functional as designed,
-and whether it actually **enforces** the MACP protocol rather than merely instructing
-an agent to follow it — covering session startup, objective creation, planning,
-execution, testing, gates, reporting, human-controlled closure, reopening
-authorization, deletion/destruction protection, session persistence and recovery,
-and agent/tool enforcement.
+after submit, anything the owner reports back can be acted on because the session stays active, and the agent submits again — close begins only when the owner is satisfied
 
-The deliverable is a classification, per requirement, of IMPLEMENTED / EXECUTED /
-ENFORCED, with reproducible evidence for every claim, and a final verdict that does
-not treat the existence of a file, a script, a prompt or a test as proof of
-enforcement.
-
-**Second deliverable (added 2026-10-24T21:56, owner instruction).** Using that
-audit as the basis, produce a dependency-ordered remediation plan that makes MACP
-_enforce_ the lifecycle rather than document it. The plan is design only: no MACP
-source change, no commit, no push, no close, and no weakening or reinterpretation
-of the audit's findings. The audit verdict (completeness 45 %, enforcement 14 %)
-is the frozen pre-remediation baseline and must not be edited to suit the plan.
-
-**Third deliverable (added 2026-10-24T23:03, owner instruction: "resume sa13").**
-Implement the owner's authority model. In his words: "closing must be done by me with
-key so do sealing as well and reopen as well … It also needs my passkey and it is not
-same for close, sealing, its a different passkey."
-
-Concretely: **every lifecycle act is gated by the owner's key, and no two acts share a
-passphrase** — which, because a passphrase belongs to a key file, means a distinct key
-and principal per act:
-
-| Act         | Transition                  | Principal       |
-| ----------- | --------------------------- | --------------- |
-| report done | `ACTIVE → AWAITING_USER`    | agent, unsigned |
-| close       | `AWAITING_USER → COMPLETED` | `macp-close`    |
-| seal        | `COMPLETED → CLOSED`        | `macp-seal`     |
-| reopen      | `CLOSED → REOPENED`         | `macp-reopen`   |
-| destroy     | `CLOSED → DESTROYED`        | `macp-destroy`  |
-
-Consequence: `macp close` today writes `COMPLETED` with no key, so gating it forces an
-`AWAITING_USER` state and an unprivileged `submit` first — P4 precedes P3 in the plan,
-and `state/macp/owner.pub` becomes `state/macp/allowed_signers`.
+**Widened at 10:31, in the owner's words:** "Build the gate." — `start` must refuse a second
+session while one is already live in this repository, so a physical harness conversation cannot
+hold two MACP sessions. The two are one change: the non-terminal submit is what makes a live
+session outlive its first report, and the gate is what stops a second one being opened alongside it.
 
 ### Files changed
 
-- `A	.changeset/macp-runtime-v2.md`
-- `M	.github/workflows/protocol-check.yml`
-- `M	.usa.yaml`
-- `M	AGENTS.md`
-- `M	DOCS_AUDIT_REPORT.md`
-- `A	docs/adr/0045-macp-runtime-and-ssh-seal.md`
-- `A	docs/adr/0046-authority-per-lifecycle-act.md`
-- `M	docs/adr/README.md`
 - `M	docs/macp.md`
 - `M	docs/manifest.yaml`
-- `M	eslint.config.mjs`
-- `M	package.json`
-- `M	scripts/auto-update-state.mjs`
-- `M	scripts/check-docs.mjs`
-- `M	scripts/check-session-start.mjs`
-- `M	scripts/check-sessions.mjs`
-- `M	scripts/lib/docs-sync.mjs`
-- `A	scripts/macp/cli.mjs`
-- `A	scripts/macp/hooks/adapters/hermes_plugin.py`
-- `A	scripts/macp/hooks/adapters/opencode-plugin.ts`
-- `A	scripts/macp/hooks/pretool.mjs`
-- `A	scripts/macp/lib/backend.mjs`
-- `A	scripts/macp/lib/brief.mjs`
-- `A	scripts/macp/lib/gates.mjs`
-- `A	scripts/macp/lib/handoff.mjs`
-- `A	scripts/macp/lib/install.mjs`
-- `A	scripts/macp/lib/lease.mjs`
-- `A	scripts/macp/lib/lifecycle.mjs`
-- `A	scripts/macp/lib/record.mjs`
-- `A	scripts/macp/lib/repo.mjs`
-- `A	scripts/macp/lib/seal.mjs`
-- `A	scripts/macp/lib/session.mjs`
-- `A	scripts/macp/lib/statefiles.mjs`
-- `A	scripts/macp/lib/verify.mjs`
-- `M	scripts/sync-docs.mjs`
-- `M	state.md`
-- `M	state/CONTINUATION.md`
+- `M	scripts/macp/lib/lease.mjs`
+- `M	scripts/macp/lib/lifecycle.mjs`
 - `M	state/DASHBOARD.md`
-- `M	state/DECISIONS.md`
 - `M	state/INDEX.md`
 - `M	state/REGISTRY.md`
-- `M	state/STARTUP.md`
-- `A	state/macp/allowed_signers`
-- `A	state/macp/handoff/SA12.json`
-- `A	state/macp/handoff/SA13.json`
-- `A	state/macp/owner.pub`
-- `A	state/macp/queue.md`
-- `A	state/plans/agent-SA12-macp-runtime-v2.md`
-- `A	state/plans/agent-SA13-audit-whether-macp-is-functionally-complete-and-.md`
-- `A	state/sessions/20261024-1840-SA12-macp-runtime-v2.md`
-- `A	state/sessions/20261024-2137-SA13-audit-whether-macp-is-functionally-complete-and-.md`
-- `A	tests/integration/macp-pretool-guard.test.ts`
-- `A	tests/integration/macp-runtime.test.ts`
-- `A	tests/integration/macp-sessions-gate.test.ts`
-- `A	tests/integration/macp-state-maintenance.test.ts`
-- `M	tests/integration/session-start-gate.test.ts`
-- `A	tests/unit/docs-sync-records.test.ts`
-- `A	tests/unit/macp-handoff.test.ts`
-- `A	tests/unit/macp-queue-format.test.ts`
+- `A	state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md`
+- `A	state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md`
+- `M	tests/integration/macp-runtime.test.ts`
+- `A	tests/integration/macp-session-boundary.test.ts`
 
 ### Completed
 
-- x
+- submit returns the session to IN-PROGRESS and the lease to ACTIVE, so the owner's answer can be acted on without a signed resume
+- close acts on the handoff rather than on a status, and still closes legacy AWAITING-USER sessions
+- conflictingLease widened to every live state; a second session is refused while one holds the repo
+- docs/macp.md: state diagram, state table, authority table, and the cost of losing the parked state
+- ten boundary tests, five planted defects watched red, five old tests rewritten to the new contract
 
 ### Remaining
 
-_none_
+- P1 and P2 of the remediation plan are still open; this change is not yet a row in its §5 table
 
 ### Discovered, not fixed
 
-_none_
+- the gate only sees leases this machine wrote — a session started with a different MACP_HOME is invisible to it
 
 ### Deferred work
 
@@ -155,7 +78,7 @@ _none_
 
 ### Next recommended task
 
-_not stated_
+add the session-boundary change to docs/remediation-plan.md §5, then P1
 
 ### Required context for the next session
 

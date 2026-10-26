@@ -1,0 +1,87 @@
+{
+  "schema": "macp-handoff-v1",
+  "session": "SA19",
+  "agent": "SA19 (workbuddy)",
+  "harness": "workbuddy",
+  "branch": "feat/submit-not-terminal",
+  "base_commit_sha": "4a4a63b89e00d4a99100048812fbc4aac72c6ec2",
+  "start_head_sha": "1736196d72f225b7b100c2801e683eb0d14b5259",
+  "code_commit_sha": "9ce65744a1db12dd33e3b1674651b901af989cc7",
+  "working_tree_clean": true,
+  "commits": [
+    "9ce6574 chore(state): auto-update from post-commit hook",
+    "b67c3ec feat(macp): a report is not an ending, and one repo holds one live session"
+  ],
+  "files_changed": [
+    "M\tdocs/macp.md",
+    "M\tdocs/manifest.yaml",
+    "M\tscripts/macp/lib/lease.mjs",
+    "M\tscripts/macp/lib/lifecycle.mjs",
+    "M\tstate/DASHBOARD.md",
+    "M\tstate/INDEX.md",
+    "M\tstate/REGISTRY.md",
+    "A\tstate/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md",
+    "A\tstate/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md",
+    "M\ttests/integration/macp-runtime.test.ts",
+    "A\ttests/integration/macp-session-boundary.test.ts"
+  ],
+  "objective": "after submit, anything the owner reports back can be acted on because the session stays active, and the agent submits again — close begins only when the owner is satisfied\n\n**Widened at 10:31, in the owner's words:** \"Build the gate.\" — `start` must refuse a second\nsession while one is already live in this repository, so a physical harness conversation cannot\nhold two MACP sessions. The two are one change: the non-terminal submit is what makes a live\nsession outlive its first report, and the gate is what stops a second one being opened alongside it.",
+  "open_prs": [],
+  "gates": {
+    "typecheck": {
+      "name": "typecheck",
+      "exit": 0,
+      "ms": 1154,
+      "tail": ""
+    },
+    "lint": {
+      "name": "lint",
+      "exit": 0,
+      "ms": 2488,
+      "tail": ""
+    },
+    "format": {
+      "name": "format",
+      "exit": 0,
+      "ms": 6520,
+      "tail": "Checking formatting...\nAll matched files use Prettier code style!"
+    },
+    "test": {
+      "name": "test",
+      "exit": 0,
+      "ms": 113309,
+      "tail": "     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-007: gutting the check flips a fixture outcome\u001b[33m 409\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/integration/macp-runtime.test.ts \u001b[2m(\u001b[22m\u001b[2m41 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 112752\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — start \u001b[2m(5)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m is idempotent: a second start resumes rather than conflicting\u001b[33m 374\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a second agent on the same branch\u001b[33m 483\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a session while another branch holds the lease in the same tree\u001b[33m 554\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — log and queue \u001b[2m(2)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to log without a lease, even when a session file exists\u001b[33m 457\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m queues BUG_FOUND and DEFERRED, and resolves them\u001b[33m 1003\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — submit and close \u001b[2m(14)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses a dirty source tree\u001b[33m 437\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses COMPLETED when a gate is red, and names it\u001b[33m 9132\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m allows PARTIAL to close red when the remainder is named\u001b[33m 5401\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses PARTIAL without a next task, and without a remainder\u001b[33m 5406\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m records a tail even when the failing gate itself printed nothing\u001b[33m 5075\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m writes the handoff region into CONTINUATION.md\u001b[33m 5231\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m aborts the close when HEAD moves after the freeze\u001b[33m 384\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when the key is loaded in ssh-agent\u001b[33m 5065\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when the key is loaded in ssh-agent\u001b[33m 5082\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m records the objective and the files this session changed\u001b[33m 4826\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m prints the previous handoff when the next session starts\u001b[33m 5265\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m submit reports without ending the session — status stays IN-PROGRESS\u001b[33m 4720\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close when source changed after the gates ran\u001b[33m 4711\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m macp runtime — seal and reopen \u001b[2m(13)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to seal without a private key\u001b[33m 4586\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m seals, verifies, and refuses a reopen without the key\u001b[33m 4965\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m detects a tampered close block\u001b[33m 4951\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m reopens with the key and re-verifies\u001b[33m 4960\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m still verifies a seal made before the principal file existed\u001b[33m 4916\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m resumes a submitted session with the close key\u001b[33m 4629\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to resume with the seal key\u001b[33m 4285\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m abandons an active session with the close key\u001b[33m 582\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to close with the seal key — a signature is not enough\u001b[33m 4130\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to seal with the close key\u001b[33m 4358\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m refuses to reopen with the seal key\u001b[33m 4679\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m81 passed\u001b[39m\u001b[22m\u001b[90m (81)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1591 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m1 skipped\u001b[39m\u001b[90m (1592)\u001b[39m\n\u001b[2m   Start at \u001b[22m 11:20:19\n\u001b[2m   Duration \u001b[22m 112.99s\u001b[2m (tests 92%, import 6%, transform 2%)\u001b[22m"
+    },
+    "docs_all": {
+      "name": "docs_all",
+      "exit": 0,
+      "ms": 2066,
+      "tail": "ADR hygiene: OK (46 records, index complete)\ndocs governance: OK (150 docs · facts 2.28.7/315 rules · sections · flags · links · index · pins)\nwrote docs/reference/cli.md\nwrote examples/sample-report.md\nwrote /home/sajan/Projects/Universal_Software_Auditor/docs/reference/asvs-coverage.md (345 controls, 29 covered)\nwrote /home/sajan/Projects/Universal_Software_Auditor/tests/fixtures/asvs-coverage-snapshot.json\ndoc manifest: OK (152 tracked docs · 81 standalone · 180-day review window)"
+    },
+    "self_audit": {
+      "name": "self_audit",
+      "exit": 0,
+      "ms": 2409,
+      "tail": "usa 100/100 (beta) — 99 passed, no open findings, 36 to review (66.4% verified automatically)\n  report → AUDIT.md"
+    }
+  },
+  "outcome": "COMPLETED",
+  "completed": [
+    "submit returns the session to IN-PROGRESS and the lease to ACTIVE, so the owner's answer can be acted on without a signed resume",
+    "close acts on the handoff rather than on a status, and still closes legacy AWAITING-USER sessions",
+    "conflictingLease widened to every live state; a second session is refused while one holds the repo",
+    "docs/macp.md: state diagram, state table, authority table, and the cost of losing the parked state",
+    "ten boundary tests, five planted defects watched red, five old tests rewritten to the new contract"
+  ],
+  "remaining": [
+    "P1 and P2 of the remediation plan are still open; this change is not yet a row in its §5 table"
+  ],
+  "discovered_bugs": [
+    "the gate only sees leases this machine wrote — a session started with a different MACP_HOME is invisible to it"
+  ],
+  "deferred_work": [],
+  "traps_learned": [],
+  "next_recommended_task": "add the session-boundary change to docs/remediation-plan.md §5, then P1",
+  "required_context": [],
+  "closed_at": "2026-10-26T11:22:18+05:45"
+}

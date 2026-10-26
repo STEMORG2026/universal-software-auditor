@@ -26,3 +26,22 @@ session outlive its first report, and the gate is what stops a second one being 
 ### 05:34 — Commit
 
 `b67c3ec` feat(macp): a report is not an ending, and one repo holds one live session
+
+## Submit report
+
+**Outcome:** COMPLETED
+
+Machine-stamped at 2026-10-26T11:22:18+05:45 from `macp submit`. Code commit `9ce6574`.
+
+| Gate       | Exit | Time |
+| ---------- | ---- | ---- |
+| typecheck  | 0    | 1s   |
+| lint       | 0    | 2s   |
+| format     | 0    | 7s   |
+| test       | 0    | 113s |
+| docs_all   | 0    | 2s   |
+| self_audit | 0    | 2s   |
+
+Remaining: 1 item(s)
+
+Next: add the session-boundary change to docs/remediation-plan.md §5, then P1
