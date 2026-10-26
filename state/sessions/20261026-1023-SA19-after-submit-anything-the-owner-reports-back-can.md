@@ -50,3 +50,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 13:59 — Commit
 
 `8cb5d79` fix(macp): a passphrase-protected key can sign through ssh-agent
+
+### 14:01 — Commit
+
+`112f7b3` revert(macp): drop the ssh-agent signing fallback — the runtime refuses agent keys
