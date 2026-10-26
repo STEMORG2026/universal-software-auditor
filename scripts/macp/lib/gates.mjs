@@ -174,12 +174,32 @@ export function gateCommands(root, name) {
  * The timeout is generous because a `test` gate can be minutes, and a gate
  * that reports a timeout as a failure would be lying about which thing failed.
  */
+/**
+ * A gate result has three outcomes, not two.
+ *
+ * `pass` and `fail` are measurements. `unverified` is the absence of one: the
+ * tool is not installed, the gate was never configured, or the command did not
+ * finish inside its timeout. All three used to collapse into a non-zero exit, so
+ * "trivy is not installed on this machine" was recorded as "trivy found
+ * something" — the record could not tell a red gate from an unread one.
+ *
+ * USA's report already separates these (`PASS` / `UNKNOWN` / `automationCoverage`
+ * and *"unverified checks are excluded from the score rather than counted as
+ * passes"*). This is the same distinction, in the place the handoff reads.
+ */
 export function runGate(root, name, { timeoutMs = 20 * 60 * 1000 } = {}) {
   let steps;
   try {
     steps = gateCommands(root, name);
   } catch (error) {
-    return { name, exit: 2, ms: 0, tail: error.message };
+    return {
+      name,
+      status: 'unverified',
+      reason: `not configured: ${error.message}`,
+      exit: 2,
+      ms: 0,
+      tail: error.message,
+    };
   }
   const started = Date.now();
   let out = '';
@@ -196,15 +216,36 @@ export function runGate(root, name, { timeoutMs = 20 * 60 * 1000 } = {}) {
     } catch (error) {
       const stdout = typeof error.stdout === 'string' ? error.stdout : '';
       const stderr = typeof error.stderr === 'string' ? error.stderr : '';
+      const exit = typeof error.status === 'number' ? error.status : 1;
+      const unverified = unverifiedReason(error, command);
       return {
         name,
-        exit: typeof error.status === 'number' ? error.status : 1,
+        status: unverified ? 'unverified' : 'fail',
+        ...(unverified ? { reason: unverified } : {}),
+        exit,
         ms: Date.now() - started,
-        tail: tail(`${out}${stdout}\n${stderr}`),
+        tail: tail(`${out}${stdout}\n${stderr}`) || unverified || '',
       };
     }
   }
-  return { name, exit: 0, ms: Date.now() - started, tail: tail(out) };
+  return { name, status: 'pass', exit: 0, ms: Date.now() - started, tail: tail(out) };
+}
+
+/**
+ * Why this error means "no verdict" rather than "a verdict of fail".
+ *
+ * Deliberately narrow: only the cases where the command provably did not run to
+ * a conclusion. Anything else is a failure, because assuming an unreadable
+ * failure is unverified would let a genuinely red gate hide as unknown.
+ */
+function unverifiedReason(error, command) {
+  if (error && error.code === 'ENOENT') {
+    return `\`${command}\` is not installed — the gate could not be verified`;
+  }
+  if (error && (error.code === 'ETIMEDOUT' || error.signal === 'SIGTERM')) {
+    return 'the gate did not finish inside its timeout — no verdict was reached';
+  }
+  return null;
 }
 
 /** Run the named gates in order, stopping at nothing — every result is recorded. */
@@ -212,7 +253,25 @@ export function runGates(root, names) {
   return names.map((name) => runGate(root, name));
 }
 
-/** Names of the gates that did not exit 0. */
+/** Names of the gates that produced a verdict of fail. */
 export function failedGates(results) {
-  return results.filter((result) => result.exit !== 0).map((result) => result.name);
+  return results.filter((result) => gateStatus(result) === 'fail').map((result) => result.name);
+}
+
+/** Names of the gates that produced no verdict at all. */
+export function unverifiedGates(results) {
+  return results
+    .filter((result) => gateStatus(result) === 'unverified')
+    .map((result) => result.name);
+}
+
+/**
+ * The status of a recorded gate, including records written before `status`
+ * existed — those are read from the exit code, which is what they had.
+ */
+export function gateStatus(gate) {
+  if (gate && (gate.status === 'pass' || gate.status === 'fail' || gate.status === 'unverified')) {
+    return gate.status;
+  }
+  return gate && gate.exit === 0 ? 'pass' : 'fail';
 }

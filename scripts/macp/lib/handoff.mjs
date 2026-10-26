@@ -13,6 +13,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { gateStatus } from './gates.mjs';
 import { writeText } from './repo.mjs';
 
 export const OUTCOMES = Object.freeze(['COMPLETED', 'PARTIAL', 'BLOCKED']);
@@ -38,7 +39,15 @@ export function validateHandoff(handoff) {
   }
 
   const gateEntries = Object.entries(handoff.gates ?? {});
-  const failed = gateEntries.filter(([, gate]) => gate.exit !== 0).map(([name]) => name);
+  const failed = gateEntries
+    .filter(([, gate]) => gateStatus(gate) === 'fail')
+    .map(([name]) => name);
+  // No verdict: the tool was missing, the gate was never configured, or it timed
+  // out. It is neither a pass nor a failure, and recording it as either is the
+  // difference between "we checked" and "we could not check".
+  const unverified = gateEntries
+    .filter(([, gate]) => gateStatus(gate) === 'unverified')
+    .map(([name, gate]) => `${name} (${gate.reason ?? 'no verdict'})`);
 
   // What the repository declared, as opposed to what this run chose to run.
   // Without it a report can name one gate and close COMPLETED, and nothing in
@@ -57,6 +66,13 @@ export function validateHandoff(handoff) {
         `COMPLETED requires every gate this repository declares; ${notRun.join(', ')} ` +
           'was not run. The declared set is recorded at submit so it cannot be narrowed after ' +
           'the work — run them, or close as PARTIAL and name the omission in remaining[].',
+      );
+    }
+    if (unverified.length > 0) {
+      problems.push(
+        `COMPLETED requires a verdict from every gate that ran; ${unverified.join('; ')}. ` +
+          'An unverified gate is not a passing one — install the tool, or close as PARTIAL and ' +
+          'name what could not be checked in remaining[].',
       );
     }
     if (failed.length > 0) {
@@ -95,7 +111,10 @@ function bullets(items, empty = '_none_') {
 export function renderHandoff(handoff) {
   const gates = Object.entries(handoff.gates ?? {});
   const gateRows = gates
-    .map(([name, gate]) => `| ${name} | ${gate.exit} | ${Math.round(gate.ms / 1000)}s |`)
+    .map(
+      ([name, gate]) =>
+        `| ${name} | ${gateStatus(gate)} | ${gate.exit} | ${Math.round(gate.ms / 1000)}s |`,
+    )
     .join('\n');
   const required = Array.isArray(handoff.required_gates) ? handoff.required_gates : [];
   const notRun = required.filter((name) => !(name in (handoff.gates ?? {})));
@@ -128,10 +147,13 @@ export function renderHandoff(handoff) {
     '### Gates (exit code, measured)',
     '',
     gateRows.length > 0
-      ? `| Gate | Exit | Time |\n| ---- | ---- | ---- |\n${gateRows}` +
+      ? `| Gate | Verdict | Exit | Time |\n| ---- | ------- | ---- | ---- |\n${gateRows}` +
         (required.length > 0
           ? `\n\nDeclared by this repository: **${required.length}** · run: **${gates.length}**` +
-            (notRun.length > 0 ? ` · **not run: ${notRun.join(', ')}**` : ' · all run')
+            (notRun.length > 0 ? ` · **not run: ${notRun.join(', ')}**` : ' · all run') +
+            (gates.length > 0
+              ? ` · verified: **${gates.filter(([, gate]) => gateStatus(gate) === 'pass').length}**`
+              : '')
           : '')
       : '_none run_',
     '',

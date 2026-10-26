@@ -468,7 +468,10 @@ export function submit(options) {
     results.length === 0
       ? '| _none run_ | | |'
       : results
-          .map((result) => `| ${result.name} | ${result.exit} | ${Math.round(result.ms / 1000)}s |`)
+          .map(
+            (result) =>
+              `| ${result.name} | ${result.status} | ${result.exit} | ${Math.round(result.ms / 1000)}s |`,
+          )
           .join('\n');
 
   let text = readFileSync(session.file, 'utf8');
@@ -485,8 +488,8 @@ export function submit(options) {
       '',
       `Machine-stamped at ${handoff.closed_at} from \`macp submit\`. Code commit \`${handoff.code_commit_sha.slice(0, 7)}\`.`,
       '',
-      '| Gate | Exit | Time |',
-      '| ---- | ---- | ---- |',
+      '| Gate | Verdict | Exit | Time |',
+      '| ---- | ------- | ---- | ---- |',
       gateTable,
       '',
       `Remaining: ${handoff.remaining.length === 0 ? 'none' : `${handoff.remaining.length} item(s)`}`,

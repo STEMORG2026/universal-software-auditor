@@ -378,7 +378,10 @@ describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
     const continuation = readFileSync(path.join(repo.dir, 'state/CONTINUATION.md'), 'utf8');
     expect(continuation).toContain('<!-- macp:handoff:begin -->');
     expect(continuation).toContain('Handoff — T01 (COMPLETED)');
-    expect(continuation).toContain('| typecheck | 0 |');
+    // The table carries a verdict now, not just an exit code: a gate that ran and
+    // passed, one that ran and failed, and one that never got a verdict are three
+    // different facts and used to render identically.
+    expect(continuation).toContain('| typecheck | pass | 0 |');
   });
 
   it('aborts the close when HEAD moves after the freeze', () => {
