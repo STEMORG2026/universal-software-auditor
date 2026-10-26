@@ -31,21 +31,17 @@ session outlive its first report, and the gate is what stops a second one being 
 
 **Outcome:** COMPLETED
 
-Machine-stamped at 2026-10-26T12:16:10+05:45 from `macp submit`. Code commit `9d64519`.
+Machine-stamped at 2026-10-26T12:30:27+05:45 from `macp submit`. Code commit `f0315dd`.
 
-| Gate       | Exit | Time |
-| ---------- | ---- | ---- |
-| typecheck  | 0    | 1s   |
-| lint       | 0    | 3s   |
-| format     | 0    | 7s   |
-| test       | 0    | 108s |
-| docs_all   | 0    | 2s   |
-| self_audit | 0    | 2s   |
+| Gate       | Verdict | Exit | Time |
+| ---------- | ------- | ---- | ---- |
+| typecheck  | pass    | 0    | 1s   |
+| lint       | pass    | 0    | 3s   |
+| format     | pass    | 0    | 8s   |
+| test       | pass    | 0    | 107s |
+| docs_all   | pass    | 0    | 3s   |
+| self_audit | pass    | 0    | 3s   |
 
 Remaining: 1 item(s)
 
-Next: P2 — evidence: make close compare a tree hash, not just the commit it was reported at
-
-### 06:43 — Commit
-
-`887af1a` feat(macp): a gate has three outcomes, not two
+Next: P2 — evidence: close should compare a tree hash, not just the commit the report was written at

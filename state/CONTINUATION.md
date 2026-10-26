@@ -4,7 +4,7 @@
 
 ## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T12:16:10+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T12:30:27+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
@@ -13,23 +13,23 @@ is a claim, not a measurement.
 | Session            | `SA19` (SA19 (workbuddy) on workbuddy)                                                                                 |
 | Branch             | `feat/submit-not-terminal`                                                                                             |
 | Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                                                                             |
-| Code commit        | `9d645198572e8fd2665c1f00307e06ad47d41889`                                                                             |
+| Code commit        | `f0315dde6dc27f763ce860d89be9dfb9c3b5188a`                                                                             |
 | Working tree clean | yes                                                                                                                    |
-| Commits            | 12                                                                                                                     |
+| Commits            | 16                                                                                                                     |
 | Open PRs           | #275 feat(macp): take the standalone runtime as the source of truth, and fix the two defects the port exposed (BEHIND) |
 
 ### Gates (exit code, measured)
 
-| Gate       | Exit | Time |
-| ---------- | ---- | ---- |
-| typecheck  | 0    | 1s   |
-| lint       | 0    | 3s   |
-| format     | 0    | 7s   |
-| test       | 0    | 108s |
-| docs_all   | 0    | 2s   |
-| self_audit | 0    | 2s   |
+| Gate       | Verdict | Exit | Time |
+| ---------- | ------- | ---- | ---- |
+| typecheck  | pass    | 0    | 1s   |
+| lint       | pass    | 0    | 3s   |
+| format     | pass    | 0    | 8s   |
+| test       | pass    | 0    | 107s |
+| docs_all   | pass    | 0    | 3s   |
+| self_audit | pass    | 0    | 3s   |
 
-Declared by this repository: **6** · run: **6** · all run
+Declared by this repository: **6** · run: **6** · all run · verified: **6**
 
 ### Objective
 
@@ -72,21 +72,23 @@ session outlive its first report, and the gate is what stops a second one being 
 - `A	tests/integration/macp-required-gates.test.ts`
 - `M	tests/integration/macp-runtime.test.ts`
 - `A	tests/integration/macp-session-boundary.test.ts`
+- `A	tests/integration/macp-unverified-gates.test.ts`
 - `A	tests/unit/macp-lease-home.test.ts`
 
 ### Completed
 
-- the declared gate set is recorded beside the run, and COMPLETED is refused while they differ
-- PARTIAL may close short if the omission is named; the rendered block prints declared vs run
-- four tests, two planted defects watched red and restored byte-identically
+- a gate now records pass / fail / unverified with a reason, instead of collapsing three situations into a non-zero exit
+- COMPLETED is refused while any gate that ran is unverified; PARTIAL may still close short
+- both gate tables carry a Verdict column and the handoff prints verified: N
+- seven tests, three planted defects watched red and restored byte-identically
 
 ### Remaining
 
-- the record still has no 'unverified' state — a gate that did not run is an omission, not an unknown
+- the verdict is per-gate; there is no aggregate coverage figure the way USA reports automationCoverage
 
 ### Discovered, not fixed
 
-- P1's contract is now in place for the gate set; the score-level equivalent (USA's UNKNOWN / automationCoverage) has no counterpart in MACP
+- an unverified gate was previously indistinguishable from a red one in the record, which is the class the audit's P2 covers
 
 ### Deferred work
 
@@ -98,7 +100,7 @@ _none_
 
 ### Next recommended task
 
-P2 — evidence: make close compare a tree hash, not just the commit it was reported at
+P2 — evidence: close should compare a tree hash, not just the commit the report was written at
 
 ### Required context for the next session
 
