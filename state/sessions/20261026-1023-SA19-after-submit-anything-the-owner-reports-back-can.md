@@ -49,3 +49,7 @@ Next: add today's three findings to docs/remediation-plan.md §5 as a new row, t
 ### 08:12 — Commit
 
 `476ccc6` fix(macp): restore the scope line the port dropped, merging #273
+
+### 08:18 — Commit
+
+`a0da9af` chore: ignore local CI state, which is run evidence and not source
