@@ -4,19 +4,19 @@
 
 ## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T12:07:52+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T12:16:10+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
-| Fact               | Value                                      |
-| ------------------ | ------------------------------------------ |
-| Session            | `SA19` (SA19 (workbuddy) on workbuddy)     |
-| Branch             | `feat/submit-not-terminal`                 |
-| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
-| Code commit        | `eb76144f59b2de39950d08d37077f919e8d4f76c` |
-| Working tree clean | yes                                        |
-| Commits            | 10                                         |
-| Open PRs           | none                                       |
+| Fact               | Value                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Session            | `SA19` (SA19 (workbuddy) on workbuddy)                                                                                 |
+| Branch             | `feat/submit-not-terminal`                                                                                             |
+| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                                                                             |
+| Code commit        | `9d645198572e8fd2665c1f00307e06ad47d41889`                                                                             |
+| Working tree clean | yes                                                                                                                    |
+| Commits            | 12                                                                                                                     |
+| Open PRs           | #275 feat(macp): take the standalone runtime as the source of truth, and fix the two defects the port exposed (BEHIND) |
 
 ### Gates (exit code, measured)
 
@@ -25,9 +25,11 @@ is a claim, not a measurement.
 | typecheck  | 0    | 1s   |
 | lint       | 0    | 3s   |
 | format     | 0    | 7s   |
-| test       | 0    | 106s |
+| test       | 0    | 108s |
 | docs_all   | 0    | 2s   |
 | self_audit | 0    | 2s   |
+
+Declared by this repository: **6** · run: **6** · all run
 
 ### Objective
 
@@ -67,24 +69,24 @@ session outlive its first report, and the gate is what stops a second one being 
 - `A	state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md`
 - `A	state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md`
 - `M	tests/integration/macp-pretool-guard.test.ts`
+- `A	tests/integration/macp-required-gates.test.ts`
 - `M	tests/integration/macp-runtime.test.ts`
 - `A	tests/integration/macp-session-boundary.test.ts`
 - `A	tests/unit/macp-lease-home.test.ts`
 
 ### Completed
 
-- the vendored runtime takes the standalone as its base; start --plan and the session boundary re-applied on top
-- fixed the ported lease-store defect: the writability probe passed the constants object, so every lease silently relocated
-- declared the six gates in .macp/gates.json — detection had been recording three
-- seven unit tests for the store and the gate set; the store tests go red when the argument is reverted
+- the declared gate set is recorded beside the run, and COMPLETED is refused while they differ
+- PARTIAL may close short if the omission is named; the rendered block prints declared vs run
+- four tests, two planted defects watched red and restored byte-identically
 
 ### Remaining
 
-- P1 proper: required_gates still unrecorded at start, so a later submit can still pass --gates with a subset
+- the record still has no 'unverified' state — a gate that did not run is an omission, not an unknown
 
 ### Discovered, not fixed
 
-- detection silently shrank this repo's gate set from six to three, and the first submit on it reported COMPLETED anyway
+- P1's contract is now in place for the gate set; the score-level equivalent (USA's UNKNOWN / automationCoverage) has no counterpart in MACP
 
 ### Deferred work
 
@@ -96,7 +98,7 @@ _none_
 
 ### Next recommended task
 
-P1 — record required_gates at start and let close add but never remove
+P2 — evidence: make close compare a tree hash, not just the commit it was reported at
 
 ### Required context for the next session
 

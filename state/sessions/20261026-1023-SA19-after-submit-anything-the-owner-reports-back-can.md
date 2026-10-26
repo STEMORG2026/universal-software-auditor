@@ -31,21 +31,17 @@ session outlive its first report, and the gate is what stops a second one being 
 
 **Outcome:** COMPLETED
 
-Machine-stamped at 2026-10-26T12:07:52+05:45 from `macp submit`. Code commit `eb76144`.
+Machine-stamped at 2026-10-26T12:16:10+05:45 from `macp submit`. Code commit `9d64519`.
 
 | Gate       | Exit | Time |
 | ---------- | ---- | ---- |
 | typecheck  | 0    | 1s   |
 | lint       | 0    | 3s   |
 | format     | 0    | 7s   |
-| test       | 0    | 106s |
+| test       | 0    | 108s |
 | docs_all   | 0    | 2s   |
 | self_audit | 0    | 2s   |
 
 Remaining: 1 item(s)
 
-Next: P1 — record required_gates at start and let close add but never remove
-
-### 06:28 — Commit
-
-`facd31c` feat(macp): the declared gate set cannot be narrowed after the work
+Next: P2 — evidence: make close compare a tree hash, not just the commit it was reported at
