@@ -53,3 +53,7 @@ Next: P2 — evidence: close should compare a tree hash, not just the commit the
 ### 06:57 — Commit
 
 `a0e68ec` fix(macp): a rewritten history could close a tree that was never measured
+
+### 07:05 — Commit
+
+`a77a8b7` fix(macp): a seal failed verification on an unchanged file, about one run in four
