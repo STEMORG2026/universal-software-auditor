@@ -50,10 +50,49 @@ function runEvidence(run: unknown, runIndex: number, options: SarifEvidenceOptio
   const toolVersion = String(dig(driver, ['version']) ?? options.adapterVersion);
   const rules = ruleIndex(dig(driver, ['rules']));
   const results = dig(run, ['results']);
-  if (!Array.isArray(results)) return [];
-  return results.map((result, index) =>
-    resultToEvidence(result, { index, runIndex, toolVersion, rules, options }),
-  );
+  if (!Array.isArray(results)) {
+    // A run with no `results` key is malformed, not clean. Returning [] here made
+    // it indistinguishable from a scan that ran and found nothing.
+    return [
+      unknown(options.tool, toolVersion, `run ${runIndex} has no results array — nothing was read`),
+    ];
+  }
+  if (results.length > 0) {
+    return results.map((result, index) =>
+      resultToEvidence(result, { index, runIndex, toolVersion, rules, options }),
+    );
+  }
+
+  // No results. That is a clean scan only if the run says it analysed something;
+  // otherwise it is the "analysed nothing" case, which the semgrep adapter guards
+  // against explicitly and this shared parser did not. Evidence of non-analysis
+  // has to be positive — a producer that simply omits `artifacts` is not accused.
+  const noVerdict = notAnalysed(run);
+  if (noVerdict) return [unknown(options.tool, toolVersion, noVerdict)];
+  return [];
+}
+
+/**
+ * Why an empty `results` array means "nothing was analysed" rather than "nothing
+ * was found", or null when the SARIF does not say.
+ *
+ * Two positive signals, both from the spec:
+ *   - `invocations[].executionSuccessful: false` — the run reported that it failed;
+ *   - `artifacts: []` — the run listed the files it analysed and there were none.
+ */
+function notAnalysed(run: unknown): string | null {
+  const invocations = dig(run, ['invocations']);
+  if (Array.isArray(invocations)) {
+    const failed = invocations.some(
+      (invocation) => dig(invocation, ['executionSuccessful']) === false,
+    );
+    if (failed) return 'the run reported executionSuccessful: false — no verdict was reached';
+  }
+  const artifacts = dig(run, ['artifacts']);
+  if (Array.isArray(artifacts) && artifacts.length === 0) {
+    return 'the run listed no artifacts — nothing was analysed, which is not a clean result';
+  }
+  return null;
 }
 
 type RuleIndex = Map<string, { text?: string; cwes?: string[]; level?: string }>;
