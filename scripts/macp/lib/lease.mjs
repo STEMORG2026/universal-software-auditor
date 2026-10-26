@@ -69,6 +69,22 @@ export function activeLease(root, repoIdValue, branch) {
 }
 
 /**
+ * States in which a lease still owns its branch.
+ *
+ * `AWAITING-USER` is here on purpose. It used to be excluded — the session was
+ * "finished", so a second one could open beside it — but a submitted session is
+ * not a closed one: it still owns the branch and the owner has not acted. SA18
+ * was AWAITING-USER when SA19 opened in the same checkout, and the guard that
+ * exists to prevent exactly that saw nothing live.
+ */
+export const LIVE_STATES = Object.freeze([
+  'ACTIVE',
+  'CLOSING',
+  'AWAITING-USER',
+  'AWAITING-CHECKPOINT',
+]);
+
+/**
  * Another live lease that this one would collide with.
  *
  * Two collisions matter, and they are different:
@@ -83,7 +99,7 @@ export function activeLease(root, repoIdValue, branch) {
 export function conflictingLease(repoIdValue, candidate) {
   const others = Object.values(readLeases(repoIdValue).leases).filter(
     (lease) =>
-      lease.state === 'ACTIVE' &&
+      LIVE_STATES.includes(lease.state) &&
       ((lease.branch === candidate.branch && lease.session !== candidate.session) ||
         (lease.repoRoot === candidate.repoRoot && lease.branch !== candidate.branch)),
   );
@@ -116,9 +132,9 @@ export function makeLease({
     // audit's F-14: attributing commits from `master..HEAD` gave a stacked
     // session credit for the session below it.
     startHeadSha: startHeadSha ?? null,
-    // The plan item this session was scoped to, and the plan's sha at the
-    // moment it was scoped. `null` for a `--task` session, which is the honest
-    // record: that scope came from prose and has no document behind it.
+    // The plan item this session was scoped to, and the plan's sha when it was
+    // scoped. `null` for a `--task` session, which is the honest record: that
+    // scope came from prose and has no document behind it.
     plan: plan ?? null,
     startedAt: now,
     heartbeatAt: now,

@@ -25,7 +25,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { accessSync, constants as fsConstants, existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const MUTATING_TOOLS = new Set([
@@ -106,12 +106,26 @@ export function repoIdOf(root) {
   return `${slug}-${createHash('sha256').update(identity).digest('hex').slice(0, 8)}`;
 }
 
+/**
+ * The same store the runtime uses: `$MACP_HOME`, else writable `~/.macp`,
+ * else the workspace fallback. Kept in sync with `src/lib/repo.mjs` — when the
+ * guard and the runtime disagreed about the store's location, the guard said
+ * UNBOUND while the start gate said OK, and the freeze became advisory.
+ */
+function macpStoreBase() {
+  if (process.env.MACP_HOME) return process.env.MACP_HOME;
+  const primary = path.join(process.env.HOME ?? '~', '.macp');
+  try {
+    return accessSync(primary, fsConstants.W_OK)
+      ? primary
+      : path.join(process.env.HOME ?? '~', 'Projects', '.macp-home');
+  } catch {
+    return path.join(process.env.HOME ?? '~', 'Projects', '.macp-home');
+  }
+}
+
 function leaseFor(root, branch, home) {
-  // `MACP_HOME` first, because that is the variable the runtime and the gates
-  // use to relocate the store. Reading only `~/.macp` here made the guard and
-  // `check-session-start.mjs` disagree about where the lease lives whenever the
-  // store was moved — the guard said UNBOUND while the gate said OK.
-  const base = home ?? process.env.MACP_HOME ?? path.join(process.env.HOME ?? '~', '.macp');
+  const base = home ?? macpStoreBase();
   const store = path.join(base, 'leases');
   const file = path.join(store, `${repoIdOf(root)}.json`);
   if (!existsSync(file)) return { file, lease: null };
@@ -150,7 +164,7 @@ export function decide(input, { home } = {}) {
     return { allow: true, reason: `session ${lease.session} holds the lease` };
   }
 
-  // CLOSING is a freeze, not a licence. The runtime notices a moved HEAD at the
+  // CLOSING is a freeze, not a licence. The runtime detects a moved HEAD at the
   // next close, but by then the edit has already happened; refusing here is what
   // makes "source is frozen" true rather than merely checked afterwards (F-16).
   if (lease && lease.state === 'CLOSING') {
@@ -159,7 +173,23 @@ export function decide(input, { home } = {}) {
       reason:
         `${lease.session} is CLOSING on ${branch}: the source is frozen at ` +
         `${String(lease.codeCommitSha).slice(0, 7)} while the gates run. No edits until the close ` +
-        'completes, or HEAD moves and the close is voided.',
+        'completes or HEAD moves and the close is voided.',
+    };
+  }
+
+  // AWAITING-CHECKPOINT is the one-way stop: the agent finished a task and
+  // asked for direction. Only the owner's `macp ack <n>` releases the branch —
+  // there is no self-continue, and that is what makes it a gate rather than
+  // a courtesy.
+  if (lease && lease.state === 'AWAITING-CHECKPOINT') {
+    return {
+      allow: false,
+      reason:
+        `${lease.session} is waiting on checkpoint ${lease.checkpointNumber ?? '?'} on ${branch}: ` +
+        'the task is submitted for the owner to check, and the branch is frozen at ' +
+        `${String(lease.checkpointCommit ?? '').slice(0, 7)} until they ack.\n` +
+        `Release it with: macp ack ${lease.checkpointNumber ?? '<n>'} --ssh-key <key>\n` +
+        'The agent cannot lift this stop itself.',
     };
   }
 
@@ -182,10 +212,10 @@ export function decide(input, { home } = {}) {
       `MACP is UNBOUND on ${branch}: no active session lease for this repository.\n` +
       'Read-only reconnaissance is allowed; editing and committing are not.\n\n' +
       'Start the session first:\n' +
-      '  pnpm run macp -- start --agent <ID> --harness <name> --task "<the one piece of work>" \\\n' +
+      '  macp start --agent <ID> --harness <name> --task "<the one piece of work>" \\\n' +
       '    --authorized-by "<the owner\'s instruction, verbatim>"\n\n' +
       `Lease expected at: ${file}\n` +
-      'See docs/macp.md §4D. If the work is not authorised, ask the owner for a session.',
+      'See docs/PROTOCOL.md §4D. If the work is not authorised, ask the owner for a session.',
   };
 }
 

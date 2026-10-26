@@ -195,8 +195,7 @@ export function renderSession(fields) {
     `**Status:** ${fields.status ?? STATUS.IN_PROGRESS}`,
     `**Base commit:** ${fields.baseCommit}`,
     // Only present when the scope came from a plan item. A `--task` session has
-    // no line here on purpose: the absence says "this objective was typed",
-    // which is a fact the next reader is entitled to.
+    // no line here on purpose: the absence says "this objective was typed".
     ...(fields.plan ? [`**Plan:** ${fields.plan}`] : []),
     '',
     `# Session ${fields.id} — ${fields.title}`,

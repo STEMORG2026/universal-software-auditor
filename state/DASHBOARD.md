@@ -6,14 +6,14 @@
 
 <!-- macp:generated:begin -->
 
-**Machine Reconciled:** 2026-10-25T20:25:55.518+05:45
+**Machine Reconciled:** 2026-10-26T14:09:47.211+05:45
 **Reconciled by:** `scripts/auto-update-state.mjs` (post-commit) — every value below is measured
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
 
-- **Version:** 2.28.7
-- **Branch:** `feat/plan-item-scope`
-- **Tracked markdown:** 159
+- **Version:** 2.28.8
+- **Branch:** `feat/submit-not-terminal`
+- **Tracked markdown:** 161
 - **ADRs:** <!-- usa:fact adrs -->46<!-- /usa:fact -->
 
 > This block is generated. Edit anything outside it, never inside it: the next

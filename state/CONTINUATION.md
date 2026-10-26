@@ -2,70 +2,113 @@
 
 <!-- macp:handoff:begin -->
 
-## Handoff — SA18 (COMPLETED)
+## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T02:10:43+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T18:39:02+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
-| Fact               | Value                                      |
-| ------------------ | ------------------------------------------ |
-| Session            | `SA18` (SA18 (workbuddy) on workbuddy)     |
-| Branch             | `feat/plan-item-scope`                     |
-| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2` |
-| Code commit        | `38ee0e27f9d538bb7b0d1846e18eb2d8feda22a7` |
-| Working tree clean | yes                                        |
-| Commits            | 2                                          |
-| Open PRs           | none                                       |
+| Fact               | Value                                                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Session            | `SA19` (SA19 (workbuddy) on workbuddy)                                                                                |
+| Branch             | `feat/submit-not-terminal`                                                                                            |
+| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                                                                            |
+| Code commit        | `fb8f91ed155bc44bbe5d98fa0685441630c11f59`                                                                            |
+| Code tree          | `ea61add7718ce2bfc8771d9707ceb2cf4c8f0bea`                                                                            |
+| Working tree clean | yes                                                                                                                   |
+| Commits            | 41                                                                                                                    |
+| Open PRs           | #275 feat(macp): take the standalone runtime as the source of truth, and fix the two defects the port exposed (CLEAN) |
 
-### Gates (exit code, measured)
+### Gates (verdict and exit, measured)
 
-| Gate       | Exit | Time |
-| ---------- | ---- | ---- |
-| typecheck  | 0    | 1s   |
-| lint       | 0    | 3s   |
-| format     | 0    | 6s   |
-| test       | 0    | 104s |
-| docs_all   | 0    | 2s   |
-| self_audit | 0    | 2s   |
+| Gate       | Verdict | Exit | Time |
+| ---------- | ------- | ---- | ---- |
+| typecheck  | pass    | 0    | 1s   |
+| lint       | pass    | 0    | 3s   |
+| format     | pass    | 0    | 7s   |
+| test       | pass    | 0    | 108s |
+| docs_all   | pass    | 0    | 2s   |
+| self_audit | pass    | 0    | 2s   |
+| protocol   | pass    | 0    | 0s   |
+
+Declared by this repository: **7** · run: **7** · all run · verified: **7**
 
 ### Objective
 
-move MACP-REMEDIATION-PLAN-2026-10-24.md into the repo as docs/remediation-plan.md with a Status column (P3-P6 delivered in #271, P7-P9 pending), and add macp start --plan <id> so a session's scope comes from the plan item rather than from my prose. Stop after that.
+after submit, anything the owner reports back can be acted on because the session stays active, and the agent submits again — close begins only when the owner is satisfied
+
+**Widened at 10:31, in the owner's words:** "Build the gate." — `start` must refuse a second
+session while one is already live in this repository, so a physical harness conversation cannot
+hold two MACP sessions. The two are one change: the non-terminal submit is what makes a live
+session outlive its first report, and the gate is what stops a second one being opened alongside it.
 
 ### Files changed
 
+- `D	.changeset/macp-runtime-v2.md`
+- `A	.changeset/sarif-empty-is-not-clean.md`
+- `M	.gitignore`
+- `A	.macp/gates.json`
+- `M	CHANGELOG.md`
+- `A	ci`
+- `A	ci.toml`
 - `M	docs/README.md`
+- `M	docs/macp.md`
 - `M	docs/manifest.yaml`
 - `A	docs/remediation-plan.md`
+- `M	examples/sample-report.md`
+- `M	package.json`
 - `M	scripts/macp/cli.mjs`
+- `M	scripts/macp/hooks/pretool.mjs`
+- `M	scripts/macp/lib/backend.mjs`
+- `M	scripts/macp/lib/brief.mjs`
+- `A	scripts/macp/lib/checkpoint.mjs`
+- `M	scripts/macp/lib/gates.mjs`
 - `M	scripts/macp/lib/handoff.mjs`
+- `M	scripts/macp/lib/install.mjs`
 - `M	scripts/macp/lib/lease.mjs`
 - `M	scripts/macp/lib/lifecycle.mjs`
 - `A	scripts/macp/lib/plan.mjs`
+- `M	scripts/macp/lib/record.mjs`
+- `M	scripts/macp/lib/repo.mjs`
+- `M	scripts/macp/lib/seal.mjs`
 - `M	scripts/macp/lib/session.mjs`
+- `M	scripts/macp/lib/verify.mjs`
+- `M	src/scanner/sarif.ts`
+- `M	state/CONTINUATION.md`
 - `M	state/DASHBOARD.md`
 - `M	state/INDEX.md`
 - `M	state/REGISTRY.md`
+- `A	state/macp/handoff/SA18.json`
+- `A	state/macp/handoff/SA19.json`
 - `M	state/macp/queue.md`
 - `A	state/plans/agent-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md`
+- `A	state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md`
 - `A	state/sessions/20261026-0204-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md`
+- `A	state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md`
+- `A	tests/integration/macp-evidence.test.ts`
 - `A	tests/integration/macp-plan-scope.test.ts`
+- `M	tests/integration/macp-pretool-guard.test.ts`
+- `A	tests/integration/macp-required-gates.test.ts`
+- `M	tests/integration/macp-runtime.test.ts`
+- `A	tests/integration/macp-seal-payload.test.ts`
+- `A	tests/integration/macp-session-boundary.test.ts`
+- `A	tests/integration/macp-unverified-gates.test.ts`
+- `A	tests/unit/macp-lease-home.test.ts`
+- `M	tests/unit/scanner.test.ts`
 
 ### Completed
 
-- docs/remediation-plan.md in the repo, with a Status column on §5 and the phase table the flag reads
-- scripts/macp/lib/plan.mjs: an item is a row in a table with a Status column, first cell a bare id, plus the ### <id> section as scope
-- start --plan <id>: objective from the item body, plan recorded in session, lease and handoff; delivered/partial ids refused
-- six planted defects watched red, then restored byte-identically; full suite 1587 passed, 1 skipped
+- restored SA18's index row, which my merge resolution dropped; protocol:sessions is green again
+- added the protocol gate — the check that would have caught it before submit
+- the gate-config test parses the JSON instead of regexing its text
 
 ### Remaining
 
-- P1 (gate integrity) and P2 (evidence) are still open — #271 delivered P3-P6 first
+- SA18 is AWAITING-USER with its PR merged — closing it needs your key
 
 ### Discovered, not fixed
 
-- state drift found at step 8: SA13 and SA15 session files say IN-PROGRESS while their handoffs and PRs say otherwise; REGISTRY lists both as active
+- the gate set never ran the repository's own protocol checks, so a green submit said nothing about them
 
 ### Deferred work
 
@@ -77,7 +120,7 @@ _none_
 
 ### Next recommended task
 
-P1 — record required_gates at start, and let close add but never remove
+close SA18, then P0's D1-D8 decisions
 
 ### Required context for the next session
 

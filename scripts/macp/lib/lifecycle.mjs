@@ -3,7 +3,7 @@
  *
  * `UNBOUND → ACTIVE → CLOSING → COMPLETED → CLOSED → REOPENED → CLOSING …`
  *
- * The transitions are here rather than in `docs/macp.md` because prose cannot
+ * The transitions are here rather than in `docs/PROTOCOL.md` because prose cannot
  * refuse. A document that says "an agent must not start work without a session"
  * is advice; a command that exits 1 is a gate.
  */
@@ -35,6 +35,7 @@ import {
   section,
   sessionFileName,
   sessionsDir,
+  listSessions,
   sessionsForBranch,
   slugify,
   statusOf,
@@ -56,8 +57,9 @@ import {
   upsertIndexRow,
 } from './statefiles.mjs';
 import { buildBrief } from './brief.mjs';
-import { DEFAULT_GATES, failedGates, runGates } from './gates.mjs';
+import { failedGates, resolveGateNames, runGates } from './gates.mjs';
 import { handoffPath, renderHandoff, validateHandoff, writeHandoffRegion } from './handoff.mjs';
+import { unackedCheckpoints } from './checkpoint.mjs';
 import { resolvePlanItem } from './plan.mjs';
 import {
   ACTS,
@@ -72,7 +74,6 @@ import {
   principalFor,
   readSigners,
   reopenPayload,
-  resumePayload,
   sealPayload,
   signPayload,
   verifyPayload,
@@ -125,11 +126,8 @@ function requireRepo() {
 
 /**
  * The objective a plan item produces: the item's own words, with its id and the
- * plan's sha above them.
- *
- * The body is copied, not summarised. A summary would be a second version of
- * the scope written by the party the scope constrains — the same defect as
- * `--task`, one layer down.
+ * plan's sha above them. Copied, not summarised — a summary would be a second
+ * version of the scope written by the party the scope constrains.
  */
 function planObjective(item) {
   return `**${item.id} — ${item.title}** · from \`${item.file}\` (sha \`${item.sha}\`)\n\n${item.body}`;
@@ -166,14 +164,10 @@ export function start(options) {
   }
 
   // The scope: an item in the plan document, or a sentence someone typed.
-  // `--plan` is resolved before anything is written, because a session opened
-  // against a phase that is already delivered is exactly the work this flag is
-  // meant to stop — and it cannot be undone by editing a session file.
+  // Resolved before anything is written, because a session opened against a
+  // delivered phase cannot be undone by editing a session file afterwards.
   if (options.plan && options.task) {
-    return {
-      code: 1,
-      out: 'pass --task or --plan, not both — the plan item is the scope',
-    };
+    return { code: 1, out: 'pass --task or --plan, not both — the plan item is the scope' };
   }
   let planItem = null;
   if (options.plan) {
@@ -205,8 +199,9 @@ export function start(options) {
     return {
       code: 1,
       out:
-        `conflict: session ${conflict.session} holds an active lease on ${conflict.branch} ` +
-        `(${conflict.repoRoot}). Close it with \`macp close\` before starting another.`,
+        `conflict: session ${conflict.session} holds a ${conflict.state} lease on ` +
+        `${conflict.branch} (${conflict.repoRoot}). One physical harness session, one MACP ` +
+        'session: continue that one, or have the owner close it, before starting another.',
     };
   }
 
@@ -368,6 +363,21 @@ export function submit(options) {
     );
   }
 
+  // The submit gate: every task checkpoint must have been acked by the owner
+  // before the session itself may be submitted. This is what makes "you don't
+  // close on half work" structural — an objective with five tasks produces
+  // five owner acks along the way, not one surprise at the end.
+  const unacked = unackedCheckpoints(readFileSync(session.file, 'utf8'));
+  if (unacked.length > 0) {
+    return closeAbort(
+      `the session has ${unacked.length} unacked task checkpoint(s):\n` +
+        `${unacked.map((e) => `  ${e.number}. ${e.title} (submitted ${e.submittedAt})`).join('\n')}\n` +
+        'A submit is the session-level report; each task inside it was supposed to be ' +
+        'checked as it finished. The owner acks with `macp ack <n> --ssh-key <key>`; ' +
+        'then this submit will pass.',
+    );
+  }
+
   if (lease.state === 'CLOSING' && lease.codeCommitSha !== headSha(root)) {
     putLease(id, { ...lease, state: 'ACTIVE', codeCommitSha: undefined, closingAt: undefined });
     return closeAbort(
@@ -388,7 +398,7 @@ export function submit(options) {
 
   if (lease.state !== 'CLOSING') freeze(lease, root, id);
 
-  const gateNames = options.gates ?? DEFAULT_GATES;
+  const gateNames = resolveGateNames(root, options.gates);
   const results = options.runGates ? runGates(root, gateNames) : [];
   const gateRecord = Object.fromEntries(results.map((result) => [result.name, result]));
 
@@ -414,16 +424,24 @@ export function submit(options) {
     base_commit_sha: field(session.text, 'Base commit') ?? '',
     start_head_sha: startHead,
     code_commit_sha: headSha(root),
+    // The tree, not just the commit. A commit id identifies a *history*; a tree id
+    // identifies the content the gates actually ran against, and it survives a
+    // rewrite of that history in a way the commit id does not.
+    code_tree_sha: git(['rev-parse', `${headSha(root)}^{tree}`], { cwd: root, allowFail: true }),
     working_tree_clean: dirtySource(root).length === 0,
-    // Read from the lease, not from the session file: the lease is the record
-    // that `start` wrote on this machine, and the plan's sha is what makes a
-    // later edit to the plan document visible as a difference.
+    // Read from the lease, not the session file: the lease is what `start`
+    // wrote on this machine, and the plan's sha is what makes a later edit to
+    // the plan document visible as a difference.
     plan: lease.plan ?? null,
     commits,
     files_changed: filesChanged,
     objective: (section(session.text, 'Objective') ?? '').replace(/^## Objective\s*/, '').trim(),
     open_prs: openPrsFor(root, branch),
     gates: gateRecord,
+    // What the repository declares, recorded next to what this run chose to run.
+    // The pair is the point: a report that names one gate while six exist is now
+    // visible as an omission instead of reading as a complete run.
+    required_gates: resolveGateNames(root),
     outcome: options.outcome,
     completed: options.completed,
     remaining: options.remaining,
@@ -456,20 +474,28 @@ export function submit(options) {
     results.length === 0
       ? '| _none run_ | | |'
       : results
-          .map((result) => `| ${result.name} | ${result.exit} | ${Math.round(result.ms / 1000)}s |`)
+          .map(
+            (result) =>
+              `| ${result.name} | ${result.status} | ${result.exit} | ${Math.round(result.ms / 1000)}s |`,
+          )
           .join('\n');
 
   let text = readFileSync(session.file, 'utf8');
-  text = appendToSection(
+  // Replaced, not appended: a session may be submitted several times as the
+  // owner answers each report, and a pile of stale reports is a record that
+  // argues with itself about which tree the gates measured.
+  text = replaceSection(
     text,
     'Submit report',
     [
+      '## Submit report',
+      '',
       `**Outcome:** ${handoff.outcome}`,
       '',
       `Machine-stamped at ${handoff.closed_at} from \`macp submit\`. Code commit \`${handoff.code_commit_sha.slice(0, 7)}\`.`,
       '',
-      '| Gate | Exit | Time |',
-      '| ---- | ---- | ---- |',
+      '| Gate | Verdict | Exit | Time |',
+      '| ---- | ------- | ---- | ---- |',
       gateTable,
       '',
       `Remaining: ${handoff.remaining.length === 0 ? 'none' : `${handoff.remaining.length} item(s)`}`,
@@ -477,24 +503,27 @@ export function submit(options) {
       `Next: ${handoff.next_recommended_task || '—'}`,
     ].join('\n'),
   );
-  text = withStatus(text, STATUS.AWAITING_USER);
+  // A report is not an ending. The session returns to IN-PROGRESS so the owner
+  // can answer it — "also do X" — and the agent can act without a signed resume
+  // between every round. Closing is the owner's decision, made when he is
+  // satisfied, not a state the agent's report forces him into.
+  text = withStatus(text, STATUS.IN_PROGRESS);
   writeText(session.file, text);
 
-  // The agent keeps its REGISTRY entry and the lease: it still owns the branch
-  // until the owner closes, but the lease state is AWAITING-USER, which the
-  // pre-tool guard treats as "no mutations" — the same refusal as UNBOUND.
+  // The lease stays live, so the second-session guard still sees a session
+  // owning this branch. `submittedAt` is what `close` acts on.
   putLease(id, {
     ...lease,
-    state: 'AWAITING-USER',
+    state: 'ACTIVE',
     codeCommitSha: handoff.code_commit_sha,
     submittedAt: handoff.closed_at,
   });
-  setIndexStatus(root, session.id, STATUS.AWAITING_USER);
+  setIndexStatus(root, session.id, STATUS.IN_PROGRESS);
 
   return {
     code: 0,
     out:
-      `AWAITING-USER ${session.id} — ${handoff.outcome}\n` +
+      `reported ${session.id} — ${handoff.outcome} (session still IN-PROGRESS)\n` +
       `  report:  state/macp/handoff/${session.id}.json + the region at the top of state/CONTINUATION.md\n` +
       `  gates:   ${results.length === 0 ? 'none run' : results.map((r) => `${r.name}=${r.exit}`).join(' ')}\n` +
       `  tree:    ${handoff.code_commit_sha.slice(0, 7)} — the owner closes this exact tree\n` +
@@ -519,16 +548,29 @@ export function close(options) {
   const { root, id } = context;
   const branch = currentBranch(root);
 
-  const session = sessionsForBranch(root, branch).find(
-    (candidate) => candidate.status === STATUS.AWAITING_USER,
-  );
+  // A reported session, not a state: `submit` returns the session to
+  // IN-PROGRESS so the owner can answer it, so the proof that this session was
+  // reported is the handoff it left. Sessions written before the change are
+  // still AWAITING-USER and still carry a handoff, so they close the same way.
+  // `--session` closes a named session from anywhere — the only way to close one
+  // whose PR merged before it was closed. `close` looked only at the current
+  // branch, so SA18's work sat in master while its record could not be closed from
+  // master at all ("no submitted session on master") with the file right there.
+  const session = options.session
+    ? listSessions(root).find((candidate) => candidate.id === options.session)
+    : sessionsForBranch(root, branch).find(
+        (candidate) =>
+          candidate.status !== STATUS.COMPLETED &&
+          candidate.status !== STATUS.CLOSED &&
+          existsSync(handoffPath(root, candidate.id)),
+      );
   if (!session) {
     const active = activeSessionForBranch(root, branch);
     return closeAbort(
       active
-        ? `${active.id} is ${active.status}. The agent reports with \`macp submit\` first — a close ` +
-            'acts on a submitted session, not on work in progress.'
-        : `no submitted session on ${branch} — nothing to close.`,
+        ? `${active.id} is ${active.status} and has no report. The agent reports with ` +
+            '`macp submit` first — a close acts on a reported session, not on work in progress.'
+        : `no reported session on ${branch} — nothing to close.`,
     );
   }
 
@@ -540,7 +582,29 @@ export function close(options) {
     );
   }
 
-  const changed = git(['diff', '--name-only', handoff.code_commit_sha, 'HEAD'], {
+  // `git diff` against a commit that no longer exists fails, and the failure used
+  // to be swallowed by `allowFail` — an empty diff, read as "nothing changed", so
+  // a rewritten history closed a tree that was never measured. Ask first.
+  const reported = String(handoff.code_commit_sha ?? '');
+  // Verify against the branch the work was done on, not whichever branch the owner
+  // is standing on. A merge moves HEAD, so a post-merge close would otherwise see
+  // every merged file as "changed after the gates ran" and refuse — which is why
+  // closing after merging was impossible by construction.
+  const evidenceRef =
+    options.session && !session.branches.includes(branch) ? session.branches[0] : 'HEAD';
+  const stillThere = git(['rev-parse', '--verify', '--quiet', `${reported}^{commit}`], {
+    cwd: root,
+    allowFail: true,
+  });
+  if (reported && !stillThere) {
+    return closeAbort(
+      `the report names commit ${reported.slice(0, 7)}, which this repository no longer has.\n` +
+        'The history was rewritten after the gates ran, so the tree they measured cannot be ' +
+        'identified any more. Nothing here can be verified — submit again from the current history.',
+    );
+  }
+
+  const changed = git(['diff', '--name-only', reported, evidenceRef], {
     cwd: root,
     allowFail: true,
   })
@@ -564,7 +628,7 @@ export function close(options) {
   }
 
   // The owner's act, so it needs the owner's key — the close principal, not the
-  // seal key and not the reopen key (ADR-0046).
+  // seal key and not the reopen key (one key per act).
   const signers = readSigners(allowedSignersPath(root));
   if (signers.size === 0) {
     return closeAbort(
@@ -637,120 +701,15 @@ export function close(options) {
   };
 }
 
-/* ------------------------------------------------------------------ resume -- */
-
-/**
- * The owner letting a submitted session continue: `AWAITING-USER → ACTIVE`.
- *
- * This door did not exist, and its absence is what locked SA13. I submitted when
- * the gates were green rather than when the objective was complete, and the only
- * ways back were the owner's key through close/seal/reopen — three acts — or a
- * hand edit of the status line (F-23). The owner's rule is that new work is done
- * in the same session, and that rule needed a lawful path.
- *
- * It is signed, because handing control back to the agent is exactly the kind of
- * transition that must not be self-service.
- */
-export function resume(options) {
-  const context = requireRepo();
-  if (context.error) return { code: 2, out: context.error };
-  const { root, id } = context;
-  const branch = currentBranch(root);
-
-  const session = sessionsForBranch(root, branch).find(
-    (candidate) => candidate.status === STATUS.AWAITING_USER,
-  );
-  if (!session) {
-    return {
-      code: 1,
-      out: `no submitted session on ${branch} — nothing to resume. Only an AWAITING-USER session can be resumed.`,
-    };
-  }
-
-  const signers = readSigners(allowedSignersPath(root));
-  if (signers.size === 0) {
-    return {
-      code: 1,
-      out: 'no authority file at state/macp/allowed_signers — a resume is an owner act.',
-    };
-  }
-  if (!options.sshKey || !existsSync(options.sshKey)) {
-    return { code: 1, out: 'resuming requires the owner key: pass --ssh-key <path>.' };
-  }
-  const principal = principalFor(options.sshKey, signers);
-  if (principal !== ACTS.close) {
-    return {
-      code: 1,
-      out:
-        `the key at ${options.sshKey} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; ` +
-        `resuming requires \`${ACTS.close}\`.`,
-    };
-  }
-  if (keyLoadedInAgent(options.sshKey)) {
-    return { code: 1, out: agentLoadedRefusal(options.sshKey, ACTS.close) };
-  }
-
-  const resumedAt = isoLocal();
-  const reason = normaliseInstruction(options.reason);
-  const signed = signPayload(
-    resumePayload({
-      repo: id,
-      session: session.id,
-      agent: field(session.text, 'Agent') ?? '',
-      branch,
-      codeCommit: headSha(root),
-      reason,
-      resumedAt,
-    }),
-    options.sshKey,
-  );
-
-  let text = readFileSync(session.file, 'utf8');
-  text = appendToSection(
-    text,
-    'Resume',
-    [
-      `- **Resumed by:** owner — principal \`${ACTS.close}\``,
-      `- **Resumed at:** ${resumedAt}`,
-      `- **Code commit:** ${headSha(root)}`,
-      `- **Reason:** ${reason}`,
-      `- **Resume signature:** ${signed.signature}`,
-    ].join('\n'),
-  );
-  text = withStatus(text, STATUS.IN_PROGRESS);
-  writeText(session.file, text);
-
-  const store = readLeases(id);
-  const existing = store.leases[branch];
-  putLease(id, {
-    ...(existing ?? {}),
-    branch,
-    session: session.id,
-    state: 'ACTIVE',
-    startedAt: existing?.startedAt ?? resumedAt,
-    heartbeatAt: resumedAt,
-    codeCommitSha: undefined,
-    closingAt: undefined,
-  });
-  upsertActiveAgent(root, session.id, session.text);
-  setIndexStatus(root, session.id, STATUS.IN_PROGRESS);
-
-  return {
-    code: 0,
-    out:
-      `RESUMED ${session.id} — ${reason}\n` +
-      '  the session is ACTIVE again; work may continue in the same session',
-  };
-}
-
 /* ----------------------------------------------------------------- abandon -- */
 
 /**
  * The owner stopping work that was never finished.
  *
- * A mistaken or mis-scoped session had no lawful exit: it could be closed, which
- * asserts the work is done, or hand-edited back to `IN-PROGRESS` (F-23). Abandon
- * is the third path, and it is signed like every other owner act.
+ * Before this existed, a mistaken or mis-scoped session had no lawful exit: it
+ * could be closed (which asserts the work is done) or hand-edited back to
+ * `IN-PROGRESS` (F-23). `abandon` is the third path, and it is signed like every
+ * other owner act.
  */
 export function abandon(options) {
   const context = requireRepo();
@@ -777,9 +736,7 @@ export function abandon(options) {
   if (principal !== ACTS.close) {
     return {
       code: 1,
-      out:
-        `the key at ${options.sshKey} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; ` +
-        `abandoning requires \`${ACTS.close}\`.`,
+      out: `the key at ${options.sshKey} is ${principal ? `\`${principal}\`` : 'not in allowed_signers'}; abandoning requires \`${ACTS.close}\`.`,
     };
   }
   if (keyLoadedInAgent(options.sshKey)) {
@@ -788,13 +745,14 @@ export function abandon(options) {
 
   const abandonedAt = isoLocal();
   const reason = normaliseInstruction(options.reason);
+  const codeCommit = headSha(root);
   const signed = signPayload(
     abandonPayload({
       repo: id,
       session: session.id,
       agent: field(session.text, 'Agent') ?? '',
       branch,
-      codeCommit: headSha(root),
+      codeCommit,
       reason,
       abandonedAt,
     }),
@@ -809,6 +767,7 @@ export function abandon(options) {
       `- **Abandoned by:** owner — principal \`${ACTS.close}\``,
       `- **Abandoned at:** ${abandonedAt}`,
       `- **Reason:** ${reason}`,
+      `- **Code commit:** ${codeCommit}`,
       `- **Abandon signature:** ${signed.signature}`,
     ].join('\n'),
   );
@@ -947,31 +906,29 @@ export function seal(options) {
   const closedAt = isoLocal();
   const outcome = options.outcome || 'COMPLETED';
   const instruction = normaliseInstruction(options.instruction);
-  const payload = sealPayload({
-    repo: id,
-    session: session.id,
-    agent: field(session.text, 'Agent') ?? '',
-    branch: currentBranch(root),
-    baseCommit: field(session.text, 'Base commit') ?? '',
-    codeCommit,
-    outcome,
-    closedAt,
-    instruction,
-  });
 
-  const signed = signPayload(payload, keyPath);
-  const block = closeBlock({
+  // Build the block first, then sign the payload *reconstructed from the file a
+  // verifier will read* — never from the values this process happens to hold.
+  //
+  // It used to sign `sealPayload({...})` built from in-memory values, while
+  // `reopen` rebuilds the payload with `sealPayloadFromText(text)`. The two agree
+  // only when every field coincides, and `closedAt` is `isoLocal()`: a clock tick
+  // between `close` and `seal` made the signature cover a timestamp that was
+  // never written. The result was a seal that failed verification about one run
+  // in four, on an unchanged file — the worst possible failure for the one
+  // guarantee this system exists to provide.
+  const draft = closeBlock({
     instruction,
     closedAt,
     statusAtClose: outcome,
     outcome: options.summary || outcome,
     codeCommit,
-    fingerprint: signed.fingerprint,
-    signature: signed.signature,
+    fingerprint: '',
+    signature: '',
   });
 
   let text = readFileSync(session.file, 'utf8');
-  text = replaceSection(text, 'Close', block);
+  text = replaceSection(text, 'Close', draft);
   text = withStatus(text, STATUS.CLOSED);
   if (/^\*\*Closed:\*\*/m.test(text)) {
     text = text.replace(/^\*\*Closed:\*\*.*$/m, `**Closed:** ${closedAt} by owner`);
@@ -981,6 +938,29 @@ export function seal(options) {
       `**Closed:** ${closedAt} by owner\n**Status:** ${STATUS.CLOSED}`,
     );
   }
+
+  // The signature is not part of the payload, so signing after the block is in
+  // place cannot be circular: a second `replaceSection` with the real signature
+  // leaves every field the payload covers untouched.
+  const payload = sealPayloadFromText(text, {
+    repo: id,
+    session: session.id,
+    branch: currentBranch(root),
+  });
+  const signed = signPayload(payload, keyPath);
+  text = replaceSection(
+    text,
+    'Close',
+    closeBlock({
+      instruction,
+      closedAt,
+      statusAtClose: outcome,
+      outcome: options.summary || outcome,
+      codeCommit,
+      fingerprint: signed.fingerprint,
+      signature: signed.signature,
+    }),
+  );
   writeText(session.file, text);
 
   writeJson(path.join(macpHome(), 'seals', id, `${session.id}.json`), {
@@ -1008,8 +988,24 @@ export function seal(options) {
 /* ------------------------------------------------------------------ reopen -- */
 
 /** Rebuild the payload a `## Close` block asserts, from the file itself. */
+/**
+ * The close block, from the heading a *verifier* reads.
+ *
+ * There are two headings in play and they are not the same block: `close` writes
+ * `## Close authorization`, `seal` writes `## Close`. Slicing from the first
+ * occurrence of `## Close` therefore picked up `close`'s block while `verify`
+ * matched `## Close` exactly — two readers, two blocks, one signature. That is
+ * how a seal came to fail verification on an unchanged file.
+ *
+ * Exact heading first, and the older `Close authorization` heading only as a
+ * fallback so seals written before the split still verify.
+ */
+export function closeSection(text) {
+  return section(text, 'Close') ?? section(text, 'Close authorization') ?? '';
+}
+
 export function sealPayloadFromText(text, { repo, session, branch }) {
-  const close = text.slice(text.indexOf('## Close'));
+  const close = closeSection(text);
   const grab = (name) =>
     new RegExp(`\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'm').exec(close)?.[1]?.trim();
   const quoted =
@@ -1043,7 +1039,7 @@ export function reopen(options) {
     };
   }
 
-  const closeBlockText = session.text.slice(session.text.indexOf('## Close'));
+  const closeBlockText = closeSection(session.text);
   const fingerprint = /\*\*Passkey:\*\*\s*ssh-ed25519\s*(\S+)/.exec(closeBlockText)?.[1];
   const sealSignature = /\*\*Seal signature:\*\*\s*(\S+)/.exec(closeBlockText)?.[1];
   if (!fingerprint || !sealSignature) {
@@ -1075,7 +1071,7 @@ export function reopen(options) {
   }
 
   // The seal is verified against the *seal* principal, and the reopen is signed
-  // by the *reopen* principal. They are different keys on purpose (ADR-0046): a
+  // by the *reopen* principal. They are different keys on purpose: a
   // key leaked for one act must not be able to perform another.
   const signers = readSigners(allowedSignersPath(root));
   const sealKeyLine = signers.get(ACTS.seal);
@@ -1140,7 +1136,6 @@ export function reopen(options) {
     '## Reopen',
     '',
     `- **Reopened at:** ${reopenedAt}`,
-    `- **Code commit:** ${headSha(root)}`,
     `- **Passkey:** ssh-ed25519 ${signed.fingerprint}`,
     `- **Reopen signature:** ${signed.signature}`,
     `- **Reason:** ${options.reason}`,

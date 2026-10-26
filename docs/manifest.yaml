@@ -218,6 +218,12 @@ standalone:
   - file: state/plans/agent-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md
     reviewed: 2026-10-26
     reason: 'MACP state — SA18 plan (the plan-item binding, its refusals, rollback and success criteria)'
+  - file: state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md
+    reviewed: 2026-10-26
+    reason: 'MACP state — SA19 session file (a report is not an ending; one live session per repo)'
+  - file: state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md
+    reviewed: 2026-10-26
+    reason: 'MACP state — SA19 plan (the session boundary, its costs, and the nine success criteria)'
   - file: state/macp/queue.md
     reviewed: 2026-10-24
     reason: 'MACP state — discovered/deferred queue, appended by `macp queue`'

@@ -500,29 +500,60 @@ backwards.
 
 THE STATES
 
-    UNBOUND ──start──▶ ACTIVE ──submit──▶ AWAITING-USER ──close──▶ COMPLETED ──seal──▶ CLOSED
+    UNBOUND ──start──▶ ACTIVE ──submit──▶ ACTIVE ──close──▶ COMPLETED ──seal──▶ CLOSED
                           ▲  │                                        │                    │
                           │  └──submit --prepare──▶ CLOSING          │                    │
-                          │                                           │                 reopen
+                          │        (gates on a frozen tree)          │                 reopen
                           └───────────── REOPENED ◀───────────────────┴────────────────────┘
 
-| State           | How you get there                     | What it permits                                               |
-| --------------- | ------------------------------------- | ------------------------------------------------------------- |
-| `UNBOUND`       | the default on launching any harness  | read-only recon. No edit, no commit, no session file.         |
-| `ACTIVE`        | `macp start …`                        | edits on the session's branch, `macp log`                     |
-| `CLOSING`       | `macp submit --prepare`               | nothing. Source is frozen; run the gates, then submit.        |
-| `AWAITING-USER` | `macp submit --outcome …`             | nothing. The agent's report; the owner has not acted.         |
-| `COMPLETED`     | `macp close` (owner)                  | nothing. Closed by the owner; not yet sealed.                 |
-| `CLOSED`        | `macp seal --session … --ssh-key …`   | nothing. Immutable, byte-compared against its sealing commit. |
-| `REOPENED`      | `macp reopen --session … --ssh-key …` | edits again, on the same objective, until re-submitted.       |
+    AWAITING-USER is gone from this path: a report no longer parks the session.
+
+    ACTIVE ──checkpoint──▶ AWAITING-CHECKPOINT ──ack (owner)──▶ ACTIVE
+
+**Task checkpoints.** A session's objective is rarely one task, and the only review
+point used to be the session submit — so an agent could do three tasks in the wrong
+direction and present them together. `macp checkpoint --task "…"` is the agent
+stopping on purpose: the lease flips to `AWAITING-CHECKPOINT`, the guard refuses every
+edit and commit, and the stop is one-way — there is no `--force` and no self-ack.
+`macp ack <n> --ssh-key …` is the owner releasing it, signed with the `macp-ack`
+principal, and `macp submit` refuses while any checkpoint is unacked.
+
+| State                 | How you get there                           | What it permits                                               |
+| --------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| `UNBOUND`             | the default on launching any harness        | read-only recon. No edit, no commit, no session file.         |
+| `ACTIVE`              | `macp start …`                              | edits on the session's branch, `macp log`                     |
+| `CLOSING`             | `macp submit --prepare`                     | nothing. Source is frozen; run the gates, then submit.        |
+| `AWAITING-CHECKPOINT` | `macp checkpoint --task …`                  | nothing. A one-way stop; `macp ack <n>` releases it.          |
+| `AWAITING-USER`       | only in sessions written before this change | nothing. Legacy: close it, or abandon it.                     |
+| `COMPLETED`           | `macp close` (owner)                        | nothing. Closed by the owner; not yet sealed.                 |
+| `CLOSED`              | `macp seal --session … --ssh-key …`         | nothing. Immutable, byte-compared against its sealing commit. |
+| `REOPENED`            | `macp reopen --session … --ssh-key …`       | edits again, on the same objective, until re-submitted.       |
 
 **Why `submit` and `close` are separate.** They were one command, and that command
 wrote `COMPLETED` with no key — so the agent could reach a terminal state alone and
-the owner's key gated only the optional `seal`. `submit` is the agent saying "I am
-finished": it freezes the tree, runs the gates, writes the report, and stops.
-`close` is the owner acting on that report, and it refuses if any non-`state/` file
-changed after the commit the gates measured — so the tree being closed is the tree
-that was verified. See ADR-0046 for the authority model this is the first half of.
+the owner's key gated only the optional `seal`. `submit` is the agent reporting: it
+freezes the tree long enough to run the gates, writes the report, and releases the
+freeze. `close` is the owner acting on that report, and it refuses if any
+non-`state/` file changed after the commit the gates measured — so the tree being
+closed is the tree that was verified. See ADR-0046 for the authority model this is
+the first half of.
+
+**Why a report does not park the session.** It did, and that made the owner's
+answer expensive: every "also do X" needed `macp resume` signed with his key before
+the agent could move, so a conversation became a series of signed door-openings.
+`submit` now returns the session to `ACTIVE`; the report is what `close` acts on,
+and the owner decides when he is satisfied. The cost is stated plainly: there is no
+longer a state that means "the agent has stopped". The handoff is the signal — it
+exists, and it names the commit it measured — and `close` refuses if the source
+moved since, so the owner still closes the tree that was reported, never a later one.
+
+**Why one repository holds one live session.** A MACP session is physically tied to
+a harness conversation: the conversation is the thing that runs the agent, and
+`start` binds the record to it. Two records in one conversation is a bookkeeping
+fiction — on 2026-10-26 `SA18` and `SA19` existed at once in one checkout, because
+`SA18` was parked at `AWAITING-USER` and the collision check only looked at `ACTIVE`.
+`start` now refuses while any lease in the repository is live — `ACTIVE`, `CLOSING`,
+`AWAITING-USER` or `AWAITING-CHECKPOINT` — and names the session that holds it.
 
 `UNBOUND` is the important one. Asking a question in a repository should not
 create a session file, a plan, a registry entry and a branch; that is how a
@@ -611,12 +642,13 @@ in sync.
 **One key per act.** Since ADR-0046 the seal is not the only signed act, and no two
 acts share a key:
 
-| Act     | Transition                  | Principal      | Key                   |
-| ------- | --------------------------- | -------------- | --------------------- |
-| close   | `AWAITING-USER → COMPLETED` | `macp-close`   | `~/.ssh/macp_close`   |
-| seal    | `COMPLETED → CLOSED`        | `macp-seal`    | `~/.ssh/macp_seal`    |
-| reopen  | `CLOSED → REOPENED`         | `macp-reopen`  | `~/.ssh/macp_reopen`  |
-| destroy | `CLOSED → DESTROYED`        | `macp-destroy` | `~/.ssh/macp_destroy` |
+| Act     | Transition                     | Principal      | Key                   |
+| ------- | ------------------------------ | -------------- | --------------------- |
+| ack     | `AWAITING-CHECKPOINT → ACTIVE` | `macp-ack`     | `~/.ssh/macp_ack`     |
+| close   | `ACTIVE → COMPLETED`           | `macp-close`   | `~/.ssh/macp_close`   |
+| seal    | `COMPLETED → CLOSED`           | `macp-seal`    | `~/.ssh/macp_seal`    |
+| reopen  | `CLOSED → REOPENED`            | `macp-reopen`  | `~/.ssh/macp_reopen`  |
+| destroy | `CLOSED → DESTROYED`           | `macp-destroy` | `~/.ssh/macp_destroy` |
 
 They are listed in `state/macp/allowed_signers`, written once by
 `macp init-authority`. A signature is checked against the principal that is

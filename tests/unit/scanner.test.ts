@@ -293,6 +293,73 @@ describe('SARIF edge cases', () => {
     expect(evidenceFromSarif('nope', sarifOpts())[0]!.status).toBe('UNKNOWN');
   });
 
+  // "Analysed nothing" is not "found nothing". The semgrep adapter guards this
+  // explicitly; the shared SARIF parser did not, so a run whose database was
+  // empty — or that failed and still emitted a SARIF skeleton — came back with
+  // zero evidence and read as a clean scan.
+  it('an empty results array with no artifacts is UNKNOWN, not clean', () => {
+    const rows = evidenceFromSarif(
+      JSON.stringify({ runs: [{ tool: { driver: { name: 'X' } }, results: [], artifacts: [] }] }),
+      sarifOpts(),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.status).toBe('UNKNOWN');
+    expect(rows[0]!.claim).toMatch(/listed no artifacts/);
+  });
+
+  it('an empty results array with artifacts listed is a clean scan', () => {
+    const rows = evidenceFromSarif(
+      JSON.stringify({
+        runs: [
+          {
+            tool: { driver: { name: 'X' } },
+            results: [],
+            artifacts: [{ location: { uri: 'src/a.ts' } }],
+          },
+        ],
+      }),
+      sarifOpts(),
+    );
+    expect(rows).toHaveLength(0);
+  });
+
+  it('an empty results array that says nothing about artifacts is not accused', () => {
+    // Most producers omit `artifacts`. Absent is not evidence of non-analysis, and
+    // treating it as such would turn every clean scan into UNKNOWN.
+    const rows = evidenceFromSarif(
+      JSON.stringify({ runs: [{ tool: { driver: { name: 'X' } }, results: [] }] }),
+      sarifOpts(),
+    );
+    expect(rows).toHaveLength(0);
+  });
+
+  it('a run that reports executionSuccessful: false is UNKNOWN even with no results', () => {
+    const rows = evidenceFromSarif(
+      JSON.stringify({
+        runs: [
+          {
+            tool: { driver: { name: 'X' } },
+            results: [],
+            invocations: [{ executionSuccessful: false }],
+          },
+        ],
+      }),
+      sarifOpts(),
+    );
+    expect(rows[0]!.status).toBe('UNKNOWN');
+    expect(rows[0]!.claim).toMatch(/executionSuccessful: false/);
+  });
+
+  it('a run with no results array at all is UNKNOWN, not an empty clean run', () => {
+    const rows = evidenceFromSarif(
+      JSON.stringify({ runs: [{ tool: { driver: { name: 'X' } } }] }),
+      sarifOpts(),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.status).toBe('UNKNOWN');
+    expect(rows[0]!.claim).toMatch(/no results array/);
+  });
+
   it('a result with no message still produces an evidence row', () => {
     const rows = evidenceFromSarif(
       JSON.stringify({ runs: [{ tool: { driver: { name: 'X' } }, results: [{ ruleId: 'r' }] }] }),

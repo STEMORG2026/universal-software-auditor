@@ -13,6 +13,8 @@ import { fileURLToPath } from 'node:url';
 import { macpHome, repoRoot, writeText } from './repo.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// This repository vendors the runtime at `scripts/macp/`, so the guard lives at
+// `scripts/macp/hooks/` rather than the standalone layout's `src/hooks/`.
 const HOOKS_SRC = path.resolve(HERE, '..', 'hooks');
 
 const HARNESSES = Object.freeze(['claude', 'opencode', 'hermes', 'dsh']);
@@ -23,7 +25,7 @@ const REGISTRY_TEMPLATE = `# REGISTRY.md — Agent Registry
 
 **None.** No session is open on this repository.
 
-A session is opened by the owner, not by an agent. See \`docs/macp.md\` §4C.
+A session is opened by the owner, not by an agent. See \`docs/PROTOCOL.md\` §4C.
 
 ## File Ownership Rules
 
@@ -33,7 +35,7 @@ A session is opened by the owner, not by an agent. See \`docs/macp.md\` §4C.
 
 const INDEX_TEMPLATE = `# INDEX.md — Session Log
 
-One row per session, generated from the session file. \`scripts/check-sessions.mjs\`
+One row per session, generated from the session file. The sessions gate
 fails when this table disagrees with a file's own \`**Status:**\`.
 
 | ID | Date | Agent | Harness | Branch | Task | Status | File |
@@ -55,6 +57,21 @@ Nothing yet — the first session fills this in.
 1. Run \`macp start\` to open the first session.
 `;
 
+const STARTUP_TEMPLATE = `# STARTUP.md — the startup sequence, in short
+
+> The full protocol is MACP's \`docs/PROTOCOL.md\`. \`macp start\` performs
+> this sequence for you and prints the brief; this file is the checklist it
+> follows, for humans reading the state directory.
+
+1. \`git status\` / \`git log\` — know the tree and the branch.
+2. \`state/\` exists? If not: \`macp init-repo\` (bootstrap).
+3. Read \`state/CONTINUATION.md\` — the handoff from the last session.
+4. Read \`state/REGISTRY.md\` — who is active, which files are owned.
+5. Register: \`macp start\` writes the session file, the plan, the registry
+   entry, and the local lease.
+6. Only then begin work. Mid-session: \`macp log\`. Finish: \`macp submit\`.
+`;
+
 export function initRepo(options) {
   const root = options.cwd ? path.resolve(options.cwd) : repoRoot();
   if (!root) return { code: 2, out: 'not inside a git repository' };
@@ -72,6 +89,7 @@ export function initRepo(options) {
     ['state/REGISTRY.md', REGISTRY_TEMPLATE],
     ['state/INDEX.md', INDEX_TEMPLATE],
     ['state/CONTINUATION.md', CONTINUATION_TEMPLATE],
+    ['state/STARTUP.md', STARTUP_TEMPLATE],
     ['state/macp/queue.md', '# MACP queue\n\n## Open\n\n## Done\n'],
   ];
   for (const [rel, body] of files) {
@@ -189,16 +207,17 @@ export function installHooks(options) {
   return { code: 0, out: lines.join('\n') };
 }
 
-/** The four principals, and the public-key file each one is read from. */
+/** The five principals, and the public-key file each one is read from. */
 const AUTHORITY_KEYS = Object.freeze([
   ['macp-close', 'macp_close.pub'],
   ['macp-seal', 'macp_seal.pub'],
   ['macp-reopen', 'macp_reopen.pub'],
   ['macp-destroy', 'macp_destroy.pub'],
+  ['macp-ack', 'macp_ack.pub'],
 ]);
 
 /**
- * Write `state/macp/allowed_signers` from four public keys.
+ * Write `state/macp/allowed_signers` from five public keys — one per act.
  *
  * This is the only way the authority is created, and it refuses to overwrite an
  * existing file without `--force`. The audit's F-20 was a `seal` that silently

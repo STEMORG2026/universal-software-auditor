@@ -5,17 +5,20 @@
  * `state/macp/allowed_signers`, so it runs anywhere — including a pull request
  * from a fork, which is exactly where a forged act would be attempted.
  *
- * Since ADR-0046 each act has its own principal, and a signature is verified
+ * Since ADR: one key per act. Each act has its own principal, and a signature is verified
  * against the principal that is allowed to make *that* transition — not against
  * "some key that signs". A close signed by the seal key fails here, even though
  * both are the owner's.
  */
 import { existsSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { currentBranch, repoId, repoRoot } from './repo.mjs';
 import { STATUS, branchesNamed, field, listSessions, section } from './session.mjs';
 import {
   ACTS,
+  abandonPayload,
+  ackPayload,
   allowedSignersPath,
   closePayload,
   keyFingerprintOfKey,
@@ -24,9 +27,20 @@ import {
   sealPayload,
   verifyPayload,
 } from './seal.mjs';
+import { parseCheckpoints } from './checkpoint.mjs';
 
 function grab(text, name) {
   return new RegExp(`\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'm').exec(text)?.[1]?.trim() ?? '';
+}
+
+/** The full commit a short sha refers to; the ack signs the full form. */
+function fullShaOf(root, short) {
+  if (!short) return '';
+  try {
+    return execFileSync('git', ['rev-parse', short], { cwd: root, encoding: 'utf8' }).trim();
+  } catch {
+    return short;
+  }
 }
 
 export function verify() {
@@ -50,7 +64,7 @@ export function verify() {
   let verified = 0;
 
   for (const session of listSessions(root)) {
-    const close = section(session.text, 'Close');
+    const close = section(session.text, 'Close') ?? section(session.text, 'Close authorization');
     const authorisation = section(session.text, 'Close authorization');
     const branch = branchesNamed(session.text)[0] ?? '';
 
@@ -79,6 +93,69 @@ export function verify() {
       }
     }
 
+    // 1b. The abandon (ACTIVE -> ABANDONED), signed by macp-close.
+    if (session.status === STATUS.ABANDONED) {
+      const abandon = section(session.text, 'Abandon');
+      const signature = abandon ? grab(abandon, 'Abandon signature') : '';
+      const abandonKey = signers.get(ACTS.close);
+      if (!signature) {
+        findings.push(`${session.id}: ABANDONED without a signature — an abandon is an owner act`);
+      } else if (!abandonKey) {
+        findings.push(`${session.id}: ABANDONED, but there is no \`${ACTS.close}\` principal`);
+      } else {
+        const payload = abandonPayload({
+          repo,
+          session: session.id,
+          agent: field(session.text, 'Agent') ?? '',
+          branch,
+          codeCommit: grab(abandon ?? '', 'Code commit') || '',
+          reason: grab(abandon ?? '', 'Reason'),
+          abandonedAt: grab(abandon ?? '', 'Abandoned at'),
+        });
+        if (verifyPayload(payload, signature, abandonKey)) verified += 1;
+        else
+          findings.push(`${session.id}: abandon signature does not verify — the reason was edited`);
+      }
+    }
+
+    // 1c. Every acked task checkpoint, signed by macp-ack. A checkpoint the
+    // agent marked done without the owner's key fails here — and so does a
+    // title the agent rewrote after the ack.
+    const ackKey = signers.get(ACTS.ack);
+    for (const entry of parseCheckpoints(session.text)) {
+      if (!entry.done) continue;
+      if (!entry.signature) {
+        findings.push(
+          `${session.id}: checkpoint ${entry.number} is marked done without an ack signature`,
+        );
+        continue;
+      }
+      if (!ackKey) {
+        findings.push(
+          `${session.id}: checkpoint ${entry.number} carries a signature but there is no ` +
+            `\`${ACTS.ack}\` principal`,
+        );
+        continue;
+      }
+      const payload = ackPayload({
+        repo,
+        session: session.id,
+        agent: field(session.text, 'Agent') ?? '',
+        branch,
+        number: String(entry.number),
+        title: entry.title,
+        codeCommit: fullShaOf(root, entry.codeCommit),
+        note: '',
+        ackedAt: entry.ackedAt,
+      });
+      if (verifyPayload(payload, entry.signature, ackKey, ACTS.ack)) verified += 1;
+      else
+        findings.push(
+          `${session.id}: checkpoint ${entry.number} ack signature does not verify — the entry ` +
+            'was edited after the owner acked it',
+        );
+    }
+
     // 2. The seal (COMPLETED -> CLOSED), signed by macp-seal.
     if (session.status === STATUS.CLOSED) {
       const signature = close ? grab(close, 'Seal signature') : '';
@@ -87,7 +164,7 @@ export function verify() {
         continue;
       }
       // Which key sealed this session? Both are legitimate: everything before
-      // ADR-0046 was sealed by the single legacy key, and adding the principal
+      // sealed before the per-act keys existed was sealed by the single legacy key, and adding the principal
       // file must not invalidate those records. Pick the candidate whose
       // fingerprint is the one written into the block, rather than assuming the
       // newest principal is the one that signed an old session.

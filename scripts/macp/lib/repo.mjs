@@ -7,7 +7,15 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import {
+  accessSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 
@@ -66,9 +74,35 @@ export function repoId(root = process.cwd()) {
   return `${slug}-${digest}`;
 }
 
-/** `$MACP_HOME` or `~/.macp`. Never inside the repository. */
+/**
+ * `$MACP_HOME`, else `~/.macp` when that is writable, else `~/Projects/.macp-home`.
+ *
+ * Never inside the repository. The fallback exists because a lease store that
+ * cannot be written is a runtime that cannot start a session — on a sandboxed
+ * machine where the real home is read-only, a workspace-level store keeps the
+ * one-lease-store-per-machine property without the env var. The env var, when
+ * set, always wins.
+ */
 export function macpHome() {
-  return process.env.MACP_HOME || path.join(homedir(), '.macp');
+  if (process.env.MACP_HOME) return process.env.MACP_HOME;
+  const primary = path.join(homedir(), '.macp');
+  // Probe writability, not existence: `mkdirSync(recursive)` is a no-op success
+  // on a directory that already exists — even a read-only one — so the first
+  // real write crashes with EROFS instead of falling back. Measured on this
+  // machine: ~/.macp exists read-only; mkdirSync succeeded; putLease died.
+  try {
+    mkdirSync(primary, { recursive: true });
+    // `accessSync` takes a *mode*, not the `constants` object. Passing the
+    // object threw ERR_INVALID_ARG_TYPE on every call, so the catch below always
+    // fired and every lease went to the fallback — a silent relocation that made
+    // the whole `~/.macp` store invisible. Found by a `submit` refusing with
+    // "no lease ... this machine never ran start", while the lease sat in the
+    // store the runtime had stopped reading.
+    accessSync(primary, constants.W_OK);
+    return primary;
+  } catch {
+    return path.join(homedir(), 'Projects', '.macp-home');
+  }
 }
 
 export function readJson(file) {
