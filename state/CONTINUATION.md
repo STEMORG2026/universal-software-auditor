@@ -4,7 +4,7 @@
 
 ## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T12:30:27+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T12:52:54+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
@@ -13,21 +13,22 @@ is a claim, not a measurement.
 | Session            | `SA19` (SA19 (workbuddy) on workbuddy)                                                                                 |
 | Branch             | `feat/submit-not-terminal`                                                                                             |
 | Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                                                                             |
-| Code commit        | `f0315dde6dc27f763ce860d89be9dfb9c3b5188a`                                                                             |
+| Code commit        | `17f8577519dcab768d6ec6369493578144dfed20`                                                                             |
+| Code tree          | `cb978191b2282823eca76620939f171b6e3fe62a`                                                                             |
 | Working tree clean | yes                                                                                                                    |
-| Commits            | 16                                                                                                                     |
+| Commits            | 24                                                                                                                     |
 | Open PRs           | #275 feat(macp): take the standalone runtime as the source of truth, and fix the two defects the port exposed (BEHIND) |
 
-### Gates (exit code, measured)
+### Gates (verdict and exit, measured)
 
 | Gate       | Verdict | Exit | Time |
 | ---------- | ------- | ---- | ---- |
 | typecheck  | pass    | 0    | 1s   |
 | lint       | pass    | 0    | 3s   |
-| format     | pass    | 0    | 8s   |
-| test       | pass    | 0    | 107s |
-| docs_all   | pass    | 0    | 3s   |
-| self_audit | pass    | 0    | 3s   |
+| format     | pass    | 0    | 7s   |
+| test       | pass    | 0    | 106s |
+| docs_all   | pass    | 0    | 2s   |
+| self_audit | pass    | 0    | 2s   |
 
 Declared by this repository: **6** · run: **6** · all run · verified: **6**
 
@@ -68,27 +69,28 @@ session outlive its first report, and the gate is what stops a second one being 
 - `A	state/macp/handoff/SA19.json`
 - `A	state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md`
 - `A	state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md`
+- `A	tests/integration/macp-evidence.test.ts`
 - `M	tests/integration/macp-pretool-guard.test.ts`
 - `A	tests/integration/macp-required-gates.test.ts`
 - `M	tests/integration/macp-runtime.test.ts`
+- `A	tests/integration/macp-seal-payload.test.ts`
 - `A	tests/integration/macp-session-boundary.test.ts`
 - `A	tests/integration/macp-unverified-gates.test.ts`
 - `A	tests/unit/macp-lease-home.test.ts`
 
 ### Completed
 
-- a gate now records pass / fail / unverified with a reason, instead of collapsing three situations into a non-zero exit
-- COMPLETED is refused while any gate that ran is unverified; PARTIAL may still close short
-- both gate tables carry a Verdict column and the handoff prints verified: N
-- seven tests, three planted defects watched red and restored byte-identically
+- the report records the tree the gates ran against; close refuses a report whose commit no longer exists
+- a seal now signs the block a verifier reads, and there is one reader instead of two
+- the intermittent seal failure (2 of 8 runs) is fixed and pinned by a test that forces the clock boundary
 
 ### Remaining
 
-- the verdict is per-gate; there is no aggregate coverage figure the way USA reports automationCoverage
+- P0's D1-D8 decisions are still unrecorded
 
 ### Discovered, not fixed
 
-- an unverified gate was previously indistinguishable from a red one in the record, which is the class the audit's P2 covers
+- the seal verified only while two clocks agreed — an integrity check that passes by coincidence
 
 ### Deferred work
 
@@ -100,7 +102,7 @@ _none_
 
 ### Next recommended task
 
-P2 — evidence: close should compare a tree hash, not just the commit the report was written at
+add today's three findings to docs/remediation-plan.md §5 as a new row, then P0
 
 ### Required context for the next session
 

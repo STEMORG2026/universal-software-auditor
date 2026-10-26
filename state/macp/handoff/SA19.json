@@ -6,10 +6,19 @@
   "branch": "feat/submit-not-terminal",
   "base_commit_sha": "4a4a63b89e00d4a99100048812fbc4aac72c6ec2",
   "start_head_sha": "1736196d72f225b7b100c2801e683eb0d14b5259",
-  "code_commit_sha": "f0315dde6dc27f763ce860d89be9dfb9c3b5188a",
+  "code_commit_sha": "17f8577519dcab768d6ec6369493578144dfed20",
+  "code_tree_sha": "cb978191b2282823eca76620939f171b6e3fe62a",
   "working_tree_clean": true,
   "plan": null,
   "commits": [
+    "17f8577 chore(state): auto-update from post-commit hook",
+    "a77a8b7 fix(macp): a seal failed verification on an unchanged file, about one run in four",
+    "e814b3d chore(state): auto-update from post-commit hook",
+    "a0e68ec fix(macp): a rewritten history could close a tree that was never measured",
+    "432217e chore(state): auto-update from post-commit hook",
+    "65b45e3 docs(macp): the gate table's heading says what it now contains",
+    "9ff1055 chore(state): auto-update from post-commit hook",
+    "887e57c chore(state): report SA19 — three gate outcomes",
     "f0315dd chore(state): auto-update from post-commit hook",
     "887af1a feat(macp): a gate has three outcomes, not two",
     "34ab94a chore(state): auto-update from post-commit hook",
@@ -54,9 +63,11 @@
     "A\tstate/macp/handoff/SA19.json",
     "A\tstate/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md",
     "A\tstate/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md",
+    "A\ttests/integration/macp-evidence.test.ts",
     "M\ttests/integration/macp-pretool-guard.test.ts",
     "A\ttests/integration/macp-required-gates.test.ts",
     "M\ttests/integration/macp-runtime.test.ts",
+    "A\ttests/integration/macp-seal-payload.test.ts",
     "A\ttests/integration/macp-session-boundary.test.ts",
     "A\ttests/integration/macp-unverified-gates.test.ts",
     "A\ttests/unit/macp-lease-home.test.ts"
@@ -70,62 +81,59 @@
       "name": "typecheck",
       "status": "pass",
       "exit": 0,
-      "ms": 1491,
+      "ms": 1282,
       "tail": ""
     },
     "lint": {
       "name": "lint",
       "status": "pass",
       "exit": 0,
-      "ms": 3068,
+      "ms": 2782,
       "tail": ""
     },
     "format": {
       "name": "format",
       "status": "pass",
       "exit": 0,
-      "ms": 7774,
+      "ms": 7072,
       "tail": "Checking formatting...\nAll matched files use Prettier code style!"
     },
     "test": {
       "name": "test",
       "status": "pass",
       "exit": 0,
-      "ms": 107462,
-      "tail": "     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-011: gutting the check flips a fixture outcome\u001b[33m 501\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-013: gutting the check flips a fixture outcome\u001b[33m 471\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-014: gutting the check flips a fixture outcome\u001b[33m 449\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-016: gutting the check flips a fixture outcome\u001b[33m 450\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-022: gutting the check flips a fixture outcome\u001b[33m 519\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-023: gutting the check flips a fixture outcome\u001b[33m 527\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-024: gutting the check flips a fixture outcome\u001b[33m 468\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-001: gutting the check flips a fixture outcome\u001b[33m 489\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-002: gutting the check flips a fixture outcome\u001b[33m 480\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-003: gutting the check flips a fixture outcome\u001b[33m 557\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-005: gutting the check flips a fixture outcome\u001b[33m 508\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-006: gutting the check flips a fixture outcome\u001b[33m 575\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-001: gutting the check flips a fixture outcome\u001b[33m 510\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-002: gutting the check flips a fixture outcome\u001b[33m 556\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-003: gutting the check flips a fixture outcome\u001b[33m 482\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-004: gutting the check flips a fixture outcome\u001b[33m 528\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-005: gutting the check flips a fixture outcome\u001b[33m 571\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-006: gutting the check flips a fixture outcome\u001b[33m 392\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-007: gutting the check flips a fixture outcome\u001b[33m 563\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-008: gutting the check flips a fixture outcome\u001b[33m 588\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-009: gutting the check flips a fixture outcome\u001b[33m 512\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-010: gutting the check flips a fixture outcome\u001b[33m 533\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-011: gutting the check flips a fixture outcome\u001b[33m 531\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-001: gutting the check flips a fixture outcome\u001b[33m 533\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-002: gutting the check flips a fixture outcome\u001b[33m 590\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-004: gutting the check flips a fixture outcome\u001b[33m 615\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-005: gutting the check flips a fixture outcome\u001b[33m 533\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-007: gutting the check flips a fixture outcome\u001b[33m 428\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-012: gutting the check flips a fixture outcome\u001b[33m 441\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-001: gutting the check flips a fixture outcome\u001b[33m 428\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-002: gutting the check flips a fixture outcome\u001b[33m 412\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-003: gutting the check flips a fixture outcome\u001b[33m 434\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-005: gutting the check flips a fixture outcome\u001b[33m 441\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-006: gutting the check flips a fixture outcome\u001b[33m 416\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-007: gutting the check flips a fixture outcome\u001b[33m 421\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m84 passed\u001b[39m\u001b[22m\u001b[90m (84)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1607 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m1 skipped\u001b[39m\u001b[90m (1608)\u001b[39m\n\u001b[2m   Start at \u001b[22m 12:28:33\n\u001b[2m   Duration \u001b[22m 106.99s\u001b[2m (tests 89%, import 8%, transform 3%)\u001b[22m"
+      "ms": 106377,
+      "tail": "     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-011: gutting the check flips a fixture outcome\u001b[33m 404\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-013: gutting the check flips a fixture outcome\u001b[33m 590\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-014: gutting the check flips a fixture outcome\u001b[33m 562\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-016: gutting the check flips a fixture outcome\u001b[33m 594\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-022: gutting the check flips a fixture outcome\u001b[33m 561\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-023: gutting the check flips a fixture outcome\u001b[33m 588\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SUP-024: gutting the check flips a fixture outcome\u001b[33m 621\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-001: gutting the check flips a fixture outcome\u001b[33m 592\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-002: gutting the check flips a fixture outcome\u001b[33m 606\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-003: gutting the check flips a fixture outcome\u001b[33m 566\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-005: gutting the check flips a fixture outcome\u001b[33m 573\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m SW-006: gutting the check flips a fixture outcome\u001b[33m 532\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-001: gutting the check flips a fixture outcome\u001b[33m 440\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-002: gutting the check flips a fixture outcome\u001b[33m 440\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-003: gutting the check flips a fixture outcome\u001b[33m 585\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-004: gutting the check flips a fixture outcome\u001b[33m 596\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-005: gutting the check flips a fixture outcome\u001b[33m 581\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-006: gutting the check flips a fixture outcome\u001b[33m 390\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-007: gutting the check flips a fixture outcome\u001b[33m 528\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-008: gutting the check flips a fixture outcome\u001b[33m 563\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-009: gutting the check flips a fixture outcome\u001b[33m 580\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-010: gutting the check flips a fixture outcome\u001b[33m 561\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TAS-011: gutting the check flips a fixture outcome\u001b[33m 580\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-001: gutting the check flips a fixture outcome\u001b[33m 641\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-002: gutting the check flips a fixture outcome\u001b[33m 576\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-004: gutting the check flips a fixture outcome\u001b[33m 559\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-005: gutting the check flips a fixture outcome\u001b[33m 572\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-007: gutting the check flips a fixture outcome\u001b[33m 581\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m TEST-012: gutting the check flips a fixture outcome\u001b[33m 536\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-001: gutting the check flips a fixture outcome\u001b[33m 550\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-002: gutting the check flips a fixture outcome\u001b[33m 523\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-003: gutting the check flips a fixture outcome\u001b[33m 575\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-005: gutting the check flips a fixture outcome\u001b[33m 571\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-006: gutting the check flips a fixture outcome\u001b[33m 500\u001b[2mms\u001b[22m\u001b[39m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m WEB-007: gutting the check flips a fixture outcome\u001b[33m 543\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m86 passed\u001b[39m\u001b[22m\u001b[90m (86)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1614 passed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[33m1 skipped\u001b[39m\u001b[90m (1615)\u001b[39m\n\u001b[2m   Start at \u001b[22m 12:51:02\n\u001b[2m   Duration \u001b[22m 105.98s\u001b[2m (tests 90%, import 7%, transform 2%)\u001b[22m"
     },
     "docs_all": {
       "name": "docs_all",
       "status": "pass",
       "exit": 0,
-      "ms": 2650,
+      "ms": 2444,
       "tail": "ADR hygiene: OK (46 records, index complete)\ndocs governance: OK (150 docs · facts 2.28.7/315 rules · sections · flags · links · index · pins)\nCLI reference: OK (in sync)\nsample report: OK (in sync)\ndoc manifest: OK (152 tracked docs · 81 standalone · 180-day review window)"
     },
     "self_audit": {
       "name": "self_audit",
       "status": "pass",
       "exit": 0,
-      "ms": 2636,
+      "ms": 2338,
       "tail": "usa 100/100 (beta) — 99 passed, no open findings, 36 to review (66.4% verified automatically)\n  report → AUDIT.md"
     }
   },
   "required_gates": ["typecheck", "lint", "format", "test", "docs_all", "self_audit"],
   "outcome": "COMPLETED",
   "completed": [
-    "a gate now records pass / fail / unverified with a reason, instead of collapsing three situations into a non-zero exit",
-    "COMPLETED is refused while any gate that ran is unverified; PARTIAL may still close short",
-    "both gate tables carry a Verdict column and the handoff prints verified: N",
-    "seven tests, three planted defects watched red and restored byte-identically"
+    "the report records the tree the gates ran against; close refuses a report whose commit no longer exists",
+    "a seal now signs the block a verifier reads, and there is one reader instead of two",
+    "the intermittent seal failure (2 of 8 runs) is fixed and pinned by a test that forces the clock boundary"
   ],
-  "remaining": [
-    "the verdict is per-gate; there is no aggregate coverage figure the way USA reports automationCoverage"
-  ],
+  "remaining": ["P0's D1-D8 decisions are still unrecorded"],
   "discovered_bugs": [
-    "an unverified gate was previously indistinguishable from a red one in the record, which is the class the audit's P2 covers"
+    "the seal verified only while two clocks agreed — an integrity check that passes by coincidence"
   ],
   "deferred_work": [],
   "traps_learned": [],
-  "next_recommended_task": "P2 — evidence: close should compare a tree hash, not just the commit the report was written at",
+  "next_recommended_task": "add today's three findings to docs/remediation-plan.md §5 as a new row, then P0",
   "required_context": [],
-  "closed_at": "2026-10-26T12:30:27+05:45"
+  "closed_at": "2026-10-26T12:52:54+05:45"
 }

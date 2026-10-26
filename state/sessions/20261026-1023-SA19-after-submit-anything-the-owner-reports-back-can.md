@@ -31,29 +31,17 @@ session outlive its first report, and the gate is what stops a second one being 
 
 **Outcome:** COMPLETED
 
-Machine-stamped at 2026-10-26T12:30:27+05:45 from `macp submit`. Code commit `f0315dd`.
+Machine-stamped at 2026-10-26T12:52:54+05:45 from `macp submit`. Code commit `17f8577`.
 
 | Gate       | Verdict | Exit | Time |
 | ---------- | ------- | ---- | ---- |
 | typecheck  | pass    | 0    | 1s   |
 | lint       | pass    | 0    | 3s   |
-| format     | pass    | 0    | 8s   |
-| test       | pass    | 0    | 107s |
-| docs_all   | pass    | 0    | 3s   |
-| self_audit | pass    | 0    | 3s   |
+| format     | pass    | 0    | 7s   |
+| test       | pass    | 0    | 106s |
+| docs_all   | pass    | 0    | 2s   |
+| self_audit | pass    | 0    | 2s   |
 
 Remaining: 1 item(s)
 
-Next: P2 — evidence: close should compare a tree hash, not just the commit the report was written at
-
-### 06:45 — Commit
-
-`65b45e3` docs(macp): the gate table's heading says what it now contains
-
-### 06:57 — Commit
-
-`a0e68ec` fix(macp): a rewritten history could close a tree that was never measured
-
-### 07:05 — Commit
-
-`a77a8b7` fix(macp): a seal failed verification on an unchanged file, about one run in four
+Next: add today's three findings to docs/remediation-plan.md §5 as a new row, then P0
