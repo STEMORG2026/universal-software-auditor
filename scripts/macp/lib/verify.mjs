@@ -64,7 +64,7 @@ export function verify() {
   let verified = 0;
 
   for (const session of listSessions(root)) {
-    const close = section(session.text, 'Close');
+    const close = section(session.text, 'Close') ?? section(session.text, 'Close authorization');
     const authorisation = section(session.text, 'Close authorization');
     const branch = branchesNamed(session.text)[0] ?? '';
 

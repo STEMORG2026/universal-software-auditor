@@ -892,31 +892,29 @@ export function seal(options) {
   const closedAt = isoLocal();
   const outcome = options.outcome || 'COMPLETED';
   const instruction = normaliseInstruction(options.instruction);
-  const payload = sealPayload({
-    repo: id,
-    session: session.id,
-    agent: field(session.text, 'Agent') ?? '',
-    branch: currentBranch(root),
-    baseCommit: field(session.text, 'Base commit') ?? '',
-    codeCommit,
-    outcome,
-    closedAt,
-    instruction,
-  });
 
-  const signed = signPayload(payload, keyPath);
-  const block = closeBlock({
+  // Build the block first, then sign the payload *reconstructed from the file a
+  // verifier will read* — never from the values this process happens to hold.
+  //
+  // It used to sign `sealPayload({...})` built from in-memory values, while
+  // `reopen` rebuilds the payload with `sealPayloadFromText(text)`. The two agree
+  // only when every field coincides, and `closedAt` is `isoLocal()`: a clock tick
+  // between `close` and `seal` made the signature cover a timestamp that was
+  // never written. The result was a seal that failed verification about one run
+  // in four, on an unchanged file — the worst possible failure for the one
+  // guarantee this system exists to provide.
+  const draft = closeBlock({
     instruction,
     closedAt,
     statusAtClose: outcome,
     outcome: options.summary || outcome,
     codeCommit,
-    fingerprint: signed.fingerprint,
-    signature: signed.signature,
+    fingerprint: '',
+    signature: '',
   });
 
   let text = readFileSync(session.file, 'utf8');
-  text = replaceSection(text, 'Close', block);
+  text = replaceSection(text, 'Close', draft);
   text = withStatus(text, STATUS.CLOSED);
   if (/^\*\*Closed:\*\*/m.test(text)) {
     text = text.replace(/^\*\*Closed:\*\*.*$/m, `**Closed:** ${closedAt} by owner`);
@@ -926,6 +924,29 @@ export function seal(options) {
       `**Closed:** ${closedAt} by owner\n**Status:** ${STATUS.CLOSED}`,
     );
   }
+
+  // The signature is not part of the payload, so signing after the block is in
+  // place cannot be circular: a second `replaceSection` with the real signature
+  // leaves every field the payload covers untouched.
+  const payload = sealPayloadFromText(text, {
+    repo: id,
+    session: session.id,
+    branch: currentBranch(root),
+  });
+  const signed = signPayload(payload, keyPath);
+  text = replaceSection(
+    text,
+    'Close',
+    closeBlock({
+      instruction,
+      closedAt,
+      statusAtClose: outcome,
+      outcome: options.summary || outcome,
+      codeCommit,
+      fingerprint: signed.fingerprint,
+      signature: signed.signature,
+    }),
+  );
   writeText(session.file, text);
 
   writeJson(path.join(macpHome(), 'seals', id, `${session.id}.json`), {
@@ -953,8 +974,24 @@ export function seal(options) {
 /* ------------------------------------------------------------------ reopen -- */
 
 /** Rebuild the payload a `## Close` block asserts, from the file itself. */
+/**
+ * The close block, from the heading a *verifier* reads.
+ *
+ * There are two headings in play and they are not the same block: `close` writes
+ * `## Close authorization`, `seal` writes `## Close`. Slicing from the first
+ * occurrence of `## Close` therefore picked up `close`'s block while `verify`
+ * matched `## Close` exactly — two readers, two blocks, one signature. That is
+ * how a seal came to fail verification on an unchanged file.
+ *
+ * Exact heading first, and the older `Close authorization` heading only as a
+ * fallback so seals written before the split still verify.
+ */
+export function closeSection(text) {
+  return section(text, 'Close') ?? section(text, 'Close authorization') ?? '';
+}
+
 export function sealPayloadFromText(text, { repo, session, branch }) {
-  const close = text.slice(text.indexOf('## Close'));
+  const close = closeSection(text);
   const grab = (name) =>
     new RegExp(`\\*\\*${name}:\\*\\*[ \\t]*(.*)$`, 'm').exec(close)?.[1]?.trim();
   const quoted =
@@ -988,7 +1025,7 @@ export function reopen(options) {
     };
   }
 
-  const closeBlockText = session.text.slice(session.text.indexOf('## Close'));
+  const closeBlockText = closeSection(session.text);
   const fingerprint = /\*\*Passkey:\*\*\s*ssh-ed25519\s*(\S+)/.exec(closeBlockText)?.[1];
   const sealSignature = /\*\*Seal signature:\*\*\s*(\S+)/.exec(closeBlockText)?.[1];
   if (!fingerprint || !sealSignature) {

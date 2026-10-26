@@ -646,7 +646,11 @@ describe('macp runtime — seal and reopen', { timeout: 60_000 }, () => {
       '--delta',
       'records the trap',
     ]);
-    expect(r.code).toBe(0);
+    // `r.out` in the message, because this assertion is the only one in the file
+    // that fails intermittently: roughly one run in three, on an unchanged tree,
+    // with no way to see which refusal fired. A flaky gate is worse than a
+    // missing one — it teaches the operator to re-run until green.
+    expect(r.code, r.out).toBe(0);
     expect(r.out).toMatch(/REOPENED T01/);
     expect(repo.run(['verify']).code).toBe(0);
     expect(repo.run(['status']).out).toMatch(/REOPENED/);
