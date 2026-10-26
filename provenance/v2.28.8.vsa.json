@@ -1,0 +1,47 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "usa-release-2.28.8.tgz",
+      "digest": {
+        "sha256": "748ae656f914f9fb0620e2e64d2e92e38f245a0010028f356051aa69d5aac40f"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/verification_summary/v1",
+  "predicate": {
+    "verifier": {
+      "id": "https://github.com/STEMORG2026/universal-software-auditor/.github/workflows/publish.yml",
+      "version": {
+        "gh": "2.102.0"
+      }
+    },
+    "timeVerified": "2026-10-26T04:04:09Z",
+    "resourceUri": "https://registry.npmjs.org/@xenos1996/usa/-/usa-2.28.8.tgz",
+    "policy": {
+      "uri": "https://github.com/STEMORG2026/universal-software-auditor/blob/bde1ed1e5467c356057e6095888b50b4931e8e59/.github/workflows/publish.yml",
+      "digest": {
+        "sha256": "d2f198804c0fc89f59121217a2ad00e998d92cfe5dc5dea634c79f0d1ef372fa"
+      }
+    },
+    "inputAttestations": [
+      {
+        "uri": "https://api.github.com/repos/STEMORG2026/universal-software-auditor/attestations/sha256:748ae656f914f9fb0620e2e64d2e92e38f245a0010028f356051aa69d5aac40f",
+        "digest": {
+          "sha256": "6d4f42c1599ea2f5f14436d4a145ce1df41e2997ac25e6b96bef718a7656acc5"
+        },
+        "attestations": [
+          {
+            "mediaType": "application/vnd.dev.sigstore.bundle.v0.3+json",
+            "digest": {
+              "sha256": "9f2a22798947bd3b68d7b431a2ee436b48ff4c92cfd682282625a1b19acf0d54"
+            }
+          }
+        ]
+      }
+    ],
+    "verificationResult": "PASSED",
+    "verifiedLevels": ["SLSA_BUILD_LEVEL_2"],
+    "slsaVersion": "1.1"
+  }
+}
