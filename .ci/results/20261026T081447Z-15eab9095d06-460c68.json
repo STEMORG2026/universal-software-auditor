@@ -1,0 +1,569 @@
+{
+  "artifacts": [
+    ".ci/reports/20261026T081447Z-15eab9095d06-460c68/environment.json"
+  ],
+  "blocking_failures": [
+    {
+      "id": "repository.forbidden-files",
+      "log": null,
+      "remediation": "Remove the files from Git (`git rm --cached <path>`), rotate any exposed credential, and extend .gitignore.",
+      "stage": "repository",
+      "summary": "1 forbidden path(s): .env.example"
+    }
+  ],
+  "command": "validate",
+  "counts": {
+    "blocking_failures": 1,
+    "error": 0,
+    "fail": 1,
+    "gates": 18,
+    "pass": 15,
+    "skip": 1,
+    "stages": 2,
+    "warn": 1,
+    "warning_gates": 1
+  },
+  "environment": {
+    "clean_env": false,
+    "config_path": "ci.toml",
+    "environment": {
+      "CI": "1",
+      "PATH_entries": 19,
+      "PYTHONHASHSEED": "0",
+      "SOURCE_DATE_EPOCH": "1793002334",
+      "TZ": "UTC"
+    },
+    "git": {
+      "available": true,
+      "branch": "feat/submit-not-terminal",
+      "commit_epoch": 1793002334,
+      "dirty": true,
+      "dirty_files": [
+        ".gitignore",
+        "ci",
+        "ci.toml"
+      ],
+      "revision": "15eab9095d06a728fc5ebc10ca92f9290d3cbb60",
+      "root": "/home/sajan/Projects/Universal_Software_Auditor",
+      "short_revision": "15eab9095d06",
+      "tags_at_head": [],
+      "tracked_files": 781
+    },
+    "paths": {
+      "artifacts_dir": ".ci/artifacts/20261026T081447Z-15eab9095d06-460c68",
+      "latest_path": ".ci/results/latest.json",
+      "logs_dir": ".ci/logs/20261026T081447Z-15eab9095d06-460c68",
+      "reports_dir": ".ci/reports/20261026T081447Z-15eab9095d06-460c68",
+      "result_path": ".ci/results/20261026T081447Z-15eab9095d06-460c68.json",
+      "state_dir": ".ci"
+    },
+    "platform": {
+      "executable": "/usr/bin/python3.14",
+      "machine": "x86_64",
+      "python": "3.14.8",
+      "python_implementation": "CPython",
+      "release": "6.18.57-2-lts",
+      "system": "Linux"
+    },
+    "profile": "standard",
+    "run_id": "20261026T081447Z-15eab9095d06-460c68",
+    "source_date_epoch": 1793002334,
+    "started_at": "2026-10-26T08:14:47Z",
+    "tools": {
+      "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "cosign": "Error: unknown flag: --version",
+      "docker": "Docker version 29.9.1, build dfc520dcc2",
+      "git": "git version 2.56.0",
+      "go": "flag provided but not defined: -version",
+      "java": "openjdk 21.0.12.1 2026-08-18 LTS",
+      "node": "v24.22.0",
+      "npm": "12.2.1",
+      "platform": "Linux 6.18.57-2-lts x86_64",
+      "pnpm": "10.34.5",
+      "python": "3.14.8 (CPython)",
+      "python3": "Python 3.14.8",
+      "shell": "/bin/bash",
+      "shellcheck": "ShellCheck - shell script analysis tool",
+      "syft": "syft 1.54.0",
+      "uv": "uv 0.12.1 (x86_64-unknown-linux-gnu)"
+    }
+  },
+  "error": null,
+  "exit_code": 1,
+  "metadata": {
+    "clean_env": false,
+    "fail_fast": true,
+    "parallel_stages": [],
+    "promoted_to_blocking": [],
+    "selected_stages": [
+      "precheck",
+      "repository"
+    ]
+  },
+  "policy": {
+    "fail_fast": true,
+    "keep_runs": 20,
+    "profile": "standard",
+    "require_clean_worktree": "release",
+    "required_stages": [
+      "repository",
+      "security"
+    ],
+    "schema_version": 1,
+    "stages": {
+      "artifact": {
+        "classification": "BLOCKING",
+        "commands": 0,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 900
+      },
+      "audit": {
+        "classification": "WARNING",
+        "commands": 1,
+        "configured": true,
+        "required": false,
+        "timeout_seconds": 900
+      },
+      "build": {
+        "classification": "BLOCKING",
+        "commands": 1,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 1800
+      },
+      "contract": {
+        "classification": "SKIP",
+        "configured": false,
+        "required": false
+      },
+      "coverage": {
+        "classification": "SKIP",
+        "configured": false,
+        "required": false
+      },
+      "e2e": {
+        "classification": "SKIP",
+        "configured": false,
+        "required": false
+      },
+      "format": {
+        "classification": "BLOCKING",
+        "commands": 1,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 300
+      },
+      "integration": {
+        "classification": "SKIP",
+        "configured": false,
+        "required": false
+      },
+      "lint": {
+        "classification": "BLOCKING",
+        "commands": 1,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 600
+      },
+      "package": {
+        "classification": "BLOCKING",
+        "commands": 0,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 900
+      },
+      "repository": {
+        "classification": "BLOCKING",
+        "commands": 0,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 300
+      },
+      "security": {
+        "classification": "BLOCKING",
+        "commands": 0,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 600
+      },
+      "typecheck": {
+        "classification": "BLOCKING",
+        "commands": 1,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 600
+      },
+      "unit": {
+        "classification": "BLOCKING",
+        "commands": 1,
+        "configured": true,
+        "required": true,
+        "timeout_seconds": 900
+      }
+    },
+    "thresholds": {
+      "coverage_percent": {},
+      "max_tracked_file_mib": 5.0
+    }
+  },
+  "project": {
+    "name": "usa",
+    "profile": "standard",
+    "version": "2.28.8"
+  },
+  "release": null,
+  "run": {
+    "duration_seconds": 1.3,
+    "finished_at": "2026-10-26T08:14:49Z",
+    "git": {
+      "available": true,
+      "branch": "feat/submit-not-terminal",
+      "commit_epoch": 1793002334,
+      "dirty": true,
+      "dirty_files": [
+        ".gitignore",
+        "ci",
+        "ci.toml"
+      ],
+      "revision": "15eab9095d06a728fc5ebc10ca92f9290d3cbb60",
+      "root": "/home/sajan/Projects/Universal_Software_Auditor",
+      "short_revision": "15eab9095d06",
+      "tags_at_head": [],
+      "tracked_files": 781
+    },
+    "id": "20261026T081447Z-15eab9095d06-460c68",
+    "paths": {
+      "artifacts_dir": ".ci/artifacts/20261026T081447Z-15eab9095d06-460c68",
+      "latest_path": ".ci/results/latest.json",
+      "logs_dir": ".ci/logs/20261026T081447Z-15eab9095d06-460c68",
+      "reports_dir": ".ci/reports/20261026T081447Z-15eab9095d06-460c68",
+      "result_path": ".ci/results/20261026T081447Z-15eab9095d06-460c68.json",
+      "state_dir": ".ci"
+    },
+    "started_at": "2026-10-26T08:14:47Z"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "duration_seconds": 0.003,
+      "error": null,
+      "gates": [
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.config",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": "ci.toml (schema 1)",
+          "title": "configuration is valid"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {
+            "available": true,
+            "branch": "feat/submit-not-terminal",
+            "commit_epoch": 1793002334,
+            "dirty": true,
+            "dirty_files": [
+              ".gitignore",
+              "ci",
+              "ci.toml"
+            ],
+            "revision": "15eab9095d06a728fc5ebc10ca92f9290d3cbb60",
+            "root": "/home/sajan/Projects/Universal_Software_Auditor",
+            "short_revision": "15eab9095d06",
+            "tags_at_head": [],
+            "tracked_files": 781
+          },
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.git",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": "feat/submit-not-terminal @ 15eab9095d06; dirty; 781 tracked files",
+          "title": "Git repository"
+        },
+        {
+          "artifacts": [],
+          "classification": "WARNING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.state-ignored",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": ".ci/ is ignored or Git is unavailable",
+          "title": "CI output is ignored by Git"
+        },
+        {
+          "artifacts": [],
+          "classification": "WARNING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.disk",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": "81.3 GiB free",
+          "title": "free disk space"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.python",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": "3.14.8",
+          "title": "Python runtime"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.shell",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": "/usr/bin/sh",
+          "title": "POSIX shell"
+        },
+        {
+          "artifacts": [
+            ".ci/reports/20261026T081447Z-15eab9095d06-460c68/environment.json"
+          ],
+          "classification": "WARNING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "precheck.environment",
+          "log": null,
+          "remediation": null,
+          "stage": "precheck",
+          "status": "PASS",
+          "summary": ".ci/reports/20261026T081447Z-15eab9095d06-460c68/environment.json",
+          "title": "environment recorded"
+        }
+      ],
+      "name": "precheck",
+      "skipped_reason": null,
+      "status": "PASS"
+    },
+    {
+      "duration_seconds": 0.157,
+      "error": null,
+      "gates": [
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.tracked",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "781 tracked file(s)",
+          "title": "tracked files"
+        },
+        {
+          "artifacts": [],
+          "classification": "WARNING",
+          "command": null,
+          "details": {
+            "paths": [
+              ".gitignore",
+              "ci",
+              "ci.toml"
+            ]
+          },
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.clean",
+          "log": null,
+          "remediation": "Commit changes before `./ci release`.",
+          "stage": "repository",
+          "status": "WARN",
+          "summary": "dirty: 3 path(s); release will refuse until committed",
+          "title": "clean working tree"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.required-paths",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "2 required path(s) present",
+          "title": "required paths"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {
+            "paths": [
+              ".env.example"
+            ]
+          },
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.forbidden-files",
+          "log": null,
+          "remediation": "Remove the files from Git (`git rm --cached <path>`), rotate any exposed credential, and extend .gitignore.",
+          "stage": "repository",
+          "status": "FAIL",
+          "summary": "1 forbidden path(s): .env.example",
+          "title": "forbidden tracked files"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.conflict-markers",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "none",
+          "title": "conflict markers"
+        },
+        {
+          "artifacts": [],
+          "classification": "WARNING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.large-files",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "none above 5.0 MiB",
+          "title": "large tracked files"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.versions",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "1 source(s) match 2.28.8",
+          "title": "version consistency"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.lockfiles",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "1 lockfile(s) present",
+          "title": "lockfiles"
+        },
+        {
+          "artifacts": [],
+          "classification": "BLOCKING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.links",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "160 Markdown file(s) checked; no broken relative links",
+          "title": "Markdown links"
+        },
+        {
+          "artifacts": [],
+          "classification": "WARNING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.license",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "PASS",
+          "summary": "LICENSE",
+          "title": "license file"
+        },
+        {
+          "artifacts": [],
+          "classification": "WARNING",
+          "command": null,
+          "details": {},
+          "duration_seconds": 0.0,
+          "exit_code": null,
+          "id": "repository.generated",
+          "log": null,
+          "remediation": null,
+          "stage": "repository",
+          "status": "SKIP",
+          "summary": "no generated_checks configured",
+          "title": "generated file drift"
+        }
+      ],
+      "name": "repository",
+      "skipped_reason": null,
+      "status": "FAIL"
+    }
+  ],
+  "status": "FAIL",
+  "tool": {
+    "name": "ci-fabric",
+    "version": "0.5.0"
+  }
+}
