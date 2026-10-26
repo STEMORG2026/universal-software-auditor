@@ -12,10 +12,11 @@
  * a thousand lines teaches the agent to skim, which is the failure it exists to
  * prevent.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { section } from './session.mjs';
 import { REGION_BEGIN, REGION_END } from './handoff.mjs';
+import { parseCheckpoints } from './checkpoint.mjs';
 
 const DEFAULT_SECTION_LINES = 60;
 
@@ -69,6 +70,25 @@ export function openQueueItems(root) {
     .map((line) => line.replace(/^- \[ \] /, ''));
 }
 
+/**
+ * Task checkpoints recorded in this session's file — the direction history a
+ * resumed agent must not lose. Unacked entries are stated as waiting; acked
+ * ones as owner-checked facts with the commit they were bound to.
+ */
+export function checkpointLines(root, sessionId) {
+  const dir = path.join(root, 'state', 'sessions');
+  if (!existsSync(dir)) return [];
+  const file = readdirSync(dir)
+    .filter((name) => name.endsWith('.md') && name.includes(sessionId))
+    .map((name) => path.join(dir, name))[0];
+  if (!file) return [];
+  return parseCheckpoints(readFileSync(file, 'utf8')).map((entry) =>
+    entry.done
+      ? `- [x] ${entry.number}. ${entry.title} (owner-acked at ${entry.codeCommit})`
+      : `- [ ] ${entry.number}. ${entry.title} — WAITING for \`macp ack ${entry.number}\``,
+  );
+}
+
 export function activeBlockers(root) {
   const text = readState(root, 'BLOCKERS.md');
   if (!text) return [];
@@ -110,6 +130,16 @@ export function buildBrief({
   out.push(`- task: ${task}`);
   out.push(`- authorized by: ${authorizedBy}`);
   out.push('');
+
+  // The direction history: what the owner already checked on this objective,
+  // and what is still waiting on them. A resumed agent that cannot see this
+  // will re-submit a checked task or edit past an unacked one.
+  const checkpoints = checkpointLines(root, sessionId);
+  if (checkpoints.length > 0) {
+    out.push(`## Task checkpoints on this session (${checkpoints.length})`);
+    out.push(...checkpoints);
+    out.push('');
+  }
 
   const handoff = handoffRegion(root, Math.max(limit, 90));
   if (handoff) {

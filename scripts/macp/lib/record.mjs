@@ -20,6 +20,7 @@ import {
   sessionsForBranch,
 } from './session.mjs';
 import { getLease } from './lease.mjs';
+import { LEASE_AWAITING_CHECKPOINT } from './checkpoint.mjs';
 import { appendQueue, ensureQueue, resolveQueue } from './statefiles.mjs';
 import { isoLocal } from './lifecycle.mjs';
 
@@ -64,13 +65,26 @@ export function log(options) {
   // An active session is not enough — this machine must have started it.
   // Otherwise a log line is a claim that the session is live when it is not.
   const lease = getLease(root, repoId(root), branch);
-  const live = lease && (lease.state === 'ACTIVE' || lease.state === 'CLOSING');
-  if (!live && session.status !== STATUS.COMPLETED) {
+  if (!lease) {
     return {
       code: 1,
       out:
         `no lease for ${branch} on this machine. The session file exists, but \`macp start\` never ` +
         'ran here. Run it, then log.',
+    };
+  }
+  if (lease.state === LEASE_AWAITING_CHECKPOINT) {
+    // A log line during a checkpoint wait is neither an edit nor a commit —
+    // the commit gate already permits the session's own file while frozen, and
+    // the moment a log is needed most is exactly when the agent is stopped and
+    // explaining itself. Refusing here (worse, with a "no lease" message)
+    // misnames the state and blocks the honest record.
+  } else if (!(lease.state === 'ACTIVE' || lease.state === 'CLOSING')) {
+    return {
+      code: 1,
+      out:
+        `the lease for ${branch} is ${lease.state}. \`macp log\` records work in a live ` +
+        "session; this one is past the agent's part.",
     };
   }
 
@@ -128,13 +142,9 @@ export function status() {
   // A submitted session is not active, but it is not absent either: it is the
   // state the owner has to act on, so `status` must name it rather than print
   // "none" and let the reader conclude the branch is free.
-  // A finished session is not absent: it is finished. `status` must name the
-  // state rather than print "none" and let the reader conclude the branch is free.
   const session =
     activeSessionForBranch(root, branch) ??
-    sessionsForBranch(root, branch).find(
-      (s) => s.status === STATUS.AWAITING_USER || s.status === STATUS.ABANDONED,
-    ) ??
+    sessionsForBranch(root, branch).find((s) => s.status === STATUS.AWAITING_USER) ??
     null;
   const lease = getLease(root, repoId(root), branch);
 
@@ -143,15 +153,20 @@ export function status() {
     `session: ${session ? `${session.id} (${session.status})` : 'none'}`,
     `lease:   ${lease ? `${lease.state} since ${lease.startedAt}` : 'none'}`,
     `mode:    ${
-      session?.status === STATUS.AWAITING_USER
-        ? 'AWAITING-USER'
-        : session?.status === STATUS.ABANDONED
-          ? 'ABANDONED'
+      lease?.state === 'AWAITING-CHECKPOINT'
+        ? `AWAITING-CHECKPOINT (${lease.checkpointNumber ?? '?'})`
+        : session?.status === STATUS.AWAITING_USER
+          ? 'AWAITING-USER'
           : session && lease
             ? 'ACTIVE'
             : 'UNBOUND'
     }`,
   ];
+  if (lease?.state === 'AWAITING-CHECKPOINT') {
+    lines.push(
+      `next:    the owner acks with \`macp ack ${lease.checkpointNumber ?? '<n>'} --ssh-key <key>\``,
+    );
+  }
   if (session) {
     lines.push(
       `task:    ${field(session.text, 'Branch') ? '' : ''}${section(session.text, 'Objective')?.split('\n')[2]?.trim() ?? ''}`,

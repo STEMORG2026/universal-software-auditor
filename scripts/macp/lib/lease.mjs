@@ -71,15 +71,11 @@ export function activeLease(root, repoIdValue, branch) {
 /**
  * States in which a lease still owns its branch.
  *
- * `AWAITING-USER` is here, and that is the whole point of this list. It used to
- * be excluded — the session was "finished", so a second one could open beside
- * it. But a submitted session is not a closed one: it still owns the branch,
- * the owner has not acted, and the agent may be asked to continue. `SA18` was
- * `AWAITING-USER` when `SA19` opened in the same checkout, and the guard that
+ * `AWAITING-USER` is here on purpose. It used to be excluded — the session was
+ * "finished", so a second one could open beside it — but a submitted session is
+ * not a closed one: it still owns the branch and the owner has not acted. SA18
+ * was AWAITING-USER when SA19 opened in the same checkout, and the guard that
  * exists to prevent exactly that saw nothing live.
- *
- * A lease that has been closed, dropped or abandoned is not live, and a new
- * session on that branch is legitimate.
  */
 export const LIVE_STATES = Object.freeze([
   'ACTIVE',
@@ -119,6 +115,7 @@ export function makeLease({
   harness,
   baseCommit,
   startHeadSha,
+  plan,
 }) {
   const now = new Date().toISOString();
   return {
@@ -135,6 +132,10 @@ export function makeLease({
     // audit's F-14: attributing commits from `master..HEAD` gave a stacked
     // session credit for the session below it.
     startHeadSha: startHeadSha ?? null,
+    // The plan item this session was scoped to, and the plan's sha when it was
+    // scoped. `null` for a `--task` session, which is the honest record: that
+    // scope came from prose and has no document behind it.
+    plan: plan ?? null,
     startedAt: now,
     heartbeatAt: now,
   };

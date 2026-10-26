@@ -1,7 +1,7 @@
 /**
  * The seal: an SSH signature over the facts a close asserts.
  *
- * WHY SSH AND NOT A WORD. `docs/macp.md` §4C is honest that the old passkey —
+ * WHY SSH AND NOT A WORD. The protocol is honest that the old passkey —
  * a string typed into the session file — is an audit control and not a
  * security control, because anyone holding the checkout can type any string.
  * That is correct, and it is not enough: it means an unrequested reopen is
@@ -28,7 +28,7 @@ export const SIGN_NAMESPACE = 'macp';
 export const SIGN_PRINCIPAL = 'macp-owner';
 
 /**
- * The principals, one per lifecycle act (ADR-0046).
+ * The principals, one per lifecycle act.
  *
  * A passphrase belongs to a key file, so "a different passphrase for close and
  * seal" means a different key — and therefore a different principal. `legacy` is
@@ -40,6 +40,8 @@ export const ACTS = Object.freeze({
   seal: 'macp-seal',
   reopen: 'macp-reopen',
   destroy: 'macp-destroy',
+  /** The owner acking a task checkpoint — the per-task direction check. */
+  ack: 'macp-ack',
   legacy: 'macp-owner',
 });
 
@@ -133,20 +135,6 @@ export function agentLoadedRefusal(keyPath, act) {
   );
 }
 
-/** The bytes a resume signs: the owner letting an unfinished session continue. */
-export function resumePayload({ repo, session, agent, branch, codeCommit, reason, resumedAt }) {
-  return canonicalPayload({
-    kind: 'macp-resume-v1',
-    repo,
-    session,
-    agent,
-    branch,
-    codeCommit,
-    reason,
-    resumedAt,
-  });
-}
-
 /** The bytes an abandon signs: the owner stopping work that was never finished. */
 export function abandonPayload({ repo, session, agent, branch, codeCommit, reason, abandonedAt }) {
   return canonicalPayload({
@@ -158,6 +146,40 @@ export function abandonPayload({ repo, session, agent, branch, codeCommit, reaso
     codeCommit,
     reason,
     abandonedAt,
+  });
+}
+
+/**
+ * The bytes an ack signs: the owner confirming a task checkpoint and letting
+ * the agent continue.
+ *
+ * The checkpoint is the direction check — "are you going the right way?" — so
+ * the ack must bind what the owner actually saw: the task's number and title,
+ * the commit the agent stood at when it asked, and the note it offered. Edit
+ * any of them after the fact and `macp verify` fails the session.
+ */
+export function ackPayload({
+  repo,
+  session,
+  agent,
+  branch,
+  number,
+  title,
+  codeCommit,
+  note,
+  ackedAt,
+}) {
+  return canonicalPayload({
+    kind: 'macp-ack-v1',
+    repo,
+    session,
+    agent,
+    branch,
+    number,
+    title,
+    codeCommit,
+    note,
+    ackedAt,
   });
 }
 
@@ -188,19 +210,23 @@ export function canonicalPayload(fields) {
 }
 
 /**
- * Run a helper. `interactive` hands the child this process's terminal.
+ * Run a helper. `interactive` hands the child this process's terminal —
+ * including stdin.
  *
  * Signing must be interactive: a passphrase-protected key — the shape the owner
  * was told to use, and the only shape that stops an agent from sealing on his
- * behalf — needs `ssh-keygen` to prompt. With piped stdio there is no terminal
- * to prompt on, so it falls through to `ssh-askpass`, which does not exist on a
- * headless box, and the seal dies with "incorrect passphrase" even when the
- * passphrase was right.
+ * behalf — needs `ssh-keygen` to prompt. `ssh-keygen` reads the passphrase from
+ * the tty on *stdin*; with stdin ignored it finds no terminal, falls through
+ * to `ssh-askpass`, which does not exist on a headless box, and the sign dies
+ * with "incorrect passphrase" even when the passphrase was right — measured:
+ * the first real owner ack failed exactly this way, under a real terminal,
+ * because this function passed stdin:'ignore' while its comment claimed
+ * 'interactive hands the child this process's terminal'.
  */
 function run(command, args, { interactive = false, ...options } = {}) {
   return execFileSync(command, args, {
     encoding: 'utf8',
-    stdio: interactive ? ['ignore', 'inherit', 'inherit'] : ['pipe', 'pipe', 'pipe'],
+    stdio: interactive ? ['inherit', 'inherit', 'inherit'] : ['pipe', 'pipe', 'pipe'],
     ...options,
   });
 }

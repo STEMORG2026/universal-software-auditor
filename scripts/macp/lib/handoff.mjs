@@ -95,6 +95,13 @@ export function renderHandoff(handoff) {
     '| ---- | ----- |',
     `| Session | \`${handoff.session}\` (${handoff.agent} on ${handoff.harness}) |`,
     `| Branch | \`${handoff.branch}\` |`,
+    // Present only when the session was scoped by `--plan`. Its absence is
+    // information: the objective below was typed by the agent, not read.
+    ...(handoff.plan
+      ? [
+          `| Plan item | \`${handoff.plan.id}\` · ${handoff.plan.status} · \`${handoff.plan.file}\` · sha \`${handoff.plan.sha}\` |`,
+        ]
+      : []),
     `| Base commit | \`${handoff.base_commit_sha}\` |`,
     `| Code commit | \`${handoff.code_commit_sha}\` |`,
     `| Working tree clean | ${handoff.working_tree_clean ? 'yes' : '**no**'} |`,

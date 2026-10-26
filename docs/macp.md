@@ -508,15 +508,26 @@ THE STATES
 
     AWAITING-USER is gone from this path: a report no longer parks the session.
 
-| State           | How you get there                           | What it permits                                               |
-| --------------- | ------------------------------------------- | ------------------------------------------------------------- |
-| `UNBOUND`       | the default on launching any harness        | read-only recon. No edit, no commit, no session file.         |
-| `ACTIVE`        | `macp start …`                              | edits on the session's branch, `macp log`                     |
-| `CLOSING`       | `macp submit --prepare`                     | nothing. Source is frozen; run the gates, then submit.        |
-| `AWAITING-USER` | only in sessions written before this change | nothing. Legacy: `macp resume` releases it.                   |
-| `COMPLETED`     | `macp close` (owner)                        | nothing. Closed by the owner; not yet sealed.                 |
-| `CLOSED`        | `macp seal --session … --ssh-key …`         | nothing. Immutable, byte-compared against its sealing commit. |
-| `REOPENED`      | `macp reopen --session … --ssh-key …`       | edits again, on the same objective, until re-submitted.       |
+    ACTIVE ──checkpoint──▶ AWAITING-CHECKPOINT ──ack (owner)──▶ ACTIVE
+
+**Task checkpoints.** A session's objective is rarely one task, and the only review
+point used to be the session submit — so an agent could do three tasks in the wrong
+direction and present them together. `macp checkpoint --task "…"` is the agent
+stopping on purpose: the lease flips to `AWAITING-CHECKPOINT`, the guard refuses every
+edit and commit, and the stop is one-way — there is no `--force` and no self-ack.
+`macp ack <n> --ssh-key …` is the owner releasing it, signed with the `macp-ack`
+principal, and `macp submit` refuses while any checkpoint is unacked.
+
+| State                 | How you get there                           | What it permits                                               |
+| --------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| `UNBOUND`             | the default on launching any harness        | read-only recon. No edit, no commit, no session file.         |
+| `ACTIVE`              | `macp start …`                              | edits on the session's branch, `macp log`                     |
+| `CLOSING`             | `macp submit --prepare`                     | nothing. Source is frozen; run the gates, then submit.        |
+| `AWAITING-CHECKPOINT` | `macp checkpoint --task …`                  | nothing. A one-way stop; `macp ack <n>` releases it.          |
+| `AWAITING-USER`       | only in sessions written before this change | nothing. Legacy: close it, or abandon it.                     |
+| `COMPLETED`           | `macp close` (owner)                        | nothing. Closed by the owner; not yet sealed.                 |
+| `CLOSED`              | `macp seal --session … --ssh-key …`         | nothing. Immutable, byte-compared against its sealing commit. |
+| `REOPENED`            | `macp reopen --session … --ssh-key …`       | edits again, on the same objective, until re-submitted.       |
 
 **Why `submit` and `close` are separate.** They were one command, and that command
 wrote `COMPLETED` with no key — so the agent could reach a terminal state alone and
@@ -631,12 +642,13 @@ in sync.
 **One key per act.** Since ADR-0046 the seal is not the only signed act, and no two
 acts share a key:
 
-| Act     | Transition           | Principal      | Key                   |
-| ------- | -------------------- | -------------- | --------------------- |
-| close   | `ACTIVE → COMPLETED` | `macp-close`   | `~/.ssh/macp_close`   |
-| seal    | `COMPLETED → CLOSED` | `macp-seal`    | `~/.ssh/macp_seal`    |
-| reopen  | `CLOSED → REOPENED`  | `macp-reopen`  | `~/.ssh/macp_reopen`  |
-| destroy | `CLOSED → DESTROYED` | `macp-destroy` | `~/.ssh/macp_destroy` |
+| Act     | Transition                     | Principal      | Key                   |
+| ------- | ------------------------------ | -------------- | --------------------- |
+| ack     | `AWAITING-CHECKPOINT → ACTIVE` | `macp-ack`     | `~/.ssh/macp_ack`     |
+| close   | `ACTIVE → COMPLETED`           | `macp-close`   | `~/.ssh/macp_close`   |
+| seal    | `COMPLETED → CLOSED`           | `macp-seal`    | `~/.ssh/macp_seal`    |
+| reopen  | `CLOSED → REOPENED`            | `macp-reopen`  | `~/.ssh/macp_reopen`  |
+| destroy | `CLOSED → DESTROYED`           | `macp-destroy` | `~/.ssh/macp_destroy` |
 
 They are listed in `state/macp/allowed_signers`, written once by
 `macp init-authority`. A signature is checked against the principal that is

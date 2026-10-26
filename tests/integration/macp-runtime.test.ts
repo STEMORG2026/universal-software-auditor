@@ -133,28 +133,6 @@ function commit(repo: Repo, message: string) {
   execFileSync('git', ['commit', '-qm', message], { cwd: repo.dir, encoding: 'utf8' });
 }
 
-/**
- * A session as the previous release left it: reported, and parked at
- * `AWAITING-USER`. `submit` no longer produces this state — it reports and
- * leaves the session live — so the legacy door `macp resume` guards has to be
- * constructed rather than reached. It must keep working: a session written by
- * the old code is still a session the owner can reopen.
- */
-function legacyAwaitingUser(repo: Repo) {
-  const dir = path.join(repo.dir, 'state/sessions');
-  const file = path.join(dir, readdirSync(dir)[0]!);
-  writeFileSync(
-    file,
-    readFileSync(file, 'utf8').replace(/^\*\*Status:\*\*.*$/m, '**Status:** AWAITING-USER'),
-  );
-  const leases = path.join(repo.home, 'leases');
-  const store = JSON.parse(readFileSync(path.join(leases, readdirSync(leases)[0]!), 'utf8'));
-  for (const lease of Object.values(store.leases) as Record<string, unknown>[]) {
-    lease.state = 'AWAITING-USER';
-  }
-  writeFileSync(path.join(leases, readdirSync(leases)[0]!), `${JSON.stringify(store, null, 2)}\n`);
-}
-
 const START = [
   'start',
   '--agent',
@@ -331,13 +309,42 @@ describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
     expect(r.out).toMatch(/next_recommended_task/);
   });
 
-  it('records a tail even when the failing gate itself printed nothing', () => {
-    // A red gate that said nothing may not close as PARTIAL — otherwise the next
-    // agent inherits "test exited 1" and no idea why. The rule lives in
-    // `validateHandoff` and is unit-tested in `tests/unit/macp-handoff.test.ts`:
-    // no command run through a package manager fails with a genuinely empty
-    // tail, because pnpm prints its own ELIFECYCLE line, so this path cannot be
-    // reached through the CLI at all.
+  it('records the output of a red gate, and allows a PARTIAL close on it', () => {
+    const repo = makeRepo();
+    branch(repo, 'feat/one');
+    repo.run(START);
+    const pkg = JSON.parse(readFileSync(path.join(repo.dir, 'package.json'), 'utf8'));
+    pkg.scripts.test = 'node -e "console.error(\'boom\'); process.exit(1)"';
+    writeFileSync(path.join(repo.dir, 'package.json'), `${JSON.stringify(pkg, null, 2)}\n`);
+    commit(repo, 'test: fail loudly');
+
+    const r = repo.run([
+      'submit',
+      '--outcome',
+      'PARTIAL',
+      '--completed',
+      'x',
+      '--remaining',
+      'y',
+      '--next',
+      'z',
+    ]);
+    // Red, but it said why — so the record can carry the reason and a PARTIAL
+    // close is honest. The refusal for a gate that said nothing is below.
+    expect(r.code).toBe(0);
+    const handoff = JSON.parse(
+      readFileSync(path.join(repo.dir, 'state/macp/handoff/T01.json'), 'utf8'),
+    );
+    expect(handoff.gates.test.exit).toBe(1);
+    expect(handoff.gates.test.tail.length).toBeGreaterThan(0);
+  });
+
+  it('refuses a red gate that recorded no output at all', () => {
+    // This used to be unreachable through the CLI: every gate went through a
+    // package manager, and the package manager always printed its own failure
+    // line. The runtime now runs the gate's own command, so a silent failure is
+    // reachable — and a record that says "test exited 1" with no reason is
+    // exactly what the rule exists to refuse.
     const repo = makeRepo();
     branch(repo, 'feat/one');
     repo.run(START);
@@ -357,14 +364,8 @@ describe('macp runtime — submit and close', { timeout: 60_000 }, () => {
       '--next',
       'z',
     ]);
-    // The gate is red but did print something (pnpm's ELIFECYCLE line), so the
-    // close is allowed. The refusal for a truly silent gate is unit-tested.
-    expect(r.code).toBe(0);
-    const handoff = JSON.parse(
-      readFileSync(path.join(repo.dir, 'state/macp/handoff/T01.json'), 'utf8'),
-    );
-    expect(handoff.gates.test.exit).toBe(1);
-    expect(handoff.gates.test.tail.length).toBeGreaterThan(0);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/recorded without its output/);
   });
 
   it('writes the handoff region into CONTINUATION.md', () => {
@@ -668,53 +669,10 @@ describe('macp runtime — seal and reopen', { timeout: 60_000 }, () => {
     expect(r.out).toMatch(/2 signature\(s\) checked/);
   });
 
-  it('resumes a submitted session with the close key', () => {
-    const repo = makeRepo();
-    branch(repo, 'feat/one');
-    repo.run(START);
-    commit(repo, 'feat: work');
-    expect(repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']).code).toBe(0);
-    legacyAwaitingUser(repo);
-
-    const r = repo.run([
-      'resume',
-      '--ssh-key',
-      repo.keys.close,
-      '--reason',
-      'the objective is not finished',
-    ]);
-    expect(r.code).toBe(0);
-    expect(r.out).toMatch(/RESUMED T01/);
-    expect(repo.run(['status']).out).toMatch(/IN-PROGRESS/);
-    // The door the owner opened must be recorded and signed, not just flipped.
-    const dir = path.join(repo.dir, 'state/sessions');
-    const text = readFileSync(path.join(dir, readdirSync(dir)[0]!), 'utf8');
-    expect(text).toMatch(/\*\*Resumed by:\*\* owner — principal `macp-close`/);
-    expect(text).toMatch(/\*\*Resume signature:\*\*/);
-  });
-
-  it('refuses to resume with the seal key', () => {
-    const repo = makeRepo();
-    branch(repo, 'feat/one');
-    repo.run(START);
-    commit(repo, 'feat: work');
-    repo.run(['submit', '--outcome', 'COMPLETED', '--completed', 'x']);
-    legacyAwaitingUser(repo);
-
-    const r = repo.run(['resume', '--ssh-key', repo.keys.seal, '--reason', 'r']);
-    expect(r.code).toBe(1);
-    expect(r.out).toMatch(/resuming requires `macp-close`/);
-  });
-
-  it('refuses to resume a session that was never submitted', () => {
-    const repo = makeRepo();
-    branch(repo, 'feat/one');
-    repo.run(START);
-
-    const r = repo.run(['resume', '--ssh-key', repo.keys.close, '--reason', 'r']);
-    expect(r.code).toBe(1);
-    expect(r.out).toMatch(/nothing to resume/);
-  });
+  // `macp resume` is gone. It existed because `submit` parked the session at
+  // AWAITING-USER and the owner needed a signed way to let the agent back in;
+  // `submit` no longer parks, so there is nothing to resume. A legacy session
+  // sitting at AWAITING-USER is closed, not resumed.
 
   it('abandons an active session with the close key', () => {
     const repo = makeRepo();
@@ -725,7 +683,12 @@ describe('macp runtime — seal and reopen', { timeout: 60_000 }, () => {
     const r = repo.run(['abandon', '--ssh-key', repo.keys.close, '--reason', '"wrong branch"']);
     expect(r.code).toBe(0);
     expect(r.out).toMatch(/ABANDONED T01/);
-    expect(repo.run(['status']).out).toMatch(/ABANDONED/);
+    // `status` reports the branch's live session, and an abandoned one is not
+    // live — the durable record is the session file.
+    const dir = path.join(repo.dir, 'state/sessions');
+    expect(readFileSync(path.join(dir, readdirSync(dir)[0]!), 'utf8')).toMatch(
+      /\*\*Status:\*\* ABANDONED/,
+    );
 
     // The branch is free: a new session may start on it.
     const again = repo.run([
@@ -812,7 +775,7 @@ describe('macp runtime — onboarding', () => {
     cleanups.push(() => rmSync(keys, { recursive: true, force: true }));
     execFileSync('git', ['init', '-q', '-b', 'master', dir], { encoding: 'utf8' });
     spawnSync('node', [CLI, 'init-repo'], { cwd: dir, encoding: 'utf8' });
-    for (const name of ['macp_close', 'macp_seal', 'macp_reopen', 'macp_destroy']) {
+    for (const name of ['macp_close', 'macp_seal', 'macp_reopen', 'macp_destroy', 'macp_ack']) {
       execFileSync('ssh-keygen', ['-q', '-t', 'ed25519', '-N', '', '-f', path.join(keys, name)]);
     }
 
@@ -831,7 +794,7 @@ describe('macp runtime — onboarding', () => {
     cleanups.push(() => rmSync(keys, { recursive: true, force: true }));
     execFileSync('git', ['init', '-q', '-b', 'master', dir], { encoding: 'utf8' });
     spawnSync('node', [CLI, 'init-repo'], { cwd: dir, encoding: 'utf8' });
-    for (const name of ['macp_close', 'macp_seal', 'macp_reopen', 'macp_destroy']) {
+    for (const name of ['macp_close', 'macp_seal', 'macp_reopen', 'macp_destroy', 'macp_ack']) {
       execFileSync('ssh-keygen', ['-q', '-t', 'ed25519', '-N', '', '-f', path.join(keys, name)]);
     }
 

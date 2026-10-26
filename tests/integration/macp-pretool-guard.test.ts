@@ -101,7 +101,8 @@ describe('pre-tool guard', () => {
       const r = guard(dir, home, { tool, args: {} });
       expect(r.code).toBe(2);
       expect(r.err).toMatch(/UNBOUND/);
-      expect(r.err).toMatch(/macp -- start/);
+      // The refusal must name a command the reader can actually run.
+      expect(r.err).toMatch(/macp start --agent/);
     }
   });
 

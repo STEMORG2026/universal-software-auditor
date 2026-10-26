@@ -2,7 +2,7 @@
 /**
  * `macp` — the MACP runtime.
  *
- * Usage: `pnpm run macp -- <command> [flags]`, or `node scripts/macp/cli.mjs`.
+ * Usage: `macp <command> [flags]` (installed globally or via a package script).
  *
  * The CLI is thin on purpose: it parses flags, builds one request object, and
  * hands it to a backend. All judgement lives in `lib/`, so the same commands
@@ -11,15 +11,58 @@
  */
 import { createBackend, JARVIS_ROUTES } from './lib/backend.mjs';
 import { initAuthority, initRepo, installHooks } from './lib/install.mjs';
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const ENFORCE = path.resolve(HERE, '..', 'enforce');
+
+/**
+ * `macp check` — the structural gates, runnable from one command.
+ *
+ * The gates are plain scripts so a consumer repo can call them from git hooks
+ * or CI directly (`node <macp>/enforce/check-session-start.mjs`); this command
+ * is the convenience that does not require knowing the path.
+ */
+function runCheck({ gate = 'all', cwd } = {}) {
+  const target = cwd ? path.resolve(cwd) : process.cwd();
+  const gates = {
+    start: 'check-session-start.mjs',
+    close: 'check-protocol.mjs',
+    sessions: 'check-sessions.mjs',
+  };
+  const names = gate === 'all' ? Object.keys(gates) : [gate];
+  if (!names.every((n) => gates[n])) {
+    console.error(`macp check: unknown gate "${gate}" — use start, close, sessions or all`);
+    return 2;
+  }
+  let worst = 0;
+  for (const name of names) {
+    const script = path.join(ENFORCE, gates[name]);
+    const result = spawnSync(process.execPath, [script], {
+      cwd: target,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const text = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
+    if (text) console.log(`--- ${name} ---\n${text}`);
+    if (result.status !== 0) worst = result.status;
+  }
+  if (worst === 0) console.log('macp check: all gates green');
+  return worst;
+}
 
 const COMMANDS = {
   start: {
-    summary: 'open a session: recon, brief, register, lease',
+    summary: 'open a session: recon, brief, register, lease (scope from --plan or --task)',
     values: [
       'agent',
       'harness',
       'branch',
       'task',
+      'plan',
+      'plan-file',
       'authorized-by',
       'id',
       'history',
@@ -55,14 +98,20 @@ const COMMANDS = {
     flags: ['prepare', 'no-gates'],
     multi: ['completed', 'remaining', 'discovered', 'deferred', 'traps', 'required-context'],
   },
+  checkpoint: {
+    summary:
+      'agent: submit a finished TASK for direction check — one-way stop until the owner acks',
+    values: ['task', 'note'],
+    flags: [],
+  },
+  ack: {
+    summary: 'owner: ack a task checkpoint and release the branch (signed)',
+    values: ['number', 'ssh-key', 'note'],
+    flags: [],
+  },
   close: {
     summary: 'owner: close a submitted session (AWAITING-USER -> COMPLETED)',
     values: ['ssh-key'],
-    flags: [],
-  },
-  resume: {
-    summary: 'owner: let a submitted session continue (AWAITING-USER -> ACTIVE)',
-    values: ['ssh-key', 'reason'],
     flags: [],
   },
   abandon: {
@@ -82,8 +131,13 @@ const COMMANDS = {
   },
   status: { summary: 'what the state machine thinks right now', values: [], flags: [] },
   verify: { summary: 'verify every seal and reopen offline', values: [], flags: [] },
+  check: {
+    summary: 'run an enforcement gate: start | close | sessions | all',
+    values: ['gate', 'cwd'],
+    flags: [],
+  },
   'init-authority': {
-    summary: 'write state/macp/allowed_signers from four public keys (owner, once)',
+    summary: 'write state/macp/allowed_signers from five public keys (owner, once)',
     values: ['dir', 'cwd'],
     flags: ['force'],
   },
@@ -131,7 +185,8 @@ function usage() {
   lines.push(
     '',
     'The state machine: UNBOUND → ACTIVE → CLOSING → COMPLETED → CLOSED → REOPENED',
-    'Read docs/macp.md §4D before the first use.',
+    'Mid-session, per task: ACTIVE → AWAITING-CHECKPOINT (agent stops) → ACTIVE (owner acks)',
+    'Read docs/PROTOCOL.md §4D before the first use.',
     '',
     `Backends: MACP_BACKEND=local (default) | jarvis (+ MACP_JARVIS_URL).`,
     `JARVIS routes: ${Object.values(JARVIS_ROUTES).join(' · ')}`,
@@ -150,6 +205,8 @@ function request(name, args) {
         harness: args.harness,
         branch: args.branch,
         task: args.task,
+        plan: args.plan,
+        planFile: args.planFile,
         authorizedBy: args.authorizedBy,
         id: args.id,
         history: args.history,
@@ -166,6 +223,10 @@ function request(name, args) {
       };
     case 'queue':
       return { done: args.done };
+    case 'checkpoint':
+      return { task: args.task, note: args.note };
+    case 'ack':
+      return { number: args._[0] ?? args.number, sshKey: args.sshKey, note: args.note };
     case 'submit':
       return {
         prepare: args.prepare === true,
@@ -182,8 +243,6 @@ function request(name, args) {
       };
     case 'close':
       return { sshKey: args.sshKey };
-    case 'resume':
-      return { sshKey: args.sshKey, reason: args.reason };
     case 'abandon':
       return { sshKey: args.sshKey, reason: args.reason };
     case 'seal':
@@ -207,22 +266,44 @@ function request(name, args) {
       return { cwd: args.cwd, force: args.force === true };
     case 'install-hooks':
       return { harness: args.harness, write: args.write === true, home: args.home };
+    case 'check':
+      return { gate: args.gate ?? 'all', cwd: args.cwd };
     default:
       return {};
   }
 }
 
 function validate(name, args) {
+  // `start` is the one command whose required set depends on a flag: the scope
+  // arrives either as prose (`--task`) or as a plan item (`--plan`), never both.
+  if (name === 'start') {
+    if (args.plan && args.task) {
+      return (
+        'pass --task or --plan, not both — with --plan the item in the plan document is the ' +
+        'scope, and a --task alongside it is a second version of the same claim'
+      );
+    }
+    const missing = ['agent', 'harness', 'authorizedBy'].filter((key) => !args[key]);
+    if (!args.plan && !args.task) missing.push('task (or --plan <id>)');
+    return missing.length === 0
+      ? null
+      : `missing required flag(s): ${missing.map((key) => `--${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`).join(', ')}`;
+  }
+
   const required = {
     start: ['agent', 'harness', 'task', 'authorizedBy'],
     log: ['type', 'summary'],
-    resume: ['sshKey', 'reason'],
+    checkpoint: ['task'],
+    ack: ['sshKey'],
     abandon: ['sshKey', 'reason'],
     seal: ['session', 'instruction'],
     reopen: ['session', 'reason', 'delta'],
     'install-hooks': ['harness'],
   }[name];
   if (!required) return null;
+  if (name === 'ack' && !args._[0] && !args.number) {
+    return 'missing the checkpoint number: `macp ack <n> --ssh-key <key>`';
+  }
   const missing = required.filter((key) => !args[key]);
   return missing.length === 0
     ? null
@@ -230,9 +311,6 @@ function validate(name, args) {
 }
 
 async function main(rawArgv) {
-  // `pnpm run macp -- start …` forwards the separator as an argument, and the
-  // documented invocation is exactly that. Drop leading `--` tokens rather than
-  // reporting `unknown command "--"`.
   const argv = rawArgv[0] === '--' ? rawArgv.slice(1) : rawArgv;
   const [name, ...rest] = argv;
   if (!name || name === '--help' || name === '-h' || name === 'help') {
@@ -266,6 +344,9 @@ async function main(rawArgv) {
     const result = installHooks(request(name, args));
     console.log(result.out);
     return result.code;
+  }
+  if (name === 'check') {
+    return runCheck(request(name, args));
   }
 
   const backend = createBackend();

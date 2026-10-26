@@ -11,9 +11,10 @@
  * worker calls `backend.start(request)`; whether that runs in-process or over
  * HTTP is not the worker's business, and must not become the worker's problem.
  */
-import { abandon, close, reopen, resume, seal, start, submit } from './lifecycle.mjs';
+import { abandon, close, reopen, seal, start, submit } from './lifecycle.mjs';
 import { log, queue, status } from './record.mjs';
 import { verify } from './verify.mjs';
+import { ack, checkpoint } from './checkpoint.mjs';
 
 /**
  * The contract. Every method takes one plain request object and returns
@@ -36,6 +37,14 @@ export class MacpBackend {
   }
 
   async submit(_request) {
+    throw new Error('not implemented');
+  }
+
+  async checkpoint(_request) {
+    throw new Error('not implemented');
+  }
+
+  async ack(_request) {
     throw new Error('not implemented');
   }
 
@@ -78,8 +87,12 @@ export class LocalBackend extends MacpBackend {
     return submit(request);
   }
 
-  async resume(request) {
-    return resume(request);
+  async checkpoint(request) {
+    return checkpoint(request);
+  }
+
+  async ack(request) {
+    return ack(request);
   }
 
   async abandon(request) {
@@ -120,7 +133,8 @@ export const JARVIS_ROUTES = Object.freeze({
   start: 'POST /macp/v1/sessions',
   log: 'POST /macp/v1/sessions/:id/events',
   submit: 'POST /macp/v1/sessions/:id/submit',
-  resume: 'POST /macp/v1/sessions/:id/resume',
+  checkpoint: 'POST /macp/v1/sessions/:id/checkpoints',
+  ack: 'POST /macp/v1/sessions/:id/checkpoints/:n/ack',
   abandon: 'POST /macp/v1/sessions/:id/abandon',
   close: 'POST /macp/v1/sessions/:id/close',
   seal: 'POST /macp/v1/sessions/:id/seal',
@@ -161,10 +175,6 @@ export class JarvisBackend extends MacpBackend {
 
   async submit(request) {
     return this.#call('submit', request);
-  }
-
-  async resume(request) {
-    return this.#call('resume', request);
   }
 
   async abandon(request) {
