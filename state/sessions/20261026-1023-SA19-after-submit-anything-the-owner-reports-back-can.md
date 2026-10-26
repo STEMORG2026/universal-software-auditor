@@ -31,41 +31,18 @@ session outlive its first report, and the gate is what stops a second one being 
 
 **Outcome:** COMPLETED
 
-Machine-stamped at 2026-10-26T12:52:54+05:45 from `macp submit`. Code commit `17f8577`.
+Machine-stamped at 2026-10-26T18:39:02+05:45 from `macp submit`. Code commit `fb8f91e`.
 
 | Gate       | Verdict | Exit | Time |
 | ---------- | ------- | ---- | ---- |
 | typecheck  | pass    | 0    | 1s   |
 | lint       | pass    | 0    | 3s   |
 | format     | pass    | 0    | 7s   |
-| test       | pass    | 0    | 106s |
+| test       | pass    | 0    | 108s |
 | docs_all   | pass    | 0    | 2s   |
 | self_audit | pass    | 0    | 2s   |
+| protocol   | pass    | 0    | 0s   |
 
 Remaining: 1 item(s)
 
-Next: add today's three findings to docs/remediation-plan.md §5 as a new row, then P0
-
-### 08:12 — Commit
-
-`476ccc6` fix(macp): restore the scope line the port dropped, merging #273
-
-### 08:18 — Commit
-
-`a0da9af` chore: ignore local CI state, which is run evidence and not source
-
-### 08:23 — Commit
-
-`8ad8ea5` fix(scanner): a SARIF run that analysed nothing is not a clean scan
-
-### 12:43 — Commit
-
-`f966a49` chore(changeset): the SARIF empty-scan fix is a patch
-
-### 12:48 — Commit
-
-`4011e19` docs(state): record what SA19 actually did, and where it left the plan
-
-### 12:51 — Commit
-
-`d3757bd` fix(state): restore SA18's index row, and gate the protocol checks
+Next: close SA18, then P0's D1-D8 decisions

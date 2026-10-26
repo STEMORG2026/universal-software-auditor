@@ -4,20 +4,20 @@
 
 ## Handoff — SA19 (COMPLETED)
 
-Machine-stamped by `macp close` at 2026-10-26T12:52:54+05:45. The table and the gate
+Machine-stamped by `macp close` at 2026-10-26T18:39:02+05:45. The table and the gate
 results below were measured; the prose below them was written by the agent and
 is a claim, not a measurement.
 
-| Fact               | Value                                                                                                                  |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| Session            | `SA19` (SA19 (workbuddy) on workbuddy)                                                                                 |
-| Branch             | `feat/submit-not-terminal`                                                                                             |
-| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                                                                             |
-| Code commit        | `17f8577519dcab768d6ec6369493578144dfed20`                                                                             |
-| Code tree          | `cb978191b2282823eca76620939f171b6e3fe62a`                                                                             |
-| Working tree clean | yes                                                                                                                    |
-| Commits            | 24                                                                                                                     |
-| Open PRs           | #275 feat(macp): take the standalone runtime as the source of truth, and fix the two defects the port exposed (BEHIND) |
+| Fact               | Value                                                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Session            | `SA19` (SA19 (workbuddy) on workbuddy)                                                                                |
+| Branch             | `feat/submit-not-terminal`                                                                                            |
+| Base commit        | `4a4a63b89e00d4a99100048812fbc4aac72c6ec2`                                                                            |
+| Code commit        | `fb8f91ed155bc44bbe5d98fa0685441630c11f59`                                                                            |
+| Code tree          | `ea61add7718ce2bfc8771d9707ceb2cf4c8f0bea`                                                                            |
+| Working tree clean | yes                                                                                                                   |
+| Commits            | 41                                                                                                                    |
+| Open PRs           | #275 feat(macp): take the standalone runtime as the source of truth, and fix the two defects the port exposed (CLEAN) |
 
 ### Gates (verdict and exit, measured)
 
@@ -26,11 +26,12 @@ is a claim, not a measurement.
 | typecheck  | pass    | 0    | 1s   |
 | lint       | pass    | 0    | 3s   |
 | format     | pass    | 0    | 7s   |
-| test       | pass    | 0    | 106s |
+| test       | pass    | 0    | 108s |
 | docs_all   | pass    | 0    | 2s   |
 | self_audit | pass    | 0    | 2s   |
+| protocol   | pass    | 0    | 0s   |
 
-Declared by this repository: **6** · run: **6** · all run · verified: **6**
+Declared by this repository: **7** · run: **7** · all run · verified: **7**
 
 ### Objective
 
@@ -43,9 +44,19 @@ session outlive its first report, and the gate is what stops a second one being 
 
 ### Files changed
 
+- `D	.changeset/macp-runtime-v2.md`
+- `A	.changeset/sarif-empty-is-not-clean.md`
+- `M	.gitignore`
 - `A	.macp/gates.json`
+- `M	CHANGELOG.md`
+- `A	ci`
+- `A	ci.toml`
+- `M	docs/README.md`
 - `M	docs/macp.md`
 - `M	docs/manifest.yaml`
+- `A	docs/remediation-plan.md`
+- `M	examples/sample-report.md`
+- `M	package.json`
 - `M	scripts/macp/cli.mjs`
 - `M	scripts/macp/hooks/pretool.mjs`
 - `M	scripts/macp/lib/backend.mjs`
@@ -62,14 +73,20 @@ session outlive its first report, and the gate is what stops a second one being 
 - `M	scripts/macp/lib/seal.mjs`
 - `M	scripts/macp/lib/session.mjs`
 - `M	scripts/macp/lib/verify.mjs`
+- `M	src/scanner/sarif.ts`
 - `M	state/CONTINUATION.md`
 - `M	state/DASHBOARD.md`
 - `M	state/INDEX.md`
 - `M	state/REGISTRY.md`
+- `A	state/macp/handoff/SA18.json`
 - `A	state/macp/handoff/SA19.json`
+- `M	state/macp/queue.md`
+- `A	state/plans/agent-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md`
 - `A	state/plans/agent-SA19-after-submit-anything-the-owner-reports-back-can.md`
+- `A	state/sessions/20261026-0204-SA18-move-macp-remediation-plan-2026-10-24-md-into-th.md`
 - `A	state/sessions/20261026-1023-SA19-after-submit-anything-the-owner-reports-back-can.md`
 - `A	tests/integration/macp-evidence.test.ts`
+- `A	tests/integration/macp-plan-scope.test.ts`
 - `M	tests/integration/macp-pretool-guard.test.ts`
 - `A	tests/integration/macp-required-gates.test.ts`
 - `M	tests/integration/macp-runtime.test.ts`
@@ -77,20 +94,21 @@ session outlive its first report, and the gate is what stops a second one being 
 - `A	tests/integration/macp-session-boundary.test.ts`
 - `A	tests/integration/macp-unverified-gates.test.ts`
 - `A	tests/unit/macp-lease-home.test.ts`
+- `M	tests/unit/scanner.test.ts`
 
 ### Completed
 
-- the report records the tree the gates ran against; close refuses a report whose commit no longer exists
-- a seal now signs the block a verifier reads, and there is one reader instead of two
-- the intermittent seal failure (2 of 8 runs) is fixed and pinned by a test that forces the clock boundary
+- restored SA18's index row, which my merge resolution dropped; protocol:sessions is green again
+- added the protocol gate — the check that would have caught it before submit
+- the gate-config test parses the JSON instead of regexing its text
 
 ### Remaining
 
-- P0's D1-D8 decisions are still unrecorded
+- SA18 is AWAITING-USER with its PR merged — closing it needs your key
 
 ### Discovered, not fixed
 
-- the seal verified only while two clocks agreed — an integrity check that passes by coincidence
+- the gate set never ran the repository's own protocol checks, so a green submit said nothing about them
 
 ### Deferred work
 
@@ -102,7 +120,7 @@ _none_
 
 ### Next recommended task
 
-add today's three findings to docs/remediation-plan.md §5 as a new row, then P0
+close SA18, then P0's D1-D8 decisions
 
 ### Required context for the next session
 
