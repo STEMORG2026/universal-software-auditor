@@ -1,10 +1,32 @@
 {
   "gates": [
-    { "name": "typecheck", "commands": [["npm", "run", "typecheck", "--silent"]] },
-    { "name": "lint", "commands": [["npm", "run", "lint", "--silent"]] },
-    { "name": "format", "commands": [["npm", "run", "format:check", "--silent"]] },
-    { "name": "test", "commands": [["npm", "test", "--silent"]] },
-    { "name": "docs_all", "commands": [["npm", "run", "docs:all", "--silent"]] },
-    { "name": "self_audit", "commands": [["npm", "run", "self-audit", "--silent"]] }
+    {
+      "name": "typecheck",
+      "commands": [["npm", "run", "typecheck", "--silent"]]
+    },
+    {
+      "name": "lint",
+      "commands": [["npm", "run", "lint", "--silent"]]
+    },
+    {
+      "name": "format",
+      "commands": [["npm", "run", "format:check", "--silent"]]
+    },
+    {
+      "name": "test",
+      "commands": [["npm", "test", "--silent"]]
+    },
+    {
+      "name": "docs_all",
+      "commands": [["npm", "run", "docs:all", "--silent"]]
+    },
+    {
+      "name": "self_audit",
+      "commands": [["npm", "run", "self-audit", "--silent"]]
+    },
+    {
+      "name": "protocol",
+      "commands": [["npm", "run", "protocol:sessions", "--silent"]]
+    }
   ]
 }

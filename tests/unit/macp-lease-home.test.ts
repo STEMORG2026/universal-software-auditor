@@ -132,6 +132,11 @@ describe('the declared gate set', () => {
       'test',
       'docs_all',
       'self_audit',
+      // Added after a merge resolved `state/INDEX.md` in this branch's favour and
+      // silently dropped SA18's row. `protocol:sessions` caught it — but only
+      // because I ran it by hand. The gate set never ran the repository's own
+      // protocol checks, so a green submit said nothing about them.
+      'protocol',
     ]);
   });
 
@@ -140,14 +145,21 @@ describe('the declared gate set', () => {
       scripts?: Record<string, string>;
     };
     const scripts = pkg.scripts ?? {};
-    const referenced = readFileSync(path.join(ROOT, '.macp', 'gates.json'), 'utf8').match(
-      /npm", "(?:run", )?"([^"]+)"/g,
+    // Parsed, not regexed: the previous version matched the file's *text*, so
+    // reformatting the JSON broke the test while the configuration stayed
+    // correct. A test that depends on whitespace is testing the wrong thing.
+    const cfg = JSON.parse(readFileSync(path.join(ROOT, '.macp', 'gates.json'), 'utf8')) as {
+      gates: { name: string; commands: string[][] }[];
+    };
+    const invoked = cfg.gates.flatMap((gate) =>
+      gate.commands
+        .filter((argv) => argv[0] === 'npm')
+        // `npm run <script>` and `npm <script>` are both package-script calls;
+        // `npm test` is the one alias that takes no `run`.
+        .map((argv) => (argv[1] === 'run' ? argv[2] : argv[1]))
+        .filter((name): name is string => Boolean(name) && !name!.startsWith('-')),
     );
-    expect(referenced).not.toBeNull();
-    for (const match of referenced!) {
-      const name = /"([^"]+)"$/.exec(match)?.[1];
-      expect(name, match).toBeTruthy();
-      expect(Object.keys(scripts)).toContain(name);
-    }
+    expect(invoked.length).toBeGreaterThan(0);
+    for (const name of invoked) expect(Object.keys(scripts)).toContain(name);
   });
 });
