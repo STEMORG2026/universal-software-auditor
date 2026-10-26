@@ -422,6 +422,10 @@ export function submit(options) {
     base_commit_sha: field(session.text, 'Base commit') ?? '',
     start_head_sha: startHead,
     code_commit_sha: headSha(root),
+    // The tree, not just the commit. A commit id identifies a *history*; a tree id
+    // identifies the content the gates actually ran against, and it survives a
+    // rewrite of that history in a way the commit id does not.
+    code_tree_sha: git(['rev-parse', `${headSha(root)}^{tree}`], { cwd: root, allowFail: true }),
     working_tree_clean: dirtySource(root).length === 0,
     // Read from the lease, not the session file: the lease is what `start`
     // wrote on this machine, and the plan's sha is what makes a later edit to
@@ -570,7 +574,23 @@ export function close(options) {
     );
   }
 
-  const changed = git(['diff', '--name-only', handoff.code_commit_sha, 'HEAD'], {
+  // `git diff` against a commit that no longer exists fails, and the failure used
+  // to be swallowed by `allowFail` — an empty diff, read as "nothing changed", so
+  // a rewritten history closed a tree that was never measured. Ask first.
+  const reported = String(handoff.code_commit_sha ?? '');
+  const stillThere = git(['rev-parse', '--verify', '--quiet', `${reported}^{commit}`], {
+    cwd: root,
+    allowFail: true,
+  });
+  if (reported && !stillThere) {
+    return closeAbort(
+      `the report names commit ${reported.slice(0, 7)}, which this repository no longer has.\n` +
+        'The history was rewritten after the gates ran, so the tree they measured cannot be ' +
+        'identified any more. Nothing here can be verified — submit again from the current history.',
+    );
+  }
+
+  const changed = git(['diff', '--name-only', reported, 'HEAD'], {
     cwd: root,
     allowFail: true,
   })

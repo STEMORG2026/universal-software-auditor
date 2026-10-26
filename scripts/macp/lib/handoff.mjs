@@ -140,6 +140,9 @@ export function renderHandoff(handoff) {
       : []),
     `| Base commit | \`${handoff.base_commit_sha}\` |`,
     `| Code commit | \`${handoff.code_commit_sha}\` |`,
+    // The content the gates ran against. A commit id can be rewritten away; the
+    // tree id names the bytes, and a reader can check it independently.
+    ...(handoff.code_tree_sha ? [`| Code tree | \`${handoff.code_tree_sha}\` |`] : []),
     `| Working tree clean | ${handoff.working_tree_clean ? 'yes' : '**no**'} |`,
     `| Commits | ${handoff.commits.length === 0 ? 'none' : handoff.commits.length} |`,
     `| Open PRs | ${handoff.open_prs.length === 0 ? 'none' : handoff.open_prs.join(', ')} |`,
