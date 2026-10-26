@@ -45,3 +45,7 @@ Machine-stamped at 2026-10-26T11:22:18+05:45 from `macp submit`. Code commit `9c
 Remaining: 1 item(s)
 
 Next: add the session-boundary change to docs/remediation-plan.md §5, then P1
+
+### 06:11 — Commit
+
+`b2f51fb` feat(macp): take the standalone runtime as the source of truth, then re-apply our two changes
