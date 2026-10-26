@@ -62,3 +62,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 14:06 — Commit
 
 `3f05c9f` feat(macp): close a named session from anywhere, so a merged PR's session can close
+
+### 14:09 — Commit
+
+`5c961e8` test(macp): pin the squash-merge path the owner is asked to take
