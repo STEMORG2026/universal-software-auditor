@@ -61,3 +61,7 @@ Next: add today's three findings to docs/remediation-plan.md §5 as a new row, t
 ### 12:43 — Commit
 
 `f966a49` chore(changeset): the SARIF empty-scan fix is a patch
+
+### 12:48 — Commit
+
+`4011e19` docs(state): record what SA19 actually did, and where it left the plan
