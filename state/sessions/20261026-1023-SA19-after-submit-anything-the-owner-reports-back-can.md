@@ -45,3 +45,7 @@ Machine-stamped at 2026-10-26T12:30:27+05:45 from `macp submit`. Code commit `f0
 Remaining: 1 item(s)
 
 Next: P2 — evidence: close should compare a tree hash, not just the commit the report was written at
+
+### 06:45 — Commit
+
+`65b45e3` docs(macp): the gate table's heading says what it now contains
