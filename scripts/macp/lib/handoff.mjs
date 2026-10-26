@@ -144,7 +144,7 @@ export function renderHandoff(handoff) {
     `| Commits | ${handoff.commits.length === 0 ? 'none' : handoff.commits.length} |`,
     `| Open PRs | ${handoff.open_prs.length === 0 ? 'none' : handoff.open_prs.join(', ')} |`,
     '',
-    '### Gates (exit code, measured)',
+    '### Gates (verdict and exit, measured)',
     '',
     gateRows.length > 0
       ? `| Gate | Verdict | Exit | Time |\n| ---- | ------- | ---- | ---- |\n${gateRows}` +
