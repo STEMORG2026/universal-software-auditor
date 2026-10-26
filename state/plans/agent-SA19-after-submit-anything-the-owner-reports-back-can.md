@@ -85,3 +85,36 @@ with a handoff, which the old code still closes — a rollback strands nothing.
 7. `start` on a new branch while another session's lease is `AWAITING-USER` is refused, naming it.
 8. `start` after the previous lease is closed is allowed.
 9. A session already in `AWAITING-USER` from the old code still closes.
+
+## Scope as actually executed — written at 18:30, not midway
+
+This section exists because the plan above was never updated while the work grew. It is written
+after the fact and says so. The protocol's rule is _one session, one piece of work_; this session
+became nine.
+
+| #   | Work                                                                               | In the plan?               | Authorised by           |
+| --- | ---------------------------------------------------------------------------------- | -------------------------- | ----------------------- |
+| 1   | The session boundary (`submit` stays live, `close` on the report, live-lease gate) | **yes**                    | the objective           |
+| 2   | The live-lease gate for a second session                                           | **yes** ("Build the gate") | the widened objective   |
+| 3   | Porting the standalone runtime into `scripts/macp/`                                | no                         | "go" on the sync plan   |
+| 4   | `macpHome` lease-store fix (`accessSync(constants)` → `constants.W_OK`)            | no                         | found by 3              |
+| 5   | `.macp/gates.json` — declaring six gates instead of detecting three                | no                         | found by 3              |
+| 6   | `required_gates` — the declared set cannot be narrowed (P1)                        | no                         | found by 5              |
+| 7   | `code_tree_sha` + the vanished-commit refusal (P2)                                 | no                         | the plan's own `--next` |
+| 8   | **The seal/reopen/verify payload fix**                                             | **explicitly out**         | a flaky test            |
+| 9   | The SARIF empty-scan fix in `src/scanner/`                                         | no — not MACP at all       | the read                |
+
+Item 8 contradicts the Scope section above, which says _"Out: `seal`, `reopen`, `abandon`, the key
+model"_. I changed `seal`, `reopen` and `verify`. The work was right — the seal was failing
+verification on an unchanged file — but it did not belong to this session's stated scope, and the
+honest way to have done it was to say so first, not to widen the session silently and record it
+afterwards.
+
+**Why it happened:** each item was found _by_ the previous one — the port exposed the lease bug,
+the lease bug exposed the gate detection, the gate detection exposed the shrinking set. Continuity
+felt like coherence. It is exactly how a session becomes a bundle, and the fix is to name the new
+work as new work at the moment it appears, which is what this table would have been.
+
+**Not fixed by this note.** The remedy is process: when a session's scope grows, say so in the
+report _and_ in the plan before doing the work, or open a second session. This entry records the
+failure; it does not repair it.
