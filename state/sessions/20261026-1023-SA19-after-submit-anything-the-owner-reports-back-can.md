@@ -53,3 +53,7 @@ Next: add today's three findings to docs/remediation-plan.md §5 as a new row, t
 ### 08:18 — Commit
 
 `a0da9af` chore: ignore local CI state, which is run evidence and not source
+
+### 08:23 — Commit
+
+`8ad8ea5` fix(scanner): a SARIF run that analysed nothing is not a clean scan
