@@ -163,6 +163,32 @@ describe('the reported tree', () => {
     expect(r.out).toMatch(/COMPLETED T01/);
   });
 
+  it('closes a named session after a SQUASH merge, the repo convention', () => {
+    const repo = makeRepo();
+    // Squash rewrites the reported commit out of master's history, so the evidence
+    // can only be checked against the branch, which must therefore still exist.
+    // This is the path the owner is asked to take: merge --squash, then close.
+    execFileSync('git', ['checkout', '-q', 'master'], { cwd: repo.dir, encoding: 'utf8' });
+    execFileSync('git', ['merge', '-q', '--squash', 'feat/one'], {
+      cwd: repo.dir,
+      encoding: 'utf8',
+    });
+    execFileSync('git', ['commit', '-qm', 'feat: squashed work'], {
+      cwd: repo.dir,
+      encoding: 'utf8',
+    });
+
+    const r = repo.run([
+      'close',
+      '--session',
+      'T01',
+      '--ssh-key',
+      path.join(repo.home, 'macp_close'),
+    ]);
+    expect(r.code, r.out).toBe(0);
+    expect(r.out).toMatch(/COMPLETED T01/);
+  });
+
   it('still refuses a source change after the report', () => {
     const repo = makeRepo();
     writeFileSync(path.join(repo.dir, 'tool.mjs'), 'export const ok = "later";\n');
