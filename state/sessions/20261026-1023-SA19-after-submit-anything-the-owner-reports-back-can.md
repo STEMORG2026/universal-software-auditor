@@ -22,3 +22,7 @@ session outlive its first report, and the gate is what stops a second one being 
 > Sajan, 2026-10-26, verbatim: "What i want you to write in MACP is after the submit is done, anything i report back or ask you to do, you can do it becasue the session will be active and then you submit again not ask for close until i am satisfied. After i am satisfied with the submi. You follow the protocal and closing sessiion begins following the protocal."
 
 ## Log
+
+### 05:34 — Commit
+
+`b67c3ec` feat(macp): a report is not an ending, and one repo holds one live session
