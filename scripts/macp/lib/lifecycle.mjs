@@ -58,6 +58,7 @@ import {
 import { buildBrief } from './brief.mjs';
 import { DEFAULT_GATES, failedGates, runGates } from './gates.mjs';
 import { handoffPath, renderHandoff, validateHandoff, writeHandoffRegion } from './handoff.mjs';
+import { resolvePlanItem } from './plan.mjs';
 import {
   ACTS,
   abandonPayload,
@@ -122,6 +123,18 @@ function requireRepo() {
   return { root, id: repoId(root) };
 }
 
+/**
+ * The objective a plan item produces: the item's own words, with its id and the
+ * plan's sha above them.
+ *
+ * The body is copied, not summarised. A summary would be a second version of
+ * the scope written by the party the scope constrains — the same defect as
+ * `--task`, one layer down.
+ */
+function planObjective(item) {
+  return `**${item.id} — ${item.title}** · from \`${item.file}\` (sha \`${item.sha}\`)\n\n${item.body}`;
+}
+
 /* ------------------------------------------------------------------ start -- */
 
 export function start(options) {
@@ -152,6 +165,24 @@ export function start(options) {
     };
   }
 
+  // The scope: an item in the plan document, or a sentence someone typed.
+  // `--plan` is resolved before anything is written, because a session opened
+  // against a phase that is already delivered is exactly the work this flag is
+  // meant to stop — and it cannot be undone by editing a session file.
+  if (options.plan && options.task) {
+    return {
+      code: 1,
+      out: 'pass --task or --plan, not both — the plan item is the scope',
+    };
+  }
+  let planItem = null;
+  if (options.plan) {
+    const resolved = resolvePlanItem(root, options.plan, { file: options.planFile });
+    if (resolved.error) return { code: 1, out: resolved.error };
+    planItem = resolved.item;
+  }
+  const task = planItem ? planItem.title : options.task;
+
   const lease = makeLease({
     repoId: id,
     repoRoot: root,
@@ -164,6 +195,9 @@ export function start(options) {
     baseCommit:
       options.baseCommit || git(['merge-base', 'HEAD', 'master'], { cwd: root, allowFail: true }),
     startHeadSha: headSha(root),
+    plan: planItem
+      ? { id: planItem.id, file: planItem.file, status: planItem.status, sha: planItem.sha }
+      : null,
   });
 
   const conflict = conflictingLease(id, lease);
@@ -180,7 +214,7 @@ export function start(options) {
   const at = isoLocal();
   const fileName = existing
     ? path.basename(existing.file)
-    : sessionFileName({ id: id_, slug: slugify(options.task), at });
+    : sessionFileName({ id: id_, slug: slugify(task), at });
   const filePath = sessionPath(root, fileName);
 
   if (!existsSync(filePath)) {
@@ -195,8 +229,11 @@ export function start(options) {
         branch,
         started: at,
         baseCommit: lease.baseCommit || shortSha(root),
-        title: options.task,
-        task: options.task,
+        title: task,
+        task: planItem ? planObjective(planItem) : options.task,
+        plan: planItem
+          ? `${planItem.file} · item ${planItem.id} · status ${planItem.status} · sha ${planItem.sha}`
+          : null,
         authorizedBy: options.authorizedBy,
       }),
     );
@@ -209,12 +246,12 @@ export function start(options) {
   const existingPlan = existsSync(plansDir)
     ? readdirSync(plansDir).find((name) => name.startsWith(`agent-${id_}-`) && name.endsWith('.md'))
     : null;
-  const planPath = path.join(plansDir, existingPlan ?? `agent-${id_}-${slugify(options.task)}.md`);
+  const planPath = path.join(plansDir, existingPlan ?? `agent-${id_}-${slugify(task)}.md`);
   if (!existsSync(planPath)) {
     writeText(
       planPath,
-      `# Plan — ${id_}: ${options.task}\n\n**Agent:** ${id_} · **Branch:** \`${branch}\`\n\n` +
-        `## Objective\n\n${options.task}\n\n## Scope\n\n` +
+      `# Plan — ${id_}: ${task}\n\n**Agent:** ${id_} · **Branch:** \`${branch}\`\n\n` +
+        `## Objective\n\n${planItem ? planObjective(planItem) : task}\n\n## Scope\n\n` +
         `Authorized by: ${options.authorizedBy}\n\n## Approach\n\n_fill in before the first edit_\n\n` +
         `## Risks and mitigations\n\n## Rollback\n\n## Success criteria\n`,
     );
@@ -226,7 +263,7 @@ export function start(options) {
     agent: existing?.agent ?? `${id_} (${options.agentName})`,
     harness: options.harness,
     branch,
-    task: options.task,
+    task,
     since: at,
     claims: options.claims ?? '—',
   });
@@ -236,7 +273,7 @@ export function start(options) {
     agent: id_,
     harness: options.harness,
     branch,
-    task: options.task,
+    task,
     status: existing ? existing.status : STATUS.IN_PROGRESS,
     file: fileName,
   });
@@ -250,7 +287,7 @@ export function start(options) {
         branch,
         baseCommit: lease.baseCommit || shortSha(root),
         sessionId: id_,
-        task: options.task,
+        task,
         authorizedBy: options.authorizedBy,
         limit: options.limit,
         machine: {
@@ -269,6 +306,7 @@ export function start(options) {
     out:
       `${existing ? 'resumed' : 'started'} ${id_} on ${branch}\n` +
       `  session: ${path.relative(root, filePath)}\n  plan:    ${path.relative(root, planPath)}\n` +
+      `  scope:   ${planItem ? `plan item ${planItem.id} (${planItem.status}) from ${planItem.file}` : 'from --task'}\n` +
       `  lease:   ${leasePath(id)} (untracked, local)\n` +
       (brief ? `\n${brief}` : ''),
   };
@@ -377,6 +415,10 @@ export function submit(options) {
     start_head_sha: startHead,
     code_commit_sha: headSha(root),
     working_tree_clean: dirtySource(root).length === 0,
+    // Read from the lease, not from the session file: the lease is the record
+    // that `start` wrote on this machine, and the plan's sha is what makes a
+    // later edit to the plan document visible as a difference.
+    plan: lease.plan ?? null,
     commits,
     files_changed: filesChanged,
     objective: (section(session.text, 'Objective') ?? '').replace(/^## Objective\s*/, '').trim(),

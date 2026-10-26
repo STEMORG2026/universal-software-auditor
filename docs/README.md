@@ -16,6 +16,7 @@
 | [Standards mapping](standards-mapping.md)                    | USA ↔ ASVS 5.0, SSDF, SLSA, Scorecard, ISO 5055, WCAG, CRA, OWASP LLM/ASI                                                            |
 | [Categories](categories.md)                                  | The ten assurance categories, honest coverage labels, and how to extend them                                                         |
 | [Documentation audit](documentation-audit.md)                | The documentation universe: full-category taxonomy, tiered expectations, invariants, impact, and the docs gate                       |
+| [MACP remediation plan](remediation-plan.md)                 | The audit's findings as a phased programme, with the status column `macp start --plan <id>` reads                                    |
 | [Architecture](ARCHITECTURE.md)                              | How the engine is put together, and what it deliberately does not do                                                                 |
 | [Evolution loop](EVOLUTION.md)                               | The deterministic self-extension pipeline: snapshot → gap → propose → benchmark → release                                            |
 | [Experiment protocol](EXPERIMENT_PROTOCOL.md)                | The mandatory process for capability-stress experiments                                                                              |
