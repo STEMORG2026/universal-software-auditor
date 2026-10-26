@@ -57,3 +57,7 @@ Next: add today's three findings to docs/remediation-plan.md §5 as a new row, t
 ### 08:23 — Commit
 
 `8ad8ea5` fix(scanner): a SARIF run that analysed nothing is not a clean scan
+
+### 12:43 — Commit
+
+`f966a49` chore(changeset): the SARIF empty-scan fix is a patch
