@@ -42,3 +42,7 @@ Machine-stamped at 2026-10-26T12:05:04+05:45 from `macp submit`. Code commit `3d
 Remaining: 1 item(s)
 
 Next: P1 — record required_gates at start and let close add but never remove
+
+### 06:20 — Commit
+
+`60bffff` fix(macp): declare this repository's six gates instead of letting detection guess three
