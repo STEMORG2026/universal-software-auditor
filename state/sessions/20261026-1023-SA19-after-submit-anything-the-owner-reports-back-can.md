@@ -45,3 +45,7 @@ Machine-stamped at 2026-10-26T12:07:52+05:45 from `macp submit`. Code commit `eb
 Remaining: 1 item(s)
 
 Next: P1 — record required_gates at start and let close add but never remove
+
+### 06:28 — Commit
+
+`facd31c` feat(macp): the declared gate set cannot be narrowed after the work
