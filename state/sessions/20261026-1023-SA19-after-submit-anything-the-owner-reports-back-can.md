@@ -46,3 +46,7 @@ Machine-stamped at 2026-10-26T18:39:02+05:45 from `macp submit`. Code commit `fb
 Remaining: 1 item(s)
 
 Next: close SA18, then P0's D1-D8 decisions
+
+### 13:59 — Commit
+
+`8cb5d79` fix(macp): a passphrase-protected key can sign through ssh-agent
