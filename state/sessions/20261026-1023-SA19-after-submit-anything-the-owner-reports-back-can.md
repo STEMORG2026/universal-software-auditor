@@ -49,3 +49,7 @@ Next: add the session-boundary change to docs/remediation-plan.md §5, then P1
 ### 06:11 — Commit
 
 `b2f51fb` feat(macp): take the standalone runtime as the source of truth, then re-apply our two changes
+
+### 06:18 — Commit
+
+`7f708ab` fix(macp): the lease store stopped resolving to ~/.macp, silently
