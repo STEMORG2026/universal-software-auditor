@@ -141,6 +141,28 @@ describe('the reported tree', () => {
     expect(r.out).toMatch(/history was rewritten/);
   });
 
+  it('closes a named session from another branch — the merged-PR case', () => {
+    const repo = makeRepo();
+    // The work is merged into master before the session is closed. `close` used to
+    // look only at the current branch and report "no submitted session on master"
+    // with the file right there, so a merged PR's session could never be closed.
+    execFileSync('git', ['checkout', '-q', 'master'], { cwd: repo.dir, encoding: 'utf8' });
+    execFileSync('git', ['merge', '-q', '--no-ff', '-m', 'merge: the work', 'feat/one'], {
+      cwd: repo.dir,
+      encoding: 'utf8',
+    });
+
+    const r = repo.run([
+      'close',
+      '--session',
+      'T01',
+      '--ssh-key',
+      path.join(repo.home, 'macp_close'),
+    ]);
+    expect(r.code, r.out).toBe(0);
+    expect(r.out).toMatch(/COMPLETED T01/);
+  });
+
   it('still refuses a source change after the report', () => {
     const repo = makeRepo();
     writeFileSync(path.join(repo.dir, 'tool.mjs'), 'export const ok = "later";\n');

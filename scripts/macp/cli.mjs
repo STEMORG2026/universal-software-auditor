@@ -110,8 +110,8 @@ const COMMANDS = {
     flags: [],
   },
   close: {
-    summary: 'owner: close a submitted session (AWAITING-USER -> COMPLETED)',
-    values: ['ssh-key'],
+    summary: 'owner: close a reported session, on its branch or (with --session) from anywhere',
+    values: ['ssh-key', 'session'],
     flags: [],
   },
   abandon: {
@@ -242,7 +242,7 @@ function request(name, args) {
         requiredContext: args.requiredContext ?? [],
       };
     case 'close':
-      return { sshKey: args.sshKey };
+      return { sshKey: args.sshKey, session: args.session };
     case 'abandon':
       return { sshKey: args.sshKey, reason: args.reason };
     case 'seal':

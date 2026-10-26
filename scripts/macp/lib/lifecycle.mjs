@@ -35,6 +35,7 @@ import {
   section,
   sessionFileName,
   sessionsDir,
+  listSessions,
   sessionsForBranch,
   slugify,
   statusOf,
@@ -551,12 +552,18 @@ export function close(options) {
   // IN-PROGRESS so the owner can answer it, so the proof that this session was
   // reported is the handoff it left. Sessions written before the change are
   // still AWAITING-USER and still carry a handoff, so they close the same way.
-  const session = sessionsForBranch(root, branch).find(
-    (candidate) =>
-      candidate.status !== STATUS.COMPLETED &&
-      candidate.status !== STATUS.CLOSED &&
-      existsSync(handoffPath(root, candidate.id)),
-  );
+  // `--session` closes a named session from anywhere — the only way to close one
+  // whose PR merged before it was closed. `close` looked only at the current
+  // branch, so SA18's work sat in master while its record could not be closed from
+  // master at all ("no submitted session on master") with the file right there.
+  const session = options.session
+    ? listSessions(root).find((candidate) => candidate.id === options.session)
+    : sessionsForBranch(root, branch).find(
+        (candidate) =>
+          candidate.status !== STATUS.COMPLETED &&
+          candidate.status !== STATUS.CLOSED &&
+          existsSync(handoffPath(root, candidate.id)),
+      );
   if (!session) {
     const active = activeSessionForBranch(root, branch);
     return closeAbort(
@@ -579,6 +586,12 @@ export function close(options) {
   // to be swallowed by `allowFail` — an empty diff, read as "nothing changed", so
   // a rewritten history closed a tree that was never measured. Ask first.
   const reported = String(handoff.code_commit_sha ?? '');
+  // Verify against the branch the work was done on, not whichever branch the owner
+  // is standing on. A merge moves HEAD, so a post-merge close would otherwise see
+  // every merged file as "changed after the gates ran" and refuse — which is why
+  // closing after merging was impossible by construction.
+  const evidenceRef =
+    options.session && !session.branches.includes(branch) ? session.branches[0] : 'HEAD';
   const stillThere = git(['rev-parse', '--verify', '--quiet', `${reported}^{commit}`], {
     cwd: root,
     allowFail: true,
@@ -591,7 +604,7 @@ export function close(options) {
     );
   }
 
-  const changed = git(['diff', '--name-only', reported, 'HEAD'], {
+  const changed = git(['diff', '--name-only', reported, evidenceRef], {
     cwd: root,
     allowFail: true,
   })
