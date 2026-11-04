@@ -1,0 +1,9 @@
+# MACP is suspended in this repository by the owner.
+#
+# The gates read the three fields below and print the reason instead of
+# demanding a session, plan, registry row or lease. Delete this file to restore
+# enforcement — that is the whole mechanism, and it leaves a record either way.
+# A marker missing any of the three fields is refused by the gates.
+owner: Er-Sajan-PLG
+since: 2026-11-04
+reason: MACP is being developed and is not in use in this repository or any other project; the owner will lift the suspension when that changes

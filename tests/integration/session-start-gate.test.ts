@@ -88,6 +88,15 @@ function session(
   );
 }
 
+/** The owner's suspension marker, with all three fields the gates require. */
+function suspend(
+  dir: string,
+  body = 'owner: tester\nsince: 2026-11-04\nreason: MACP is under development\n',
+) {
+  mkdirSync(path.join(dir, '.macp'), { recursive: true });
+  writeFileSync(path.join(dir, '.macp/SUSPENDED'), body);
+}
+
 function plan(dir: string, agent = 'TEST') {
   mkdirSync(path.join(dir, 'state/plans'), { recursive: true });
   writeFileSync(path.join(dir, 'state/plans', `agent-${agent}-slug.md`), '# plan\n');
@@ -196,6 +205,36 @@ describe('check-session-start gate — shape', () => {
     const r = run(f);
     expect(r.code).toBe(1);
     expect(r.out).toMatch(/detached/);
+  });
+});
+
+describe('check-session-start gate — owner-declared suspension', () => {
+  it('passes work with no session when the owner suspended the protocol', () => {
+    const f = fixture();
+    suspend(f.dir);
+    const r = run(f);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain('MACP is suspended');
+    expect(r.out).toContain('MACP is under development');
+  });
+
+  it('refuses a marker that does not say who suspended it or why', () => {
+    const f = fixture();
+    suspend(f.dir, 'since: 2026-11-04\n');
+    const r = run(f);
+    expect(r.code).toBe(1);
+    expect(r.out).toContain('missing owner, reason');
+  });
+
+  it('the close gate honours the same marker, so a merge is not judged by a suspended protocol', () => {
+    const f = fixture({ branch: 'master', work: false });
+    suspend(f.dir);
+    const result = spawnSync('node', [path.join(ROOT, 'scripts/check-protocol.mjs')], {
+      cwd: f.dir,
+      encoding: 'utf8',
+    });
+    expect(result.status).toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toContain('MACP is suspended');
   });
 });
 
