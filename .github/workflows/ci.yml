@@ -91,10 +91,22 @@ jobs:
       # the e2e asserts only that rows exist and carry CVE-format identifiers, so
       # a drifting vulnerability database cannot turn the test red.
       # Pinned to 0.75.0, the version the adapter was verified against.
+      #
+      # The release asset is fetched directly rather than piping trivy's
+      # `install.sh` from `main`: that script is unpinned (it changes with no
+      # commit here) and was the only unverified download in CI. The asset host
+      # has also failed DNS resolution on hosted runners, so the fetch retries,
+      # and the tarball is checksum-verified before it is installed — a failed
+      # download is then a loud failure, not a different trivy.
       - name: Install trivy
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-            | sh -s -- -b /usr/local/bin v0.75.0
+          version=0.75.0
+          base="https://github.com/aquasecurity/trivy/releases/download/v${version}"
+          asset="trivy_${version}_Linux-64bit.tar.gz"
+          curl -sfL --retry 5 --retry-all-errors --retry-delay 2 -o "/tmp/${asset}" "${base}/${asset}"
+          curl -sfL --retry 5 --retry-all-errors --retry-delay 2 -o /tmp/trivy-checksums.txt "${base}/trivy_${version}_checksums.txt"
+          (cd /tmp && grep " ${asset}\$" trivy-checksums.txt | sha256sum -c -)
+          tar -xzf "/tmp/${asset}" -C /usr/local/bin trivy
           trivy --version
 
       - name: Vitest
