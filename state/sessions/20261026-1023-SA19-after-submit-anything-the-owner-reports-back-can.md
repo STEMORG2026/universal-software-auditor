@@ -78,3 +78,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 07:25 — Commit
 
 `f93eaa1` docs(audit): land the 2026-10-31 inside-out audit and revise the roadmap
+
+### 07:25 — Commit
+
+`59824d3` chore: ignore harness memory directories
