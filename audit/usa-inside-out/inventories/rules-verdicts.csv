@@ -1,0 +1,316 @@
+rule_id,pack,severity,kind,verdict,basis,fixture,automatability,title
+REPO-001,core/repo.yaml,CRITICAL,file_exists,OVERSTATED,read,yes,full,.gitignore is present
+REPO-002,core/repo.yaml,CRITICAL,tracked_absent,BROAD,read,yes,full,No environment/secret files committed
+REPO-003,core/repo.yaml,CRITICAL,command,FAIL-OPEN,read,yes,assist,No secrets in git history
+REPO-004,core/repo.yaml,HIGH,any_file,MECHANICAL,class,yes,full,README present
+REPO-005,core/repo.yaml,HIGH,any_file,MECHANICAL,class,yes,full,LICENSE present
+REPO-006,core/repo.yaml,HIGH,any_file,MECHANICAL,class,yes,full,.env.example documents required configuration
+REPO-007,core/repo.yaml,HIGH,tracked_absent,SOUND,read,yes,full,Build artifacts and dependencies are not committed
+REPO-008,core/repo.yaml,MEDIUM,tracked_absent,UNREVIEWED,class,yes,full,Large binaries are not committed directly
+REPO-009,core/repo.yaml,HIGH,any_file,MECHANICAL,class,yes,full,SECURITY.md published
+REPO-010,core/repo.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,CHANGELOG maintained
+REPO-011,core/repo.yaml,LOW,any_file,MECHANICAL,class,yes,full,CONTRIBUTING guide present
+REPO-012,core/repo.yaml,LOW,any_file,MECHANICAL,class,yes,full,Code of conduct present
+REPO-013,core/repo.yaml,LOW,file_exists,MECHANICAL,class,yes,full,.editorconfig present
+REPO-014,core/repo.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,CODEOWNERS assigns review responsibility
+REPO-015,core/repo.yaml,LOW,manual,JUDGEMENT,class,no,manual,Commit history is meaningful
+REPO-016,core/repo.yaml,LOW,manual,JUDGEMENT,class,no,manual,Branch strategy is defined and stale branches pruned
+REPO-017,core/repo.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Concern separation at the root
+REPO-018,core/repo.yaml,LOW,any_file,MECHANICAL,class,yes,full,Agent instruction file present (AGENTS.md / CLAUDE.md)
+SEC-001,core/security.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,No hardcoded credentials in source
+SEC-002,core/security.yaml,HIGH,grep_wrong,NARROW,read,yes,full,Sensitive data is not written to logs
+SEC-003,core/security.yaml,HIGH,grep_absent,SOUND,read,yes,full,No plaintext HTTP endpoints in configuration
+SEC-004,core/security.yaml,HIGH,grep_absent,SOUND,read,yes,full,TLS verification is not disabled
+SEC-005,core/security.yaml,CRITICAL,grep_wrong,SOUND,read,yes,full,SQL is not built by string concatenation
+SEC-006,core/security.yaml,HIGH,grep_wrong,SOUND,read,yes,full,No unsafe dynamic code execution
+SEC-007,core/security.yaml,CRITICAL,grep_wrong,SOUND,read,yes,full,Shell commands are not built from user input
+SEC-008,core/security.yaml,HIGH,grep_present,PROXY,read,yes,full,User input is validated at a trust boundary
+SEC-009,core/security.yaml,HIGH,grep_absent,SOUND,read,yes,full,Output is encoded rather than interpolated as HTML
+SEC-010,core/security.yaml,HIGH,grep_wrong,NARROW,read,yes,full,Path traversal is prevented on filesystem access
+SEC-011,core/security.yaml,CRITICAL,grep_absent,DEAD+BROAD,read,yes,full,Passwords use a modern adaptive hash
+SEC-012,core/security.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Tokens and sessions expire
+SEC-013,core/security.yaml,HIGH,grep_absent,SOUND,read,yes,full,JWTs are not accepted with alg:none or unverified
+SEC-014,core/security.yaml,HIGH,grep_present,PROXY,read,yes,full,Failed authentication is rate limited
+SEC-015,core/security.yaml,HIGH,manual,JUDGEMENT,class,no,manual,"Authorization is enforced per request, not per route"
+SEC-016,core/security.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Secrets come from a manager in production
+SEC-017,core/security.yaml,HIGH,grep_absent,SOUND,read,yes,full,CORS is not a wildcard
+SEC-018,core/security.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Security headers are set
+SEC-019,core/security.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,CSRF protection for cookie-based sessions
+SEC-020,core/security.yaml,MEDIUM,grep_wrong,SOUND,read,yes,full,Errors do not leak internals to clients
+SEC-021,core/security.yaml,MEDIUM,grep_wrong,SOUND,read,yes,full,Cryptographic randomness for tokens and IDs
+SEC-022,core/security.yaml,HIGH,manual,JUDGEMENT,class,no,manual,"Uploads are validated for type, size, and content"
+SEC-023,core/security.yaml,HIGH,manual,JUDGEMENT,class,no,manual,PII is identified and protected at rest
+SEC-024,core/security.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Secrets and PII are redacted in logs and telemetry
+SEC-025,core/security.yaml,HIGH,grep_present,PROXY,read,yes,full,Adaptive password hashing is present where auth exists
+INV-SEC-001,core/security.yaml,HIGH,invariant,INVARIANT,read,no,full,Encrypted transport is backed by security headers
+INV-SEC-002,core/security.yaml,HIGH,invariant,INVARIANT,read,no,full,Verified expiring tokens are brute-force guarded
+INV-SEC-003,core/security.yaml,HIGH,invariant,INVARIANT,read,no,full,Validated input is also encoded on output
+SUP-001,core/supply-chain.yaml,HIGH,any_file,MECHANICAL,class,yes,full,A lockfile is committed
+SUP-002,core/supply-chain.yaml,MEDIUM,grep_present,PROXY,read,yes,full,CI installs with a frozen lockfile
+SUP-003,core/supply-chain.yaml,MEDIUM,grep_absent,NARROW,read,yes,full,"Dependency versions are pinned, not floating"
+SUP-004,core/supply-chain.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Automated dependency updates are configured
+SUP-005,core/supply-chain.yaml,HIGH,grep_present,PROXY,read,yes,full,Dependency vulnerability scanning runs in CI
+SUP-006,core/supply-chain.yaml,MEDIUM,grep_present,PROXY,read,yes,full,SAST runs in CI
+SUP-007,core/supply-chain.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Secret scanning runs in CI
+SUP-008,core/supply-chain.yaml,HIGH,grep_absent,BROAD,read,yes,full,CI workflows avoid script-injection patterns
+SUP-009,core/supply-chain.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Workflows declare least-privilege token permissions
+SUP-010,core/supply-chain.yaml,MEDIUM,grep_absent,SOUND,read,yes,full,Third-party actions are pinned to a commit SHA
+SUP-011,core/supply-chain.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,No secrets in CI configuration
+SUP-012,core/supply-chain.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Default branch is protected
+SUP-013,core/supply-chain.yaml,LOW,grep_present,PROXY,read,yes,full,Commits are signed or attested
+SUP-014,core/supply-chain.yaml,LOW,grep_present,PROXY,read,yes,full,An SBOM is generated for releases
+SUP-015,core/supply-chain.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Release artifacts carry provenance attestation
+SUP-016,core/supply-chain.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Container images are scanned before publish
+SUP-017,core/supply-chain.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Build pipeline is reproducible from source
+FND-001,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A README exists at the top level
+FND-002,core/foundation.yaml,MEDIUM,count_min,OVERSTATED,read,yes,full,"License, contribution, and security docs are present"
+FND-003,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A CODEOWNERS file assigns review ownership
+FND-004,core/foundation.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Branch-protection evidence lives in .github
+FND-005,core/foundation.yaml,LOW,any_file,MECHANICAL,class,yes,full,Architecture decisions are recorded as ADRs
+FND-006,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Agent instructions (AGENTS.md or llms.txt) exist
+FND-007,core/foundation.yaml,LOW,grep_present,PROXY,read,yes,full,Docs carry machine-readable markers
+FND-008,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A test directory exists
+FND-009,core/foundation.yaml,LOW,any_of,UNREVIEWED,class,yes,full,A coverage configuration exists
+FND-010,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,The runtime version is pinned
+FND-011,core/foundation.yaml,MEDIUM,count_min,MECHANICAL,class,yes,full,The environment is reproducible from checked-in files
+FND-012,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A CI workflow exists
+FND-013,core/foundation.yaml,LOW,any_file,MECHANICAL,class,yes,full,A local task runner captures common workflows
+FND-014,core/foundation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A machine-readable API contract is checked in
+SUP-018,core/provenance-cosign.yaml,HIGH,command,SOUND,read,yes,assist,Release blob signatures verify with cosign (chain verification)
+SUP-019,core/provenance-cosign.yaml,MEDIUM,command,UNREVIEWED,class,yes,assist,SLSA attestation bundles verify with cosign (chain verification)
+SUP-020,core/provenance-cosign.yaml,MEDIUM,command,UNREVIEWED,class,yes,assist,Every release artifact ships a Sigstore bundle (chain completeness)
+SUP-022,core/provenance-attestation.yaml,HIGH,any_file,MECHANICAL,read,yes,full,SLSA provenance attestation file present
+SUP-023,core/provenance-attestation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Verification Summary Attestation present
+SUP-024,core/provenance-attestation.yaml,MEDIUM,file_exists,MECHANICAL,class,yes,full,Detached signature or transparency bundle present
+ARCH-001,core/architecture.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Architecture is documented
+ARCH-002,core/architecture.yaml,LOW,any_file,MECHANICAL,class,yes,full,Architecture decisions are recorded (ADRs)
+ARCH-003,core/architecture.yaml,MEDIUM,file_lines_max,SOUND,read,yes,full,No god files
+ARCH-004,core/architecture.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Layers are separated (transport / domain / data)
+ARCH-005,core/architecture.yaml,HIGH,command,FAIL-OPEN,read,yes,assist,No circular dependencies between modules
+ARCH-006,core/architecture.yaml,LOW,grep_present,UNREVIEWED,class,yes,full,Module boundaries are enforced by tooling
+ARCH-007,core/architecture.yaml,MEDIUM,grep_absent,SOUND,read,yes,full,Configuration is externalised
+ARCH-008,core/architecture.yaml,LOW,manual,JUDGEMENT,class,no,manual,Side effects are isolated and testable
+ARCH-009,core/architecture.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Single points of failure are identified
+ARCH-010,core/architecture.yaml,LOW,grep_present,PROXY,read,yes,full,Async work is offloaded to a queue
+CQ-001,core/code-quality.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A linter is configured
+CQ-002,core/code-quality.yaml,LOW,any_file,MECHANICAL,class,yes,full,A formatter is configured
+CQ-003,core/code-quality.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Type checking is enabled and strict
+CQ-004,core/code-quality.yaml,LOW,grep_absent,NARROW,read,yes,full,Type escapes are not used as a default
+CQ-005,core/code-quality.yaml,HIGH,grep_absent,SOUND,read,yes,full,"Errors are handled, not swallowed"
+CQ-006,core/code-quality.yaml,MEDIUM,grep_present,PROXY,read,yes,full,There is a central error handler
+CQ-007,core/code-quality.yaml,LOW,manual,JUDGEMENT,class,no,manual,Logging is structured and levelled
+CQ-008,core/code-quality.yaml,LOW,grep_present,UNREVIEWED,class,yes,full,Requests carry a correlation/trace ID
+CQ-009,core/code-quality.yaml,LOW,grep_absent,SOUND,read,yes,full,Debug statements are not left in production paths
+CQ-010,core/code-quality.yaml,LOW,grep_wrong,BROAD,read,yes,full,"TODO/FIXME debt is tracked, not just annotated"
+CQ-011,core/code-quality.yaml,LOW,manual,JUDGEMENT,class,no,manual,Functions do one thing
+CQ-012,core/code-quality.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Duplicated logic has been consolidated
+CQ-013,core/code-quality.yaml,FUTURE,grep_present,PROXY,read,yes,full,Complexity is measured
+TEST-001,core/testing.yaml,HIGH,any_file,MECHANICAL,class,yes,full,A test suite exists
+TEST-002,core/testing.yaml,HIGH,grep_present,PROXY,read,yes,full,Tests run in CI on every pull request
+TEST-003,core/testing.yaml,MEDIUM,count_min,SOUND,read,yes,full,There is a meaningful number of tests
+TEST-004,core/testing.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Coverage is measured
+TEST-005,core/testing.yaml,LOW,grep_present,PROXY,read,yes,full,Coverage thresholds are enforced
+TEST-006,core/testing.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Integration tests cover the seams
+TEST-007,core/testing.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,End-to-end tests cover critical user journeys
+TEST-008,core/testing.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Security-relevant behaviour is tested
+TEST-009,core/testing.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Tests are independent and deterministic
+TEST-010,core/testing.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Performance/load tests exist for critical paths
+TEST-011,core/testing.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Mutation testing or equivalent
+TEST-012,core/testing.yaml,LOW,grep_present,PROXY,read,yes,full,Test data comes from fixtures or factories
+TAS-001,core/testing-assurance.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A unit-test layout exists
+TAS-002,core/testing-assurance.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,An integration-test layout exists
+TAS-003,core/testing-assurance.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A system/end-to-end test layout exists
+TAS-004,core/testing-assurance.yaml,LOW,any_file,MECHANICAL,class,yes,full,Contract tests are present
+TAS-005,core/testing-assurance.yaml,LOW,any_file,MECHANICAL,class,yes,full,Coverage configuration or output is present
+TAS-006,core/testing-assurance.yaml,LOW,json_path,SOUND,read,yes,full,A coverage threshold is pinned in the package.json-embedded jest config
+TAS-007,core/testing-assurance.yaml,FUTURE,any_file,MECHANICAL,class,yes,full,Mutation-testing evidence is present
+TAS-008,core/testing-assurance.yaml,LOW,grep_present,PROXY,read,yes,full,A determinism guard is set in test config or CI
+TAS-009,core/testing-assurance.yaml,LOW,grep_present,PROXY,read,yes,full,A test retry budget is declared
+TAS-010,core/testing-assurance.yaml,MEDIUM,grep_present,SOUND,read,yes,full,Tests assert failure paths
+TAS-011,core/testing-assurance.yaml,LOW,any_file,MECHANICAL,class,yes,full,Test-data and environment isolation markers exist
+CICD-001,core/cicd.yaml,HIGH,any_file,MECHANICAL,class,yes,full,A CI pipeline exists
+CICD-002,core/cicd.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,"CI runs lint, test, and build"
+CICD-003,core/cicd.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Deployment is automated
+CICD-004,core/cicd.yaml,HIGH,manual,JUDGEMENT,class,no,manual,A rollback path exists and has been exercised
+CICD-005,core/cicd.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Separate environments exist
+CICD-006,core/cicd.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Infrastructure is defined as code
+CICD-007,core/cicd.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Health check endpoints exist
+CICD-008,core/cicd.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Error tracking / APM is configured
+CICD-009,core/cicd.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Alerting is configured for critical failures
+CICD-010,core/cicd.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Backups exist AND restores have been tested
+CICD-011,core/cicd.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,A disaster recovery plan exists
+CICD-012,core/cicd.yaml,LOW,manual,JUDGEMENT,class,no,manual,Observability covers the golden signals
+REL-001,core/release.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Versioning is semantic and consistent
+REL-002,core/release.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Releases are tagged in version control
+REL-003,core/release.yaml,LOW,grep_present,PROXY,read,yes,full,Release notes are published
+REL-004,core/release.yaml,LOW,grep_present,PROXY,read,yes,full,Risky changes sit behind a feature flag
+REL-005,core/release.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Database migrations run forward and are reversible
+REL-006,core/release.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Migrations are separated from application deploys
+REL-007,core/release.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,There is a documented incident/runbook path
+DEP-001,core/dependencies.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Dependencies are declared in a manifest
+DEP-002,core/dependencies.yaml,HIGH,command,FAIL-OPEN,read,yes,assist,No known-HIGH/CRITICAL vulnerabilities in dependencies
+DEP-003,core/dependencies.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Dependencies are actively maintained
+DEP-004,core/dependencies.yaml,LOW,manual,JUDGEMENT,class,no,manual,No obviously redundant dependencies
+DEP-005,core/dependencies.yaml,LOW,command,FAIL-OPEN,read,yes,assist,Unused dependencies are pruned
+DEP-006,core/dependencies.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Licenses are compatible with the project license
+DEP-007,core/dependencies.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,External services have documented failure modes
+DEP-008,core/dependencies.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Webhook payloads are signature-verified
+DOC-001,core/documentation.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,README covers what / install / run / contribute
+DOC-002,core/documentation.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Setup instructions have been verified recently
+DOC-003,core/documentation.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Public APIs are documented
+DOC-004,core/documentation.yaml,LOW,manual,JUDGEMENT,class,no,manual,Complex logic is explained at the point of use
+DOC-005,core/documentation.yaml,LOW,any_file,MECHANICAL,class,yes,full,Docs live in the repo with the code
+DOC-006,core/documentation.yaml,LOW,any_file,MECHANICAL,class,yes,full,An onboarding path exists
+DOC-007,core/documentation.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Documentation examples are tested
+FUT-001,core/future-readiness.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,A path off the current architecture exists
+FUT-002,core/future-readiness.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,No core technology is at or near end of life
+FUT-003,core/future-readiness.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Data archiving strategy exists
+FUT-004,core/future-readiness.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Multi-region or failover is at least designed
+FUT-005,core/future-readiness.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,A tech radar or equivalent exists
+FUT-006,core/future-readiness.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,Cost/usage is monitored
+NODE-001,stacks/node-typescript.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Node runtime version is pinned
+NODE-002,stacks/node-typescript.yaml,MEDIUM,grep_present,SOUND,read,yes,full,TypeScript strict mode is on
+NODE-003,stacks/node-typescript.yaml,MEDIUM,grep_present,SOUND,read,yes,full,Unhandled promise rejections are handled
+NODE-004,stacks/node-typescript.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,No private registry credentials committed
+NODE-005,stacks/node-typescript.yaml,MEDIUM,grep_deprecated,SOUND,read,yes,full,No deprecated Node APIs in use
+NODE-006,stacks/node-typescript.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Environment variables are validated at startup
+NODE-007,stacks/node-typescript.yaml,LOW,grep_present,SOUND,read,yes,full,Libraries declare sideEffects / exports for tree-shaking
+NODE-008,stacks/node-typescript.yaml,LOW,manual,JUDGEMENT,class,no,manual,Module system is consistent
+NODE-009,stacks/node-typescript.yaml,LOW,grep_present,PROXY,read,yes,full,"A fast, isolated runtime is used for tests"
+PY-001,stacks/python.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,Dependencies are declared in a modern manifest
+PY-002,stacks/python.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Python version is pinned
+PY-003,stacks/python.yaml,MEDIUM,grep_present,NARROW,read,yes,full,Dependencies are pinned to exact versions
+PY-004,stacks/python.yaml,MEDIUM,grep_wrong,SOUND,read,yes,full,No bare except clauses
+PY-005,stacks/python.yaml,MEDIUM,grep_wrong,SOUND,read,yes,full,No mutable default arguments
+PY-006,stacks/python.yaml,CRITICAL,grep_absent,BROAD,read,yes,full,No unsafe deserialisation
+PY-007,stacks/python.yaml,HIGH,grep_absent,SOUND,read,yes,full,Subprocess calls do not use shell=True
+PY-008,stacks/python.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,Debug mode is not enabled outside local development
+PY-009,stacks/python.yaml,LOW,grep_present,NARROW,read,yes,full,Type hints are used on public functions
+PY-010,stacks/python.yaml,MEDIUM,grep_present,PROXY,read,yes,full,A linter/formatter is configured for Python
+GO-001,stacks/go.yaml,MEDIUM,grep_present,SOUND,read,yes,full,go.mod declares the Go version
+GO-002,stacks/go.yaml,HIGH,manual,JUDGEMENT,class,no,manual,"Errors are checked, not discarded"
+GO-003,stacks/go.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Contexts are propagated
+GO-004,stacks/go.yaml,MEDIUM,grep_absent,BROAD,read,yes,full,No panics in request paths
+GO-005,stacks/go.yaml,MEDIUM,grep_present,PROXY,read,yes,full,go vet / staticcheck / golangci-lint runs in CI
+GO-006,stacks/go.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Goroutine lifecycle is bounded
+GO-007,stacks/go.yaml,CRITICAL,grep_absent,BROAD,read,yes,full,SQL is parameterised
+GO-008,stacks/go.yaml,MEDIUM,grep_present,PROXY,read,yes,full,HTTP servers set timeouts
+RS-001,stacks/rust.yaml,MEDIUM,grep_present,SOUND,read,yes,full,Cargo.toml declares edition and metadata
+RS-002,stacks/rust.yaml,MEDIUM,grep_wrong,NARROW,read,yes,full,No unwrap/expect in non-test code
+RS-003,stacks/rust.yaml,HIGH,grep_wrong,BROAD,read,yes,full,unsafe blocks are justified and minimal
+RS-004,stacks/rust.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Clippy runs in CI
+RS-005,stacks/rust.yaml,MEDIUM,grep_wrong,SOUND,read,yes,full,No todo!/unimplemented! in shipped paths
+RS-006,stacks/rust.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Dependency audit runs in CI (cargo-audit / deny)
+RS-007,stacks/rust.yaml,LOW,grep_present,PROXY,read,yes,full,Release builds are optimised and stripped
+JVM-001,stacks/jvm.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Dependency versions are managed centrally
+JVM-002,stacks/jvm.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,No hardcoded credentials in configuration
+JVM-003,stacks/jvm.yaml,MEDIUM,grep_wrong,SOUND,read,yes,full,Exception handling does not swallow stack traces
+JVM-004,stacks/jvm.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,Parameterised SQL / JPA criteria instead of concatenation
+JVM-005,stacks/jvm.yaml,LOW,manual,JUDGEMENT,class,no,manual,Nullability is explicit
+JVM-006,stacks/jvm.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Static analysis runs in CI
+JVM-007,stacks/jvm.yaml,HIGH,grep_absent,SOUND,read,yes,full,Insecure deserialisation is avoided
+JVM-008,stacks/jvm.yaml,LOW,grep_present,PROXY,read,yes,full,JVM/container memory limits are respected
+WEB-001,stacks/web-frontend.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Core Web Vitals are measured
+WEB-002,stacks/web-frontend.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Code splitting / lazy loading is used
+WEB-003,stacks/web-frontend.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Images are optimised
+WEB-004,stacks/web-frontend.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Accessibility basics are in place
+WEB-005,stacks/web-frontend.yaml,LOW,grep_present,PROXY,read,yes,full,Bundle size is monitored
+WEB-006,stacks/web-frontend.yaml,MEDIUM,grep_present,PROXY,read,yes,full,Error boundaries exist around risky UI
+WEB-007,stacks/web-frontend.yaml,CRITICAL,grep_wrong,BROAD,read,yes,full,No secrets in client-side bundles
+WEB-008,stacks/web-frontend.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Forms validate and expose errors accessibly
+WEB-009,stacks/web-frontend.yaml,FUTURE,manual,JUDGEMENT,class,no,manual,An offline/PWA story exists
+MOB-001,stacks/mobile.yaml,HIGH,grep_present,PROXY,read,yes,full,Crash reporting is integrated
+MOB-002,stacks/mobile.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,No hardcoded API secrets in app bundles
+MOB-003,stacks/mobile.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Sensitive data is not stored insecurely on device
+MOB-004,stacks/mobile.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Network security configuration is explicit
+MOB-005,stacks/mobile.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Permissions are requested minimally and with rationale
+MOB-006,stacks/mobile.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Offline behaviour is handled
+MOB-007,stacks/mobile.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Privacy manifests / data collection disclosure are present
+MOB-008,stacks/mobile.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Tested on multiple screen sizes and OS versions
+CTNR-001,stacks/containers.yaml,HIGH,grep_present,BROAD,read,yes,full,Container does not run as root
+CTNR-002,stacks/containers.yaml,MEDIUM,grep_present,SOUND,read,yes,full,Multi-stage builds are used
+CTNR-003,stacks/containers.yaml,MEDIUM,grep_absent,SOUND,read,yes,full,Base image is minimal and pinned
+CTNR-004,stacks/containers.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,A .dockerignore exists
+CTNR-005,stacks/containers.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,No secrets baked into the image
+CTNR-006,stacks/containers.yaml,MEDIUM,grep_present,PROXY,read,yes,full,HEALTHCHECK is defined
+CTNR-007,stacks/containers.yaml,MEDIUM,grep_present,SOUND,read,yes,full,Kubernetes workloads declare resource limits
+CTNR-008,stacks/containers.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Images are scanned and signed
+IAC-001,stacks/iac.yaml,CRITICAL,grep_wrong,BROAD,read,yes,full,No public exposure of storage buckets or databases
+IAC-002,stacks/iac.yaml,HIGH,grep_present,PROXY,read,yes,full,Encryption at rest is enabled
+IAC-003,stacks/iac.yaml,MEDIUM,grep_present,PROXY,read,yes,full,IaC is validated and scanned before apply
+IAC-004,stacks/iac.yaml,HIGH,grep_present,PROXY,read,yes,full,State is stored remotely and locked
+IAC-005,stacks/iac.yaml,HIGH,grep_absent,SOUND,read,yes,full,IAM follows least privilege
+IAC-006,stacks/iac.yaml,LOW,manual,JUDGEMENT,class,no,manual,Cloud spend is tagged and budgeted
+IAC-007,stacks/iac.yaml,HIGH,grep_absent,UNREVIEWED,class,yes,full,Kubernetes manifests avoid privileged containers
+SOLID-001,stacks/solidity.yaml,CRITICAL,manual,INERT,read,no,manual,Contracts are protected against reentrancy
+SOLID-002,stacks/solidity.yaml,HIGH,grep_deprecated,SOUND,read,yes,full,Compiler version is 0.8+ (or SafeMath is used)
+SOLID-003,stacks/solidity.yaml,CRITICAL,manual,INERT,read,no,manual,Access control is explicit on privileged functions
+SOLID-004,stacks/solidity.yaml,CRITICAL,grep_absent,SOUND,read,yes,full,tx.origin is not used for authorisation
+SOLID-005,stacks/solidity.yaml,HIGH,grep_wrong,NARROW,read,yes,full,External calls are checked and treated as untrusted
+SOLID-006,stacks/solidity.yaml,MEDIUM,grep_wrong,NARROW,read,yes,full,No block.timestamp dependence for critical logic
+SOLID-007,stacks/solidity.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Events are emitted for state changes
+SOLID-008,stacks/solidity.yaml,MEDIUM,grep_present,PROXY,read,yes,full,An emergency pause mechanism exists
+SOLID-009,stacks/solidity.yaml,HIGH,manual,JUDGEMENT,class,no,manual,A test suite with fuzzing/invariants exists
+SOLID-010,stacks/solidity.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Third-party security audit has been performed
+ML-001,stacks/ml-ai.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Training data is versioned
+ML-002,stacks/ml-ai.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Model artefacts are versioned and registered
+ML-003,stacks/ml-ai.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Training is reproducible (seeded and pinned)
+ML-004,stacks/ml-ai.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Model/data drift is monitored in production
+ML-005,stacks/ml-ai.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Predictions are logged for audit
+ML-006,stacks/ml-ai.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Bias/fairness has been evaluated
+ML-007,stacks/ml-ai.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Notebooks are not the deployment path
+ML-008,stacks/ml-ai.yaml,LOW,manual,JUDGEMENT,class,no,manual,Inference cost and latency are tracked
+ML-009,stacks/ml-ai.yaml,MEDIUM,tracked_absent,UNREVIEWED,class,yes,full,Model files are not committed to git
+CLI-001,stacks/cli.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,--help is implemented and useful
+CLI-002,stacks/cli.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Exit codes are meaningful
+CLI-003,stacks/cli.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Destructive operations support --dry-run
+CLI-004,stacks/cli.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Input from arguments and stdin is validated
+CLI-005,stacks/cli.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Operations are idempotent where expected
+CLI-006,stacks/cli.yaml,LOW,manual,JUDGEMENT,class,no,manual,"Errors go to stderr, output to stdout"
+CLI-007,stacks/cli.yaml,LOW,grep_present,PROXY,read,yes,full,Machine-readable output mode exists
+DATA-001,stacks/data.yaml,HIGH,any_file,MECHANICAL,class,yes,full,A migration system is in place
+DATA-002,stacks/data.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Foreign keys / relations are defined
+DATA-003,stacks/data.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Indexes exist on queried columns
+DATA-004,stacks/data.yaml,HIGH,manual,JUDGEMENT,class,no,manual,No N+1 query patterns
+DATA-005,stacks/data.yaml,HIGH,grep_present,PROXY,read,yes,full,List queries are paginated
+DATA-006,stacks/data.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Connection pooling is configured
+DATA-007,stacks/data.yaml,HIGH,grep_present,SOUND,read,yes,full,Multi-step writes are transactional
+DATA-008,stacks/data.yaml,LOW,grep_wrong,SOUND,read,yes,full,No SELECT * in hot paths
+DATA-009,stacks/data.yaml,LOW,manual,JUDGEMENT,class,no,manual,Delete strategy is defined
+DATA-010,stacks/data.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Row-level access is enforced in the data layer
+API-001,stacks/api-backend.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,The API is versioned
+API-002,stacks/api-backend.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Request timeouts are configured
+API-003,stacks/api-backend.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Retries are bounded with jitter
+API-004,stacks/api-backend.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Write operations are idempotent
+API-005,stacks/api-backend.yaml,LOW,manual,JUDGEMENT,class,no,manual,Response format is consistent
+API-006,stacks/api-backend.yaml,MEDIUM,any_file,MECHANICAL,class,yes,full,An OpenAPI/contract spec exists and is current
+API-007,stacks/api-backend.yaml,HIGH,grep_present,BROAD,read,yes,full,GraphQL depth/complexity limits are enforced
+API-008,stacks/api-backend.yaml,LOW,manual,JUDGEMENT,class,no,manual,Health and readiness endpoints are unauthenticated but minimal
+COMP-001,stacks/compliance.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Interactive elements are keyboard accessible
+COMP-002,stacks/compliance.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Form inputs have associated labels
+COMP-003,stacks/compliance.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Colour contrast meets WCAG AA
+COMP-004,stacks/compliance.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Content is not hardcoded to one locale
+COMP-005,stacks/compliance.yaml,LOW,manual,JUDGEMENT,class,no,manual,"Dates, numbers, and currencies are locale-aware"
+COMP-006,stacks/compliance.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,A privacy policy and terms exist and match reality
+COMP-007,stacks/compliance.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Data subject rights are implemented
+COMP-008,stacks/compliance.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Card data is kept out of scope
+COMP-009,stacks/compliance.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Cookie / consent notice is compliant
+COMP-010,stacks/compliance.yaml,LOW,grep_present,SOUND,read,yes,full,Source files carry an SPDX license identifier
+AI-001,stacks/ai-era.yaml,CRITICAL,manual,INERT,read,no,manual,Untrusted content cannot override instructions
+AI-002,stacks/ai-era.yaml,CRITICAL,grep_wrong,NARROW,read,yes,full,Model output is validated before it is executed
+AI-003,stacks/ai-era.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Agents and tools run with least privilege
+AI-004,stacks/ai-era.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Secrets and PII do not reach model providers unchecked
+AI-005,stacks/ai-era.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Inference spend and token usage are bounded
+AI-006,stacks/ai-era.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,System prompts and tool schemas are not exposed
+AI-007,stacks/ai-era.yaml,HIGH,manual,JUDGEMENT,class,no,manual,RAG retrieval is access-controlled per tenant
+AI-008,stacks/ai-era.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Model and prompt supply chain is pinned
+AI-009,stacks/ai-era.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,An eval suite exists for model behaviour
+AI-010,stacks/ai-era.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Consequential actions require human confirmation
+AI-011,stacks/ai-era.yaml,MEDIUM,manual,JUDGEMENT,class,no,manual,Agent instruction files are scoped and safe
+AI-012,stacks/ai-era.yaml,LOW,manual,JUDGEMENT,class,no,manual,Model inputs and outputs are logged for audit
+SW-001,stacks/swift.yaml,MEDIUM,grep_wrong,UNREVIEWED,class,yes,full,No force-unwrap or force-try in application code
+SW-002,stacks/swift.yaml,HIGH,grep_wrong,SOUND,read,yes,full,App Transport Security is not disabled
+SW-003,stacks/swift.yaml,MEDIUM,file_exists,MECHANICAL,class,yes,full,Application dependencies are pinned
+SW-004,stacks/swift.yaml,HIGH,manual,JUDGEMENT,class,no,manual,Secrets live in the Keychain with data protection
+SW-005,stacks/swift.yaml,HIGH,grep_present,PROXY,read,yes,full,Request validation uses Validatable or a validation library
+SW-006,stacks/swift.yaml,MEDIUM,grep_present,UNREVIEWED,class,yes,full,Security headers middleware is configured

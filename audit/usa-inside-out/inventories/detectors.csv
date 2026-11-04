@@ -1,0 +1,237 @@
+fact,category,title,match_keys
+lang:typescript,language,TypeScript,any_file
+lang:javascript,language,JavaScript,any_file
+lang:python,language,Python,any_file
+lang:go,language,Go,any_file
+lang:rust,language,Rust,any_file
+lang:java,language,Java,any_file
+lang:kotlin,language,Kotlin,any_file
+lang:swift,language,Swift,any_file
+lang:ruby,language,Ruby,any_file
+lang:php,language,PHP,any_file
+lang:csharp,language,C#,any_file
+lang:cpp,language,C/C++,any_file
+lang:scala,language,Scala,any_file
+lang:dart,language,Dart,any_file
+lang:elixir,language,Elixir,any_file
+lang:lua,language,Lua,any_file
+lang:zig,language,Zig,any_file
+lang:solidity,language,Solidity,any_file
+lang:shell,language,Shell,any_file
+lang:haskell,language,Haskell,any_file
+pm:node,pm,Node (package.json),file_exists
+pm:npm,pm,npm,file_exists
+pm:pnpm,pm,pnpm,any_of
+pm:yarn,pm,Yarn,any_of
+pm:bun,pm,Bun,any_of
+pm:pip,pm,pip,file_exists
+pm:poetry,pm,Poetry,any_of
+pm:uv,pm,uv,any_of
+pm:pipenv,pm,Pipenv,file_exists
+pm:cargo,pm,Cargo,file_exists
+pm:go-mod,pm,Go modules,file_exists
+pm:maven,pm,Maven,file_exists
+pm:gradle,pm,Gradle,any_file
+pm:composer,pm,Composer,file_exists
+pm:nuget,pm,NuGet,any_file
+pm:swiftpm,pm,SwiftPM,file_exists
+pm:pub,pm,Pub,file_exists
+pm:mix,pm,Mix,file_exists
+pm:foundry,pm,Foundry,file_exists
+pm:hardhat,pm,Hardhat,any_file
+fw:react,framework,React,any_of
+fw:vue,framework,Vue,manifest
+fw:angular,framework,Angular,any_of
+fw:svelte,framework,Svelte,manifest
+fw:solid,framework,SolidJS,manifest
+fw:next,framework,Next.js,any_of
+fw:nuxt,framework,Nuxt,any_of
+fw:remix,framework,Remix,manifest
+fw:sveltekit,framework,SvelteKit,any_of
+fw:astro,framework,Astro,manifest
+fw:vite,framework,Vite,any_of
+fw:tailwind,framework,Tailwind CSS,any_of
+fw:electron,framework,Electron,manifest
+fw:tauri,framework,Tauri,any_of
+fw:express,framework,Express,manifest
+fw:fastify,framework,Fastify,manifest
+fw:nest,framework,NestJS,manifest
+fw:hono,framework,Hono,manifest
+fw:koa,framework,Koa,manifest
+fw:django,framework,Django,any_of
+fw:flask,framework,Flask,content
+fw:fastapi,framework,FastAPI,content
+fw:celery,framework,Celery,content
+fw:airflow,framework,Airflow,content
+fw:streamlit,framework,Streamlit,content
+fw:gin,framework,Gin,content
+fw:echo,framework,Echo,content
+fw:fiber,framework,Fiber,content
+fw:chi,framework,Chi,content
+fw:axum,framework,Axum,content
+fw:actix,framework,Actix,content
+fw:rocket,framework,Rocket,content
+fw:spring,framework,Spring,any_of
+fw:quarkus,framework,Quarkus,content
+fw:rails,framework,Rails,any_of
+fw:laravel,framework,Laravel,any_of
+fw:symfony,framework,Symfony,content
+fw:dotnet,framework,.NET / ASP.NET,content
+fw:react-native,framework,React Native,any_of
+fw:expo,framework,Expo,any_of
+fw:flutter,framework,Flutter,any_of
+platform:ios,platform,iOS,any_of
+platform:android,platform,Android,any_of
+platform:mobile,platform,Mobile,
+platform:mobile,platform,Mobile,
+platform:mobile,platform,Mobile,
+platform:mobile,platform,Mobile,
+platform:mobile,platform,Mobile,
+platform:web,platform,Web,any_of
+platform:server,platform,Server,any_of
+platform:desktop,platform,Desktop,
+platform:desktop,platform,Desktop,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+platform:server,platform,Server,
+fw:vapor,framework,Vapor,content
+has:swift-validation,has,Swift validation (Validatable),content
+has:swift-security-headers,has,Swift security headers middleware,content
+swift:executable,type,Swift executable target,content
+platform:server,platform,Server,
+platform:evm,platform,EVM / Blockchain,any_of
+platform:embedded,platform,Embedded,any_of
+project:library,type,Library / SDK,any_of
+project:cli,type,CLI tool,any_of
+project:monorepo,type,Monorepo,any_of
+project:api,type,API / service,any_of
+project:ml,type,ML / AI system,any_of
+project:blockchain,type,Smart contracts,
+project:iac,type,IaC / DevOps tooling,any_of
+project:data-pipeline,type,Data pipeline / ETL,any_of
+project:game,type,Game,any_of
+project:docs,type,Docs site,any_of
+db:postgres,db,PostgreSQL,any_of
+db:mysql,db,MySQL/MariaDB,any_of
+db:sqlite,db,SQLite,any_of
+db:mongodb,db,MongoDB,any_of
+db:redis,db,Redis,any_of
+db:clickhouse,db,ClickHouse,content
+db:elasticsearch,db,Elasticsearch,content
+db:vector,db,Vector store,content
+db:dynamodb,db,DynamoDB,content
+has:database,db,Uses a database,any_of
+orm:prisma,orm,Prisma,any_of
+orm:drizzle,orm,Drizzle,manifest
+orm:typeorm,orm,TypeORM,manifest
+orm:sequelize,orm,Sequelize,manifest
+orm:mongoose,orm,Mongoose,manifest
+orm:sqlalchemy,orm,SQLAlchemy,content
+orm:gorm,orm,GORM,content
+orm:sqlx,orm,SQLx,content
+orm:diesel,orm,Diesel,content
+orm:hibernate,orm,Hibernate/JPA,content
+orm:activerecord,orm,ActiveRecord,content
+auth:jwt,auth,JWT,any_of
+auth:oauth,auth,OAuth / OIDC,content
+auth:session,auth,Sessions / cookies,content
+auth:apikey,auth,API keys,content
+auth:passport,auth,Passport.js,manifest
+auth:nextauth,auth,Auth.js / NextAuth,any_of
+auth:supabase,auth,Supabase,manifest
+auth:firebase,auth,Firebase Auth,content
+auth:auth0,auth,Auth0,content
+api:graphql,api,GraphQL,any_of
+api:grpc,api,gRPC,any_of
+api:trpc,api,tRPC,manifest
+api:websocket,api,WebSockets,content
+test:vitest,test,Vitest,manifest
+test:jest,test,Jest,manifest
+test:mocha,test,Mocha,manifest
+test:pytest,test,pytest,any_of
+test:gotest,test,go test,any_file
+test:cargotest,test,cargo test,any_of
+test:junit,test,JUnit,any_of
+test:rspec,test,RSpec,any_of
+test:phpunit,test,PHPUnit,content
+test:playwright,test,Playwright,manifest
+test:cypress,test,Cypress,manifest
+has:tests,test,Has tests,any_of
+has:e2e,test,Has E2E tests,any_of
+has:perf-tests,test,Has performance tests,any_of
+has:lint,tooling,Linter configured,any_of
+has:format,tooling,Formatter configured,any_of
+has:typecheck,tooling,Type checking,any_of
+has:precommit,tooling,Pre-commit hooks,any_of
+has:dependabot,tooling,Dependabot,file_exists
+has:renovate,tooling,Renovate,any_file
+has:changesets,tooling,Changesets,dir_exists
+has:release-automation,tooling,Release automation,any_of
+has:editorconfig,tooling,EditorConfig,file_exists
+has:containers,tooling,Containers,any_of
+has:kubernetes,tooling,Kubernetes,any_of
+has:terraform,tooling,Terraform/OpenTofu,any_file
+has:serverless,tooling,Serverless,any_file
+has:sbom,tooling,SBOM published,any_file
+has:secrets-scan,tooling,Secret scanning in CI,any_of
+has:sast,tooling,SAST in CI,content
+has:dep-scan,tooling,Dependency scanning,content
+has:codecov,tooling,Coverage tracking,any_of
+ci:github-actions,ci,GitHub Actions,dir_exists
+ci:gitlab,ci,GitLab CI,file_exists
+ci:jenkins,ci,Jenkins,file_exists
+ci:circleci,ci,CircleCI,dir_exists
+ci:buildkite,ci,Buildkite,file_exists
+ci:azure,ci,Azure Pipelines,file_exists
+has:ci,ci,Has CI,
+has:ci,ci,Has CI,
+has:ci,ci,Has CI,
+has:ci,ci,Has CI,
+has:ci,ci,Has CI,
+has:ci,ci,Has CI,
+obs:sentry,obs,Sentry,content
+obs:otel,obs,OpenTelemetry,content
+obs:prometheus,obs,Prometheus,any_of
+obs:datadog,obs,Datadog,content
+obs:grafana,obs,Grafana,any_of
+has:monitoring,obs,Monitoring configured,any_of
+ai:llm-sdk,ai,LLM SDK,content
+ai:prompts,ai,Prompt assets,any_of
+ai:agents,ai,Agent / agentic code,any_of
+ai:mcp,ai,MCP servers / tool use,any_of
+ai:rag,ai,RAG pipeline,
+ai:rag,ai,RAG pipeline,content
+ai:evals,ai,LLM evals,any_of
+doc:readme,doc,README,any_file
+doc:license,doc,LICENSE,any_file
+doc:contributing,doc,CONTRIBUTING,any_file
+doc:code-of-conduct,doc,Code of conduct,any_file
+doc:security-policy,doc,SECURITY.md,any_file
+doc:changelog,doc,CHANGELOG,any_file
+doc:architecture,doc,Architecture docs,any_of
+doc:adr,doc,ADRs,any_of
+doc:api-reference,doc,API reference,any_of
+doc:runbook,doc,Runbook,any_of
+doc:governance,doc,Governance docs,any_file
+doc:agents,doc,Agent instructions,any_file

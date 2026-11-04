@@ -1,0 +1,7 @@
+id,name,needsNetwork,networkConfigKey,prepareStages,artifacts,hasFindingsMapper,defaultConfig
+trivy,Trivy vulnerability / secret / misconfiguration scanner,false,,0,,false,"{""scanners"":[""vuln"",""secret"",""misconfig""],""severity"":[""HIGH"",""CRITICAL""]}"
+dependency-cruiser,Dependency graph and architecture rules (JS/TS),false,,0,,false,"{""args"":[""src""],""rules"":""""}"
+semgrep,Semgrep SAST scanner,false,scanners.semgrep.rules,0,,false,"{""rules"":"""",""severity"":[]}"
+codeql,CodeQL data-flow analysis (opt-in),true,,1,codeql-results.sarif,false,"{""language"":""javascript-typescript"",""packs"":"""",""allowBuildCommands"":false}"
+scorecard,OpenSSF Scorecard repository posture probes,false,,0,,false,"{""mode"":""local"",""checks"":[""SAST"",""License"",""Pinned-Dependencies"",""Dependency-Upd"
+ort,OSS Review Toolkit dependency policy evaluator,true,scanners.ort.ortFile,1,.ort-results/evaluation-result.json,false,"{""outputDir"":"".ort-results"",""ortFile"":"""",""rulesFile"":"""",""rulesResource"":""/rules/"

@@ -1,0 +1,81 @@
+# Ready-to-paste entries for docs/manifest.yaml.
+#
+# WHY: check-manifest.mjs classifies docs from `git ls-files`, so an untracked doc is
+# invisible and a manifest entry for one is a "stale pointer". Add these in the SAME
+# commit that first tracks audit/, then run `pnpm run docs:manifest`.
+#
+# Audit artefacts are a dated, point-in-time record. Evidence, not living docs —
+# re-reviewing them would rewrite history. Superseded by a later audit, not edited.
+
+- file: audit/usa-inside-out/ACCEPTED-RISKS-AUDIT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/ADAPTER-EXECUTION-AUDIT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/ADVERSARIAL-MATRIX.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/ARCHITECTURE-RECOMMENDATIONS.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/ARCHITECTURE.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/CI-SUPPLY-CHAIN-AUDIT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/CLAIMS-VERIFICATION.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/COMPONENT-AUDIT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/END-TO-END-CHAINS.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/EXECUTIVE-VERDICT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/FINDINGS.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/MISSING-CAPABILITIES.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/MUTATION-TESTING.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/README.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/REPOSITORY-BASELINE.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/RESIDUAL-RISKS.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/ROADMAP-ASSESSMENT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/RULE-SEMANTIC-AUDIT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/RULES-FULL-AUDIT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/SECURITY-ASSESSMENT.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/SEEDED-SUSPICIONS.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/STRATEGIC-QUESTIONS.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/TEST-AND-VERIFICATION.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit
+- file: audit/usa-inside-out/TRACEABILITY-MATRIX.md
+  reviewed: 2026-10-31
+  reason: audit artefact — point-in-time record of the 2026-10-31 audit

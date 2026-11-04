@@ -1,0 +1,92 @@
+{
+  "generatedAt": "2026-10-31",
+  "commit": "3767c7df5638253431c489f2750fe1c1e7a25321",
+  "version": "2.28.8",
+  "production": {
+    "files": 100,
+    "lines": 21567,
+    "verified": 11,
+    "partiallyVerified": 32,
+    "notVerified": 57
+  },
+  "rules": {
+    "total": 315,
+    "packs": 32,
+    "duplicateIds": 0,
+    "byAutomatability": {
+      "full": 201,
+      "assist": 7,
+      "manual": 107
+    },
+    "bySeverity": {
+      "CRITICAL": 23,
+      "HIGH": 73,
+      "MEDIUM": 147,
+      "LOW": 58,
+      "FUTURE": 14
+    },
+    "bySection": {
+      "S1": 18,
+      "S2": 30,
+      "S3": 37,
+      "S4": 10,
+      "S5": 13,
+      "S6": 10,
+      "S7": 23,
+      "S8": 12,
+      "S9": 7,
+      "S10": 8,
+      "S12": 7,
+      "S13": 10,
+      "S14": 12,
+      "S15": 112,
+      "S16": 6
+    },
+    "fixtures": {
+      "total": 205,
+      "bothDirections": 192,
+      "positiveOnly": 7,
+      "negativeOnly": 6,
+      "invariantUngated": 3
+    },
+    "semanticallyVerified": 0
+  },
+  "detectors": {
+    "total": 236
+  },
+  "checkKinds": {
+    "declared": 18,
+    "usedByShippedRules": 14,
+    "unused": ["file_absent", "tracked_present", "oracle", "info"]
+  },
+  "scanners": {
+    "adapters": 6,
+    "withFindingsMapper": 0,
+    "executed": 1
+  },
+  "cli": {
+    "commands": 22
+  },
+  "server": {
+    "routes": 4
+  },
+  "formats": {
+    "total": 5,
+    "list": ["md", "json", "sarif", "narrative", "html"]
+  },
+  "adrs": {
+    "total": 47,
+    "readByAudit": 6
+  },
+  "docs": {
+    "manifestTracked": 155,
+    "readByAudit": 9
+  },
+  "gatesRun": {
+    "typecheck": "pass",
+    "lint": "pass",
+    "docsAll": "pass",
+    "test": "pass (1627/1628)",
+    "selfAudit": "pass (100/100, 36 UNKNOWN, 14 suppressed)"
+  }
+}

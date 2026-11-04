@@ -1,0 +1,64 @@
+{
+  "totalRules": 315,
+  "packs": 32,
+  "byKind": {
+    "file_exists": 4,
+    "tracked_absent": 4,
+    "command": 7,
+    "any_file": 47,
+    "manual": 107,
+    "grep_absent": 30,
+    "grep_wrong": 22,
+    "grep_present": 83,
+    "invariant": 3,
+    "count_min": 3,
+    "any_of": 1,
+    "file_lines_max": 1,
+    "json_path": 1,
+    "grep_deprecated": 2
+  },
+  "byAutomatability": {
+    "full": 201,
+    "assist": 7,
+    "manual": 107
+  },
+  "bySeverity": {
+    "CRITICAL": 23,
+    "HIGH": 73,
+    "MEDIUM": 147,
+    "LOW": 58,
+    "FUTURE": 14
+  },
+  "byClass": {
+    "security": 73,
+    "documentation": 20,
+    "compliance": 27,
+    "maintainability": 39,
+    "style": 3,
+    "operations": 42,
+    "supply-chain": 37,
+    "correctness": 52,
+    "performance": 22
+  },
+  "bySection": {
+    "S1": 18,
+    "S2": 30,
+    "S3": 37,
+    "S4": 10,
+    "S5": 13,
+    "S7": 23,
+    "S8": 12,
+    "S9": 7,
+    "S10": 8,
+    "S12": 7,
+    "S16": 6,
+    "S15": 112,
+    "S6": 10,
+    "S13": 10,
+    "S14": 12
+  },
+  "fixtures": 205,
+  "rulesWithAnyFixture": 205,
+  "automatableRules": 208,
+  "automatableWithFixture": 205
+}
