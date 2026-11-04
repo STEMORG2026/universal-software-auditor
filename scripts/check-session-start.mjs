@@ -36,6 +36,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { suspensionStatus } from './lib/macp-suspension.mjs';
 
 const root = process.cwd();
 const stateDir = path.resolve(root, 'state');
@@ -43,6 +44,22 @@ const stateDir = path.resolve(root, 'state');
 /** No MACP state at all → bootstrap case, nothing to enforce. */
 if (!existsSync(stateDir)) {
   console.log('session start: no state/ directory — bootstrap case, skipping.');
+  process.exit(0);
+}
+
+/**
+ * The owner can suspend the protocol (.macp/SUSPENDED). That is a decision of
+ * record, so it is honoured here rather than bypassed at the call site; an
+ * incomplete marker is refused, because an anonymous bypass is what
+ * `--no-verify` already is.
+ */
+const suspension = suspensionStatus(root);
+if (suspension) {
+  if (!suspension.valid) {
+    console.error(`session start: ${suspension.message}`);
+    process.exit(1);
+  }
+  console.log(`session start: ${suspension.message}`);
   process.exit(0);
 }
 

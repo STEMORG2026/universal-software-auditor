@@ -1,0 +1,23 @@
+command,purpose,verified_by
+audit,audit a project and write a report,executed (self-audit + 4 fixtures)
+docs audit,documentation universe audit,enumerated
+docs impact,which documentation a change affects,enumerated
+docs coverage,documentation coverage against the taxonomy,enumerated
+detect,print auto-detected facts and maturity,enumerated
+rules,list loaded packs and rules,enumerated
+explain,show everything about one rule,enumerated
+diff,compare two generated reports,enumerated
+verify-report,verify a detached signature sidecar,enumerated
+init,scaffold .usa.yaml + a GitHub Actions workflow,enumerated
+bootstrap,propose packs for unsupported stacks,read (src/bootstrap)
+learn,generate suggested rules from findings,enumerated
+evolve,audit -> gap -> candidate -> release loop,read (src/evolution)
+standards,catalogue coverage and automatability,executed
+categories,future-domain category coverage,executed
+foundation init,capture project intent,enumerated
+foundation show,print effective intent and asserted facts,enumerated
+live,conversational audit session,enumerated
+serve,localhost audit server,read (src/serve)
+scan,run scanner adapters and write a manifest,executed (trivy, incl. hijack probe)
+intent,compare a threat model with observed evidence,enumerated
+models,list models a provider advertises,enumerated

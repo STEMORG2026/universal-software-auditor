@@ -45,8 +45,8 @@ standalone:
     reviewed: 2026-09-26
     reason: baseline classification — governance statement
   - file: ROADMAP.md
-    reviewed: 2026-09-26
-    reason: baseline classification — future intent (dates tracked per-entry)
+    reviewed: 2026-10-31
+    reason: baseline classification — future intent (dates tracked per-entry); revised after the independent audit in audit/usa-inside-out/
   - file: SECURITY.md
     reviewed: 2026-09-26
     reason: baseline classification — supported-versions table, policy
@@ -287,3 +287,70 @@ standalone:
   - file: fixtures/secure-app/README.md
     reviewed: 2026-10-21
     reason: Planted fixture — the negative case, not a claim about quality
+  # The 2026-10-31 inside-out audit. A dated forensic record of 2.28.8, not a
+  # live claim: its counts describe that commit and must not be re-read as
+  # current. Three of its documents mention the fact-marker token in prose and
+  # are auto-classified, so they are deliberately absent here.
+  - file: audit/usa-inside-out/ACCEPTED-RISKS-AUDIT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — the 14 waivers re-verified against the tree and the GitHub API
+  - file: audit/usa-inside-out/ADAPTER-EXECUTION-AUDIT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — semgrep, dependency-cruiser and cosign executed
+  - file: audit/usa-inside-out/ADVERSARIAL-MATRIX.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — 52 adversarial scenarios and their outcomes
+  - file: audit/usa-inside-out/ARCHITECTURE-RECOMMENDATIONS.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — four architectural changes with trade-offs
+  - file: audit/usa-inside-out/ARCHITECTURE.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — layers, boundaries and drift
+  - file: audit/usa-inside-out/CI-SUPPLY-CHAIN-AUDIT.md
+    reviewed: 2026-10-31
+    reason: 'Forensic audit record — all 11 workflows: pinning, injection, permissions'
+  - file: audit/usa-inside-out/CLAIMS-VERIFICATION.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — claims in the supplied report checked against the tree
+  - file: audit/usa-inside-out/COMPONENT-AUDIT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — health scorecard and coverage accounting
+  - file: audit/usa-inside-out/END-TO-END-CHAINS.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — 13 workflows traced to where each breaks
+  - file: audit/usa-inside-out/EXECUTIVE-VERDICT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — the verdict and the ten required answers
+  - file: audit/usa-inside-out/MISSING-CAPABILITIES.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — essential, strategic, optional, out of scope
+  - file: audit/usa-inside-out/MUTATION-TESTING.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — 20 source mutants against the suite
+  - file: audit/usa-inside-out/README.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — entry point, scope and the honest completeness boundary
+  - file: audit/usa-inside-out/REPOSITORY-BASELINE.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — git state, counts, gates and open PRs at 3767c7d
+  - file: audit/usa-inside-out/RESIDUAL-RISKS.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — what the audit could not prove, and a red-team of itself
+  - file: audit/usa-inside-out/ROADMAP-ASSESSMENT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — the pre-existing roadmap, item by item
+  - file: audit/usa-inside-out/RULES-FULL-AUDIT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — all 315 rules with the basis for each verdict
+  - file: audit/usa-inside-out/RULE-SEMANTIC-AUDIT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — the CRITICAL tier read rule by rule
+  - file: audit/usa-inside-out/SECURITY-ASSESSMENT.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — threat model and the two critical defects
+  - file: audit/usa-inside-out/STRATEGIC-QUESTIONS.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — all 27 strategic questions answered
+  - file: audit/usa-inside-out/TEST-AND-VERIFICATION.md
+    reviewed: 2026-10-31
+    reason: Forensic audit record — every command run, and what the suite cannot see

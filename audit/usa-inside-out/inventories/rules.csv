@@ -1,0 +1,316 @@
+rule_id,pack,section,kind,severity,class,automatability,depths,applies_when,fixture,fixture_positive,fixture_negative,references,title
+REPO-001,core/repo.yaml,S1,file_exists,CRITICAL,security,full,all,,REPO-001.yaml,true,true,CWE-540 OpenSSF-Scorecard:Binary-Artifacts,.gitignore is present
+REPO-002,core/repo.yaml,S1,tracked_absent,CRITICAL,security,full,all,,REPO-002.yaml,false,true,CWE-798 ASVS-14.3.2 OpenSSF-Scorecard:Binary-Artifacts,No environment/secret files committed
+REPO-003,core/repo.yaml,S1,command,CRITICAL,security,assist,all,,REPO-003.yaml,true,false,CWE-798 ASVS-14.3.2,No secrets in git history
+REPO-004,core/repo.yaml,S1,any_file,HIGH,documentation,full,all,,REPO-004.yaml,true,true,CII-Best-Practices,README present
+REPO-005,core/repo.yaml,S1,any_file,HIGH,compliance,full,all,,REPO-005.yaml,true,true,OpenSSF-Scorecard:License SPDX,LICENSE present
+REPO-006,core/repo.yaml,S1,any_file,HIGH,maintainability,full,all,"{'any':[{'fact':'has:database'},{'fact':'platform:server'},{'fact':'auth:jwt'},{'fact':'auth:apikey'},{'fact':'auth:oauth'}]}",REPO-006.yaml,true,true,ASVS-14.3.2,.env.example documents required configuration
+REPO-007,core/repo.yaml,S1,tracked_absent,HIGH,maintainability,full,all,,REPO-007.yaml,false,true,OpenSSF-Scorecard:Binary-Artifacts,Build artifacts and dependencies are not committed
+REPO-008,core/repo.yaml,S1,tracked_absent,MEDIUM,maintainability,full,all,,REPO-008.yaml,false,true,OpenSSF-Scorecard:Binary-Artifacts,Large binaries are not committed directly
+REPO-009,core/repo.yaml,S1,any_file,HIGH,security,full,all,{'not':{'fact':'maturity:prototype'}},REPO-009.yaml,true,true,OpenSSF-Scorecard:Security-Policy NIST-SSDF-RV.1.1,SECURITY.md published
+REPO-010,core/repo.yaml,S1,any_file,MEDIUM,documentation,full,all,{'not':{'fact':'maturity:prototype'}},REPO-010.yaml,true,true,Keep-a-Changelog,CHANGELOG maintained
+REPO-011,core/repo.yaml,S1,any_file,LOW,documentation,full,all,{'not':{'fact':'maturity:prototype'}},REPO-011.yaml,true,true,CII-Best-Practices,CONTRIBUTING guide present
+REPO-012,core/repo.yaml,S1,any_file,LOW,compliance,full,all,{'not':{'fact':'maturity:prototype'}},REPO-012.yaml,true,true,CII-Best-Practices,Code of conduct present
+REPO-013,core/repo.yaml,S1,file_exists,LOW,style,full,all,,REPO-013.yaml,true,true,,.editorconfig present
+REPO-014,core/repo.yaml,S1,any_file,MEDIUM,operations,full,all,"{'fact':'metric:contributors','op':'gt','value':2}",REPO-014.yaml,true,true,OpenSSF-Scorecard:Code-Review,CODEOWNERS assigns review responsibility
+REPO-015,core/repo.yaml,S1,manual,LOW,maintainability,manual,all,,,,,,Commit history is meaningful
+REPO-016,core/repo.yaml,S1,manual,LOW,maintainability,manual,all,"{'fact':'metric:branches','op':'gt','value':3}",,,,,Branch strategy is defined and stale branches pruned
+REPO-017,core/repo.yaml,S1,any_file,MEDIUM,maintainability,full,all,,REPO-017.yaml,true,true,,Concern separation at the root
+REPO-018,core/repo.yaml,S1,any_file,LOW,documentation,full,all,,REPO-018.yaml,true,true,Agent-Skills,Agent instruction file present (AGENTS.md / CLAUDE.md)
+SEC-001,core/security.yaml,S2,grep_absent,CRITICAL,security,full,all,,SEC-001.yaml,true,true,CWE-798 ASVS-13.3.1 OWASP-A02:2021,No hardcoded credentials in source
+SEC-002,core/security.yaml,S2,grep_wrong,HIGH,security,full,all,,SEC-002.yaml,true,true,CWE-532 ASVS-7.1.1 OWASP-A09:2021,Sensitive data is not written to logs
+SEC-003,core/security.yaml,S2,grep_absent,HIGH,security,full,all,"{'any':[{'fact':'platform:server'},{'fact':'platform:web'},{'fact':'has:containers'}]}",SEC-003.yaml,true,true,CWE-319 ASVS-9.1.1,No plaintext HTTP endpoints in configuration
+SEC-004,core/security.yaml,S2,grep_absent,HIGH,security,full,all,,SEC-004.yaml,true,true,CWE-295 ASVS-9.2.3,TLS verification is not disabled
+SEC-005,core/security.yaml,S2,grep_wrong,CRITICAL,security,full,all,{'fact':'has:database'},SEC-005.yaml,true,true,CWE-89 ASVS-1.2.4 OWASP-A03:2021,SQL is not built by string concatenation
+SEC-006,core/security.yaml,S2,grep_wrong,HIGH,security,full,all,,SEC-006.yaml,true,true,CWE-95 ASVS-5.2.4,No unsafe dynamic code execution
+SEC-007,core/security.yaml,S2,grep_wrong,CRITICAL,security,full,all,,SEC-007.yaml,true,true,CWE-78 ASVS-1.2.5,Shell commands are not built from user input
+SEC-008,core/security.yaml,S2,grep_present,HIGH,security,full,all,,SEC-008.yaml,true,true,CWE-20 ASVS-5.1.1 OWASP-A03:2021,User input is validated at a trust boundary
+SEC-009,core/security.yaml,S2,grep_absent,HIGH,security,full,all,"{'any':[{'fact':'platform:web'},{'fact':'fw:react'},{'fact':'fw:vue'},{'fact':'fw:svelte'},{'fact':'fw:next'}]}",SEC-009.yaml,true,true,CWE-79 ASVS-5.3.1 OWASP-A03:2021,Output is encoded rather than interpolated as HTML
+SEC-010,core/security.yaml,S2,grep_wrong,HIGH,security,full,all,,SEC-010.yaml,true,true,CWE-22 ASVS-13.4.7,Path traversal is prevented on filesystem access
+SEC-011,core/security.yaml,S2,grep_absent,CRITICAL,security,full,all,{'fact':'has:crypto'},SEC-011.yaml,true,true,CWE-916 ASVS-2.4.1 OWASP-Password-Storage-Cheat-Sheet,Passwords use a modern adaptive hash
+SEC-012,core/security.yaml,S2,grep_present,MEDIUM,security,full,all,"{'any':[{'fact':'auth:jwt'},{'fact':'auth:session'}]}",SEC-012.yaml,true,true,ASVS-3.3.1 ASVS-3.3.4,Tokens and sessions expire
+SEC-013,core/security.yaml,S2,grep_absent,HIGH,security,full,all,{'fact':'auth:jwt'},SEC-013.yaml,true,true,CWE-347 ASVS-3.2.3,JWTs are not accepted with alg:none or unverified
+SEC-014,core/security.yaml,S2,grep_present,HIGH,security,full,all,"{'any':[{'fact':'auth:jwt'},{'fact':'auth:session'},{'fact':'auth:oauth'},{'fact':'auth:apikey'}]}",SEC-014.yaml,true,true,CWE-307 ASVS-2.2.1,Failed authentication is rate limited
+SEC-015,core/security.yaml,S2,manual,HIGH,security,manual,all,"{'any':[{'fact':'auth:jwt'},{'fact':'auth:session'},{'fact':'auth:oauth'},{'fact':'has:database'}]}",,,,CWE-639 ASVS-4.2.1 OWASP-A01:2021,"Authorization is enforced per request, not per route"
+SEC-016,core/security.yaml,S2,manual,HIGH,security,manual,all,{'fact':'maturity:production'},,,,ASVS-14.3.3 NIST-SSDF-PO.3,Secrets come from a manager in production
+SEC-017,core/security.yaml,S2,grep_absent,HIGH,security,full,all,"{'any':[{'fact':'project:api'},{'fact':'platform:server'}]}",SEC-017.yaml,true,true,CWE-942 ASVS-3.4.2,CORS is not a wildcard
+SEC-018,core/security.yaml,S2,grep_present,MEDIUM,security,full,all,"{'any':[{'fact':'platform:web'},{'fact':'platform:server'}]}",SEC-018.yaml,true,true,ASVS-3.4.3 OWASP-Secure-Headers,Security headers are set
+SEC-019,core/security.yaml,S2,manual,MEDIUM,security,manual,all,{'fact':'auth:session'},,,,CWE-352 ASVS-4.2.2,CSRF protection for cookie-based sessions
+SEC-020,core/security.yaml,S2,grep_wrong,MEDIUM,security,full,all,{'fact':'platform:server'},SEC-020.yaml,true,true,CWE-209 ASVS-7.4.1,Errors do not leak internals to clients
+SEC-021,core/security.yaml,S2,grep_wrong,MEDIUM,security,full,all,,SEC-021.yaml,true,true,CWE-338 ASVS-6.3.1,Cryptographic randomness for tokens and IDs
+SEC-022,core/security.yaml,S2,manual,HIGH,security,manual,all,{'fact':'has:file-upload'},,,,CWE-434 ASVS-5.3.1,"Uploads are validated for type, size, and content"
+SEC-023,core/security.yaml,S2,manual,HIGH,compliance,manual,all,{'fact':'has:pii'},,,,GDPR-Art.32 ASVS-8.1.1 CWE-311,PII is identified and protected at rest
+SEC-024,core/security.yaml,S2,manual,MEDIUM,compliance,manual,all,"{'any':[{'fact':'has:pii'},{'fact':'auth:jwt'}]}",,,,CWE-532 GDPR-Art.5,Secrets and PII are redacted in logs and telemetry
+SEC-025,core/security.yaml,S2,grep_present,HIGH,security,full,all,"{'any':[{'fact':'auth:jwt'},{'fact':'auth:session'},{'fact':'auth:oauth'},{'fact':'auth:apikey'}]}",SEC-025.yaml,true,true,CWE-916 ASVS-2.4.1 OWASP-Password-Storage-Cheat-Sheet,Adaptive password hashing is present where auth exists
+INV-SEC-001,core/security.yaml,S2,invariant,HIGH,security,full,all,,,,,CWE-319 ASVS-9.1.1,Encrypted transport is backed by security headers
+INV-SEC-002,core/security.yaml,S2,invariant,HIGH,security,full,all,,,,,CWE-307,Verified expiring tokens are brute-force guarded
+INV-SEC-003,core/security.yaml,S2,invariant,HIGH,security,full,all,,,,,CWE-116 ASVS-5.3.1,Validated input is also encoded on output
+SUP-001,core/supply-chain.yaml,S3,any_file,HIGH,supply-chain,full,all,,SUP-001.yaml,true,true,SLSA-Source OpenSSF-Scorecard:Pinned-Dependencies NIST-SSDF-PS.3.2,A lockfile is committed
+SUP-002,core/supply-chain.yaml,S3,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:ci'},SUP-002.yaml,true,true,NIST-SSDF-PS.3.2 SLSA-Build-L1,CI installs with a frozen lockfile
+SUP-003,core/supply-chain.yaml,S3,grep_absent,MEDIUM,supply-chain,full,all,,SUP-003.yaml,true,true,OpenSSF-Scorecard:Pinned-Dependencies NIST-SSDF-PS.3.2,"Dependency versions are pinned, not floating"
+SUP-004,core/supply-chain.yaml,S3,any_file,MEDIUM,supply-chain,full,all,,SUP-004.yaml,true,true,OpenSSF-Scorecard:Dependency-Update-Tool NIST-SSDF-PW.4,Automated dependency updates are configured
+SUP-005,core/supply-chain.yaml,S3,grep_present,HIGH,supply-chain,full,all,{'fact':'has:ci'},SUP-005.yaml,true,true,OpenSSF-Scorecard:Vulnerabilities NIST-SSDF-RV.1.1 SLSA,Dependency vulnerability scanning runs in CI
+SUP-006,core/supply-chain.yaml,S3,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:ci'},SUP-006.yaml,true,true,OpenSSF-Scorecard:SAST NIST-SSDF-RV.1.1,SAST runs in CI
+SUP-007,core/supply-chain.yaml,S3,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:ci'},SUP-007.yaml,true,true,OpenSSF-Scorecard:Binary-Artifacts NIST-SSDF-PO.3,Secret scanning runs in CI
+SUP-008,core/supply-chain.yaml,S3,grep_absent,HIGH,supply-chain,full,all,{'fact':'ci:github-actions'},SUP-008.yaml,true,true,OpenSSF-Scorecard:Dangerous-Workflow CWE-94,CI workflows avoid script-injection patterns
+SUP-009,core/supply-chain.yaml,S3,grep_present,MEDIUM,supply-chain,full,all,{'fact':'ci:github-actions'},SUP-009.yaml,true,true,OpenSSF-Scorecard:Token-Permissions SLSA-Build-L2,Workflows declare least-privilege token permissions
+SUP-010,core/supply-chain.yaml,S3,grep_absent,MEDIUM,supply-chain,full,all,{'fact':'ci:github-actions'},SUP-010.yaml,true,true,OpenSSF-Scorecard:Pinned-Dependencies,Third-party actions are pinned to a commit SHA
+SUP-011,core/supply-chain.yaml,S3,grep_absent,CRITICAL,supply-chain,full,all,{'fact':'has:ci'},SUP-011.yaml,true,true,CWE-798 OpenSSF-Scorecard:Dangerous-Workflow,No secrets in CI configuration
+SUP-012,core/supply-chain.yaml,S3,manual,HIGH,supply-chain,manual,all,{'not':{'fact':'maturity:prototype'}},,,,OpenSSF-Scorecard:Branch-Protection SLSA-Source-L2 NIST-SSDF-PO.2,Default branch is protected
+SUP-013,core/supply-chain.yaml,S3,grep_present,LOW,supply-chain,full,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",SUP-013.yaml,true,true,SLSA-Build-L2 OpenSSF-Scorecard:Signed-Releases,Commits are signed or attested
+SUP-014,core/supply-chain.yaml,S3,grep_present,LOW,supply-chain,full,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",SUP-014.yaml,true,true,SLSA NIST-SSDF-PS.3.2 EU-CRA-Annex-I,An SBOM is generated for releases
+SUP-015,core/supply-chain.yaml,S3,manual,FUTURE,supply-chain,manual,all,{'fact':'maturity:production'},,,,SLSA-Build-L2 SLSA-v1.2,Release artifacts carry provenance attestation
+SUP-016,core/supply-chain.yaml,S3,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:containers'},SUP-016.yaml,true,true,SLSA-Build-L2 NIST-SSDF-RV.1.1,Container images are scanned before publish
+SUP-017,core/supply-chain.yaml,S3,manual,FUTURE,supply-chain,manual,deep,,,,,SLSA-Build-L3 Reproducible-Builds,Build pipeline is reproducible from source
+FND-001,core/foundation.yaml,S3,any_file,MEDIUM,documentation,full,all,,FND-001.yaml,true,true,CII-Best-Practices,A README exists at the top level
+FND-002,core/foundation.yaml,S3,count_min,MEDIUM,compliance,full,all,,FND-002.yaml,true,true,OpenSSF-Scorecard:License OpenSSF-Scorecard:Security-Policy SPDX,"License, contribution, and security docs are present"
+FND-003,core/foundation.yaml,S3,any_file,MEDIUM,compliance,full,all,,FND-003.yaml,true,true,OpenSSF-Scorecard:Code-Review,A CODEOWNERS file assigns review ownership
+FND-004,core/foundation.yaml,S3,grep_present,MEDIUM,compliance,full,all,,FND-004.yaml,true,true,OpenSSF-Scorecard:Branch-Protection SLSA-Source,Branch-protection evidence lives in .github
+FND-005,core/foundation.yaml,S3,any_file,LOW,documentation,full,all,,FND-005.yaml,true,true,ADR-Nygard,Architecture decisions are recorded as ADRs
+FND-006,core/foundation.yaml,S3,any_file,MEDIUM,documentation,full,all,,FND-006.yaml,true,true,Agent-Skills Docs-as-Code,Agent instructions (AGENTS.md or llms.txt) exist
+FND-007,core/foundation.yaml,S3,grep_present,LOW,documentation,full,all,,FND-007.yaml,true,true,Agent-Skills Docs-as-Code,Docs carry machine-readable markers
+FND-008,core/foundation.yaml,S3,any_file,MEDIUM,correctness,full,all,,FND-008.yaml,true,true,OpenSSF-Scorecard:CI-Tests NIST-SSDF-RV.1.1,A test directory exists
+FND-009,core/foundation.yaml,S3,any_of,LOW,correctness,full,all,,FND-009.yaml,true,true,NIST-SSDF-RV.1.1,A coverage configuration exists
+FND-010,core/foundation.yaml,S3,any_file,MEDIUM,operations,full,all,,FND-010.yaml,true,true,NIST-SSDF-PS.3.2 Reproducible-Builds,The runtime version is pinned
+FND-011,core/foundation.yaml,S3,count_min,MEDIUM,operations,full,all,,FND-011.yaml,true,true,12-Factor:Config 12-Factor:Dev-Prod-Parity,The environment is reproducible from checked-in files
+FND-012,core/foundation.yaml,S3,any_file,MEDIUM,operations,full,all,,FND-012.yaml,true,true,OpenSSF-Scorecard:CI-Tests DORA,A CI workflow exists
+FND-013,core/foundation.yaml,S3,any_file,LOW,operations,full,all,,FND-013.yaml,true,true,DORA,A local task runner captures common workflows
+FND-014,core/foundation.yaml,S3,any_file,MEDIUM,compliance,full,all,"{'any':[{'fact':'intent:api'},{'fact':'intent:service'}]}",FND-014.yaml,true,true,OpenAPI,A machine-readable API contract is checked in
+SUP-018,core/provenance-cosign.yaml,S3,command,HIGH,supply-chain,assist,all,{'fact':'maturity:production'},SUP-018.yaml,true,false,SLSA-v1.2 SLSA-Build-L2 OpenSSF-Scorecard:Signed-Releases,Release blob signatures verify with cosign (chain verification)
+SUP-019,core/provenance-cosign.yaml,S3,command,MEDIUM,supply-chain,assist,all,{'fact':'maturity:production'},SUP-019.yaml,true,false,SLSA-v1.2 SLSA-Build-L2 OpenSSF-Scorecard:Signed-Releases,SLSA attestation bundles verify with cosign (chain verification)
+SUP-020,core/provenance-cosign.yaml,S3,command,MEDIUM,supply-chain,assist,all,{'fact':'maturity:production'},SUP-020.yaml,true,false,SLSA-Build-L2 SLSA-v1.2 OpenSSF-Scorecard:Signed-Releases,Every release artifact ships a Sigstore bundle (chain completeness)
+SUP-022,core/provenance-attestation.yaml,S3,any_file,HIGH,supply-chain,full,all,,SUP-022.yaml,true,true,SLSA-Provenance-v1 SLSA-Build-L2 NIST-SSDF-PS.3.2,SLSA provenance attestation file present
+SUP-023,core/provenance-attestation.yaml,S3,any_file,MEDIUM,supply-chain,full,all,,SUP-023.yaml,true,true,SLSA-VSA SLSA-v1.2,Verification Summary Attestation present
+SUP-024,core/provenance-attestation.yaml,S3,file_exists,MEDIUM,supply-chain,full,all,,SUP-024.yaml,true,true,Sigstore SLSA-Build-L2,Detached signature or transparency bundle present
+ARCH-001,core/architecture.yaml,S4,any_file,MEDIUM,documentation,full,all,{'not':{'fact':'maturity:prototype'}},ARCH-001.yaml,true,true,arc42 C4-Model,Architecture is documented
+ARCH-002,core/architecture.yaml,S4,any_file,LOW,documentation,full,all,{'not':{'fact':'maturity:prototype'}},ARCH-002.yaml,true,true,ADR-Nygard,Architecture decisions are recorded (ADRs)
+ARCH-003,core/architecture.yaml,S4,file_lines_max,MEDIUM,maintainability,full,all,,ARCH-003.yaml,false,true,Anti-pattern:God-Object ISO-5055,No god files
+ARCH-004,core/architecture.yaml,S4,manual,MEDIUM,maintainability,manual,all,"{'any':[{'fact':'platform:server'},{'fact':'project:api'},{'fact':'has:database'}]}",,,,Clean-Architecture Hexagonal-Architecture,Layers are separated (transport / domain / data)
+ARCH-005,core/architecture.yaml,S4,command,HIGH,maintainability,assist,deep,,ARCH-005.yaml,true,false,Anti-pattern:Circular-Dependency,No circular dependencies between modules
+ARCH-006,core/architecture.yaml,S4,grep_present,LOW,maintainability,full,all,{'fact':'project:monorepo'},ARCH-006.yaml,true,true,Nx dependency-cruiser,Module boundaries are enforced by tooling
+ARCH-007,core/architecture.yaml,S4,grep_absent,MEDIUM,operations,full,all,,ARCH-007.yaml,true,true,12-Factor:Config,Configuration is externalised
+ARCH-008,core/architecture.yaml,S4,manual,LOW,maintainability,manual,all,,,,,Functional-Core-Imperative-Shell,Side effects are isolated and testable
+ARCH-009,core/architecture.yaml,S4,manual,MEDIUM,operations,manual,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",,,,AWS-Well-Architected:Reliability,Single points of failure are identified
+ARCH-010,core/architecture.yaml,S4,grep_present,LOW,performance,full,all,{'fact':'platform:server'},ARCH-010.yaml,true,true,12-Factor:Processes,Async work is offloaded to a queue
+CQ-001,core/code-quality.yaml,S5,any_file,MEDIUM,maintainability,full,all,,CQ-001.yaml,true,true,NIST-SSDF-PW.7,A linter is configured
+CQ-002,core/code-quality.yaml,S5,any_file,LOW,style,full,all,,CQ-002.yaml,true,true,NIST-SSDF-PW.7,A formatter is configured
+CQ-003,core/code-quality.yaml,S5,grep_present,MEDIUM,correctness,full,all,"{'any':[{'fact':'lang:typescript'},{'fact':'lang:python'}]}",CQ-003.yaml,true,true,ISO-5055,Type checking is enabled and strict
+CQ-004,core/code-quality.yaml,S5,grep_absent,LOW,maintainability,full,all,{'fact':'lang:typescript'},CQ-004.yaml,true,true,ISO-5055,Type escapes are not used as a default
+CQ-005,core/code-quality.yaml,S5,grep_absent,HIGH,correctness,full,all,,CQ-005.yaml,true,true,CWE-390 ASVS-7.4.1,"Errors are handled, not swallowed"
+CQ-006,core/code-quality.yaml,S5,grep_present,MEDIUM,correctness,full,all,"{'any':[{'fact':'platform:server'},{'fact':'platform:web'}]}",CQ-006.yaml,true,true,ASVS-7.4.1,There is a central error handler
+CQ-007,core/code-quality.yaml,S5,manual,LOW,operations,manual,all,"{'any':[{'fact':'platform:server'},{'fact':'project:cli'}]}",,,,OpenTelemetry-Logs ASVS-7.1.1,Logging is structured and levelled
+CQ-008,core/code-quality.yaml,S5,grep_present,LOW,operations,full,all,{'fact':'platform:server'},CQ-008.yaml,true,true,OpenTelemetry W3C-Trace-Context,Requests carry a correlation/trace ID
+CQ-009,core/code-quality.yaml,S5,grep_absent,LOW,style,full,all,{'not':{'fact':'project:cli'}},CQ-009.yaml,true,true,CWE-532,Debug statements are not left in production paths
+CQ-010,core/code-quality.yaml,S5,grep_wrong,LOW,maintainability,full,all,,CQ-010.yaml,true,true,,"TODO/FIXME debt is tracked, not just annotated"
+CQ-011,core/code-quality.yaml,S5,manual,LOW,maintainability,manual,deep,,,,,Clean-Code ISO-5055,Functions do one thing
+CQ-012,core/code-quality.yaml,S5,manual,MEDIUM,maintainability,manual,deep,,,,,ISO-5055 Anti-pattern:Shotgun-Surgery,Duplicated logic has been consolidated
+CQ-013,core/code-quality.yaml,S5,grep_present,FUTURE,maintainability,full,deep,,CQ-013.yaml,true,true,ISO-5055,Complexity is measured
+TEST-001,core/testing.yaml,S7,any_file,HIGH,correctness,full,all,,TEST-001.yaml,true,true,OpenSSF-Scorecard:CI-Tests NIST-SSDF-RV.1.1,A test suite exists
+TEST-002,core/testing.yaml,S7,grep_present,HIGH,operations,full,all,{'fact':'has:ci'},TEST-002.yaml,true,true,OpenSSF-Scorecard:CI-Tests NIST-SSDF-PW.7,Tests run in CI on every pull request
+TEST-003,core/testing.yaml,S7,count_min,MEDIUM,correctness,full,all,{'fact':'has:tests'},TEST-003.yaml,false,true,OpenSSF-Scorecard:CI-Tests,There is a meaningful number of tests
+TEST-004,core/testing.yaml,S7,grep_present,MEDIUM,correctness,full,all,{'fact':'has:tests'},TEST-004.yaml,true,true,NIST-SSDF-RV.1.1,Coverage is measured
+TEST-005,core/testing.yaml,S7,grep_present,LOW,correctness,full,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",TEST-005.yaml,true,true,NIST-SSDF-RV.1.1,Coverage thresholds are enforced
+TEST-006,core/testing.yaml,S7,manual,MEDIUM,correctness,manual,all,"{'any':[{'fact':'has:database'},{'fact':'platform:server'},{'fact':'project:api'}]}",,,,Testing-Trophy,Integration tests cover the seams
+TEST-007,core/testing.yaml,S7,any_file,MEDIUM,correctness,full,all,"{'any':[{'fact':'platform:web'},{'fact':'platform:mobile'},{'fact':'maturity:production'}]}",TEST-007.yaml,true,true,Testing-Trophy,End-to-end tests cover critical user journeys
+TEST-008,core/testing.yaml,S7,manual,MEDIUM,security,manual,all,"{'any':[{'fact':'auth:jwt'},{'fact':'auth:session'},{'fact':'auth:oauth'},{'fact':'has:database'}]}",,,,ASVS-4.2.1 OWASP-A01:2021,Security-relevant behaviour is tested
+TEST-009,core/testing.yaml,S7,manual,MEDIUM,correctness,manual,all,{'fact':'has:tests'},,,,Google-Testing-Blog:Flaky,Tests are independent and deterministic
+TEST-010,core/testing.yaml,S7,manual,FUTURE,performance,manual,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",,,,ISO-25010,Performance/load tests exist for critical paths
+TEST-011,core/testing.yaml,S7,manual,FUTURE,correctness,manual,deep,,,,,Mutation-Testing,Mutation testing or equivalent
+TEST-012,core/testing.yaml,S7,grep_present,LOW,maintainability,full,all,{'fact':'has:tests'},TEST-012.yaml,true,true,Testing-Patterns,Test data comes from fixtures or factories
+TAS-001,core/testing-assurance.yaml,S7,any_file,MEDIUM,correctness,full,all,,TAS-001.yaml,true,true,Testing-Trophy OpenSSF-Scorecard:CI-Tests,A unit-test layout exists
+TAS-002,core/testing-assurance.yaml,S7,any_file,MEDIUM,correctness,full,all,,TAS-002.yaml,true,true,Testing-Trophy,An integration-test layout exists
+TAS-003,core/testing-assurance.yaml,S7,any_file,MEDIUM,correctness,full,all,,TAS-003.yaml,true,true,Testing-Trophy,A system/end-to-end test layout exists
+TAS-004,core/testing-assurance.yaml,S7,any_file,LOW,correctness,full,all,,TAS-004.yaml,true,true,OpenAPI Testing-Trophy,Contract tests are present
+TAS-005,core/testing-assurance.yaml,S7,any_file,LOW,correctness,full,all,,TAS-005.yaml,true,true,NIST-SSDF-RV.1.1,Coverage configuration or output is present
+TAS-006,core/testing-assurance.yaml,S7,json_path,LOW,correctness,full,all,,TAS-006.yaml,true,true,NIST-SSDF-RV.1.1,A coverage threshold is pinned in the package.json-embedded jest config
+TAS-007,core/testing-assurance.yaml,S7,any_file,FUTURE,correctness,full,all,,TAS-007.yaml,true,true,Mutation-Testing,Mutation-testing evidence is present
+TAS-008,core/testing-assurance.yaml,S7,grep_present,LOW,correctness,full,all,,TAS-008.yaml,true,true,Google-Testing-Blog:Flaky,A determinism guard is set in test config or CI
+TAS-009,core/testing-assurance.yaml,S7,grep_present,LOW,operations,full,all,,TAS-009.yaml,true,true,Google-Testing-Blog:Flaky,A test retry budget is declared
+TAS-010,core/testing-assurance.yaml,S7,grep_present,MEDIUM,correctness,full,all,,TAS-010.yaml,true,true,Testing-Patterns,Tests assert failure paths
+TAS-011,core/testing-assurance.yaml,S7,any_file,LOW,maintainability,full,all,,TAS-011.yaml,true,true,Testing-Patterns 12-Factor:Config,Test-data and environment isolation markers exist
+CICD-001,core/cicd.yaml,S8,any_file,HIGH,operations,full,all,,CICD-001.yaml,true,true,OpenSSF-Scorecard:CI-Tests DORA,A CI pipeline exists
+CICD-002,core/cicd.yaml,S8,manual,MEDIUM,operations,manual,all,{'fact':'has:ci'},,,,OpenSSF-Scorecard:CI-Tests DORA,"CI runs lint, test, and build"
+CICD-003,core/cicd.yaml,S8,manual,HIGH,operations,manual,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",,,,DORA:Deployment-Frequency NIST-SSDF-PO.5,Deployment is automated
+CICD-004,core/cicd.yaml,S8,manual,HIGH,operations,manual,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",,,,DORA:Time-to-Restore NIST-SSDF-RV.3,A rollback path exists and has been exercised
+CICD-005,core/cicd.yaml,S8,manual,MEDIUM,operations,manual,all,{'not':{'fact':'maturity:prototype'}},,,,NIST-SSDF-PO.5,Separate environments exist
+CICD-006,core/cicd.yaml,S8,any_file,MEDIUM,operations,full,all,{'not':{'fact':'maturity:prototype'}},CICD-006.yaml,true,true,NIST-SSDF-PO.5,Infrastructure is defined as code
+CICD-007,core/cicd.yaml,S8,grep_present,MEDIUM,operations,full,all,{'fact':'platform:server'},CICD-007.yaml,true,true,K8s-Probes OpenSSF-Scorecard,Health check endpoints exist
+CICD-008,core/cicd.yaml,S8,grep_present,MEDIUM,operations,full,all,{'not':{'fact':'maturity:prototype'}},CICD-008.yaml,true,true,DORA:Monitoring OpenTelemetry,Error tracking / APM is configured
+CICD-009,core/cicd.yaml,S8,manual,MEDIUM,operations,manual,all,{'fact':'maturity:production'},,,,Google-SRE:Monitoring DORA,Alerting is configured for critical failures
+CICD-010,core/cicd.yaml,S8,manual,HIGH,operations,manual,all,"{'any':[{'fact':'has:database'},{'fact':'maturity:production'}]}",,,,NIST-SSDF-RV.3 CIS-Control-11,Backups exist AND restores have been tested
+CICD-011,core/cicd.yaml,S8,manual,MEDIUM,operations,manual,all,{'fact':'maturity:production'},,,,NIST-SSDF-RV.3 AWS-Well-Architected:Reliability,A disaster recovery plan exists
+CICD-012,core/cicd.yaml,S8,manual,LOW,operations,manual,all,{'fact':'maturity:production'},,,,Google-SRE:Golden-Signals,Observability covers the golden signals
+REL-001,core/release.yaml,S9,manual,MEDIUM,maintainability,manual,all,{'not':{'fact':'maturity:prototype'}},,,,SemVer OpenSSF-Scorecard:Signed-Releases,Versioning is semantic and consistent
+REL-002,core/release.yaml,S9,manual,MEDIUM,operations,manual,all,{'not':{'fact':'maturity:prototype'}},,,,SLSA-Source OpenSSF-Scorecard:Signed-Releases,Releases are tagged in version control
+REL-003,core/release.yaml,S9,grep_present,LOW,documentation,full,all,{'not':{'fact':'maturity:prototype'}},REL-003.yaml,true,true,Keep-a-Changelog,Release notes are published
+REL-004,core/release.yaml,S9,grep_present,LOW,operations,full,all,"{'any':[{'fact':'maturity:production'},{'fact':'maturity:beta'}]}",REL-004.yaml,true,true,DORA Progressive-Delivery,Risky changes sit behind a feature flag
+REL-005,core/release.yaml,S9,manual,HIGH,correctness,manual,all,{'fact':'has:database'},,,,NIST-SSDF-PO.5,Database migrations run forward and are reversible
+REL-006,core/release.yaml,S9,manual,MEDIUM,correctness,manual,all,{'fact':'has:database'},,,,Expand-Contract,Migrations are separated from application deploys
+REL-007,core/release.yaml,S9,any_file,MEDIUM,operations,full,all,{'fact':'maturity:production'},REL-007.yaml,true,true,NIST-SSDF-RV.2 Google-SRE,There is a documented incident/runbook path
+DEP-001,core/dependencies.yaml,S10,any_file,MEDIUM,supply-chain,full,all,,DEP-001.yaml,true,true,NIST-SSDF-PS.3.2,Dependencies are declared in a manifest
+DEP-002,core/dependencies.yaml,S10,command,HIGH,supply-chain,assist,all,,DEP-002.yaml,true,false,OpenSSF-Scorecard:Vulnerabilities NIST-SSDF-RV.1.1,No known-HIGH/CRITICAL vulnerabilities in dependencies
+DEP-003,core/dependencies.yaml,S10,manual,MEDIUM,supply-chain,manual,deep,,,,,OpenSSF-Scorecard:Maintained OpenSSF-Criticality-Score,Dependencies are actively maintained
+DEP-004,core/dependencies.yaml,S10,manual,LOW,maintainability,manual,all,,,,,OpenSSF-Scorecard,No obviously redundant dependencies
+DEP-005,core/dependencies.yaml,S10,command,LOW,maintainability,assist,all,{'fact':'pm:npm'},DEP-005.yaml,true,false,NIST-SSDF-PS.3.2,Unused dependencies are pruned
+DEP-006,core/dependencies.yaml,S10,manual,MEDIUM,compliance,manual,all,,,,,SPDX OpenSSF-Scorecard:License EU-CRA,Licenses are compatible with the project license
+DEP-007,core/dependencies.yaml,S10,manual,MEDIUM,operations,manual,all,{'not':{'fact':'maturity:prototype'}},,,,NIST-SSDF-PW.4 Release-It,External services have documented failure modes
+DEP-008,core/dependencies.yaml,S10,manual,HIGH,security,manual,all,{'fact':'has:payments'},,,,CWE-345 ASVS-13.2.2,Webhook payloads are signature-verified
+DOC-001,core/documentation.yaml,S12,manual,MEDIUM,documentation,manual,all,{'fact':'doc:readme'},,,,CII-Best-Practices,README covers what / install / run / contribute
+DOC-002,core/documentation.yaml,S12,manual,MEDIUM,documentation,manual,all,,,,,CII-Best-Practices,Setup instructions have been verified recently
+DOC-003,core/documentation.yaml,S12,any_file,MEDIUM,documentation,full,all,"{'any':[{'fact':'project:library'},{'fact':'project:api'},{'fact':'doc:api-reference'}]}",DOC-003.yaml,true,true,OpenAPI OpenSSF-Scorecard,Public APIs are documented
+DOC-004,core/documentation.yaml,S12,manual,LOW,documentation,manual,all,,,,,Clean-Code,Complex logic is explained at the point of use
+DOC-005,core/documentation.yaml,S12,any_file,LOW,documentation,full,all,,DOC-005.yaml,true,true,Docs-as-Code,Docs live in the repo with the code
+DOC-006,core/documentation.yaml,S12,any_file,LOW,documentation,full,all,"{'fact':'metric:contributors','op':'gt','value':2}",DOC-006.yaml,true,true,CII-Best-Practices,An onboarding path exists
+DOC-007,core/documentation.yaml,S12,manual,FUTURE,documentation,manual,all,{'fact':'project:library'},,,,Docs-as-Code,Documentation examples are tested
+FUT-001,core/future-readiness.yaml,S16,manual,FUTURE,maintainability,manual,all,{'fact':'maturity:production'},,,,Team-Topologies,A path off the current architecture exists
+FUT-002,core/future-readiness.yaml,S16,manual,FUTURE,maintainability,manual,all,,,,,endoflife.date,No core technology is at or near end of life
+FUT-003,core/future-readiness.yaml,S16,manual,FUTURE,operations,manual,all,{'fact':'has:database'},,,,AWS-Well-Architected,Data archiving strategy exists
+FUT-004,core/future-readiness.yaml,S16,manual,FUTURE,operations,manual,all,{'fact':'maturity:production'},,,,AWS-Well-Architected:Reliability,Multi-region or failover is at least designed
+FUT-005,core/future-readiness.yaml,S16,manual,FUTURE,maintainability,manual,all,"{'fact':'metric:contributors','op':'gt','value':4}",,,,Thoughtworks-Tech-Radar,A tech radar or equivalent exists
+FUT-006,core/future-readiness.yaml,S16,manual,FUTURE,operations,manual,all,"{'any':[{'fact':'has:serverless'},{'fact':'has:kubernetes'},{'fact':'has:terraform'},{'fact':'ai:llm-sdk'}]}",,,,FinOps AWS-Well-Architected:Cost,Cost/usage is monitored
+NODE-001,stacks/node-typescript.yaml,S15,grep_present,MEDIUM,operations,full,all,,NODE-001.yaml,true,true,Node-Release-Schedule,Node runtime version is pinned
+NODE-002,stacks/node-typescript.yaml,S15,grep_present,MEDIUM,correctness,full,all,{'fact':'lang:typescript'},NODE-002.yaml,true,true,TS-Handbook,TypeScript strict mode is on
+NODE-003,stacks/node-typescript.yaml,S15,grep_present,MEDIUM,correctness,full,all,{'fact':'platform:server'},NODE-003.yaml,true,true,CWE-248 Node-Docs,Unhandled promise rejections are handled
+NODE-004,stacks/node-typescript.yaml,S15,grep_absent,CRITICAL,security,full,all,,NODE-004.yaml,true,true,,No private registry credentials committed
+NODE-005,stacks/node-typescript.yaml,S15,grep_deprecated,MEDIUM,maintainability,full,all,,NODE-005.yaml,true,true,Node-Deprecations,No deprecated Node APIs in use
+NODE-006,stacks/node-typescript.yaml,S15,grep_present,MEDIUM,correctness,full,all,{'fact':'platform:server'},NODE-006.yaml,true,true,12-Factor:Config,Environment variables are validated at startup
+NODE-007,stacks/node-typescript.yaml,S15,grep_present,LOW,performance,full,all,{'fact':'project:library'},NODE-007.yaml,true,true,Webpack-Tree-Shaking,Libraries declare sideEffects / exports for tree-shaking
+NODE-008,stacks/node-typescript.yaml,S15,manual,LOW,maintainability,manual,all,{'fact':'lang:typescript'},,,,Node-ESM,Module system is consistent
+NODE-009,stacks/node-typescript.yaml,S15,grep_present,LOW,operations,full,all,{'fact':'has:tests'},NODE-009.yaml,true,true,DORA,"A fast, isolated runtime is used for tests"
+PY-001,stacks/python.yaml,S15,any_file,MEDIUM,supply-chain,full,all,,PY-001.yaml,true,true,PEP-621 PyPA,Dependencies are declared in a modern manifest
+PY-002,stacks/python.yaml,S15,grep_present,MEDIUM,operations,full,all,,PY-002.yaml,true,true,endoflife.date/python,Python version is pinned
+PY-003,stacks/python.yaml,S15,grep_present,MEDIUM,supply-chain,full,all,,PY-003.yaml,true,true,OpenSSF-Scorecard:Pinned-Dependencies,Dependencies are pinned to exact versions
+PY-004,stacks/python.yaml,S15,grep_wrong,MEDIUM,correctness,full,all,,PY-004.yaml,true,true,PEP-8 CWE-396,No bare except clauses
+PY-005,stacks/python.yaml,S15,grep_wrong,MEDIUM,correctness,full,all,,PY-005.yaml,true,true,Python-Gotchas,No mutable default arguments
+PY-006,stacks/python.yaml,S15,grep_absent,CRITICAL,security,full,all,,PY-006.yaml,true,true,CWE-502 ASVS-1.5.2,No unsafe deserialisation
+PY-007,stacks/python.yaml,S15,grep_absent,HIGH,security,full,all,,PY-007.yaml,true,true,CWE-78,Subprocess calls do not use shell=True
+PY-008,stacks/python.yaml,S15,grep_absent,CRITICAL,security,full,all,,PY-008.yaml,true,true,CWE-489 ASVS-14.3.3,Debug mode is not enabled outside local development
+PY-009,stacks/python.yaml,S15,grep_present,LOW,maintainability,full,all,,PY-009.yaml,true,true,PEP-484,Type hints are used on public functions
+PY-010,stacks/python.yaml,S15,grep_present,MEDIUM,maintainability,full,all,,PY-010.yaml,true,true,PyPA,A linter/formatter is configured for Python
+GO-001,stacks/go.yaml,S15,grep_present,MEDIUM,operations,full,all,,GO-001.yaml,true,true,Go-Modules,go.mod declares the Go version
+GO-002,stacks/go.yaml,S15,manual,HIGH,correctness,manual,all,,,,,Go-Proverbs CWE-390,"Errors are checked, not discarded"
+GO-003,stacks/go.yaml,S15,grep_present,MEDIUM,correctness,full,all,,GO-003.yaml,true,true,Go-Context,Contexts are propagated
+GO-004,stacks/go.yaml,S15,grep_absent,MEDIUM,correctness,full,all,,GO-004.yaml,true,true,Go-Error-Handling,No panics in request paths
+GO-005,stacks/go.yaml,S15,grep_present,MEDIUM,maintainability,full,all,{'fact':'has:ci'},GO-005.yaml,true,true,Go-Vet,go vet / staticcheck / golangci-lint runs in CI
+GO-006,stacks/go.yaml,S15,manual,MEDIUM,correctness,manual,all,,,,,Go-Concurrency,Goroutine lifecycle is bounded
+GO-007,stacks/go.yaml,S15,grep_absent,CRITICAL,security,full,all,{'fact':'has:database'},GO-007.yaml,true,true,CWE-89 ASVS-1.2.4,SQL is parameterised
+GO-008,stacks/go.yaml,S15,grep_present,MEDIUM,performance,full,all,{'fact':'platform:server'},GO-008.yaml,true,true,CWE-400 Go-http-Server,HTTP servers set timeouts
+RS-001,stacks/rust.yaml,S15,grep_present,MEDIUM,maintainability,full,all,,RS-001.yaml,true,true,Rust-Editions,Cargo.toml declares edition and metadata
+RS-002,stacks/rust.yaml,S15,grep_wrong,MEDIUM,correctness,full,all,,RS-002.yaml,true,true,Rust-Error-Handling,No unwrap/expect in non-test code
+RS-003,stacks/rust.yaml,S15,grep_wrong,HIGH,security,full,all,,RS-003.yaml,true,true,Rust-Nomicon CWE-119,unsafe blocks are justified and minimal
+RS-004,stacks/rust.yaml,S15,grep_present,MEDIUM,maintainability,full,all,{'fact':'has:ci'},RS-004.yaml,true,true,Clippy,Clippy runs in CI
+RS-005,stacks/rust.yaml,S15,grep_wrong,MEDIUM,correctness,full,all,,RS-005.yaml,true,true,Rust-API-Guidelines,No todo!/unimplemented! in shipped paths
+RS-006,stacks/rust.yaml,S15,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:ci'},RS-006.yaml,true,true,RustSec SLSA,Dependency audit runs in CI (cargo-audit / deny)
+RS-007,stacks/rust.yaml,S15,grep_present,LOW,performance,full,all,{'fact':'project:cli'},RS-007.yaml,true,true,Cargo-Profiles,Release builds are optimised and stripped
+JVM-001,stacks/jvm.yaml,S15,grep_present,MEDIUM,supply-chain,full,all,,JVM-001.yaml,true,true,Maven-BOM Gradle-Version-Catalogs,Dependency versions are managed centrally
+JVM-002,stacks/jvm.yaml,S15,grep_absent,CRITICAL,security,full,all,,JVM-002.yaml,true,true,CWE-798 ASVS-14.3.2,No hardcoded credentials in configuration
+JVM-003,stacks/jvm.yaml,S15,grep_wrong,MEDIUM,correctness,full,all,,JVM-003.yaml,true,true,CWE-390 ASVS-7.4.1,Exception handling does not swallow stack traces
+JVM-004,stacks/jvm.yaml,S15,grep_absent,CRITICAL,security,full,all,{'fact':'has:database'},JVM-004.yaml,true,true,CWE-89 ASVS-1.2.4,Parameterised SQL / JPA criteria instead of concatenation
+JVM-005,stacks/jvm.yaml,S15,manual,LOW,correctness,manual,all,{'fact':'lang:kotlin'},,,,Kotlin-Null-Safety,Nullability is explicit
+JVM-006,stacks/jvm.yaml,S15,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:ci'},JVM-006.yaml,true,true,OpenSSF-Scorecard:SAST,Static analysis runs in CI
+JVM-007,stacks/jvm.yaml,S15,grep_absent,HIGH,security,full,all,,JVM-007.yaml,true,true,CWE-502 ASVS-1.5.2,Insecure deserialisation is avoided
+JVM-008,stacks/jvm.yaml,S15,grep_present,LOW,performance,full,all,{'fact':'has:containers'},JVM-008.yaml,true,true,JVM-Container-Support,JVM/container memory limits are respected
+WEB-001,stacks/web-frontend.yaml,S15,grep_present,MEDIUM,performance,full,all,,WEB-001.yaml,true,true,Web-Vitals,Core Web Vitals are measured
+WEB-002,stacks/web-frontend.yaml,S15,grep_present,MEDIUM,performance,full,all,,WEB-002.yaml,true,true,Web-Vitals:LCP,Code splitting / lazy loading is used
+WEB-003,stacks/web-frontend.yaml,S15,grep_present,MEDIUM,performance,full,all,,WEB-003.yaml,true,true,Web-Vitals:LCP Web-Vitals:CLS,Images are optimised
+WEB-004,stacks/web-frontend.yaml,S15,manual,MEDIUM,compliance,manual,all,,,,,WCAG-2.2-AA EN-301-549 ADA,Accessibility basics are in place
+WEB-005,stacks/web-frontend.yaml,S15,grep_present,LOW,performance,full,all,,WEB-005.yaml,true,true,Web-Vitals,Bundle size is monitored
+WEB-006,stacks/web-frontend.yaml,S15,grep_present,MEDIUM,correctness,full,all,"{'any':[{'fact':'fw:react'},{'fact':'fw:next'}]}",WEB-006.yaml,true,true,React-Error-Boundaries,Error boundaries exist around risky UI
+WEB-007,stacks/web-frontend.yaml,S15,grep_wrong,CRITICAL,security,full,all,,WEB-007.yaml,true,true,CWE-798 ASVS-14.3.2,No secrets in client-side bundles
+WEB-008,stacks/web-frontend.yaml,S15,manual,MEDIUM,compliance,manual,all,,,,,WCAG-3.3.1 WCAG-3.3.3,Forms validate and expose errors accessibly
+WEB-009,stacks/web-frontend.yaml,S15,manual,FUTURE,performance,manual,all,,,,,Web-Vitals,An offline/PWA story exists
+MOB-001,stacks/mobile.yaml,S15,grep_present,HIGH,operations,full,all,,MOB-001.yaml,true,true,DORA:Monitoring,Crash reporting is integrated
+MOB-002,stacks/mobile.yaml,S15,grep_absent,CRITICAL,security,full,all,,MOB-002.yaml,true,true,OWASP-MASVS-STORAGE-1 CWE-798,No hardcoded API secrets in app bundles
+MOB-003,stacks/mobile.yaml,S15,manual,HIGH,security,manual,all,,,,,OWASP-MASVS-STORAGE-2 CWE-311,Sensitive data is not stored insecurely on device
+MOB-004,stacks/mobile.yaml,S15,manual,MEDIUM,security,manual,all,,,,,OWASP-MASVS-NETWORK-1 CWE-319,Network security configuration is explicit
+MOB-005,stacks/mobile.yaml,S15,manual,MEDIUM,compliance,manual,all,,,,,OWASP-MASVS-PLATFORM-1 App-Store-Review,Permissions are requested minimally and with rationale
+MOB-006,stacks/mobile.yaml,S15,manual,MEDIUM,correctness,manual,all,,,,,OWASP-MASVS,Offline behaviour is handled
+MOB-007,stacks/mobile.yaml,S15,manual,HIGH,compliance,manual,all,"{'any':[{'fact':'platform:ios'},{'fact':'platform:android'}]}",,,,Apple-Privacy-Manifest Play-Data-Safety,Privacy manifests / data collection disclosure are present
+MOB-008,stacks/mobile.yaml,S15,manual,MEDIUM,correctness,manual,all,,,,,OWASP-MASVS,Tested on multiple screen sizes and OS versions
+CTNR-001,stacks/containers.yaml,S15,grep_present,HIGH,security,full,all,,CTNR-001.yaml,true,true,CWE-250 CIS-Docker-4.1,Container does not run as root
+CTNR-002,stacks/containers.yaml,S15,grep_present,MEDIUM,performance,full,all,,CTNR-002.yaml,true,true,Docker-Multi-Stage,Multi-stage builds are used
+CTNR-003,stacks/containers.yaml,S15,grep_absent,MEDIUM,supply-chain,full,all,,CTNR-003.yaml,true,true,OpenSSF-Scorecard:Pinned-Dependencies CIS-Docker-4.2,Base image is minimal and pinned
+CTNR-004,stacks/containers.yaml,S15,any_file,MEDIUM,supply-chain,full,all,,CTNR-004.yaml,true,true,CIS-Docker,A .dockerignore exists
+CTNR-005,stacks/containers.yaml,S15,grep_absent,CRITICAL,security,full,all,,CTNR-005.yaml,true,true,CWE-798 CIS-Docker-4.10,No secrets baked into the image
+CTNR-006,stacks/containers.yaml,S15,grep_present,MEDIUM,operations,full,all,,CTNR-006.yaml,true,true,K8s-Probes CIS-Docker-4.6,HEALTHCHECK is defined
+CTNR-007,stacks/containers.yaml,S15,grep_present,MEDIUM,performance,full,all,{'fact':'has:kubernetes'},CTNR-007.yaml,true,true,K8s-Resource-Management CIS-K8s,Kubernetes workloads declare resource limits
+CTNR-008,stacks/containers.yaml,S15,manual,MEDIUM,supply-chain,manual,all,{'fact':'maturity:production'},,,,SLSA-Build-L2 Sigstore-Cosign,Images are scanned and signed
+IAC-001,stacks/iac.yaml,S15,grep_wrong,CRITICAL,security,full,all,{'fact':'has:terraform'},IAC-001.yaml,true,true,CWE-284 CIS-AWS-2.1.5,No public exposure of storage buckets or databases
+IAC-002,stacks/iac.yaml,S15,grep_present,HIGH,security,full,all,{'fact':'has:terraform'},IAC-002.yaml,true,true,CIS-AWS-2.2.1 ASVS-8.1.1 GDPR-Art.32,Encryption at rest is enabled
+IAC-003,stacks/iac.yaml,S15,grep_present,MEDIUM,supply-chain,full,all,{'fact':'has:ci'},IAC-003.yaml,true,true,NIST-SSDF-PO.5 CIS,IaC is validated and scanned before apply
+IAC-004,stacks/iac.yaml,S15,grep_present,HIGH,operations,full,all,{'fact':'has:terraform'},IAC-004.yaml,true,true,Terraform-Backends,State is stored remotely and locked
+IAC-005,stacks/iac.yaml,S15,grep_absent,HIGH,security,full,all,{'fact':'has:terraform'},IAC-005.yaml,true,true,CIS-AWS-1.16 ASVS-4.1.1,IAM follows least privilege
+IAC-006,stacks/iac.yaml,S15,manual,LOW,operations,manual,all,{'fact':'has:terraform'},,,,FinOps AWS-Well-Architected:Cost,Cloud spend is tagged and budgeted
+IAC-007,stacks/iac.yaml,S15,grep_absent,HIGH,security,full,all,{'fact':'has:kubernetes'},IAC-007.yaml,true,true,CIS-K8s-5.2.1 NSA-K8s-Hardening,Kubernetes manifests avoid privileged containers
+SOLID-001,stacks/solidity.yaml,S15,manual,CRITICAL,security,manual,all,,,,,SWC-107 Consensys-Best-Practices,Contracts are protected against reentrancy
+SOLID-002,stacks/solidity.yaml,S15,grep_deprecated,HIGH,security,full,all,,SOLID-002.yaml,true,true,SWC-101 Solidity-0.8-Breaking-Changes,Compiler version is 0.8+ (or SafeMath is used)
+SOLID-003,stacks/solidity.yaml,S15,manual,CRITICAL,security,manual,all,,,,,SWC-105 SWC-112,Access control is explicit on privileged functions
+SOLID-004,stacks/solidity.yaml,S15,grep_absent,CRITICAL,security,full,all,,SOLID-004.yaml,true,true,SWC-115 Consensys-Best-Practices,tx.origin is not used for authorisation
+SOLID-005,stacks/solidity.yaml,S15,grep_wrong,HIGH,security,full,all,,SOLID-005.yaml,true,true,SWC-104 SWC-113,External calls are checked and treated as untrusted
+SOLID-006,stacks/solidity.yaml,S15,grep_wrong,MEDIUM,security,full,all,,SOLID-006.yaml,true,true,SWC-116 SWC-120,No block.timestamp dependence for critical logic
+SOLID-007,stacks/solidity.yaml,S15,manual,MEDIUM,maintainability,manual,all,,,,,Consensys-Best-Practices,Events are emitted for state changes
+SOLID-008,stacks/solidity.yaml,S15,grep_present,MEDIUM,operations,full,all,,SOLID-008.yaml,true,true,Consensys-Best-Practices,An emergency pause mechanism exists
+SOLID-009,stacks/solidity.yaml,S15,manual,HIGH,correctness,manual,all,,,,,Foundry-Invariant-Testing,A test suite with fuzzing/invariants exists
+SOLID-010,stacks/solidity.yaml,S15,manual,HIGH,security,manual,all,{'fact':'maturity:production'},,,,OpenSSF-Criticality Consensys-Best-Practices,Third-party security audit has been performed
+ML-001,stacks/ml-ai.yaml,S15,grep_present,MEDIUM,maintainability,full,all,,ML-001.yaml,true,true,DVC Google-Rules-of-ML,Training data is versioned
+ML-002,stacks/ml-ai.yaml,S15,manual,MEDIUM,operations,manual,all,,,,,MLflow Google-Rules-of-ML,Model artefacts are versioned and registered
+ML-003,stacks/ml-ai.yaml,S15,grep_present,MEDIUM,correctness,full,all,,ML-003.yaml,true,true,PyTorch-Reproducibility,Training is reproducible (seeded and pinned)
+ML-004,stacks/ml-ai.yaml,S15,manual,MEDIUM,operations,manual,all,{'fact':'maturity:production'},,,,Google-Rules-of-ML NIST-AI-RMF,Model/data drift is monitored in production
+ML-005,stacks/ml-ai.yaml,S15,manual,MEDIUM,compliance,manual,all,{'fact':'maturity:production'},,,,NIST-AI-RMF EU-AI-Act-Art.12,Predictions are logged for audit
+ML-006,stacks/ml-ai.yaml,S15,manual,MEDIUM,compliance,manual,all,,,,,NIST-AI-RMF EU-AI-Act,Bias/fairness has been evaluated
+ML-007,stacks/ml-ai.yaml,S15,manual,MEDIUM,maintainability,manual,all,,,,,Google-Rules-of-ML,Notebooks are not the deployment path
+ML-008,stacks/ml-ai.yaml,S15,manual,LOW,performance,manual,all,{'fact':'maturity:production'},,,,FinOps OWASP-LLM06:2026,Inference cost and latency are tracked
+ML-009,stacks/ml-ai.yaml,S15,tracked_absent,MEDIUM,maintainability,full,all,,ML-009.yaml,false,true,DVC OpenSSF-Scorecard:Binary-Artifacts,Model files are not committed to git
+CLI-001,stacks/cli.yaml,S15,grep_present,MEDIUM,documentation,full,all,,CLI-001.yaml,true,true,CLIG,--help is implemented and useful
+CLI-002,stacks/cli.yaml,S15,grep_present,MEDIUM,correctness,full,all,,CLI-002.yaml,true,true,CLIG POSIX-Exit-Codes,Exit codes are meaningful
+CLI-003,stacks/cli.yaml,S15,manual,HIGH,correctness,manual,all,,,,,CLIG,Destructive operations support --dry-run
+CLI-004,stacks/cli.yaml,S15,manual,MEDIUM,security,manual,all,,,,,CWE-22 CWE-78,Input from arguments and stdin is validated
+CLI-005,stacks/cli.yaml,S15,manual,MEDIUM,correctness,manual,all,,,,,CLIG,Operations are idempotent where expected
+CLI-006,stacks/cli.yaml,S15,manual,LOW,correctness,manual,all,,,,,CLIG,"Errors go to stderr, output to stdout"
+CLI-007,stacks/cli.yaml,S15,grep_present,LOW,maintainability,full,all,,CLI-007.yaml,true,true,CLIG Agent-Skills,Machine-readable output mode exists
+DATA-001,stacks/data.yaml,S6,any_file,HIGH,correctness,full,all,,DATA-001.yaml,true,true,NIST-SSDF-PO.5,A migration system is in place
+DATA-002,stacks/data.yaml,S6,grep_present,MEDIUM,correctness,full,all,,DATA-002.yaml,true,true,ASVS-1.2.4,Foreign keys / relations are defined
+DATA-003,stacks/data.yaml,S6,manual,MEDIUM,performance,manual,all,,,,,Use-The-Index-Luke,Indexes exist on queried columns
+DATA-004,stacks/data.yaml,S6,manual,HIGH,performance,manual,all,,,,,ORM-N+1,No N+1 query patterns
+DATA-005,stacks/data.yaml,S6,grep_present,HIGH,performance,full,all,,DATA-005.yaml,true,true,CWE-770 ASVS-4.3.2,List queries are paginated
+DATA-006,stacks/data.yaml,S6,grep_present,MEDIUM,performance,full,all,,DATA-006.yaml,true,true,Postgres-Pooling,Connection pooling is configured
+DATA-007,stacks/data.yaml,S6,grep_present,HIGH,correctness,full,all,,DATA-007.yaml,true,true,ASVS-1.2.4,Multi-step writes are transactional
+DATA-008,stacks/data.yaml,S6,grep_wrong,LOW,performance,full,all,,DATA-008.yaml,true,true,Use-The-Index-Luke,No SELECT * in hot paths
+DATA-009,stacks/data.yaml,S6,manual,LOW,compliance,manual,all,,,,,GDPR-Art.17,Delete strategy is defined
+DATA-010,stacks/data.yaml,S6,manual,HIGH,security,manual,all,"{'any':[{'fact':'db:postgres'},{'fact':'orm:prisma'},{'fact':'orm:sqlalchemy'}]}",,,,ASVS-4.2.1 OWASP-A01:2021,Row-level access is enforced in the data layer
+API-001,stacks/api-backend.yaml,S15,grep_present,MEDIUM,maintainability,full,all,{'not':{'fact':'maturity:prototype'}},API-001.yaml,true,true,API-Design,The API is versioned
+API-002,stacks/api-backend.yaml,S15,manual,HIGH,performance,manual,all,,,,,CWE-400 Release-It,Request timeouts are configured
+API-003,stacks/api-backend.yaml,S15,manual,MEDIUM,performance,manual,all,,,,,AWS-Builders-Library:Timeouts,Retries are bounded with jitter
+API-004,stacks/api-backend.yaml,S15,manual,MEDIUM,correctness,manual,all,,,,,Stripe-Idempotency API-Design,Write operations are idempotent
+API-005,stacks/api-backend.yaml,S15,manual,LOW,maintainability,manual,all,,,,,API-Design RFC-7807,Response format is consistent
+API-006,stacks/api-backend.yaml,S15,any_file,MEDIUM,documentation,full,all,{'not':{'fact':'maturity:prototype'}},API-006.yaml,true,true,OpenAPI NIST-SSDF-PS.1,An OpenAPI/contract spec exists and is current
+API-007,stacks/api-backend.yaml,S15,grep_present,HIGH,security,full,all,{'fact':'api:graphql'},API-007.yaml,true,true,OWASP-API4:2023 CWE-770,GraphQL depth/complexity limits are enforced
+API-008,stacks/api-backend.yaml,S15,manual,LOW,operations,manual,all,,,,,CWE-200 K8s-Probes,Health and readiness endpoints are unauthenticated but minimal
+COMP-001,stacks/compliance.yaml,S13,manual,MEDIUM,compliance,manual,all,"{'any':[{'fact':'platform:web'},{'fact':'platform:mobile'}]}",,,,WCAG-2.1.1 WCAG-2.4.7 EN-301-549,Interactive elements are keyboard accessible
+COMP-002,stacks/compliance.yaml,S13,manual,MEDIUM,compliance,manual,all,{'fact':'platform:web'},,,,WCAG-3.3.2 WCAG-1.3.1,Form inputs have associated labels
+COMP-003,stacks/compliance.yaml,S13,manual,MEDIUM,compliance,manual,all,{'fact':'platform:web'},,,,WCAG-1.4.3,Colour contrast meets WCAG AA
+COMP-004,stacks/compliance.yaml,S13,grep_present,MEDIUM,compliance,full,all,"{'any':[{'fact':'platform:web'},{'fact':'platform:mobile'}]}",COMP-004.yaml,true,true,WCAG-3.1.1 i18n-Best-Practices,Content is not hardcoded to one locale
+COMP-005,stacks/compliance.yaml,S13,manual,LOW,compliance,manual,all,{'fact':'practice:i18n'},,,,WCAG-3.1.2 ICU,"Dates, numbers, and currencies are locale-aware"
+COMP-006,stacks/compliance.yaml,S13,manual,MEDIUM,compliance,manual,all,"{'any':[{'fact':'has:pii'},{'fact':'maturity:production'}]}",,,,GDPR-Art.13 CCPA,A privacy policy and terms exist and match reality
+COMP-007,stacks/compliance.yaml,S13,manual,HIGH,compliance,manual,all,{'fact':'has:pii'},,,,GDPR-Art.15 GDPR-Art.17 CCPA,Data subject rights are implemented
+COMP-008,stacks/compliance.yaml,S13,manual,HIGH,compliance,manual,all,{'fact':'has:payments'},,,,PCI-DSS-4.0 ASVS-8.3.1,Card data is kept out of scope
+COMP-009,stacks/compliance.yaml,S13,manual,MEDIUM,compliance,manual,all,{'fact':'platform:web'},,,,ePrivacy GDPR-Art.7,Cookie / consent notice is compliant
+COMP-010,stacks/compliance.yaml,S13,grep_present,LOW,compliance,full,all,{'fact':'project:library'},COMP-010.yaml,true,true,SPDX REUSE-Spec,Source files carry an SPDX license identifier
+AI-001,stacks/ai-era.yaml,S14,manual,CRITICAL,security,manual,all,"{'any':[{'fact':'ai:llm-sdk'},{'fact':'ai:rag'}]}",,,,OWASP-LLM01:2026 OWASP-ASI01:2026,Untrusted content cannot override instructions
+AI-002,stacks/ai-era.yaml,S14,grep_wrong,CRITICAL,security,full,all,"{'any':[{'fact':'ai:llm-sdk'},{'fact':'ai:agents'}]}",AI-002.yaml,true,true,OWASP-LLM10:2026 OWASP-ASI05:2026 CWE-94,Model output is validated before it is executed
+AI-003,stacks/ai-era.yaml,S14,manual,HIGH,security,manual,all,"{'any':[{'fact':'ai:agents'},{'fact':'ai:mcp'}]}",,,,OWASP-LLM03:2026 OWASP-ASI02:2026 OWASP-ASI03:2026,Agents and tools run with least privilege
+AI-004,stacks/ai-era.yaml,S14,manual,HIGH,security,manual,all,{'fact':'ai:llm-sdk'},,,,OWASP-LLM02:2026 GDPR-Art.44,Secrets and PII do not reach model providers unchecked
+AI-005,stacks/ai-era.yaml,S14,grep_present,MEDIUM,performance,full,all,{'fact':'ai:llm-sdk'},AI-005.yaml,true,true,OWASP-LLM06:2026 OWASP-ASI08:2026,Inference spend and token usage are bounded
+AI-006,stacks/ai-era.yaml,S14,manual,MEDIUM,security,manual,all,{'fact':'ai:prompts'},,,,OWASP-LLM08:2026,System prompts and tool schemas are not exposed
+AI-007,stacks/ai-era.yaml,S14,manual,HIGH,security,manual,all,{'fact':'ai:rag'},,,,OWASP-LLM09:2026 OWASP-ASI06:2026,RAG retrieval is access-controlled per tenant
+AI-008,stacks/ai-era.yaml,S14,manual,MEDIUM,supply-chain,manual,all,{'fact':'ai:llm-sdk'},,,,OWASP-LLM04:2026 OWASP-ASI04:2026 SLSA,Model and prompt supply chain is pinned
+AI-009,stacks/ai-era.yaml,S14,manual,MEDIUM,correctness,manual,all,{'fact':'ai:llm-sdk'},,,,OWASP-LLM07:2026 Evals-Best-Practices,An eval suite exists for model behaviour
+AI-010,stacks/ai-era.yaml,S14,manual,HIGH,security,manual,all,"{'any':[{'fact':'ai:agents'},{'fact':'ai:mcp'}]}",,,,OWASP-ASI09:2026 NIST-AI-RMF,Consequential actions require human confirmation
+AI-011,stacks/ai-era.yaml,S14,manual,MEDIUM,security,manual,all,{'fact':'ai:agents'},,,,OWASP-ASI04:2026 Agent-Skills,Agent instruction files are scoped and safe
+AI-012,stacks/ai-era.yaml,S14,manual,LOW,compliance,manual,all,{'fact':'maturity:production'},,,,NIST-AI-RMF EU-AI-Act-Art.12 OWASP-LLM02:2026,Model inputs and outputs are logged for audit
+SW-001,stacks/swift.yaml,S15,grep_wrong,MEDIUM,correctness,full,all,,SW-001.yaml,true,true,CWE-754,No force-unwrap or force-try in application code
+SW-002,stacks/swift.yaml,S15,grep_wrong,HIGH,security,full,all,,SW-002.yaml,true,true,CWE-319,App Transport Security is not disabled
+SW-003,stacks/swift.yaml,S15,file_exists,MEDIUM,supply-chain,full,all,{'fact':'swift:executable'},SW-003.yaml,true,true,CWE-829,Application dependencies are pinned
+SW-004,stacks/swift.yaml,S15,manual,HIGH,security,manual,all,,,,,ASVS-2.4.1 MASVS-STORAGE,Secrets live in the Keychain with data protection
+SW-005,stacks/swift.yaml,S2,grep_present,HIGH,security,full,all,{'fact':'fw:vapor'},SW-005.yaml,true,true,CWE-20 ASVS-5.1.1,Request validation uses Validatable or a validation library
+SW-006,stacks/swift.yaml,S2,grep_present,MEDIUM,security,full,all,{'fact':'fw:vapor'},SW-006.yaml,true,true,ASVS-3.4.3 OWASP-Secure-Headers,Security headers middleware is configured

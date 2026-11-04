@@ -14,8 +14,20 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { suspensionStatus } from './lib/macp-suspension.mjs';
 
 const root = process.cwd();
+
+/** The same owner-declared suspension the start gate honours; see the helper. */
+const suspension = suspensionStatus(root);
+if (suspension) {
+  if (!suspension.valid) {
+    console.error(`protocol: ${suspension.message}`);
+    process.exit(1);
+  }
+  console.log(`protocol: ${suspension.message}`);
+  process.exit(0);
+}
 
 function checkWorkingTreeClean() {
   try {

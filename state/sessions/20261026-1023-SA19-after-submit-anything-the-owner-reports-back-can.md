@@ -66,3 +66,23 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 14:09 — Commit
 
 `5c961e8` test(macp): pin the squash-merge path the owner is asked to take
+
+### 07:23 — Commit
+
+`57a0001` chore(macp): suspend the protocol with a tracked, reasoned marker
+
+### 07:24 — Commit
+
+`9c675c8` chore(macp): suspend the protocol with a tracked, reasoned marker
+
+### 07:25 — Commit
+
+`f93eaa1` docs(audit): land the 2026-10-31 inside-out audit and revise the roadmap
+
+### 07:25 — Commit
+
+`59824d3` chore: ignore harness memory directories
+
+### 07:37 — Commit
+
+`201ceb5` ci: fetch the pinned trivy asset and verify its checksum
