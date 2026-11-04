@@ -66,3 +66,11 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 14:09 — Commit
 
 `5c961e8` test(macp): pin the squash-merge path the owner is asked to take
+
+### 07:23 — Commit
+
+`57a0001` chore(macp): suspend the protocol with a tracked, reasoned marker
+
+### 07:24 — Commit
+
+`9c675c8` chore(macp): suspend the protocol with a tracked, reasoned marker
