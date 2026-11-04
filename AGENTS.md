@@ -88,7 +88,10 @@ Conventional Commits (they feed the CHANGELOG). The engine
    2b. **Release note**: if the change touches a shipped path (`src/`,
    `rules/`, `templates/`, `action.yml`, `package.json`), run
    `pnpm changeset` and write one line explaining the bump. The
-   `changesets` CI job fails a shipped-path PR without one.
+   `changesets` CI job fails a shipped-path PR without one. The one
+   exception is `package.json` changed only in `devDependencies`: those do
+   not ship, so the gate passes them (which is what keeps the weekly
+   Dependabot dev-dependencies group out of a permanent red).
 3. **Local gates, all green, before pushing**: `pnpm run typecheck`,
    `pnpm run lint`, `pnpm run format:check`, `pnpm test`,
    `pnpm run docs:all`. No exceptions — CI runs the same gates and more.
@@ -164,7 +167,9 @@ lands in the current working directory, never the target being audited.
   whatever `.changeset/*.md` says.
 - Every PR touching a shipped path adds a note via `pnpm changeset`.
   `chore:`, `docs:`, `ci:`, `test:` PRs that touch no shipped path need
-  none, and the `changesets` job says so explicitly when it fires.
+  none, and the `changesets` job says so explicitly when it fires. A
+  `devDependencies`-only `package.json` bump counts as touching nothing
+  that ships.
 - Keep the subject imperative and scoped (`fix(live): …`).
   Multi-line bodies are allowed but every line must fit the hook's
   length limit; when in doubt, ship subject-only and put rationale in

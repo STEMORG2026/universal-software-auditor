@@ -268,10 +268,29 @@ jobs:
           fi
 
           # Does the diff touch anything the package ships?
-          if ! git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
-              | grep -qE '^(src/|rules/|templates/|action\.yml|package\.json)'; then
+          SHIPPED="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+                     | grep -E '^(src/|rules/|templates/|action\.yml|package\.json)' || true)"
+          if [ -z "$SHIPPED" ]; then
             echo "No shipped paths touched — a changeset is not required."
             exit 0
+          fi
+
+          # A dependency bump is the other legitimate exception — for
+          # devDependencies only. They never enter the published tarball, so a
+          # note here charges a release for a change no consumer can see, and
+          # the Dependabot dev-dependencies group sits red on a required check
+          # every week. Keyed on the parsed manifests, not on diff text: a
+          # change to `dependencies`, `peerDependencies`, `scripts` or
+          # `version` still demands a note, and so does package.json touched
+          # alongside any other shipped file. Measured on the dev-deps group
+          # PR: package.json + pnpm-lock.yaml, devDependencies only.
+          if [ "$SHIPPED" = package.json ]; then
+            BASE_MANIFEST="$(git show "$BASE_SHA:package.json" | jq -S 'del(.devDependencies)')"
+            HEAD_MANIFEST="$(git show "$HEAD_SHA:package.json" | jq -S 'del(.devDependencies)')"
+            if [ "$BASE_MANIFEST" = "$HEAD_MANIFEST" ]; then
+              echo "Only devDependencies changed — nothing ships, so no note is needed."
+              exit 0
+            fi
           fi
 
           # Shipped paths changed: is a note in the PR's diff? A note is an
