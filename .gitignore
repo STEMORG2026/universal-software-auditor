@@ -74,3 +74,8 @@ credentials/
 # ci-fabric local state (never commit)
 .ci/
 .localci/
+
+# Harness memory directories. These are a tool's working notes, not sources:
+# the durable record is state/ and docs/, and a stray `git add -A` must not
+# sweep one in. .workbuddy-ai/ appeared in the 2026-10-31 audit session.
+.workbuddy-ai/
