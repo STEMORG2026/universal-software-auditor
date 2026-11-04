@@ -82,3 +82,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 07:25 — Commit
 
 `59824d3` chore: ignore harness memory directories
+
+### 07:37 — Commit
+
+`201ceb5` ci: fetch the pinned trivy asset and verify its checksum
