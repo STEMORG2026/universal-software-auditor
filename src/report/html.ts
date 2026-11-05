@@ -1,5 +1,6 @@
 import type { AuditReport, Finding, Severity, Status } from '../types.js';
 import type { MaturityProfile } from '../engine/maturity.js';
+import { scoreLine } from '../engine/score.js';
 
 /**
  * HTML renderer — the report as a self-contained web page.
@@ -93,7 +94,7 @@ export function renderHtml(report: AuditReport, profile: MaturityProfile): strin
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Audit: ${escapeHtml(report.target.name)} — ${s.overall}/100</title>
+<title>Audit: ${escapeHtml(report.target.name)} — ${escapeHtml(scoreLine(s))}</title>
 <style>
 :root { color-scheme: light dark; }
 body { font-family: system-ui, sans-serif; max-width: 60rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
@@ -111,7 +112,7 @@ footer { margin-top: 2rem; font-size: .85em; color: gray; }
 <body>
 <header class="top">
 <h1>Audit: ${escapeHtml(report.target.name)}</h1>
-<p class="score">${s.overall}/100 <small>(${escapeHtml(report.detection.maturity)})</small></p>
+<p class="score">${escapeHtml(scoreLine(s))} <small>(${escapeHtml(report.detection.maturity)})</small></p>
 <p>${s.counts.PASS} passed${counts ? ` · open: ${escapeHtml(counts)}` : ' · no open findings'} · ${s.counts.UNKNOWN} to review (${s.automationCoverage}% verified automatically)</p>
 <p>Generated ${escapeHtml(report.generatedAt)} · USA ${escapeHtml(report.usaVersion)} · expected band ${s.expectedBand[0]}–${s.expectedBand[1]}</p>
 </header>

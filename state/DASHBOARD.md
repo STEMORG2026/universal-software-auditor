@@ -6,13 +6,13 @@
 
 <!-- macp:generated:begin -->
 
-**Machine Reconciled:** 2026-11-04T07:37:45.311+05:45
+**Machine Reconciled:** 2026-11-05T09:24:41.213+05:45
 **Reconciled by:** `scripts/auto-update-state.mjs` (post-commit) — every value below is measured
 **Repo:** Universal_Software_Auditor
-**Remote:** git@github.com:Er-Sajan-PLG/universal-software-auditor.git
+**Remote:** git@github.com:STEMORG2026/universal-software-auditor.git
 
-- **Version:** 2.28.8
-- **Branch:** `docs/usa-inside-out-audit`
+- **Version:** 2.28.9
+- **Branch:** `HEAD`
 - **Tracked markdown:** 185
 - **ADRs:** <!-- usa:fact adrs -->46<!-- /usa:fact -->
 

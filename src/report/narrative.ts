@@ -1,5 +1,6 @@
 import type { AuditReport, Finding, RuleClass, Severity, Status } from '../types.js';
 import type { MaturityProfile } from '../engine/maturity.js';
+import { scoreLine } from '../engine/score.js';
 import { trailer, TRAILER_BEGIN, TRAILER_END } from './markdown.js';
 
 /**
@@ -185,7 +186,7 @@ function renderVerdict(p: Print, report: AuditReport, _profile: MaturityProfile)
   p(`**${stamp} ${v.word}** — ${v.line}`);
   p();
   p(
-    `The raw score is **${report.score.overall}/100**, but a number is not a verdict. ` +
+    `The raw score is **${scoreLine(report.score)}**, but a number is not a verdict. ` +
       `A ${severityOfOpen(report) ?? 'clean'} worst-case finding does not average away. ` +
       `Read the sections below; the score is reconciled honestly at the end.`,
   );
@@ -380,7 +381,7 @@ function renderHonestScore(p: Print, report: AuditReport, profile: MaturityProfi
   p();
   const thin = report.score.sections.filter((s) => s.score !== null && s.confidence < 40);
   p(
-    `Raw overall **${report.score.overall}/100** sits against the ${profile.label} ` +
+    `Raw overall **${scoreLine(report.score)}** sits against the ${profile.label} ` +
       `band ${profile.expectedBand[0]}–${profile.expectedBand[1]} — but the band is not the point. ` +
       `A band that normalises a CRITICAL is doing the score's emotional work, and this report declines it.`,
   );

@@ -1,6 +1,7 @@
 import type { AuditReport, Finding, Severity, Status } from '../types.js';
 import type { MaturityProfile } from '../engine/maturity.js';
 import { isReviewStale, reviewAgeDays } from '../engine/review.js';
+import { scoreLine } from '../engine/score.js';
 import { renderFoundationSection } from './foundation.js';
 
 const TAG: Record<Status, string> = {
@@ -108,10 +109,15 @@ function renderExecutiveSummary(p: Print, report: AuditReport, profile: Maturity
   const band = report.score.expectedBand;
   const coverage = report.score.automationCoverage;
   const queue = report.score.counts.UNKNOWN ?? 0;
-  p(`### Overall Health Score: **${report.score.overall}/100**`);
+  // Score and coverage are one token, deliberately: "100" at 66% coverage was
+  // the report's most misleading sentence (USA-AUD-006). The renderer cannot
+  // print one without the other, and `null` prints as what it is.
+  p(`### Overall Health Score: **${scoreLine(report.score)}**`);
   p();
-  p(`${bar(report.score.overall, 100)}`);
-  p();
+  if (report.score.overall !== null) {
+    p(`${bar(report.score.overall, 100)}`);
+    p();
+  }
   p(
     `Verified automatically: **${fmt(coverage)}%** of applicable checks. ` +
       `${queue} check${queue === 1 ? '' : 's'} need a human — see the judgement queue.`,
@@ -127,7 +133,11 @@ function renderExecutiveSummary(p: Print, report: AuditReport, profile: Maturity
     p();
   }
   p(
-    `Expected band for **${profile.label}**: ${band[0]}–${band[1]} — ${verdict(report.score.overall, band)}`,
+    `Expected band for **${profile.label}**: ${band[0]}–${band[1]} — ${
+      report.score.overall === null
+        ? '**nothing to compare** — not one check could be resolved without a human'
+        : verdict(report.score.overall, band)
+    }`,
   );
   p();
   if (profile.summary) p(`> ${profile.summary.trim()}`);
@@ -673,7 +683,7 @@ export function trailer(report: AuditReport): string {
   lines.push(`generated_at: ${report.generatedAt}`);
   lines.push(`usa_version: ${report.usaVersion}`);
   lines.push(`ruleset: ${report.ruleset}`);
-  lines.push(`overall: ${report.score.overall}`);
+  lines.push(`overall: ${report.score.overall ?? 'null'}`);
   lines.push('sections:');
   for (const s of report.score.sections) {
     lines.push(`  ${s.id}: {score: ${s.score}, open: ${s.failed}, review: ${s.unknown}}`);

@@ -24,9 +24,12 @@ export function diffReports(beforeRaw: string, afterRaw: string): string {
   const out: string[] = [];
   const p = (s = '') => out.push(s);
 
-  const b = before.overall ?? 0;
-  const a = after.overall ?? 0;
-  const delta = Math.round((a - b) * 10) / 10;
+  // A report with no score (`overall: null` — nothing resolved) is not a zero.
+  // Treating it as 0 once produced a triumphant "+45 points" for a tree that
+  // merely gained a resolved check.
+  const b = before.overall ?? null;
+  const a = after.overall ?? null;
+  const delta = a !== null && b !== null ? Math.round((a - b) * 10) / 10 : null;
 
   renderDiffHeader(p, before, after, b, a, delta);
 
@@ -58,15 +61,16 @@ function renderDiffHeader(
   p: (s?: string) => void,
   before: TrailerData,
   after: TrailerData,
-  b: number,
-  a: number,
-  delta: number,
+  b: number | null,
+  a: number | null,
+  delta: number | null,
 ): void {
   p('# 🔁 USA Audit Diff');
   p();
   p('| | Before | After | Δ |');
   p('|---|---:|---:|---:|');
-  p(`| **Overall score** | ${b} | ${a} | ${sign(delta)} |`);
+  const cell = (v: number | null) => (v === null ? 'no score' : String(v));
+  p(`| **Overall score** | ${cell(b)} | ${cell(a)} | ${delta === null ? 'n/a' : sign(delta)} |`);
 
   const sevKeys: Severity[] = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'FUTURE'];
   for (const k of sevKeys) {
@@ -202,7 +206,10 @@ function regressedDetail(id: string, xs: string, ys: string): string {
   return ys === 'UNKNOWN' ? `${id} — ${xs} → UNKNOWN (needs review)` : `${id} — ${xs} → ${ys}`;
 }
 
-function renderDiffVerdict(delta: number): string {
+function renderDiffVerdict(delta: number | null): string {
+  if (delta === null) {
+    return '**Net movement: not comparable.** One of the two reports has no score — nothing could be resolved there.';
+  }
   if (delta > 0) {
     return `**Net movement: +${delta} points.** Keep going — the fixed list is the progress report.`;
   }

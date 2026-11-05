@@ -93,7 +93,7 @@ describe('narrative renderer', () => {
     );
     expect(md).toContain('## Verdict');
     expect(md).toContain('🔴 RED');
-    expect(md).toContain('37.3/100');
+    expect(md).toMatch(/37\.3 \/ 100 · [\d.]+% verified/);
     expect(md.indexOf('## Verdict')).toBeLessThan(md.indexOf('## The foundation'));
   });
 

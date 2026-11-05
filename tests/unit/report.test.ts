@@ -83,7 +83,8 @@ const profile = loadProfiles('rules').beta;
 describe('markdown report', () => {
   it('renders the headline score and the expected band', () => {
     const md = renderMarkdown(baseReport([finding({})]), profile);
-    expect(md).toContain('Overall Health Score: **71.4/100**');
+    // Score and coverage are one token by design (USA-AUD-006).
+    expect(md).toMatch(/Overall Health Score: \*\*71\.4 \/ 100 · [\d.]+% verified\*\*/);
     expect(md).toContain('Expected band for **Beta / Growing**');
   });
 

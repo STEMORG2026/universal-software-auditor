@@ -86,3 +86,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 07:37 — Commit
 
 `201ceb5` ci: fetch the pinned trivy asset and verify its checksum
+
+### 09:24 — Commit
+
+`5d3614c` docs: prose review pass for 2026-11-05

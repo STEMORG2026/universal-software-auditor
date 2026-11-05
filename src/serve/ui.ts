@@ -116,7 +116,10 @@ pre { white-space: pre-wrap; word-break: break-word; background: rgba(127,127,12
     catch (err) { line(result, 'pre', job.report); return; }
     var findings = doc.findings || [];
     var open = findings.filter(function (f) { return f.status !== 'PASS' && f.status !== 'UNKNOWN'; });
-    line(result, 'h2', 'Score ' + doc.score.overall + '/100 — ' + open.length + ' open findings');
+    var headline = doc.score.overall === null
+      ? 'insufficient evidence · ' + doc.score.automationCoverage + '% verified'
+      : doc.score.overall + ' / 100 · ' + doc.score.automationCoverage + '% verified';
+    line(result, 'h2', 'Score ' + headline + ' — ' + open.length + ' open findings');
     open.forEach(function (f) {
       var box = line(result, 'div', '');
       box.className = 'finding';

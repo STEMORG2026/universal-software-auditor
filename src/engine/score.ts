@@ -78,7 +78,9 @@ export function score(
     .map((s) => buildSectionScore(s, acc.bySection.get(s.id)!));
 
   return {
-    overall: acc.totalW > 0 ? round1((100 * acc.totalCredit) / acc.totalW) : 0,
+    // `null`, not 0: a project where nothing could be resolved has no score to
+    // report, and 0 would read as "graded and failed" (USA-AUD-020).
+    overall: acc.totalW > 0 ? round1((100 * acc.totalCredit) / acc.totalW) : null,
     sections: sectionScores,
     counts,
     severityCounts,
@@ -86,6 +88,21 @@ export function score(
       acc.applicableAll > 0 ? round1((100 * acc.resolvedAll) / acc.applicableAll) : 0,
     expectedBand: profile.expectedBand,
   };
+}
+
+/**
+ * The one way this project writes a score down.
+ *
+ * Every renderer — Markdown, HTML, the CLI summary, the live session, `serve`,
+ * the narrative — goes through here so a headline can never appear without the
+ * coverage it was earned over, and a horizontal score can never appear without
+ * the figure that says how much of the scale was actually answerable.
+ */
+export function scoreLine(card: Pick<ScoreCard, 'overall' | 'automationCoverage'>): string {
+  const coverage = `${card.automationCoverage}% verified`;
+  return card.overall === null
+    ? `insufficient evidence · ${coverage}`
+    : `${card.overall} / 100 · ${coverage}`;
 }
 
 interface SectionBucket {
@@ -137,12 +154,28 @@ function accumulateScoredRule(
   bucket.applicable++;
   acc.applicableAll++;
 
-  // Suppressed findings live under Accepted Risk only: counting them as open
-  // once produced "HIGH: 1" next to "No CRITICAL or HIGH findings. Nice."
-  // in the same report. Unsuppressed UNKNOWN still counts — the report
-  // narrative ("N checks need a human") is driven by counts.UNKNOWN.
+  // A suppressed finding is an answer, not a deletion: it keeps its weight in
+  // the denominator with no credit. Removing the term instead (the original
+  // behaviour) made waiving worth +8 points on this repository's own audit —
+  // arithmetic over a fraction, not a judgement call. So acceptance can only
+  // lower the score, never raise it (USA-AUD-005).
+  //
+  // It stays out of the open counts and severity tallies, though: counting it
+  // as open once produced "HIGH: 1" next to "No CRITICAL or HIGH findings."
+  // in the same report. It also stays out of passed/failed, because it is
+  // reported under Accepted Risk rather than as an open item. Unsuppressed
+  // UNKNOWN still counts — the report narrative ("N checks need a human") is
+  // driven by counts.UNKNOWN.
   if (finding.suppressedReason) {
-    if (finding.status === 'UNKNOWN') bucket.unknown++;
+    if (finding.status === 'UNKNOWN') {
+      bucket.unknown++;
+      return;
+    }
+    const w = ruleWeight(rule) * sec.weight;
+    bucket.w += w;
+    bucket.resolved++;
+    acc.totalW += w;
+    acc.resolvedAll++;
     return;
   }
 

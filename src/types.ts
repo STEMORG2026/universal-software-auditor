@@ -401,7 +401,8 @@ export interface SectionScore {
 }
 
 export interface ScoreCard {
-  overall: number; // 0..100
+  /** 0..100, or null when nothing could be resolved — there is no score to report. */
+  overall: number | null;
   sections: SectionScore[];
   counts: Record<Status, number>;
   severityCounts: Record<Severity, number>;

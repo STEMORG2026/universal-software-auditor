@@ -221,7 +221,8 @@ function summaryLine(report: AuditReport): string {
     .map((k) => `${k.toLowerCase()} ${s[k]}`)
     .join(' · ');
   return (
-    `usa ${report.score.overall}/100 (${report.detection.maturity}) — ` +
+    `usa ${report.score.overall === null ? 'insufficient evidence' : `${report.score.overall}/100`} ` +
+    `(${report.detection.maturity}) — ` +
     `${report.score.counts.PASS} passed, ` +
     (parts ? `open: ${parts}` : 'no open findings') +
     `, ${report.score.counts.UNKNOWN} to review` +
