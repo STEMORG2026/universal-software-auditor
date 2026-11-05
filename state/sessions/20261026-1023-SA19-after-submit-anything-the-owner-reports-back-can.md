@@ -90,3 +90,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 09:24 — Commit
 
 `5d3614c` docs: prose review pass for 2026-11-05
+
+### 14:54 — Commit
+
+`bfa8695` chore: regenerate sample report after score headline change
