@@ -89,9 +89,12 @@ Conventional Commits (they feed the CHANGELOG). The engine
    `rules/`, `templates/`, `action.yml`, `package.json`), run
    `pnpm changeset` and write one line explaining the bump. The
    `changesets` CI job fails a shipped-path PR without one. The one
-   exception is `package.json` changed only in `devDependencies`: those do
-   not ship, so the gate passes them (which is what keeps the weekly
-   Dependabot dev-dependencies group out of a permanent red).
+   exception is `package.json` changed only in `devDependencies` (plus the
+   lockfile those bumps move): nothing in that set reaches the tarball, so
+   those PRs are green without a note. Any other key — `dependencies`,
+   `peerDependencies`, `scripts`, `version` — still needs one, and that
+   exemption is what keeps the weekly Dependabot dev-dependencies group
+   out of a permanent red.
 3. **Local gates, all green, before pushing**: `pnpm run typecheck`,
    `pnpm run lint`, `pnpm run format:check`, `pnpm test`,
    `pnpm run docs:all`. No exceptions — CI runs the same gates and more.
@@ -393,7 +396,16 @@ find yourself explaining the same thing twice, it belongs in this file.
 **Full protocol → [docs/macp.md](docs/macp.md)** — read it at session start.
 **Runtime → `pnpm run macp -- <command>`** (`scripts/macp/`, ADR-0045).
 
-Mandatory startup (always, before any work):
+> **Status: suspended.** `.macp/SUSPENDED` is on the record — owner, date and
+> reason — while MACP is under development and not in use here or anywhere
+> else. The gates (`check-session-start`, `check-protocol`, `check-sessions`)
+> read that file, print the reason and exit 0, so **no session, plan, registry
+> row or lease is required while it is present**, and the startup below must
+> not be run. The marker is refused unless it states all three fields, and
+> deleting it is the whole of lifting the suspension. Check the file before
+> following anything below.
+
+Mandatory startup (while the protocol is in force, before any work):
 
 0. `pnpm run macp -- start --agent <ID> --harness <name> --branch <current> --task "<the one piece of work>" --authorized-by "<the owner's instruction, verbatim>"`
    This runs the recon, prints the handoff, registers the session and plan, and
