@@ -57,7 +57,7 @@ standalone:
     reviewed: 2026-09-26
     reason: baseline classification — project intent
   - file: DOCS_VERIFICATION_LOG.md
-    reviewed: 2026-09-26
+    reviewed: 2026-11-05
     reason: baseline classification — post-implementation verification transcript
   - file: docs/EVOLUTION.md
     reviewed: 2026-09-26
@@ -81,7 +81,7 @@ standalone:
     reviewed: 2026-09-26
     reason: baseline classification — category catalogue prose
   - file: docs/ci-integration.md
-    reviewed: 2026-09-26
+    reviewed: 2026-11-05
     reason: baseline classification — CI wiring guide
   - file: docs/concepts.md
     reviewed: 2026-09-26
@@ -105,7 +105,7 @@ standalone:
     reviewed: 2026-09-26
     reason: baseline classification — programmatic API reference
   - file: docs/release.md
-    reviewed: 2026-09-26
+    reviewed: 2026-11-05
     reason: baseline classification — release runbook
   - file: docs/rule-packs.md
     reviewed: 2026-09-26
@@ -126,7 +126,7 @@ standalone:
     reviewed: 2026-09-26
     reason: baseline classification — report template
   - file: templates/AGENTS.audit.md
-    reviewed: 2026-09-26
+    reviewed: 2026-11-05
     reason: baseline classification — audit agent template
   - file: templates/AUDIT_REPORT.md
     reviewed: 2026-09-26

@@ -286,7 +286,7 @@ npm view @xenos1996/usa version        # → 2.0.1
 ```
 
 Then, while logged in on npmjs.com: **Package → Settings → Trusted
-Publisher → GitHub Actions**, org `Er-Sajan-PLG`, repo
+Publisher → GitHub Actions**, org `STEMORG2026`, repo
 `universal-software-auditor`, workflow `release.yml`, and tick _allow
 publish directly_. From that point on, tags publish themselves; re-run
 the failed Release run to confirm. This was done for the `usat → usa`

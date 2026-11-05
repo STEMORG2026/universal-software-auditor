@@ -4,6 +4,13 @@ All steps run on branch `chore/autonomous-docs-system` against
 `/home/sajan/Projects/Universal_Software_Auditor`. Every scenario is a real
 command against the real repo; "exit" is the actual process exit code.
 
+> **Historical record — read it as one.** This is the transcript of a single
+> verification pass, not a description of the pipeline today: the gate names,
+> check contexts, document counts and version numbers below are the ones that
+> existed when the pass ran. [`docs/ci-integration.md`](docs/ci-integration.md)
+> describes the current pipeline; [`docs/writing-docs.md`](docs/writing-docs.md)
+> is the contract the docs are held to.
+
 ---
 
 ## 0. Baseline (current repo, clean tree)
