@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.28.10
+
+### Patch Changes
+
+- [#290](https://github.com/STEMORG2026/universal-software-auditor/pull/290) [`fdf1d88`](https://github.com/STEMORG2026/universal-software-auditor/commit/fdf1d884e76922c33e4a91f10e9b8dd4b1ccf3b0) Thanks [@Er-Sajan-PLG](https://github.com/Er-Sajan-PLG)! - The `AGENTS.md` template that `usa init` writes pointed at the repository under
+  its pre-transfer owner, so every generated audit brief carried a stale link.
+
 ## 2.28.9
 
 ### Patch Changes
