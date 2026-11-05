@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { score } from '../../src/engine/score.js';
+import { score, scoreLine } from '../../src/engine/score.js';
 import { loadProfiles, dampen } from '../../src/engine/maturity.js';
 import { DEFAULT_SECTIONS } from '../../src/engine/sections.js';
 import type { Finding, Rule, Status, Severity, RuleClass } from '../../src/types.js';
@@ -104,7 +104,9 @@ describe('scoring', () => {
       profile,
     );
     expect(r.sections[0]!.score).toBeNull();
-    expect(r.overall).toBe(0);
+    // No resolved weight is not "graded 0" — there is no score at all
+    // (USA-AUD-020). The renderers print "insufficient evidence" for this.
+    expect(r.overall).toBeNull();
   });
 
   it('gives partial credit for WRONG above MISSING', () => {
@@ -220,6 +222,84 @@ describe('suppression accounting (Accepted Risk must agree with Findings Summary
       profile,
     );
     expect(r.counts.UNKNOWN).toBe(1);
+  });
+});
+
+describe('suppression cannot raise the score (USA-AUD-005)', () => {
+  const profile = loadProfiles('rules').production;
+
+  it('scores a suppressed FAIL no better than the same FAIL left open', () => {
+    const open = score(
+      [
+        { rule: rule('A'), finding: finding('A', 'PASS') },
+        { rule: rule('B'), finding: finding('B', 'FAIL') },
+      ],
+      DEFAULT_SECTIONS,
+      profile,
+    );
+    const suppressed = score(
+      [
+        { rule: rule('A'), finding: finding('A', 'PASS') },
+        {
+          rule: rule('B'),
+          finding: { ...finding('B', 'FAIL'), suppressedReason: 'accepted risk' },
+        },
+      ],
+      DEFAULT_SECTIONS,
+      profile,
+    );
+    expect(suppressed.overall).toBeLessThanOrEqual(open.overall);
+  });
+});
+
+describe('the headline never travels without its coverage (USA-AUD-006)', () => {
+  const profile = loadProfiles('rules').production;
+
+  it('prints no number when nothing resolves', () => {
+    const r = score(
+      [{ rule: rule('A'), finding: finding('A', 'UNKNOWN') }],
+      DEFAULT_SECTIONS,
+      profile,
+    );
+    expect(r.overall).toBeNull();
+    expect(scoreLine(r)).not.toMatch(/[0-9]+\s*\/\s*100/);
+    expect(scoreLine(r)).toContain('insufficient evidence');
+  });
+
+  it('carries the coverage figure alongside every score it does print', () => {
+    const r = score(
+      [
+        { rule: rule('A'), finding: finding('A', 'PASS') },
+        { rule: rule('B'), finding: finding('B', 'UNKNOWN') },
+      ],
+      DEFAULT_SECTIONS,
+      profile,
+    );
+    expect(r.overall).toBe(100);
+    expect(scoreLine(r)).toBe('100 / 100 · 50% verified');
+  });
+
+  it('keeps automation coverage unchanged when a finding is suppressed', () => {
+    const open = score(
+      [
+        { rule: rule('A'), finding: finding('A', 'PASS') },
+        { rule: rule('B'), finding: finding('B', 'FAIL') },
+      ],
+      DEFAULT_SECTIONS,
+      profile,
+    );
+    const suppressed = score(
+      [
+        { rule: rule('A'), finding: finding('A', 'PASS') },
+        {
+          rule: rule('B'),
+          finding: { ...finding('B', 'FAIL'), suppressedReason: 'accepted risk' },
+        },
+      ],
+      DEFAULT_SECTIONS,
+      profile,
+    );
+    expect(suppressed.automationCoverage).toBe(open.automationCoverage);
   });
 });
 

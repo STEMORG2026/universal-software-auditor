@@ -88,7 +88,7 @@ describe('renderHtml (--format html)', () => {
       profile,
     );
     expect(html).toContain('<!DOCTYPE html>');
-    expect(html).toContain('71.4/100');
+    expect(html).toMatch(/71\.4 \/ 100 · [\d.]+% verified/);
     expect(html).toContain('SEC-001');
     expect(html).toContain('S2 · Security');
     expect(html).toContain('Needs a human');

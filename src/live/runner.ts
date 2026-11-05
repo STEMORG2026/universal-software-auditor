@@ -18,6 +18,7 @@ import type { AuditReport } from '../types.js';
 import type { MaturityProfile } from '../engine/maturity.js';
 import type { ChatRequest, ModelInfo } from '../agent/types.js';
 import { runAudit } from '../engine/audit.js';
+import { scoreLine } from '../engine/score.js';
 import { renderMarkdown } from '../report/markdown.js';
 import {
   ASK_ORDER,
@@ -286,8 +287,8 @@ async function runAuditStep(opts: LiveSessionOptions, ctx: LiveContext): Promise
 function auditSummary(report: AuditReport): string {
   const unknown = report.score.counts.UNKNOWN ?? 0;
   return (
-    `Audit: ${report.score.overall}/100 — ${report.findings.length} finding(s), ` +
-    `${unknown} to review (${report.score.automationCoverage}% verified automatically).`
+    `Audit: ${scoreLine(report.score)} — ${report.findings.length} finding(s), ` +
+    `${unknown} to review.`
   );
 }
 
@@ -339,8 +340,8 @@ async function runReportStep(opts: LiveSessionOptions, ctx: LiveContext): Promis
   const markdown = renderMarkdown(report, profile);
   const summary =
     `Report rendered (${markdown.length} chars): ` +
-    `${report.score.overall}/100, ${report.findings.length} finding(s).`;
+    `${scoreLine(report.score)}, ${report.findings.length} finding(s).`;
   opts.print(summary);
   appendTool(ctx, summary);
-  await modelTurn(opts, ctx, 'report', `[report] score ${report.score.overall}/100.`);
+  await modelTurn(opts, ctx, 'report', `[report] score ${scoreLine(report.score)}.`);
 }

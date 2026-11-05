@@ -17,7 +17,7 @@
 
 ## 📊 Executive Summary
 
-### Overall Health Score: **37.3/100**
+### Overall Health Score: **37.3 / 100 · 73.8% verified**
 
 `█████████░░░░░░░░░░░░░░░`
 
