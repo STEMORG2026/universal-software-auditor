@@ -90,3 +90,11 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 09:24 — Commit
 
 `5d3614c` docs: prose review pass for 2026-11-05
+
+### 15:46 — Commit
+
+`a642121` fix(state): mark SA18 as closed — it was closed in the MACP repo on 2026-10-27
+
+### 09:16 — Commit
+
+`ae75d81` fix(state): close SA18 with its real close record
