@@ -98,3 +98,7 @@ Next: close SA18, then P0's D1-D8 decisions
 ### 09:16 — Commit
 
 `ae75d81` fix(state): close SA18 with its real close record
+
+### 09:17 — Commit
+
+`03a6466` fix(state): close SA18 with the record its seal in the MACP repo carries
