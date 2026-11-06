@@ -3,7 +3,8 @@
 **History:** not exported — the transcript lives in the harness, not the repo
 **Branch:** feat/plan-item-scope
 **Started:** 2026-10-26T02:04:56+05:45
-**Status:** AWAITING-USER
+**Status:** CLOSED
+**Closed:** 2026-10-27T08:01:46+05:45 by owner — recorded in the MACP repository (commit `081caa6`); this repo's record was never updated, and this block reconstructs it from that seal
 **Base commit:** 4a4a63b89e00d4a99100048812fbc4aac72c6ec2
 
 # Session SA18 — move MACP-REMEDIATION-PLAN-2026-10-24.md into the repo as docs/remediation-plan.md with a Status column (P3-P6 delivered in #271, P7-P9 pending), and add macp start --plan <id> so a session's scope comes from the plan item rather than from my prose. Stop after that.
@@ -102,3 +103,13 @@ Machine-stamped at 2026-10-26T02:10:43+05:45 from `macp submit`. Code commit `38
 Remaining: 1 item(s)
 
 Next: P1 — record required_gates at start, and let close add but never remove
+
+---
+
+## Close
+
+- **Closed by:** owner — sealed in the standalone MACP repository as `081caa6 chore(state): close SA18`, never mirrored into this repo's record, which stayed `AWAITING-USER`
+- **Closed at:** 2026-10-27T08:01:46+05:45
+- **Status at close:** COMPLETED
+- **Outcome:** COMPLETED — `feat(macp): start --plan` (df367e5) shipped in #273 and is on `master`; the follow-up Q021 (branch-independent session lookup) was opened and closed as its own session in the MACP repo. Nothing was left running on `feat/plan-item-scope`.
+- **Passkey:** none issued — reopening needs an explicit owner instruction that names one, recorded under `## Reopen`
