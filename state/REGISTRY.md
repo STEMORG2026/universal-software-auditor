@@ -8,14 +8,16 @@
 
 ### SA13
 
-| Field   | Value                                                         |
-| ------- | ------------------------------------------------------------- |
-| Agent   | SA13 (WorkBuddy)                                              |
-| Harness | WorkBuddy                                                     |
-| Branch  | `audit/macp-enforcement`                                      |
-| Task    | Task 1: macp resume — the signed AWAITING-USER to ACTIVE door |
-| Since   | 2026-10-25T13:53:59+05:45                                     |
-| Claims  | —                                                             |
+| Field   | Value                                                                                   |
+| ------- | --------------------------------------------------------------------------------------- |
+| Agent   | SA13 (WorkBuddy)                                                                        |
+| Harness | WorkBuddy                                                                               |
+| Branch  | `audit/macp-enforcement`                                                                |
+| Task    | Task 1: macp resume — the signed AWAITING-USER to ACTIVE door                           |
+| Since   | 2026-10-25T13:53:59+05:45                                                               |
+| Claims  | —                                                                                       |
+| Status  | `IN-PROGRESS`, but **delivered** — PR #271 merged 2026-10-25                            |
+| Close   | awaiting the owner's decision; `macp close` now refuses (source moved since the report) |
 
 ### SA15
 
@@ -27,6 +29,8 @@
 | Task    | Unblock PR 270: unfilter the CI triggers so stacked PRs are checked |
 | Since   | 2026-10-25T15:10:36+05:45                                           |
 | Claims  | —                                                                   |
+| Status  | `IN-PROGRESS`, but **delivered** — commits on master via #271       |
+| Close   | awaiting the owner's decision; no submit report exists to close on  |
 
 ### SA19
 
