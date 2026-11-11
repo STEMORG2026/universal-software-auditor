@@ -307,3 +307,28 @@ Next: —
 ### 08:42 — Commit
 
 `30094e4` feat(macp): resume and abandon — the two transitions the state machine lacked
+
+## Delivery — recorded 2026-11-11 (state audit)
+
+This session shipped; it was never closed, and `macp close` can no longer close it.
+Recorded because the file has read `IN-PROGRESS` since 2026-10-25 with nothing saying the
+work is already on `master`.
+
+- **Shipped:** PR #271, merged 2026-10-25T16:53:29Z as squash `1736196`.
+- **Reported:** the submit report above — Outcome `COMPLETED`, six gates at 0,
+  `Remaining: none`. `state/macp/handoff/SA13.json` carries it, `code_commit_sha`
+  `a5009e9`.
+- **Why the status stays `IN-PROGRESS`:** `docs/macp.md` models
+  `ACTIVE ──submit──▶ ACTIVE ──close──▶ COMPLETED`, and `COMPLETED` is defined as
+  _closed by the owner_ (`macp close`, principal `macp-close`). No close was recorded,
+  so writing `COMPLETED` here would invent the owner's signature. This is not drift; it
+  is the state the protocol deliberately leaves a reported session in.
+- **Why it cannot be closed now:** `close` refuses when the source moved after the
+  report. Measured 2026-11-11: `git diff --name-only a5009e9 origin/audit/macp-enforcement`
+  returns source files (`.github/workflows/*`, `docs/macp.md`, `scripts/macp/*`), so the
+  command aborts with "The report describes a tree that no longer exists. Return to work
+  and submit again." That branch holds no lease and MACP is suspended, so there is no
+  submit to make.
+- **Therefore:** the honest terminal record is _delivered, unclosed_. Ending it needs an
+  owner decision recorded by hand — the shape SA18's close uses, quoting the owner's
+  instruction and stating the passkey status.

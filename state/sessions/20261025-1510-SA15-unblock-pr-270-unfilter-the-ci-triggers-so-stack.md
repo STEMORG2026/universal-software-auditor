@@ -41,3 +41,25 @@ Unblock PR 270: unfilter the CI triggers so stacked PRs are checked
 ### 16:42 — Commit
 
 `b66b775` docs(queue): record the reverted fix and the conversation-resolution block
+
+## Delivery — recorded 2026-11-11 (state audit)
+
+This session's work is on `master`. It never submitted a report and was never closed.
+
+- **Landed:** four of the six entries above appear in PR #271's squash `1736196`
+  (`feat(macp): authority per act, resume, abandon, and the CLOSING freeze`, the two
+  `docs(queue)` notes, and the lease-file test fix); the remaining two are a merge
+  commit and a commit that the freeze work absorbed. PR #270 — the PR this session was
+  opened to unblock — merged on its own at 2026-10-25T13:49:18Z.
+- **The objective as written was already true:** "unfilter the CI triggers so stacked PRs
+  are checked" describes `ci.yml` at this session's own base commit `4a4a63b`, where
+  `pull_request:` carries no base filter and the comment explains why. The work the
+  session actually did is the commits above.
+- **Why the status stays `IN-PROGRESS`:** `COMPLETED` is `macp close` — the owner's
+  signed act — and none was recorded; writing it here would invent one.
+- **Why it cannot be closed now:** `close` acts on a report, and this session has none —
+  `state/macp/handoff/SA15.json` does not exist, so the command aborts with "there is no
+  report to close on". MACP is suspended and the branch holds no lease, so no submit can
+  be produced.
+- **Therefore:** _delivered, unclosed_ — the same standing as SA13. Ending it needs an
+  owner decision recorded by hand.
