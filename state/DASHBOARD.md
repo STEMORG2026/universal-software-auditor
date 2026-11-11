@@ -6,13 +6,13 @@
 
 <!-- macp:generated:begin -->
 
-**Machine Reconciled:** 2026-11-06T09:17:37.094+05:45
+**Machine Reconciled:** 2026-11-11T01:45:30.408+05:45
 **Reconciled by:** `scripts/auto-update-state.mjs` (post-commit) — every value below is measured
 **Repo:** Universal_Software_Auditor
 **Remote:** git@github.com:STEMORG2026/universal-software-auditor.git
 
 - **Version:** 2.28.10
-- **Branch:** `master`
+- **Branch:** `chore/state-drift`
 - **Tracked markdown:** 185
 - **ADRs:** <!-- usa:fact adrs -->46<!-- /usa:fact -->
 

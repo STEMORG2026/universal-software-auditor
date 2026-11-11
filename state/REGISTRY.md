@@ -1,6 +1,6 @@
 # REGISTRY.md — Agent Registry
 
-**Last updated:** 2026-10-23T18:10+05:45
+**Last updated:** 2026-11-11T07:27+05:45
 
 ---
 
@@ -70,6 +70,10 @@ edited after the commit that sealed it.
 | `SA07` | SA07  | WorkBuddy | `fix/local-scanner-bin`                                      | 2026-10-23T18:05 |
 | `SA08` | SA08  | WorkBuddy | `ci/trivy-in-ci`                                             | 2026-10-23T18:05 |
 | `SA09` | SA09  | WorkBuddy | `docs/handoff-protocol`                                      | 2026-10-23T18:05 |
+| `SA10` | SA10  | WorkBuddy | `docs/macp-session-seal`, `docs/continuation-post-243`       | 2026-10-23T18:20 |
+| `SA11` | SA11  | WorkBuddy | `fix/release-pr-born-red` + 17 others, all merged            | 2026-10-24T18:09 |
+| `SA12` | SA12  | WorkBuddy | `feat/macp-runtime-v2`                                       | 2026-10-24T21:21 |
+| `SA18` | SA18  | workbuddy | `feat/plan-item-scope`                                       | 2026-10-27T08:01 |
 
 The previous version of this file kept a prose block per inactive agent.
 It went stale — the same agents appeared as both INACTIVE and active, and
